@@ -1,0 +1,1568 @@
+📱 Pre-fetching markers data
+🔍 Fetching markers (page 1) from http://192.168.86.100:9999
+📡 Server responded with status code: 200
+📥 Response: {"data":{"findPerformers":{"count":957,"performers":[{"id":"55","name":"Aaliyah Love"}]}}}...
+✅ Server connection successful
+📊 Performers data: ["count": 957, "performers": <__NSSingleObjectArrayI 0x6000000086c0>(
+{
+    id = 55;
+    name = "Aaliyah Love";
+}
+)
+]
+✅ Connection successful
+🔍 Response data preview: {"data":{"findSceneMarkers":{"count":4548,"scene_markers":[{"id":"448","title":"Hair Pulling","seconds":1742,"end_seconds":null,"stream":"http://192.168.86.100:9999/scene/3174/scene_marker/448/stream","preview":"http://192.168.86.100:9999/scene/3174/scene_marker/448/preview","screenshot":"http://192.168.86.100:9999/scene/3174/scene_marker/448/screenshot","scene":{"id":"3174","title":"I Cum Into Your Home","files":[{"width":854,"height":480,"path":"/Volumes/Backup/List/Peta/pj-icityh.mp4","__type...
+✅ Set 500 markers
+📊 First marker details:
+  ID: 448
+  Title: Hair Pulling
+  Scene ID: 3174
+📱 Pre-fetched 500 markers
+📱 Pre-fetching markers data
+🔍 Fetching markers (page 1) from http://192.168.86.100:9999
+📡 Server responded with status code: 200
+📥 Response: {"data":{"findPerformers":{"count":957,"performers":[{"id":"55","name":"Aaliyah Love"}]}}}...
+✅ Server connection successful
+📊 Performers data: ["performers": <__NSSingleObjectArrayI 0x600000018240>(
+{
+    id = 55;
+    name = "Aaliyah Love";
+}
+)
+, "count": 957]
+✅ Connection successful
+🔍 Response data preview: {"data":{"findSceneMarkers":{"count":4548,"scene_markers":[{"id":"223","title":"Cum In Mouth","seconds":2114,"end_seconds":null,"stream":"http://192.168.86.100:9999/scene/197/scene_marker/223/stream","preview":"http://192.168.86.100:9999/scene/197/scene_marker/223/preview","screenshot":"http://192.168.86.100:9999/scene/197/scene_marker/223/screenshot","scene":{"id":"197","title":"Aria Kai gets her car fixed and her pussy stuffed with dick","files":[{"width":960,"height":540,"path":"/Volumes/Back...
+✅ Set 500 markers
+📊 First marker details:
+  ID: 223
+  Title: Cum In Mouth
+  Scene ID: 197
+📱 Pre-fetched 500 markers
+♻️ Reusing existing StashAPI instance
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 0
+📱 ContentView appeared
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 0
+📱 Loading scenes for tab
+🔐 Configuring auth:
+   API Key: [eyJhbGciOi...] (140 chars)
+   Server: http://192.168.86.100:9999
+📤 Fetching scenes page 1 (sort: random, direction: DESC)
+📤 loadScenes called - currentFilter: default, searchScope: scenes, markers count: 0
+🔐 Configuring auth:
+   API Key: [eyJhbGciOi...] (140 chars)
+   Server: http://192.168.86.100:9999
+📤 Fetching scenes page 1 (sort: random, direction: DESC)
+📥 HTTP response: 200
+📥 Response data length: 194484 bytes
+📥 First 500 characters of response: {"data":{"findScenes":{"count":4707,"scenes":[{"id":"3239","title":"Ariana Marie fucking in the desk with her glasses","details":"Ariana Marie needs to drop her class because she has too much on her plate.  Her professor knows that it's one of the last classes she needs in order to graduate so he strikes a deal with her, he'll give her a passing grade and she doesn't even have to show up.  All he asks in return is for a fuck session from Ariana.  Seems like a fair deal to her.","url":"https://ww
+📥 HTTP response: 200
+📥 Response data length: 201753 bytes
+📥 First 500 characters of response: {"data":{"findScenes":{"count":4707,"scenes":[{"id":"3916","title":"Cum On, Stepdad","details":"When fitness babe Lily Lou notices how her stepdad Bobby Beefcakes keeps having unhealthy habits, she steps in and starts teaching him a few tricks to follow a healthy regimen. Turns out Bobby still needs some motivation so Lily gets on her knees and opens wide to turn stepdaddy into a healthy freak like her! Bobby learns pretty quickly that there’s no better motivation than his stepdaughter’s pussy!"
+✅ Loaded 98 scenes (filtered from 100 total)
+✅ Loaded 94 scenes (filtered from 100 total)
+🔄 Loaded scenes in MediaLibraryView: 94
+♻️ Reusing existing StashAPI instance for: http://192.168.86.100:9999
+♻️ Reusing existing StashAPI instance for: http://192.168.86.100:9999
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 94
+📱 SCENE ROW: Rendering scene: 3916, title: Cum On, Stepdad
+📱 SCENE ROW: Rendering scene: 4948, title: 
+📱 SCENE ROW: Rendering scene: 4502, title: Cheating Dirty Slut
+📱 SCENE ROW: Rendering scene: 4652, title: 
+📱 SCENE ROW: Rendering scene: 898, title: 
+📱 SCENE ROW: Rendering scene: 2953, title: 
+📱 SCENE ROW: Rendering scene: 3842, title: 
+📱 SCENE ROW: Rendering scene: 2350, title: Naughty Nanny Layla London Getting Hammered
+📱 SCENE ROW: Rendering scene: 6, title: 
+📱 SCENE ROW: Rendering scene: 4586, title: Twin Asian Kimora Gives Him The Pussy Test
+📱 SCENE ROW: Rendering scene: 2564, title: Pound Me Better Honey!!!
+📱 SCENE ROW: Rendering scene: 311, title: Naughty Nurse
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 94
+📱 SCENE ROW: Rendering scene: 3916, title: Cum On, Stepdad
+📱 SCENE ROW: Rendering scene: 4948, title: 
+📱 SCENE ROW: Rendering scene: 4502, title: Cheating Dirty Slut
+📱 SCENE ROW: Rendering scene: 4652, title: 
+📱 SCENE ROW: Rendering scene: 898, title: 
+📱 SCENE ROW: Rendering scene: 2953, title: 
+📱 SCENE ROW: Rendering scene: 3842, title: 
+📱 SCENE ROW: Rendering scene: 2350, title: Naughty Nanny Layla London Getting Hammered
+📱 SCENE ROW: Rendering scene: 6, title: 
+📱 SCENE ROW: Rendering scene: 4586, title: Twin Asian Kimora Gives Him The Pussy Test
+📱 SCENE ROW: Rendering scene: 2564, title: Pound Me Better Honey!!!
+📱 SCENE ROW: Rendering scene: 311, title: Naughty Nurse
+📱 SCENEROW: Visibility changed for scene 4502 to true
+🔥 Starting preview for scene: Cheating Dirty Slut with URL: http://192.168.86.100:9999/scene/4502/preview
+📱 SCENEROW: Visibility changed for scene 4652 to true
+🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/4652/preview
+📱 SCENEROW: Visibility changed for scene 898 to true
+🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/898/preview
+📱 SCENEROW: Visibility changed for scene 2953 to true
+🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/2953/preview
+📱 SCENEROW: Visibility changed for scene 3916 to true
+🔥 Starting preview for scene: Cum On, Stepdad with URL: http://192.168.86.100:9999/scene/3916/preview
+📱 SCENEROW: Visibility changed for scene 4948 to true
+🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/4948/preview
+📱 SCENE ROW: Rendering scene: 3916, title: Cum On, Stepdad
+📱 SCENE ROW: Rendering scene: 4948, title: 
+📱 SCENE ROW: Rendering scene: 4502, title: Cheating Dirty Slut
+📱 SCENE ROW: Rendering scene: 4652, title: 
+📱 SCENE ROW: Rendering scene: 898, title: 
+📱 SCENE ROW: Rendering scene: 2953, title: 
+🎬 GlobalVideoManager: Registered player, total active: 1
+🎬 GlobalVideoManager: Registered player, total active: 2
+🎬 GlobalVideoManager: Registered player, total active: 3
+🎬 GlobalVideoManager: Registered player, total active: 4
+🎬 GlobalVideoManager: Registered player, total active: 5
+🎬 GlobalVideoManager: Registered player, total active: 6
+🎬 GlobalVideoManager: Registered player, total active: 7
+🎬 GlobalVideoManager: Registered player, total active: 8
+🎬 GlobalVideoManager: Registered player, total active: 9
+🎬 GlobalVideoManager: Registered player, total active: 10
+🎬 GlobalVideoManager: Registered player, total active: 11
+🎬 GlobalVideoManager: Registered player, total active: 12
+📱 SCENE ROW: Rendering scene: 3916, title: Cum On, Stepdad
+📱 SCENE ROW: Rendering scene: 4948, title: 
+📱 SCENE ROW: Rendering scene: 4502, title: Cheating Dirty Slut
+📱 SCENE ROW: Rendering scene: 4652, title: 
+📱 SCENE ROW: Rendering scene: 898, title: 
+📱 SCENE ROW: Rendering scene: 2953, title: 
+📱 SCENE ROW: Rendering scene: 2953, title: 
+📱 SCENE ROW: Rendering scene: 4502, title: Cheating Dirty Slut
+📱 SCENE ROW: Rendering scene: 3916, title: Cum On, Stepdad
+📱 SCENE ROW: Rendering scene: 4652, title: 
+📱 SCENE ROW: Rendering scene: 898, title: 
+📱 SCENE ROW: Rendering scene: 4948, title: 
+📱 SCENE ROW: Rendering scene: 2953, title: 
+📱 SCENE ROW: Rendering scene: 4502, title: Cheating Dirty Slut
+📱 SCENE ROW: Rendering scene: 3916, title: Cum On, Stepdad
+📱 SCENE ROW: Rendering scene: 4652, title: 
+📱 SCENE ROW: Rendering scene: 898, title: 
+📱 SCENE ROW: Rendering scene: 4948, title: 
+📱 SCENE ROW: Rendering scene: 2953, title: 
+🎯 scenesContent - filter: default, scope: markers, markers: 0, scenes: 94
+📱 SCENE ROW: Rendering scene: 3916, title: Cum On, Stepdad
+📱 SCENE ROW: Rendering scene: 4948, title: 
+📱 SCENE ROW: Rendering scene: 4502, title: Cheating Dirty Slut
+📱 SCENE ROW: Rendering scene: 4652, title: 
+📱 SCENE ROW: Rendering scene: 898, title: 
+📱 SCENE ROW: Rendering scene: 2953, title: 
+📱 SCENE ROW: Rendering scene: 3842, title: 
+📱 SCENE ROW: Rendering scene: 2350, title: Naughty Nanny Layla London Getting Hammered
+📱 SCENE ROW: Rendering scene: 6, title: 
+📱 SCENE ROW: Rendering scene: 4586, title: Twin Asian Kimora Gives Him The Pussy Test
+📱 SCENE ROW: Rendering scene: 2564, title: Pound Me Better Honey!!!
+📱 SCENE ROW: Rendering scene: 311, title: Naughty Nurse
+📱 SCENE ROW: Rendering scene: 3916, title: Cum On, Stepdad
+📱 SCENE ROW: Rendering scene: 4502, title: Cheating Dirty Slut
+📱 SCENE ROW: Rendering scene: 4652, title: 
+📱 SCENE ROW: Rendering scene: 898, title: 
+📱 SCENE ROW: Rendering scene: 4948, title: 
+📱 SCENE ROW: Rendering scene: 2953, title: 
+📱 SCENE ROW: Rendering scene: 4502, title: Cheating Dirty Slut
+📱 SCENE ROW: Rendering scene: 3916, title: Cum On, Stepdad
+📱 SCENE ROW: Rendering scene: 4652, title: 
+📱 SCENE ROW: Rendering scene: 898, title: 
+📱 SCENE ROW: Rendering scene: 4948, title: 
+📱 SCENE ROW: Rendering scene: 2953, title: 
+📱 SCENE ROW: Rendering scene: 4502, title: Cheating Dirty Slut
+📱 SCENE ROW: Rendering scene: 3916, title: Cum On, Stepdad
+📱 SCENE ROW: Rendering scene: 4652, title: 
+📱 SCENE ROW: Rendering scene: 898, title: 
+📱 SCENE ROW: Rendering scene: 4948, title: 
+📱 SCENE ROW: Rendering scene: 4502, title: Cheating Dirty Slut
+📱 SCENE ROW: Rendering scene: 2953, title: 
+📱 SCENE ROW: Rendering scene: 3916, title: Cum On, Stepdad
+📱 SCENE ROW: Rendering scene: 4652, title: 
+📱 SCENE ROW: Rendering scene: 898, title: 
+📱 SCENE ROW: Rendering scene: 4948, title: 
+📱 SCENE ROW: Rendering scene: 2953, title: 
+📱 SCENE ROW: Rendering scene: 4502, title: Cheating Dirty Slut
+📱 SCENE ROW: Rendering scene: 3916, title: Cum On, Stepdad
+📱 SCENE ROW: Rendering scene: 4652, title: 
+📱 SCENE ROW: Rendering scene: 898, title: 
+📱 SCENE ROW: Rendering scene: 4948, title: 
+📱 SCENE ROW: Rendering scene: 2953, title: 
+📱 SCENE ROW: Rendering scene: 4502, title: Cheating Dirty Slut
+📱 SCENE ROW: Rendering scene: 3916, title: Cum On, Stepdad
+📱 SCENE ROW: Rendering scene: 4948, title: 
+📱 SCENE ROW: Rendering scene: 4652, title: 
+📱 SCENE ROW: Rendering scene: 898, title: 
+📱 SCENE ROW: Rendering scene: 2953, title: 
+📱 SCENE ROW: Rendering scene: 4502, title: Cheating Dirty Slut
+📱 SCENE ROW: Rendering scene: 3916, title: Cum On, Stepdad
+📱 SCENE ROW: Rendering scene: 4652, title: 
+📱 SCENE ROW: Rendering scene: 898, title: 
+📱 SCENE ROW: Rendering scene: 4948, title: 
+🔍 Searching markers with query: 'c'
+🔎 Marker search query: 'c'
+🔐 Configuring auth:
+   API Key: [eyJhbGciOi...] (140 chars)
+   Server: http://192.168.86.100:9999
+🎯 scenesContent - filter: search, scope: markers, markers: 0, scenes: 94
+📱 SCENE ROW: Rendering scene: 3916, title: Cum On, Stepdad
+📱 SCENE ROW: Rendering scene: 4948, title: 
+📱 SCENE ROW: Rendering scene: 4502, title: Cheating Dirty Slut
+📱 SCENE ROW: Rendering scene: 4652, title: 
+📱 SCENE ROW: Rendering scene: 898, title: 
+📱 SCENE ROW: Rendering scene: 2953, title: 
+📱 SCENE ROW: Rendering scene: 3842, title: 
+📱 SCENE ROW: Rendering scene: 2350, title: Naughty Nanny Layla London Getting Hammered
+📱 SCENE ROW: Rendering scene: 6, title: 
+📱 SCENE ROW: Rendering scene: 4586, title: Twin Asian Kimora Gives Him The Pussy Test
+📱 SCENE ROW: Rendering scene: 2564, title: Pound Me Better Honey!!!
+📱 SCENE ROW: Rendering scene: 311, title: Naughty Nurse
+📡 GraphQL Response Status: 200
+📥 Response preview: {"data":{"findSceneMarkers":{"count":2950,"scene_markers":[{"id":"2699","title":"69","seconds":1505,...
+📊 Found 100 markers matching 'c'
+  Marker 0: '69' (ID: 2699)
+  Marker 1: '69' (ID: 2540)
+  Marker 2: '69' (ID: 2490)
+  Marker 3: '69' (ID: 1682)
+  Marker 4: '69' (ID: 1613)
+✅ Stored 100 marker results - filter: search, scope: markers
+🎯 scenesContent - filter: search, scope: markers, markers: 100, scenes: 0
+📍 Showing marker search results: 100 markers
+🎯 scenesContent - filter: search, scope: markers, markers: 100, scenes: 0
+📍 Showing marker search results: 100 markers
+🎬 GlobalVideoManager: Registered player, total active: 13
+🎬 GlobalVideoManager: Registered player, total active: 14
+🎬 GlobalVideoManager: Registered player, total active: 15
+🎬 GlobalVideoManager: Registered player, total active: 16
+🎬 GlobalVideoManager: Registered player, total active: 17
+🎬 GlobalVideoManager: Registered player, total active: 18
+🎬 GlobalVideoManager: Registered player, total active: 19
+🎬 GlobalVideoManager: Registered player, total active: 20
+🎬 GlobalVideoManager: Registered player, total active: 21
+🎬 GlobalVideoManager: Registered player, total active: 22
+🎬 GlobalVideoManager: Registered player, total active: 23
+🎬 GlobalVideoManager: Registered player, total active: 24
+🎬 GlobalVideoManager: Registered player, total active: 25
+🎬 GlobalVideoManager: Registered player, total active: 26
+🎬 GlobalVideoManager: Registered player, total active: 27
+🎬 GlobalVideoManager: Registered player, total active: 28
+🎬 GlobalVideoManager: Registered player, total active: 29
+🎬 GlobalVideoManager: Registered player, total active: 30
+🎬 GlobalVideoManager: Registered player, total active: 31
+🎬 GlobalVideoManager: Registered player, total active: 32
+🎬 GlobalVideoManager: Registered player, total active: 33
+🎬 GlobalVideoManager: Registered player, total active: 34
+🎬 GlobalVideoManager: Registered player, total active: 35
+🎬 GlobalVideoManager: Registered player, total active: 36
+🎬 GlobalVideoManager: Registered player, total active: 37
+🎬 GlobalVideoManager: Registered player, total active: 38
+🎬 GlobalVideoManager: Registered player, total active: 39
+🎬 GlobalVideoManager: Registered player, total active: 40
+🎬 GlobalVideoManager: Registered player, total active: 41
+🎬 GlobalVideoManager: Registered player, total active: 42
+🎬 GlobalVideoManager: Registered player, total active: 43
+🎬 GlobalVideoManager: Registered player, total active: 44
+🎬 GlobalVideoManager: Registered player, total active: 45
+🎬 GlobalVideoManager: Registered player, total active: 46
+🎬 GlobalVideoManager: Registered player, total active: 47
+🎬 GlobalVideoManager: Registered player, total active: 48
+🎬 GlobalVideoManager: Registered player, total active: 49
+🎬 GlobalVideoManager: Registered player, total active: 50
+🎬 GlobalVideoManager: Registered player, total active: 51
+🎬 GlobalVideoManager: Registered player, total active: 52
+🎬 GlobalVideoManager: Registered player, total active: 53
+🎬 GlobalVideoManager: Registered player, total active: 54
+🎬 GlobalVideoManager: Registered player, total active: 55
+🎬 GlobalVideoManager: Registered player, total active: 56
+🎬 GlobalVideoManager: Registered player, total active: 57
+🎬 GlobalVideoManager: Registered player, total active: 58
+🎬 GlobalVideoManager: Registered player, total active: 59
+🎬 GlobalVideoManager: Registered player, total active: 60
+🎬 GlobalVideoManager: Registered player, total active: 61
+🎬 GlobalVideoManager: Registered player, total active: 62
+🎬 GlobalVideoManager: Registered player, total active: 63
+🎬 GlobalVideoManager: Registered player, total active: 64
+🎬 GlobalVideoManager: Registered player, total active: 65
+🎬 GlobalVideoManager: Registered player, total active: 66
+🎬 GlobalVideoManager: Registered player, total active: 67
+🎬 GlobalVideoManager: Registered player, total active: 68
+🎬 GlobalVideoManager: Registered player, total active: 69
+🎬 GlobalVideoManager: Registered player, total active: 70
+🎬 GlobalVideoManager: Registered player, total active: 71
+🎬 GlobalVideoManager: Registered player, total active: 72
+🎬 GlobalVideoManager: Registered player, total active: 73
+🎬 GlobalVideoManager: Registered player, total active: 74
+🎬 GlobalVideoManager: Registered player, total active: 75
+🎬 GlobalVideoManager: Registered player, total active: 76
+🎬 GlobalVideoManager: Registered player, total active: 77
+🎬 GlobalVideoManager: Registered player, total active: 78
+🎬 GlobalVideoManager: Registered player, total active: 79
+🎬 GlobalVideoManager: Registered player, total active: 80
+🎬 GlobalVideoManager: Registered player, total active: 81
+🎬 GlobalVideoManager: Registered player, total active: 82
+🎬 GlobalVideoManager: Registered player, total active: 83
+🎬 GlobalVideoManager: Registered player, total active: 84
+🎬 GlobalVideoManager: Registered player, total active: 85
+🎬 GlobalVideoManager: Registered player, total active: 86
+🎬 GlobalVideoManager: Registered player, total active: 87
+🎬 GlobalVideoManager: Registered player, total active: 88
+🎬 GlobalVideoManager: Registered player, total active: 89
+🎬 GlobalVideoManager: Registered player, total active: 90
+🎬 GlobalVideoManager: Registered player, total active: 91
+🎬 GlobalVideoManager: Registered player, total active: 92
+🎬 GlobalVideoManager: Registered player, total active: 93
+🎬 GlobalVideoManager: Registered player, total active: 94
+🎬 GlobalVideoManager: Registered player, total active: 95
+🎬 GlobalVideoManager: Registered player, total active: 96
+🎬 GlobalVideoManager: Registered player, total active: 97
+🎬 GlobalVideoManager: Registered player, total active: 98
+🎬 GlobalVideoManager: Registered player, total active: 99
+🎬 GlobalVideoManager: Registered player, total active: 100
+🎬 GlobalVideoManager: Registered player, total active: 101
+🎬 GlobalVideoManager: Registered player, total active: 102
+🎬 GlobalVideoManager: Registered player, total active: 103
+🎬 GlobalVideoManager: Registered player, total active: 104
+🎬 GlobalVideoManager: Registered player, total active: 105
+🎬 GlobalVideoManager: Registered player, total active: 106
+🎬 GlobalVideoManager: Registered player, total active: 107
+🎬 GlobalVideoManager: Registered player, total active: 108
+🎬 GlobalVideoManager: Registered player, total active: 109
+🎬 GlobalVideoManager: Registered player, total active: 110
+🎬 GlobalVideoManager: Registered player, total active: 111
+🎬 GlobalVideoManager: Registered player, total active: 112
+📱 MarkerRow visibility changed: 2490 -> true
+📱 MarkerRow visibility changed: 2540 -> true
+📱 MarkerRow visibility changed: 2699 -> true
+🎬 GlobalVideoManager: Unregistered player, total active: 111
+🎬 GlobalVideoManager: Unregistered player, total active: 110
+🎬 GlobalVideoManager: Unregistered player, total active: 109
+🎬 GlobalVideoManager: Unregistered player, total active: 108
+🎬 GlobalVideoManager: Unregistered player, total active: 107
+🎬 GlobalVideoManager: Unregistered player, total active: 106
+🎬 GlobalVideoManager: Unregistered player, total active: 105
+🎬 GlobalVideoManager: Unregistered player, total active: 104
+🎬 GlobalVideoManager: Unregistered player, total active: 103
+🎬 GlobalVideoManager: Unregistered player, total active: 102
+🎬 GlobalVideoManager: Unregistered player, total active: 101
+🎬 GlobalVideoManager: Unregistered player, total active: 100
+🔍 Searching markers with query: 'co'
+🔍 Searching markers with query: 'cow'
+🔍 Searching markers with query: 'cowgirl'
+🔎 Marker search query: 'co'
+🔎 Marker search query: 'cow'
+🔎 Marker search query: 'cowgirl'
+🔐 Configuring auth:
+🔐 Configuring auth:
+   API Key: [eyJhbGciOi...] (140 chars)
+   Server: http://192.168.86.100:9999
+🔐 Configuring auth:
+   API Key: [eyJhbGciOi...] (140 chars)
+   Server: http://192.168.86.100:9999
+   API Key: [eyJhbGciOi...] (140 chars)
+   Server: http://192.168.86.100:9999
+🔍 Searching markers with query: 'cowgir'
+🔎 Marker search query: 'cowgir'
+🔐 Configuring auth:
+   API Key: [eyJhbGciOi...] (140 chars)
+   Server: http://192.168.86.100:9999
+📡 GraphQL Response Status: 200
+📥 Response preview: {"data":{"findSceneMarkers":{"count":525,"scene_markers":[{"id":"4576","title":"Cowgirl","seconds":6...
+📡 GraphQL Response Status: 200
+📥 Response preview: {"data":{"findSceneMarkers":{"count":962,"scene_markers":[{"id":"1613","title":"69","seconds":954,"s...
+📡 GraphQL Response Status: 200
+📊 Found 100 markers matching 'cow'
+  Marker 0: 'Cowgirl' (ID: 4576)
+  Marker 1: 'Cowgirl' (ID: 4573)
+  Marker 2: 'Cowgirl' (ID: 4570)
+📥 Response preview: {"data":{"findSceneMarkers":{"count":525,"scene_markers":[{"id":"4576","title":"Cowgirl","seconds":6...
+  Marker 3: 'Cowgirl' (ID: 4569)
+  Marker 4: 'Cowgirl' (ID: 4568)
+✅ Stored 100 marker results - filter: search, scope: markers
+🎯 scenesContent - filter: search, scope: markers, markers: 100, scenes: 0
+📍 Showing marker search results: 100 markers
+📡 GraphQL Response Status: 200
+📥 Response preview: {"data":{"findSceneMarkers":{"count":525,"scene_markers":[{"id":"4576","title":"Cowgirl","seconds":6...
+🎯 scenesContent - filter: search, scope: markers, markers: 100, scenes: 0
+📍 Showing marker search results: 100 markers
+📊 Found 100 markers matching 'co'
+  Marker 0: '69' (ID: 1613)
+  Marker 1: '69' (ID: 577)
+  Marker 2: '69' (ID: 428)
+  Marker 3: 'Anal Fingering' (ID: 2432)
+  Marker 4: 'Anal Fingering' (ID: 2400)
+📊 Found 100 markers matching 'cowgirl'
+  Marker 0: 'Cowgirl' (ID: 4576)
+  Marker 1: 'Cowgirl' (ID: 4573)
+  Marker 2: 'Cowgirl' (ID: 4570)
+  Marker 3: 'Cowgirl' (ID: 4569)
+  Marker 4: 'Cowgirl' (ID: 4568)
+📊 Found 100 markers matching 'cowgir'
+  Marker 0: 'Cowgirl' (ID: 4576)
+  Marker 1: 'Cowgirl' (ID: 4573)
+  Marker 2: 'Cowgirl' (ID: 4570)
+  Marker 3: 'Cowgirl' (ID: 4569)
+  Marker 4: 'Cowgirl' (ID: 4568)
+🎬 GlobalVideoManager: Registered player, total active: 101
+🎬 GlobalVideoManager: Registered player, total active: 102
+🎬 GlobalVideoManager: Registered player, total active: 103
+🎬 GlobalVideoManager: Registered player, total active: 104
+🎬 GlobalVideoManager: Registered player, total active: 105
+🎬 GlobalVideoManager: Registered player, total active: 106
+🎬 GlobalVideoManager: Registered player, total active: 107
+🎬 GlobalVideoManager: Registered player, total active: 108
+🎬 GlobalVideoManager: Registered player, total active: 109
+🎬 GlobalVideoManager: Registered player, total active: 110
+🎬 GlobalVideoManager: Registered player, total active: 111
+🎬 GlobalVideoManager: Registered player, total active: 112
+🎬 GlobalVideoManager: Registered player, total active: 113
+🎬 GlobalVideoManager: Registered player, total active: 114
+🎬 GlobalVideoManager: Registered player, total active: 115
+🎬 GlobalVideoManager: Registered player, total active: 116
+🎬 GlobalVideoManager: Registered player, total active: 117
+🎬 GlobalVideoManager: Registered player, total active: 118
+🎬 GlobalVideoManager: Registered player, total active: 119
+🎬 GlobalVideoManager: Registered player, total active: 120
+🎬 GlobalVideoManager: Registered player, total active: 121
+🎬 GlobalVideoManager: Registered player, total active: 122
+🎬 GlobalVideoManager: Registered player, total active: 123
+🎬 GlobalVideoManager: Registered player, total active: 124
+🎬 GlobalVideoManager: Registered player, total active: 125
+🎬 GlobalVideoManager: Registered player, total active: 126
+🎬 GlobalVideoManager: Registered player, total active: 127
+🎬 GlobalVideoManager: Registered player, total active: 128
+🎬 GlobalVideoManager: Registered player, total active: 129
+🎬 GlobalVideoManager: Registered player, total active: 130
+🎬 GlobalVideoManager: Registered player, total active: 131
+🎬 GlobalVideoManager: Registered player, total active: 132
+🎬 GlobalVideoManager: Registered player, total active: 133
+🎬 GlobalVideoManager: Registered player, total active: 134
+🎬 GlobalVideoManager: Registered player, total active: 135
+🎬 GlobalVideoManager: Registered player, total active: 136
+🎬 GlobalVideoManager: Registered player, total active: 137
+🎬 GlobalVideoManager: Registered player, total active: 138
+🎬 GlobalVideoManager: Registered player, total active: 139
+🎬 GlobalVideoManager: Registered player, total active: 140
+🎬 GlobalVideoManager: Registered player, total active: 141
+🎬 GlobalVideoManager: Registered player, total active: 142
+🎬 GlobalVideoManager: Registered player, total active: 143
+🎬 GlobalVideoManager: Registered player, total active: 144
+🎬 GlobalVideoManager: Registered player, total active: 145
+🎬 GlobalVideoManager: Registered player, total active: 146
+🎬 GlobalVideoManager: Registered player, total active: 147
+🎬 GlobalVideoManager: Registered player, total active: 148
+🎬 GlobalVideoManager: Registered player, total active: 149
+🎬 GlobalVideoManager: Registered player, total active: 150
+🎬 GlobalVideoManager: Registered player, total active: 151
+🎬 GlobalVideoManager: Registered player, total active: 152
+🎬 GlobalVideoManager: Registered player, total active: 153
+🎬 GlobalVideoManager: Registered player, total active: 154
+🎬 GlobalVideoManager: Registered player, total active: 155
+🎬 GlobalVideoManager: Registered player, total active: 156
+🎬 GlobalVideoManager: Registered player, total active: 157
+🎬 GlobalVideoManager: Registered player, total active: 158
+🎬 GlobalVideoManager: Registered player, total active: 159
+🎬 GlobalVideoManager: Registered player, total active: 160
+🎬 GlobalVideoManager: Registered player, total active: 161
+🎬 GlobalVideoManager: Registered player, total active: 162
+🎬 GlobalVideoManager: Registered player, total active: 163
+🎬 GlobalVideoManager: Registered player, total active: 164
+🎬 GlobalVideoManager: Registered player, total active: 165
+🎬 GlobalVideoManager: Registered player, total active: 166
+🎬 GlobalVideoManager: Registered player, total active: 167
+🎬 GlobalVideoManager: Registered player, total active: 168
+🎬 GlobalVideoManager: Registered player, total active: 169
+🎬 GlobalVideoManager: Registered player, total active: 170
+🎬 GlobalVideoManager: Registered player, total active: 171
+🎬 GlobalVideoManager: Registered player, total active: 172
+🎬 GlobalVideoManager: Registered player, total active: 173
+🎬 GlobalVideoManager: Registered player, total active: 174
+🎬 GlobalVideoManager: Registered player, total active: 175
+🎬 GlobalVideoManager: Registered player, total active: 176
+🎬 GlobalVideoManager: Registered player, total active: 177
+🎬 GlobalVideoManager: Registered player, total active: 178
+🎬 GlobalVideoManager: Registered player, total active: 179
+🎬 GlobalVideoManager: Registered player, total active: 180
+🎬 GlobalVideoManager: Registered player, total active: 181
+🎬 GlobalVideoManager: Registered player, total active: 182
+🎬 GlobalVideoManager: Registered player, total active: 183
+🎬 GlobalVideoManager: Registered player, total active: 184
+🎬 GlobalVideoManager: Registered player, total active: 185
+🎬 GlobalVideoManager: Registered player, total active: 186
+🎬 GlobalVideoManager: Registered player, total active: 187
+🎬 GlobalVideoManager: Registered player, total active: 188
+🎬 GlobalVideoManager: Registered player, total active: 189
+🎬 GlobalVideoManager: Registered player, total active: 190
+🎬 GlobalVideoManager: Registered player, total active: 191
+🎬 GlobalVideoManager: Registered player, total active: 192
+🎬 GlobalVideoManager: Registered player, total active: 193
+🎬 GlobalVideoManager: Registered player, total active: 194
+🎬 GlobalVideoManager: Registered player, total active: 195
+🎬 GlobalVideoManager: Registered player, total active: 196
+🎬 GlobalVideoManager: Registered player, total active: 197
+🎬 GlobalVideoManager: Registered player, total active: 198
+🎬 GlobalVideoManager: Registered player, total active: 199
+🎬 GlobalVideoManager: Registered player, total active: 200
+🎬 GlobalVideoManager: Unregistered player, total active: 199
+🎬 GlobalVideoManager: Unregistered player, total active: 198
+🎬 GlobalVideoManager: Unregistered player, total active: 197
+🎬 GlobalVideoManager: Unregistered player, total active: 196
+🎬 GlobalVideoManager: Unregistered player, total active: 195
+🎬 GlobalVideoManager: Unregistered player, total active: 194
+🎬 GlobalVideoManager: Unregistered player, total active: 193
+🎬 GlobalVideoManager: Unregistered player, total active: 192
+🎬 GlobalVideoManager: Unregistered player, total active: 191
+🎬 GlobalVideoManager: Unregistered player, total active: 190
+🎬 GlobalVideoManager: Unregistered player, total active: 189
+🎬 GlobalVideoManager: Unregistered player, total active: 188
+🎬 GlobalVideoManager: Unregistered player, total active: 187
+🎬 GlobalVideoManager: Unregistered player, total active: 186
+🎬 GlobalVideoManager: Unregistered player, total active: 185
+🎬 GlobalVideoManager: Unregistered player, total active: 184
+🎬 GlobalVideoManager: Unregistered player, total active: 183
+🎬 GlobalVideoManager: Unregistered player, total active: 182
+🎬 GlobalVideoManager: Unregistered player, total active: 181
+🎬 GlobalVideoManager: Unregistered player, total active: 180
+🎬 GlobalVideoManager: Unregistered player, total active: 179
+🎬 GlobalVideoManager: Unregistered player, total active: 178
+🎬 GlobalVideoManager: Unregistered player, total active: 177
+🎬 GlobalVideoManager: Unregistered player, total active: 176
+🎬 GlobalVideoManager: Unregistered player, total active: 175
+🎬 GlobalVideoManager: Unregistered player, total active: 174
+🎬 GlobalVideoManager: Unregistered player, total active: 173
+🎬 GlobalVideoManager: Unregistered player, total active: 172
+🎬 GlobalVideoManager: Unregistered player, total active: 171
+🎬 GlobalVideoManager: Unregistered player, total active: 170
+🎬 GlobalVideoManager: Unregistered player, total active: 169
+🎬 GlobalVideoManager: Unregistered player, total active: 168
+🎬 GlobalVideoManager: Unregistered player, total active: 167
+🎬 GlobalVideoManager: Unregistered player, total active: 166
+🎬 GlobalVideoManager: Unregistered player, total active: 165
+🎬 GlobalVideoManager: Unregistered player, total active: 164
+🎬 GlobalVideoManager: Unregistered player, total active: 163
+🎬 GlobalVideoManager: Unregistered player, total active: 162
+🎬 GlobalVideoManager: Unregistered player, total active: 161
+🎬 GlobalVideoManager: Unregistered player, total active: 160
+🎬 GlobalVideoManager: Unregistered player, total active: 159
+🎬 GlobalVideoManager: Unregistered player, total active: 158
+🎬 GlobalVideoManager: Unregistered player, total active: 157
+🎬 GlobalVideoManager: Unregistered player, total active: 156
+🎬 GlobalVideoManager: Unregistered player, total active: 155
+🎬 GlobalVideoManager: Unregistered player, total active: 154
+🎬 GlobalVideoManager: Unregistered player, total active: 153
+🎬 GlobalVideoManager: Unregistered player, total active: 152
+🎬 GlobalVideoManager: Unregistered player, total active: 151
+🎬 GlobalVideoManager: Unregistered player, total active: 150
+🎬 GlobalVideoManager: Unregistered player, total active: 149
+🎬 GlobalVideoManager: Unregistered player, total active: 148
+🎬 GlobalVideoManager: Unregistered player, total active: 147
+🎬 GlobalVideoManager: Unregistered player, total active: 146
+🎬 GlobalVideoManager: Unregistered player, total active: 145
+🎬 GlobalVideoManager: Unregistered player, total active: 144
+🎬 GlobalVideoManager: Unregistered player, total active: 143
+🎬 GlobalVideoManager: Unregistered player, total active: 142
+🎬 GlobalVideoManager: Unregistered player, total active: 141
+🎬 GlobalVideoManager: Unregistered player, total active: 140
+🎬 GlobalVideoManager: Unregistered player, total active: 139
+🎬 GlobalVideoManager: Unregistered player, total active: 138
+🎬 GlobalVideoManager: Unregistered player, total active: 137
+🎬 GlobalVideoManager: Unregistered player, total active: 136
+🎬 GlobalVideoManager: Unregistered player, total active: 135
+🎬 GlobalVideoManager: Unregistered player, total active: 134
+🎬 GlobalVideoManager: Unregistered player, total active: 133
+🎬 GlobalVideoManager: Unregistered player, total active: 132
+🎬 GlobalVideoManager: Unregistered player, total active: 131
+🎬 GlobalVideoManager: Unregistered player, total active: 130
+🎬 GlobalVideoManager: Unregistered player, total active: 129
+🎬 GlobalVideoManager: Unregistered player, total active: 128
+🎬 GlobalVideoManager: Unregistered player, total active: 127
+🎬 GlobalVideoManager: Unregistered player, total active: 126
+🎬 GlobalVideoManager: Unregistered player, total active: 125
+🎬 GlobalVideoManager: Unregistered player, total active: 124
+🎬 GlobalVideoManager: Unregistered player, total active: 123
+🎬 GlobalVideoManager: Unregistered player, total active: 122
+🎬 GlobalVideoManager: Unregistered player, total active: 121
+🎬 GlobalVideoManager: Unregistered player, total active: 120
+🎬 GlobalVideoManager: Unregistered player, total active: 119
+🎬 GlobalVideoManager: Unregistered player, total active: 118
+🎬 GlobalVideoManager: Unregistered player, total active: 117
+🎬 GlobalVideoManager: Unregistered player, total active: 116
+🎬 GlobalVideoManager: Unregistered player, total active: 115
+🎬 GlobalVideoManager: Unregistered player, total active: 114
+🎬 GlobalVideoManager: Unregistered player, total active: 113
+🎬 GlobalVideoManager: Unregistered player, total active: 112
+🎬 GlobalVideoManager: Unregistered player, total active: 111
+🎬 GlobalVideoManager: Unregistered player, total active: 110
+🎬 GlobalVideoManager: Unregistered player, total active: 109
+🎬 GlobalVideoManager: Unregistered player, total active: 108
+🎬 GlobalVideoManager: Unregistered player, total active: 107
+🎬 GlobalVideoManager: Unregistered player, total active: 106
+🎬 GlobalVideoManager: Unregistered player, total active: 105
+🎬 GlobalVideoManager: Unregistered player, total active: 104
+🎬 GlobalVideoManager: Unregistered player, total active: 103
+🎬 GlobalVideoManager: Unregistered player, total active: 102
+🎬 GlobalVideoManager: Unregistered player, total active: 101
+🎬 GlobalVideoManager: Unregistered player, total active: 100
+✅ Stored 100 marker results - filter: search, scope: markers
+✅ Stored 100 marker results - filter: search, scope: markers
+🎯 scenesContent - filter: search, scope: markers, markers: 100, scenes: 0
+📍 Showing marker search results: 100 markers
+✅ Stored 100 marker results - filter: search, scope: markers
+📱 MarkerRow visibility changed: 4576 -> true
+📱 MarkerRow visibility changed: 4573 -> true
+📱 MarkerRow visibility changed: 4570 -> true
+🎯 scenesContent - filter: search, scope: markers, markers: 100, scenes: 0
+📍 Showing marker search results: 100 markers
+🎯 scenesContent - filter: search, scope: markers, markers: 100, scenes: 0
+📍 Showing marker search results: 100 markers
+🎬 GlobalVideoManager: Registered player, total active: 101
+🎬 GlobalVideoManager: Registered player, total active: 102
+🎬 GlobalVideoManager: Registered player, total active: 103
+🎬 GlobalVideoManager: Registered player, total active: 104
+🎬 GlobalVideoManager: Registered player, total active: 105
+🎬 GlobalVideoManager: Registered player, total active: 106
+🎬 GlobalVideoManager: Registered player, total active: 107
+🎬 GlobalVideoManager: Registered player, total active: 108
+🎬 GlobalVideoManager: Registered player, total active: 109
+🎬 GlobalVideoManager: Registered player, total active: 110
+🎬 GlobalVideoManager: Registered player, total active: 111
+🎬 GlobalVideoManager: Registered player, total active: 112
+🎬 GlobalVideoManager: Registered player, total active: 113
+🎬 GlobalVideoManager: Registered player, total active: 114
+🎬 GlobalVideoManager: Registered player, total active: 115
+🎬 GlobalVideoManager: Registered player, total active: 116
+🎬 GlobalVideoManager: Registered player, total active: 117
+🎬 GlobalVideoManager: Registered player, total active: 118
+🎬 GlobalVideoManager: Registered player, total active: 119
+🎬 GlobalVideoManager: Registered player, total active: 120
+🎬 GlobalVideoManager: Registered player, total active: 121
+🎬 GlobalVideoManager: Registered player, total active: 122
+🎬 GlobalVideoManager: Registered player, total active: 123
+🎬 GlobalVideoManager: Registered player, total active: 124
+🎬 GlobalVideoManager: Registered player, total active: 125
+🎬 GlobalVideoManager: Registered player, total active: 126
+🎬 GlobalVideoManager: Registered player, total active: 127
+🎬 GlobalVideoManager: Registered player, total active: 128
+🎬 GlobalVideoManager: Registered player, total active: 129
+🎬 GlobalVideoManager: Registered player, total active: 130
+🎬 GlobalVideoManager: Registered player, total active: 131
+🎬 GlobalVideoManager: Registered player, total active: 132
+🎬 GlobalVideoManager: Registered player, total active: 133
+🎬 GlobalVideoManager: Registered player, total active: 134
+🎬 GlobalVideoManager: Registered player, total active: 135
+🎬 GlobalVideoManager: Registered player, total active: 136
+🎬 GlobalVideoManager: Registered player, total active: 137
+🎬 GlobalVideoManager: Registered player, total active: 138
+🎬 GlobalVideoManager: Registered player, total active: 139
+🎬 GlobalVideoManager: Registered player, total active: 140
+🎬 GlobalVideoManager: Registered player, total active: 141
+🎬 GlobalVideoManager: Registered player, total active: 142
+🎬 GlobalVideoManager: Registered player, total active: 143
+🎬 GlobalVideoManager: Registered player, total active: 144
+🎬 GlobalVideoManager: Registered player, total active: 145
+🎬 GlobalVideoManager: Registered player, total active: 146
+🎬 GlobalVideoManager: Registered player, total active: 147
+🎬 GlobalVideoManager: Registered player, total active: 148
+🎬 GlobalVideoManager: Registered player, total active: 149
+🎬 GlobalVideoManager: Registered player, total active: 150
+🎬 GlobalVideoManager: Registered player, total active: 151
+🎬 GlobalVideoManager: Registered player, total active: 152
+🎬 GlobalVideoManager: Registered player, total active: 153
+🎬 GlobalVideoManager: Registered player, total active: 154
+🎬 GlobalVideoManager: Registered player, total active: 155
+🎬 GlobalVideoManager: Registered player, total active: 156
+🎬 GlobalVideoManager: Registered player, total active: 157
+🎬 GlobalVideoManager: Registered player, total active: 158
+🎬 GlobalVideoManager: Registered player, total active: 159
+🎬 GlobalVideoManager: Registered player, total active: 160
+🎬 GlobalVideoManager: Registered player, total active: 161
+🎬 GlobalVideoManager: Registered player, total active: 162
+🎬 GlobalVideoManager: Registered player, total active: 163
+🎬 GlobalVideoManager: Registered player, total active: 164
+🎬 GlobalVideoManager: Registered player, total active: 165
+🎬 GlobalVideoManager: Registered player, total active: 166
+🎬 GlobalVideoManager: Registered player, total active: 167
+🎬 GlobalVideoManager: Registered player, total active: 168
+🎬 GlobalVideoManager: Registered player, total active: 169
+🎬 GlobalVideoManager: Registered player, total active: 170
+🎬 GlobalVideoManager: Registered player, total active: 171
+🎬 GlobalVideoManager: Registered player, total active: 172
+🎬 GlobalVideoManager: Registered player, total active: 173
+🎬 GlobalVideoManager: Registered player, total active: 174
+🎬 GlobalVideoManager: Registered player, total active: 175
+🎬 GlobalVideoManager: Registered player, total active: 176
+🎬 GlobalVideoManager: Registered player, total active: 177
+🎬 GlobalVideoManager: Registered player, total active: 178
+🎬 GlobalVideoManager: Registered player, total active: 179
+🎬 GlobalVideoManager: Registered player, total active: 180
+🎬 GlobalVideoManager: Registered player, total active: 181
+🎬 GlobalVideoManager: Registered player, total active: 182
+🎬 GlobalVideoManager: Registered player, total active: 183
+🎬 GlobalVideoManager: Registered player, total active: 184
+🎬 GlobalVideoManager: Registered player, total active: 185
+🎬 GlobalVideoManager: Registered player, total active: 186
+🎬 GlobalVideoManager: Registered player, total active: 187
+🎬 GlobalVideoManager: Registered player, total active: 188
+🎬 GlobalVideoManager: Registered player, total active: 189
+🎬 GlobalVideoManager: Registered player, total active: 190
+🎬 GlobalVideoManager: Registered player, total active: 191
+🎬 GlobalVideoManager: Registered player, total active: 192
+🎬 GlobalVideoManager: Registered player, total active: 193
+🎬 GlobalVideoManager: Registered player, total active: 194
+🎬 GlobalVideoManager: Registered player, total active: 195
+🎬 GlobalVideoManager: Registered player, total active: 196
+🎬 GlobalVideoManager: Registered player, total active: 197
+🎬 GlobalVideoManager: Registered player, total active: 198
+🎬 GlobalVideoManager: Registered player, total active: 199
+🎬 GlobalVideoManager: Registered player, total active: 200
+🎬 GlobalVideoManager: Registered player, total active: 201
+🎬 GlobalVideoManager: Registered player, total active: 202
+🎬 GlobalVideoManager: Registered player, total active: 203
+🎬 GlobalVideoManager: Registered player, total active: 204
+🎬 GlobalVideoManager: Registered player, total active: 205
+🎬 GlobalVideoManager: Registered player, total active: 206
+🎬 GlobalVideoManager: Registered player, total active: 207
+🎬 GlobalVideoManager: Registered player, total active: 208
+🎬 GlobalVideoManager: Registered player, total active: 209
+🎬 GlobalVideoManager: Registered player, total active: 210
+🎬 GlobalVideoManager: Registered player, total active: 211
+🎬 GlobalVideoManager: Registered player, total active: 212
+🎬 GlobalVideoManager: Registered player, total active: 213
+🎬 GlobalVideoManager: Registered player, total active: 214
+🎬 GlobalVideoManager: Registered player, total active: 215
+🎬 GlobalVideoManager: Registered player, total active: 216
+🎬 GlobalVideoManager: Registered player, total active: 217
+🎬 GlobalVideoManager: Registered player, total active: 218
+🎬 GlobalVideoManager: Registered player, total active: 219
+🎬 GlobalVideoManager: Registered player, total active: 220
+🎬 GlobalVideoManager: Registered player, total active: 221
+🎬 GlobalVideoManager: Registered player, total active: 222
+🎬 GlobalVideoManager: Registered player, total active: 223
+🎬 GlobalVideoManager: Registered player, total active: 224
+🎬 GlobalVideoManager: Registered player, total active: 225
+🎬 GlobalVideoManager: Registered player, total active: 226
+🎬 GlobalVideoManager: Registered player, total active: 227
+🎬 GlobalVideoManager: Registered player, total active: 228
+🎬 GlobalVideoManager: Registered player, total active: 229
+🎬 GlobalVideoManager: Registered player, total active: 230
+🎬 GlobalVideoManager: Registered player, total active: 231
+🎬 GlobalVideoManager: Registered player, total active: 232
+🎬 GlobalVideoManager: Registered player, total active: 233
+🎬 GlobalVideoManager: Registered player, total active: 234
+🎬 GlobalVideoManager: Registered player, total active: 235
+🎬 GlobalVideoManager: Registered player, total active: 236
+🎬 GlobalVideoManager: Registered player, total active: 237
+🎬 GlobalVideoManager: Registered player, total active: 238
+🎬 GlobalVideoManager: Registered player, total active: 239
+🎬 GlobalVideoManager: Registered player, total active: 240
+🎬 GlobalVideoManager: Registered player, total active: 241
+🎬 GlobalVideoManager: Registered player, total active: 242
+🎬 GlobalVideoManager: Registered player, total active: 243
+🎬 GlobalVideoManager: Registered player, total active: 244
+🎬 GlobalVideoManager: Registered player, total active: 245
+🎬 GlobalVideoManager: Registered player, total active: 246
+🎬 GlobalVideoManager: Registered player, total active: 247
+🎬 GlobalVideoManager: Registered player, total active: 248
+🎬 GlobalVideoManager: Registered player, total active: 249
+🎬 GlobalVideoManager: Registered player, total active: 250
+🎬 GlobalVideoManager: Registered player, total active: 251
+🎬 GlobalVideoManager: Registered player, total active: 252
+🎬 GlobalVideoManager: Registered player, total active: 253
+🎬 GlobalVideoManager: Registered player, total active: 254
+🎬 GlobalVideoManager: Registered player, total active: 255
+🎬 GlobalVideoManager: Registered player, total active: 256
+🎬 GlobalVideoManager: Registered player, total active: 257
+🎬 GlobalVideoManager: Registered player, total active: 258
+🎬 GlobalVideoManager: Registered player, total active: 259
+🎬 GlobalVideoManager: Registered player, total active: 260
+🎬 GlobalVideoManager: Registered player, total active: 261
+🎬 GlobalVideoManager: Registered player, total active: 262
+🎬 GlobalVideoManager: Registered player, total active: 263
+🎬 GlobalVideoManager: Registered player, total active: 264
+🎬 GlobalVideoManager: Registered player, total active: 265
+🎬 GlobalVideoManager: Registered player, total active: 266
+🎬 GlobalVideoManager: Registered player, total active: 267
+🎬 GlobalVideoManager: Registered player, total active: 268
+🎬 GlobalVideoManager: Registered player, total active: 269
+🎬 GlobalVideoManager: Registered player, total active: 270
+🎬 GlobalVideoManager: Registered player, total active: 271
+🎬 GlobalVideoManager: Registered player, total active: 272
+🎬 GlobalVideoManager: Registered player, total active: 273
+🎬 GlobalVideoManager: Registered player, total active: 274
+🎬 GlobalVideoManager: Registered player, total active: 275
+🎬 GlobalVideoManager: Registered player, total active: 276
+🎬 GlobalVideoManager: Registered player, total active: 277
+🎬 GlobalVideoManager: Registered player, total active: 278
+🎬 GlobalVideoManager: Registered player, total active: 279
+🎬 GlobalVideoManager: Registered player, total active: 280
+🎬 GlobalVideoManager: Registered player, total active: 281
+🎬 GlobalVideoManager: Registered player, total active: 282
+🎬 GlobalVideoManager: Registered player, total active: 283
+🎬 GlobalVideoManager: Registered player, total active: 284
+🎬 GlobalVideoManager: Registered player, total active: 285
+🎬 GlobalVideoManager: Registered player, total active: 286
+🎬 GlobalVideoManager: Registered player, total active: 287
+🎬 GlobalVideoManager: Registered player, total active: 288
+🎬 GlobalVideoManager: Registered player, total active: 289
+🎬 GlobalVideoManager: Registered player, total active: 290
+🎬 GlobalVideoManager: Registered player, total active: 291
+🎬 GlobalVideoManager: Registered player, total active: 292
+🎬 GlobalVideoManager: Registered player, total active: 293
+🎬 GlobalVideoManager: Registered player, total active: 294
+🎬 GlobalVideoManager: Registered player, total active: 295
+🎬 GlobalVideoManager: Registered player, total active: 296
+🎬 GlobalVideoManager: Registered player, total active: 297
+🎬 GlobalVideoManager: Registered player, total active: 298
+🎬 GlobalVideoManager: Registered player, total active: 299
+🎬 GlobalVideoManager: Registered player, total active: 300
+🎬 GlobalVideoManager: Unregistered player, total active: 299
+🎬 GlobalVideoManager: Unregistered player, total active: 298
+🎬 GlobalVideoManager: Unregistered player, total active: 297
+🎬 GlobalVideoManager: Unregistered player, total active: 296
+🎬 GlobalVideoManager: Unregistered player, total active: 295
+🎬 GlobalVideoManager: Unregistered player, total active: 294
+🎬 GlobalVideoManager: Unregistered player, total active: 293
+🎬 GlobalVideoManager: Unregistered player, total active: 292
+🎬 GlobalVideoManager: Unregistered player, total active: 291
+🎬 GlobalVideoManager: Unregistered player, total active: 290
+🎬 GlobalVideoManager: Unregistered player, total active: 289
+🎬 GlobalVideoManager: Unregistered player, total active: 288
+🎬 GlobalVideoManager: Unregistered player, total active: 287
+🎬 GlobalVideoManager: Unregistered player, total active: 286
+🎬 GlobalVideoManager: Unregistered player, total active: 285
+🎬 GlobalVideoManager: Unregistered player, total active: 284
+🎬 GlobalVideoManager: Unregistered player, total active: 283
+🎬 GlobalVideoManager: Unregistered player, total active: 282
+🎬 GlobalVideoManager: Unregistered player, total active: 281
+🎬 GlobalVideoManager: Unregistered player, total active: 280
+🎬 GlobalVideoManager: Unregistered player, total active: 279
+🎬 GlobalVideoManager: Unregistered player, total active: 278
+🎬 GlobalVideoManager: Unregistered player, total active: 277
+🎬 GlobalVideoManager: Unregistered player, total active: 276
+🎬 GlobalVideoManager: Unregistered player, total active: 275
+🎬 GlobalVideoManager: Unregistered player, total active: 274
+🎬 GlobalVideoManager: Unregistered player, total active: 273
+🎬 GlobalVideoManager: Unregistered player, total active: 272
+🎬 GlobalVideoManager: Unregistered player, total active: 271
+🎬 GlobalVideoManager: Unregistered player, total active: 270
+🎬 GlobalVideoManager: Unregistered player, total active: 269
+🎬 GlobalVideoManager: Unregistered player, total active: 268
+🎬 GlobalVideoManager: Unregistered player, total active: 267
+🎬 GlobalVideoManager: Unregistered player, total active: 266
+🎬 GlobalVideoManager: Unregistered player, total active: 265
+🎬 GlobalVideoManager: Unregistered player, total active: 264
+🎬 GlobalVideoManager: Unregistered player, total active: 263
+🎬 GlobalVideoManager: Unregistered player, total active: 262
+🎬 GlobalVideoManager: Unregistered player, total active: 261
+🎬 GlobalVideoManager: Unregistered player, total active: 260
+🎬 GlobalVideoManager: Unregistered player, total active: 259
+🎬 GlobalVideoManager: Unregistered player, total active: 258
+🎬 GlobalVideoManager: Unregistered player, total active: 257
+🎬 GlobalVideoManager: Unregistered player, total active: 256
+🎬 GlobalVideoManager: Unregistered player, total active: 255
+🎬 GlobalVideoManager: Unregistered player, total active: 254
+🎬 GlobalVideoManager: Unregistered player, total active: 253
+🎬 GlobalVideoManager: Unregistered player, total active: 252
+🎬 GlobalVideoManager: Unregistered player, total active: 251
+🎬 GlobalVideoManager: Unregistered player, total active: 250
+🎬 GlobalVideoManager: Unregistered player, total active: 249
+🎬 GlobalVideoManager: Unregistered player, total active: 248
+🎬 GlobalVideoManager: Unregistered player, total active: 247
+🎬 GlobalVideoManager: Unregistered player, total active: 246
+🎬 GlobalVideoManager: Unregistered player, total active: 245
+🎬 GlobalVideoManager: Unregistered player, total active: 244
+🎬 GlobalVideoManager: Unregistered player, total active: 243
+🎬 GlobalVideoManager: Unregistered player, total active: 242
+🎬 GlobalVideoManager: Unregistered player, total active: 241
+🎬 GlobalVideoManager: Unregistered player, total active: 240
+🎬 GlobalVideoManager: Unregistered player, total active: 239
+🎬 GlobalVideoManager: Unregistered player, total active: 238
+🎬 GlobalVideoManager: Unregistered player, total active: 237
+🎬 GlobalVideoManager: Unregistered player, total active: 236
+🎬 GlobalVideoManager: Unregistered player, total active: 235
+🎬 GlobalVideoManager: Unregistered player, total active: 234
+🎬 GlobalVideoManager: Unregistered player, total active: 233
+🎬 GlobalVideoManager: Unregistered player, total active: 232
+🎬 GlobalVideoManager: Unregistered player, total active: 231
+🎬 GlobalVideoManager: Unregistered player, total active: 230
+🎬 GlobalVideoManager: Unregistered player, total active: 229
+🎬 GlobalVideoManager: Unregistered player, total active: 228
+🎬 GlobalVideoManager: Unregistered player, total active: 227
+🎬 GlobalVideoManager: Unregistered player, total active: 226
+🎬 GlobalVideoManager: Unregistered player, total active: 225
+🎬 GlobalVideoManager: Unregistered player, total active: 224
+🎬 GlobalVideoManager: Unregistered player, total active: 223
+🎬 GlobalVideoManager: Unregistered player, total active: 222
+🎬 GlobalVideoManager: Unregistered player, total active: 221
+🎬 GlobalVideoManager: Unregistered player, total active: 220
+🎬 GlobalVideoManager: Unregistered player, total active: 219
+🎬 GlobalVideoManager: Unregistered player, total active: 218
+🎬 GlobalVideoManager: Unregistered player, total active: 217
+🎬 GlobalVideoManager: Unregistered player, total active: 216
+🎬 GlobalVideoManager: Unregistered player, total active: 215
+🎬 GlobalVideoManager: Unregistered player, total active: 214
+🎬 GlobalVideoManager: Unregistered player, total active: 213
+🎬 GlobalVideoManager: Unregistered player, total active: 212
+🎬 GlobalVideoManager: Unregistered player, total active: 211
+🎬 GlobalVideoManager: Unregistered player, total active: 210
+🎬 GlobalVideoManager: Unregistered player, total active: 209
+🎬 GlobalVideoManager: Unregistered player, total active: 208
+🎬 GlobalVideoManager: Unregistered player, total active: 207
+🎬 GlobalVideoManager: Unregistered player, total active: 206
+🎬 GlobalVideoManager: Unregistered player, total active: 205
+🎬 GlobalVideoManager: Unregistered player, total active: 204
+🎬 GlobalVideoManager: Unregistered player, total active: 203
+🎬 GlobalVideoManager: Unregistered player, total active: 202
+🎬 GlobalVideoManager: Unregistered player, total active: 201
+🎬 GlobalVideoManager: Unregistered player, total active: 200
+📱 MarkerRow visibility changed: 4573 -> true
+📱 MarkerRow visibility changed: 4570 -> true
+📱 MarkerRow visibility changed: 4576 -> true
+🎬 GlobalVideoManager: Unregistered player, total active: 199
+🎬 GlobalVideoManager: Unregistered player, total active: 198
+🎬 GlobalVideoManager: Unregistered player, total active: 197
+🎬 GlobalVideoManager: Unregistered player, total active: 196
+🎬 GlobalVideoManager: Unregistered player, total active: 195
+🔍 Searching markers with query: 'cowgirl'
+🎬 GlobalVideoManager: Unregistered player, total active: 194
+🎬 GlobalVideoManager: Unregistered player, total active: 193
+🔎 Marker search query: 'cowgirl'
+🎬 GlobalVideoManager: Unregistered player, total active: 192
+🔐 Configuring auth:
+   API Key: [eyJhbGciOi...] (140 chars)
+🎬 GlobalVideoManager: Unregistered player, total active: 191
+   Server: http://192.168.86.100:9999
+🎬 GlobalVideoManager: Unregistered player, total active: 190
+🎬 GlobalVideoManager: Unregistered player, total active: 189
+🎬 GlobalVideoManager: Unregistered player, total active: 188
+🎬 GlobalVideoManager: Unregistered player, total active: 187
+🎬 GlobalVideoManager: Unregistered player, total active: 186
+🎬 GlobalVideoManager: Unregistered player, total active: 185
+🎬 GlobalVideoManager: Unregistered player, total active: 184
+🎬 GlobalVideoManager: Unregistered player, total active: 183
+🎬 GlobalVideoManager: Unregistered player, total active: 182
+🎬 GlobalVideoManager: Unregistered player, total active: 181
+🎬 GlobalVideoManager: Unregistered player, total active: 180
+🎬 GlobalVideoManager: Unregistered player, total active: 179
+🎬 GlobalVideoManager: Unregistered player, total active: 178
+🎬 GlobalVideoManager: Unregistered player, total active: 177
+🎬 GlobalVideoManager: Unregistered player, total active: 176
+🎬 GlobalVideoManager: Unregistered player, total active: 175
+🎬 GlobalVideoManager: Unregistered player, total active: 174
+🎬 GlobalVideoManager: Unregistered player, total active: 173
+🎬 GlobalVideoManager: Unregistered player, total active: 172
+🎬 GlobalVideoManager: Unregistered player, total active: 171
+🎬 GlobalVideoManager: Unregistered player, total active: 170
+🎬 GlobalVideoManager: Unregistered player, total active: 169
+🎬 GlobalVideoManager: Unregistered player, total active: 168
+🎬 GlobalVideoManager: Unregistered player, total active: 167
+🎬 GlobalVideoManager: Unregistered player, total active: 166
+🎬 GlobalVideoManager: Unregistered player, total active: 165
+🎬 GlobalVideoManager: Unregistered player, total active: 164
+🎬 GlobalVideoManager: Unregistered player, total active: 163
+🎬 GlobalVideoManager: Unregistered player, total active: 162
+🎬 GlobalVideoManager: Unregistered player, total active: 161
+🎬 GlobalVideoManager: Unregistered player, total active: 160
+🎬 GlobalVideoManager: Unregistered player, total active: 159
+🎬 GlobalVideoManager: Unregistered player, total active: 158
+🎬 GlobalVideoManager: Unregistered player, total active: 157
+🎬 GlobalVideoManager: Unregistered player, total active: 156
+🎬 GlobalVideoManager: Unregistered player, total active: 155
+🎬 GlobalVideoManager: Unregistered player, total active: 154
+🎬 GlobalVideoManager: Unregistered player, total active: 153
+🎬 GlobalVideoManager: Unregistered player, total active: 152
+🎬 GlobalVideoManager: Unregistered player, total active: 151
+🎬 GlobalVideoManager: Unregistered player, total active: 150
+🎬 GlobalVideoManager: Unregistered player, total active: 149
+🎬 GlobalVideoManager: Unregistered player, total active: 148
+🎬 GlobalVideoManager: Unregistered player, total active: 147
+🎬 GlobalVideoManager: Unregistered player, total active: 146
+🎬 GlobalVideoManager: Unregistered player, total active: 145
+🎬 GlobalVideoManager: Unregistered player, total active: 144
+🎬 GlobalVideoManager: Unregistered player, total active: 143
+🎬 GlobalVideoManager: Unregistered player, total active: 142
+🎬 GlobalVideoManager: Unregistered player, total active: 141
+🎬 GlobalVideoManager: Unregistered player, total active: 140
+🎬 GlobalVideoManager: Unregistered player, total active: 139
+🎬 GlobalVideoManager: Unregistered player, total active: 138
+🎬 GlobalVideoManager: Unregistered player, total active: 137
+🎬 GlobalVideoManager: Unregistered player, total active: 136
+🎬 GlobalVideoManager: Unregistered player, total active: 135
+🎬 GlobalVideoManager: Unregistered player, total active: 134
+🎬 GlobalVideoManager: Unregistered player, total active: 133
+🎬 GlobalVideoManager: Unregistered player, total active: 132
+🎬 GlobalVideoManager: Unregistered player, total active: 131
+🎬 GlobalVideoManager: Unregistered player, total active: 130
+🎬 GlobalVideoManager: Unregistered player, total active: 129
+🎬 GlobalVideoManager: Unregistered player, total active: 128
+🎬 GlobalVideoManager: Unregistered player, total active: 127
+🎬 GlobalVideoManager: Unregistered player, total active: 126
+🎬 GlobalVideoManager: Unregistered player, total active: 125
+🎬 GlobalVideoManager: Unregistered player, total active: 124
+🎬 GlobalVideoManager: Unregistered player, total active: 123
+🎬 GlobalVideoManager: Unregistered player, total active: 122
+🎬 GlobalVideoManager: Unregistered player, total active: 121
+🎬 GlobalVideoManager: Unregistered player, total active: 120
+🎬 GlobalVideoManager: Unregistered player, total active: 119
+🎬 GlobalVideoManager: Unregistered player, total active: 118
+🎬 GlobalVideoManager: Unregistered player, total active: 117
+🎬 GlobalVideoManager: Unregistered player, total active: 116
+🎬 GlobalVideoManager: Unregistered player, total active: 115
+🎬 GlobalVideoManager: Unregistered player, total active: 114
+🎬 GlobalVideoManager: Unregistered player, total active: 113
+🎬 GlobalVideoManager: Unregistered player, total active: 112
+🎬 GlobalVideoManager: Unregistered player, total active: 111
+🎬 GlobalVideoManager: Unregistered player, total active: 110
+🎬 GlobalVideoManager: Unregistered player, total active: 109
+🎬 GlobalVideoManager: Unregistered player, total active: 108
+🎬 GlobalVideoManager: Unregistered player, total active: 107
+🎬 GlobalVideoManager: Unregistered player, total active: 106
+🎬 GlobalVideoManager: Unregistered player, total active: 105
+🎬 GlobalVideoManager: Unregistered player, total active: 104
+🎬 GlobalVideoManager: Unregistered player, total active: 103
+🎬 GlobalVideoManager: Unregistered player, total active: 102
+🎬 GlobalVideoManager: Unregistered player, total active: 101
+🎬 GlobalVideoManager: Unregistered player, total active: 100
+📡 GraphQL Response Status: 200
+📥 Response preview: {"data":{"findSceneMarkers":{"count":525,"scene_markers":[{"id":"4576","title":"Cowgirl","seconds":6...
+📊 Found 100 markers matching 'cowgirl'
+  Marker 0: 'Cowgirl' (ID: 4576)
+  Marker 1: 'Cowgirl' (ID: 4573)
+  Marker 2: 'Cowgirl' (ID: 4570)
+  Marker 3: 'Cowgirl' (ID: 4569)
+  Marker 4: 'Cowgirl' (ID: 4568)
+✅ Stored 100 marker results - filter: search, scope: markers
+🎯 scenesContent - filter: search, scope: markers, markers: 100, scenes: 0
+📍 Showing marker search results: 100 markers
+🎯 scenesContent - filter: search, scope: markers, markers: 100, scenes: 0
+📍 Showing marker search results: 100 markers
+🎬 GlobalVideoManager: Registered player, total active: 101
+🎬 GlobalVideoManager: Registered player, total active: 102
+🎬 GlobalVideoManager: Registered player, total active: 103
+🎬 GlobalVideoManager: Registered player, total active: 104
+🎬 GlobalVideoManager: Registered player, total active: 105
+🎬 GlobalVideoManager: Registered player, total active: 106
+🎬 GlobalVideoManager: Registered player, total active: 107
+🎬 GlobalVideoManager: Registered player, total active: 108
+🎬 GlobalVideoManager: Registered player, total active: 109
+🎬 GlobalVideoManager: Registered player, total active: 110
+🎬 GlobalVideoManager: Registered player, total active: 111
+🎬 GlobalVideoManager: Registered player, total active: 112
+🎬 GlobalVideoManager: Registered player, total active: 113
+🎬 GlobalVideoManager: Registered player, total active: 114
+🎬 GlobalVideoManager: Registered player, total active: 115
+🎬 GlobalVideoManager: Registered player, total active: 116
+🎬 GlobalVideoManager: Registered player, total active: 117
+🎬 GlobalVideoManager: Registered player, total active: 118
+🎬 GlobalVideoManager: Registered player, total active: 119
+🎬 GlobalVideoManager: Registered player, total active: 120
+🎬 GlobalVideoManager: Registered player, total active: 121
+🎬 GlobalVideoManager: Registered player, total active: 122
+🎬 GlobalVideoManager: Registered player, total active: 123
+🎬 GlobalVideoManager: Registered player, total active: 124
+🎬 GlobalVideoManager: Registered player, total active: 125
+🎬 GlobalVideoManager: Registered player, total active: 126
+🎬 GlobalVideoManager: Registered player, total active: 127
+🎬 GlobalVideoManager: Registered player, total active: 128
+🎬 GlobalVideoManager: Registered player, total active: 129
+🎬 GlobalVideoManager: Registered player, total active: 130
+🎬 GlobalVideoManager: Registered player, total active: 131
+🎬 GlobalVideoManager: Registered player, total active: 132
+🎬 GlobalVideoManager: Registered player, total active: 133
+🎬 GlobalVideoManager: Registered player, total active: 134
+🎬 GlobalVideoManager: Registered player, total active: 135
+🎬 GlobalVideoManager: Registered player, total active: 136
+🎬 GlobalVideoManager: Registered player, total active: 137
+🎬 GlobalVideoManager: Registered player, total active: 138
+🎬 GlobalVideoManager: Registered player, total active: 139
+🎬 GlobalVideoManager: Registered player, total active: 140
+🎬 GlobalVideoManager: Registered player, total active: 141
+🎬 GlobalVideoManager: Registered player, total active: 142
+🎬 GlobalVideoManager: Registered player, total active: 143
+🎬 GlobalVideoManager: Registered player, total active: 144
+🎬 GlobalVideoManager: Registered player, total active: 145
+🎬 GlobalVideoManager: Registered player, total active: 146
+🎬 GlobalVideoManager: Registered player, total active: 147
+🎬 GlobalVideoManager: Registered player, total active: 148
+🎬 GlobalVideoManager: Registered player, total active: 149
+🎬 GlobalVideoManager: Registered player, total active: 150
+🎬 GlobalVideoManager: Registered player, total active: 151
+🎬 GlobalVideoManager: Registered player, total active: 152
+🎬 GlobalVideoManager: Registered player, total active: 153
+🎬 GlobalVideoManager: Registered player, total active: 154
+🎬 GlobalVideoManager: Registered player, total active: 155
+🎬 GlobalVideoManager: Registered player, total active: 156
+🎬 GlobalVideoManager: Registered player, total active: 157
+🎬 GlobalVideoManager: Registered player, total active: 158
+🎬 GlobalVideoManager: Registered player, total active: 159
+🎬 GlobalVideoManager: Registered player, total active: 160
+🎬 GlobalVideoManager: Registered player, total active: 161
+🎬 GlobalVideoManager: Registered player, total active: 162
+🎬 GlobalVideoManager: Registered player, total active: 163
+🎬 GlobalVideoManager: Registered player, total active: 164
+🎬 GlobalVideoManager: Registered player, total active: 165
+🎬 GlobalVideoManager: Registered player, total active: 166
+🎬 GlobalVideoManager: Registered player, total active: 167
+🎬 GlobalVideoManager: Registered player, total active: 168
+🎬 GlobalVideoManager: Registered player, total active: 169
+🎬 GlobalVideoManager: Registered player, total active: 170
+🎬 GlobalVideoManager: Registered player, total active: 171
+🎬 GlobalVideoManager: Registered player, total active: 172
+🎬 GlobalVideoManager: Registered player, total active: 173
+🎬 GlobalVideoManager: Registered player, total active: 174
+🎬 GlobalVideoManager: Registered player, total active: 175
+🎬 GlobalVideoManager: Registered player, total active: 176
+🎬 GlobalVideoManager: Registered player, total active: 177
+🎬 GlobalVideoManager: Registered player, total active: 178
+🎬 GlobalVideoManager: Registered player, total active: 179
+🎬 GlobalVideoManager: Registered player, total active: 180
+🎬 GlobalVideoManager: Registered player, total active: 181
+🎬 GlobalVideoManager: Registered player, total active: 182
+🎬 GlobalVideoManager: Registered player, total active: 183
+🎬 GlobalVideoManager: Registered player, total active: 184
+🎬 GlobalVideoManager: Registered player, total active: 185
+🎬 GlobalVideoManager: Registered player, total active: 186
+🎬 GlobalVideoManager: Registered player, total active: 187
+🎬 GlobalVideoManager: Registered player, total active: 188
+🎬 GlobalVideoManager: Registered player, total active: 189
+🎬 GlobalVideoManager: Registered player, total active: 190
+🎬 GlobalVideoManager: Registered player, total active: 191
+🎬 GlobalVideoManager: Registered player, total active: 192
+🎬 GlobalVideoManager: Registered player, total active: 193
+🎬 GlobalVideoManager: Registered player, total active: 194
+🎬 GlobalVideoManager: Registered player, total active: 195
+🎬 GlobalVideoManager: Registered player, total active: 196
+🎬 GlobalVideoManager: Registered player, total active: 197
+🎬 GlobalVideoManager: Registered player, total active: 198
+🎬 GlobalVideoManager: Registered player, total active: 199
+🎬 GlobalVideoManager: Registered player, total active: 200
+🎬 GlobalVideoManager: Unregistered player, total active: 199
+🎬 GlobalVideoManager: Unregistered player, total active: 198
+🎬 GlobalVideoManager: Unregistered player, total active: 197
+🎬 GlobalVideoManager: Unregistered player, total active: 196
+🎬 GlobalVideoManager: Unregistered player, total active: 195
+🎬 GlobalVideoManager: Unregistered player, total active: 194
+🎬 GlobalVideoManager: Unregistered player, total active: 193
+🎬 GlobalVideoManager: Unregistered player, total active: 192
+🎬 GlobalVideoManager: Unregistered player, total active: 191
+🎬 GlobalVideoManager: Unregistered player, total active: 190
+🎬 GlobalVideoManager: Unregistered player, total active: 189
+🎬 GlobalVideoManager: Unregistered player, total active: 188
+🎬 GlobalVideoManager: Unregistered player, total active: 187
+🎬 GlobalVideoManager: Unregistered player, total active: 186
+🎬 GlobalVideoManager: Unregistered player, total active: 185
+🎬 GlobalVideoManager: Unregistered player, total active: 184
+🎬 GlobalVideoManager: Unregistered player, total active: 183
+🎬 GlobalVideoManager: Unregistered player, total active: 182
+🎬 GlobalVideoManager: Unregistered player, total active: 181
+🎬 GlobalVideoManager: Unregistered player, total active: 180
+🎬 GlobalVideoManager: Unregistered player, total active: 179
+🎬 GlobalVideoManager: Unregistered player, total active: 178
+🎬 GlobalVideoManager: Unregistered player, total active: 177
+🎬 GlobalVideoManager: Unregistered player, total active: 176
+🎬 GlobalVideoManager: Unregistered player, total active: 175
+🎬 GlobalVideoManager: Unregistered player, total active: 174
+🎬 GlobalVideoManager: Unregistered player, total active: 173
+🎬 GlobalVideoManager: Unregistered player, total active: 172
+🎬 GlobalVideoManager: Unregistered player, total active: 171
+🎬 GlobalVideoManager: Unregistered player, total active: 170
+🎬 GlobalVideoManager: Unregistered player, total active: 169
+🎬 GlobalVideoManager: Unregistered player, total active: 168
+🎬 GlobalVideoManager: Unregistered player, total active: 167
+🎬 GlobalVideoManager: Unregistered player, total active: 166
+🎬 GlobalVideoManager: Unregistered player, total active: 165
+🎬 GlobalVideoManager: Unregistered player, total active: 164
+🎬 GlobalVideoManager: Unregistered player, total active: 163
+🎬 GlobalVideoManager: Unregistered player, total active: 162
+🎬 GlobalVideoManager: Unregistered player, total active: 161
+🎬 GlobalVideoManager: Unregistered player, total active: 160
+🎬 GlobalVideoManager: Unregistered player, total active: 159
+🎬 GlobalVideoManager: Unregistered player, total active: 158
+🎬 GlobalVideoManager: Unregistered player, total active: 157
+🎬 GlobalVideoManager: Unregistered player, total active: 156
+🎬 GlobalVideoManager: Unregistered player, total active: 155
+🎬 GlobalVideoManager: Unregistered player, total active: 154
+🎬 GlobalVideoManager: Unregistered player, total active: 153
+🎬 GlobalVideoManager: Unregistered player, total active: 152
+🎬 GlobalVideoManager: Unregistered player, total active: 151
+🎬 GlobalVideoManager: Unregistered player, total active: 150
+🎬 GlobalVideoManager: Unregistered player, total active: 149
+🎬 GlobalVideoManager: Unregistered player, total active: 148
+🎬 GlobalVideoManager: Unregistered player, total active: 147
+🎬 GlobalVideoManager: Unregistered player, total active: 146
+🎬 GlobalVideoManager: Unregistered player, total active: 145
+🎬 GlobalVideoManager: Unregistered player, total active: 144
+🎬 GlobalVideoManager: Unregistered player, total active: 143
+🎬 GlobalVideoManager: Unregistered player, total active: 142
+🎬 GlobalVideoManager: Unregistered player, total active: 141
+🎬 GlobalVideoManager: Unregistered player, total active: 140
+🎬 GlobalVideoManager: Unregistered player, total active: 139
+🎬 GlobalVideoManager: Unregistered player, total active: 138
+🎬 GlobalVideoManager: Unregistered player, total active: 137
+🎬 GlobalVideoManager: Unregistered player, total active: 136
+🎬 GlobalVideoManager: Unregistered player, total active: 135
+🎬 GlobalVideoManager: Unregistered player, total active: 134
+🎬 GlobalVideoManager: Unregistered player, total active: 133
+🎬 GlobalVideoManager: Unregistered player, total active: 132
+🎬 GlobalVideoManager: Unregistered player, total active: 131
+🎬 GlobalVideoManager: Unregistered player, total active: 130
+🎬 GlobalVideoManager: Unregistered player, total active: 129
+🎬 GlobalVideoManager: Unregistered player, total active: 128
+🎬 GlobalVideoManager: Unregistered player, total active: 127
+🎬 GlobalVideoManager: Unregistered player, total active: 126
+🎬 GlobalVideoManager: Unregistered player, total active: 125
+🎬 GlobalVideoManager: Unregistered player, total active: 124
+🎬 GlobalVideoManager: Unregistered player, total active: 123
+🎬 GlobalVideoManager: Unregistered player, total active: 122
+🎬 GlobalVideoManager: Unregistered player, total active: 121
+🎬 GlobalVideoManager: Unregistered player, total active: 120
+🎬 GlobalVideoManager: Unregistered player, total active: 119
+🎬 GlobalVideoManager: Unregistered player, total active: 118
+🎬 GlobalVideoManager: Unregistered player, total active: 117
+🎬 GlobalVideoManager: Unregistered player, total active: 116
+🎬 GlobalVideoManager: Unregistered player, total active: 115
+🎬 GlobalVideoManager: Unregistered player, total active: 114
+🎬 GlobalVideoManager: Unregistered player, total active: 113
+🎬 GlobalVideoManager: Unregistered player, total active: 112
+🎬 GlobalVideoManager: Unregistered player, total active: 111
+🎬 GlobalVideoManager: Unregistered player, total active: 110
+🎬 GlobalVideoManager: Unregistered player, total active: 109
+🎬 GlobalVideoManager: Unregistered player, total active: 108
+🎬 GlobalVideoManager: Unregistered player, total active: 107
+🎬 GlobalVideoManager: Unregistered player, total active: 106
+🎬 GlobalVideoManager: Unregistered player, total active: 105
+🎬 GlobalVideoManager: Unregistered player, total active: 104
+🎬 GlobalVideoManager: Unregistered player, total active: 103
+🎬 GlobalVideoManager: Unregistered player, total active: 102
+🎬 GlobalVideoManager: Unregistered player, total active: 101
+🎬 GlobalVideoManager: Unregistered player, total active: 100
+📱 MarkerRow visibility changed: 4573 -> true
+📱 MarkerRow visibility changed: 4570 -> true
+📱 MarkerRow visibility changed: 4576 -> true
+🎲 PROMINENT SHUFFLE BUTTON TAPPED - LOADING ALL MARKERS FROM API
+🎲 Current displayed markers: 100
+🎲 Tag-based search detected: 'Cowgirl'
+🎲 Fetching ALL 'Cowgirl' markers from server...
+🎲 Starting marker shuffle for tag: Cowgirl - loading ALL markers from API
+🔄 Loading ALL markers for tag: Cowgirl
+🔄 Loading page 1 for tag: Cowgirl
+🔍 Fetching markers for tag 49 (page 1)
+❌ Error loading markers by tag: dataCorrupted(Swift.DecodingError.Context(codingPath: [], debugDescription: "The given data was not valid JSON.", underlyingError: Optional(Error Domain=NSCocoaErrorDomain Code=3840 "Unexpected end of file" UserInfo={NSDebugDescription=Unexpected end of file})))
+🎬 GlobalVideoManager: Unregistered player, total active: 99
+🔄 Page 1: Added 500 unique markers (total: 500)
+🔄 Loading page 2 for tag: Cowgirl
+🎬 GlobalVideoManager: Unregistered player, total active: 98
+🔍 Fetching markers for tag 49 (page 2)
+🎬 GlobalVideoManager: Unregistered player, total active: 97
+🎬 GlobalVideoManager: Unregistered player, total active: 96
+🎬 GlobalVideoManager: Unregistered player, total active: 95
+🎬 GlobalVideoManager: Unregistered player, total active: 94
+🎬 GlobalVideoManager: Unregistered player, total active: 93
+🎬 GlobalVideoManager: Unregistered player, total active: 92
+🎬 GlobalVideoManager: Unregistered player, total active: 91
+🎬 GlobalVideoManager: Unregistered player, total active: 90
+🎬 GlobalVideoManager: Unregistered player, total active: 89
+🎬 GlobalVideoManager: Unregistered player, total active: 88
+🎬 GlobalVideoManager: Unregistered player, total active: 87
+🎬 GlobalVideoManager: Unregistered player, total active: 86
+🎬 GlobalVideoManager: Unregistered player, total active: 85
+🎬 GlobalVideoManager: Unregistered player, total active: 84
+🎬 GlobalVideoManager: Unregistered player, total active: 83
+🎬 GlobalVideoManager: Unregistered player, total active: 82
+🎬 GlobalVideoManager: Unregistered player, total active: 81
+🎬 GlobalVideoManager: Unregistered player, total active: 80
+🎬 GlobalVideoManager: Unregistered player, total active: 79
+🎬 GlobalVideoManager: Unregistered player, total active: 78
+🎬 GlobalVideoManager: Unregistered player, total active: 77
+🎬 GlobalVideoManager: Unregistered player, total active: 76
+🎬 GlobalVideoManager: Unregistered player, total active: 75
+🎬 GlobalVideoManager: Unregistered player, total active: 74
+🎬 GlobalVideoManager: Unregistered player, total active: 73
+🎬 GlobalVideoManager: Unregistered player, total active: 72
+🎬 GlobalVideoManager: Unregistered player, total active: 71
+🎬 GlobalVideoManager: Unregistered player, total active: 70
+🎬 GlobalVideoManager: Unregistered player, total active: 69
+🎬 GlobalVideoManager: Unregistered player, total active: 68
+🎬 GlobalVideoManager: Unregistered player, total active: 67
+🎬 GlobalVideoManager: Unregistered player, total active: 66
+🎬 GlobalVideoManager: Unregistered player, total active: 65
+❌ Error loading markers by tag: dataCorrupted(Swift.DecodingError.Context(codingPath: [], debugDescription: "The given data was not valid JSON.", underlyingError: Optional(Error Domain=NSCocoaErrorDomain Code=3840 "Unexpected end of file" UserInfo={NSDebugDescription=Unexpected end of file})))
+🎬 GlobalVideoManager: Unregistered player, total active: 64
+🎬 GlobalVideoManager: Unregistered player, total active: 63
+🎬 GlobalVideoManager: Unregistered player, total active: 62
+🎬 GlobalVideoManager: Unregistered player, total active: 61
+🎬 GlobalVideoManager: Unregistered player, total active: 60
+🎬 GlobalVideoManager: Unregistered player, total active: 59
+🎬 GlobalVideoManager: Unregistered player, total active: 58
+🎬 GlobalVideoManager: Unregistered player, total active: 57
+🎬 GlobalVideoManager: Unregistered player, total active: 56
+🎬 GlobalVideoManager: Unregistered player, total active: 55
+🎬 GlobalVideoManager: Unregistered player, total active: 54
+🎬 GlobalVideoManager: Unregistered player, total active: 53
+🎬 GlobalVideoManager: Unregistered player, total active: 52
+🎬 GlobalVideoManager: Unregistered player, total active: 51
+🎬 GlobalVideoManager: Unregistered player, total active: 50
+🎬 GlobalVideoManager: Unregistered player, total active: 49
+🎬 GlobalVideoManager: Unregistered player, total active: 48
+🎬 GlobalVideoManager: Unregistered player, total active: 47
+🎬 GlobalVideoManager: Unregistered player, total active: 46
+🎬 GlobalVideoManager: Unregistered player, total active: 45
+🎬 GlobalVideoManager: Unregistered player, total active: 44
+🎬 GlobalVideoManager: Unregistered player, total active: 43
+🎬 GlobalVideoManager: Unregistered player, total active: 42
+🎬 GlobalVideoManager: Unregistered player, total active: 41
+🎬 GlobalVideoManager: Unregistered player, total active: 40
+🎬 GlobalVideoManager: Unregistered player, total active: 39
+🎬 GlobalVideoManager: Unregistered player, total active: 38
+🎬 GlobalVideoManager: Unregistered player, total active: 37
+🎬 GlobalVideoManager: Unregistered player, total active: 36
+🎬 GlobalVideoManager: Unregistered player, total active: 35
+🎬 GlobalVideoManager: Unregistered player, total active: 34
+🎬 GlobalVideoManager: Unregistered player, total active: 33
+🎬 GlobalVideoManager: Unregistered player, total active: 32
+🎬 GlobalVideoManager: Unregistered player, total active: 31
+🎬 GlobalVideoManager: Unregistered player, total active: 30
+🎬 GlobalVideoManager: Unregistered player, total active: 29
+🎬 GlobalVideoManager: Unregistered player, total active: 28
+🎬 GlobalVideoManager: Unregistered player, total active: 27
+🎬 GlobalVideoManager: Unregistered player, total active: 26
+🎬 GlobalVideoManager: Unregistered player, total active: 25
+🎬 GlobalVideoManager: Unregistered player, total active: 24
+🎬 GlobalVideoManager: Unregistered player, total active: 23
+🎬 GlobalVideoManager: Unregistered player, total active: 22
+🎬 GlobalVideoManager: Unregistered player, total active: 21
+🎬 GlobalVideoManager: Unregistered player, total active: 20
+🎬 GlobalVideoManager: Unregistered player, total active: 19
+🎬 GlobalVideoManager: Unregistered player, total active: 18
+🎬 GlobalVideoManager: Unregistered player, total active: 17
+🎬 GlobalVideoManager: Unregistered player, total active: 16
+🎬 GlobalVideoManager: Unregistered player, total active: 15
+🎬 GlobalVideoManager: Unregistered player, total active: 14
+🎬 GlobalVideoManager: Unregistered player, total active: 13
+🎬 GlobalVideoManager: Unregistered player, total active: 12
+🎬 GlobalVideoManager: Unregistered player, total active: 11
+🎬 GlobalVideoManager: Unregistered player, total active: 10
+🎬 GlobalVideoManager: Unregistered player, total active: 9
+🎬 GlobalVideoManager: Unregistered player, total active: 8
+🎬 GlobalVideoManager: Unregistered player, total active: 7
+🎬 GlobalVideoManager: Unregistered player, total active: 6
+🎬 GlobalVideoManager: Unregistered player, total active: 5
+🎬 GlobalVideoManager: Unregistered player, total active: 4
+🎬 GlobalVideoManager: Unregistered player, total active: 3
+🎬 GlobalVideoManager: Unregistered player, total active: 2
+🎬 GlobalVideoManager: Unregistered player, total active: 1
+🎬 GlobalVideoManager: Unregistered player, total active: 0
+🔄 Page 2: Added 0 unique markers (total: 500)
+📄 No new unique markers added (API error or end of results), stopping
+🔍 Total markers retrieved: 500
+🔍 Markers matching tag 'Cowgirl': 34
+⚠️ WARNING: API returned markers that don't match the tag filter!
+✅ Created shuffle queue with 34 markers for tag: Cowgirl
+🎬 Starting playback with first shuffled marker:  (tag: Cowgirl)
+🚀 NAVIGATION - Navigating to marker:  at 1039.0 seconds in scene 1249
+🔇 AGGRESSIVE AUDIO CLEANUP: Killing all audio
+🔇 Stopping all preview players via GlobalVideoManager
+🔇 Forcibly interrupting AVAudioSession
+🔇 Finding all AVPlayers in view hierarchy
+🔇 Final cleanup
+🔍 navigateToMarker: Starting more explicit marker navigation
+🔐 Configuring auth:
+   API Key: [eyJhbGciOi...] (140 chars)
+   Server: http://192.168.86.100:9999
+📡 GraphQL Response Status: 200
+📥 Response preview: {"data":{"findScene":{"id":"1249","title":"Getting Dirty","details":"We have a special treat for you...
+✅ Found full scene for marker: 
+ℹ️ Setting startSeconds parameter to 1039.0 for scene 1249
+🎬 Using exact HLS format: http://192.168.86.100:9999/scene/1249/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1039&_ts=1747926070
+🎬 Starting navigation to scene with marker timestamp - should trigger immediate playback
+🔄 Preserving marker shuffle context in standard navigation
+🚀 NAVIGATION - Navigating to scene: Getting Dirty with startSeconds: Optional(1039.0), endSeconds: nil
+⏱ Setting current timestamp to: 1039.0 seconds
+⏱ Adding scene to navigation path
+📱 VideoPlayerView init - scene: 1249, startTime: nil, endTime: nil
+📱 Initializing original performer to: Dani Daniels (ID: 85)
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/1249/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1039&_ts=1747926070
+📱 Extracted timestamp from URL: 1039
+📱 Updated effectiveStartTime to 1039 from URL
+🎬 Creating video player for URL: http://192.168.86.100:9999/scene/1249/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1039&_ts=1747926070
+📱 Extracted scene ID: 1249
+📱 Using saved exact HLS URL format: http://192.168.86.100:9999/scene/1249/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1039&_ts=1747926070
+📱 Extracted timestamp from URL: 1039
+🎬 Final URL being used: http://192.168.86.100:9999/scene/1249/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1039&_ts=1747926070
+⏱ Explicit start time to use: Optional(1039.0)
+🎬 Creating player item with AVURLAsset
+▶️ Attempting to force immediate playback
+⏱ CRITICAL: Performing immediate seek to 1039.0 seconds
+📱 VideoPlayerView appeared
+📱 Modes - Random jump: OFF, Marker shuffle: ON
+📱 Marker navigation check: true
+📱 Using stored startTime from UserDefaults for marker: 1039.0
+📱 Setting original performer to: Dani Daniels (ID: 85)
+📊 Detected marker navigation with startTime: 1039.0
+📊 Using marker from appModel: 
+📱 FullScreenVideoPlayer appeared with startTime: Optional(1039.0)
+⏱ FullScreenVideoPlayer will seek to 1039.0 seconds
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/1249/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1039&_ts=1747926070
+📱 Extracted timestamp from URL: 1039
+📱 Updated effectiveStartTime to 1039 from URL
+📱 VideoPlayerView init - scene: 1249, startTime: nil, endTime: nil
+📱 Initializing original performer to: Dani Daniels (ID: 85)
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/1249/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1039&_ts=1747926070
+📱 Extracted timestamp from URL: 1039
+🎬 GlobalVideoManager: Stopping all 0 active preview players
+🧹 GlobalVideoManager: Cleaning up all 0 active players
+🧹 GlobalVideoManager: Cleaning up all 0 active players
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+⏱ CRITICAL: Performing delayed seek to 1039.0 seconds
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+⏱ Delayed seek completed with result: true
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+🎬 Player item status changed to: 1
+🎬 Player item is ready to play
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+▶️ Forcing play after ready status
+⏱ CRITICAL: Seeking to explicit time 1039.0 seconds after ready status
+⏱ Current time 1039.0 is already close to target 1039.0
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+▶️ CRITICAL: Playback forced after seeking
+✅ Player status: PLAYING
+⏱ Current playback position: 1039.0 seconds
+🎬 Next Scene button tapped
+▶️ Starting next scene navigation - Modes:  MARKER SHUFFLE 
+📊 Current context: MARKER
+🎲 In marker shuffle mode - using NEW queue system
+🎲 Queue size: 34
+🎲 Current index: 0
+🎲 appModel.isMarkerShuffleMode: true
+🎲 ✅ Using AppModel shuffle queue - going to next marker
+🎲 shuffleToNextMarker called - current state:
+🎲 isMarkerShuffleMode: true
+🎲 markerShuffleQueue.count: 34
+🎲 currentShuffleIndex: 0
+🎲 Next marker in shuffle:  (index 1 of 34)
+🎲 Shuffling to next marker: 
+🎲 Debug: Tag: Cowgirl, Search Query: none
+🚀 NAVIGATION - Navigating to marker:  at 643.0 seconds in scene 640
+🔇 AGGRESSIVE AUDIO CLEANUP: Killing all audio
+🔇 Stopping VideoPlayerRegistry player
+⚠️ Player status: PAUSED
+⚠️ Player status: PAUSED
+🔇 Stopping all preview players via GlobalVideoManager
+🔇 Forcibly interrupting AVAudioSession
+🔇 Finding all AVPlayers in view hierarchy
+🔇 Stopping player 1 of 1
+⚠️ Player status: PAUSED
+🔇 Final cleanup
+🔍 navigateToMarker: Starting more explicit marker navigation
+🔐 Configuring auth:
+   API Key: [eyJhbGciOi...] (140 chars)
+   Server: http://192.168.86.100:9999
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/1249/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1039&_ts=1747926070
+📱 Extracted timestamp from URL: 1039
+📱 VideoPlayerView init - scene: 1249, startTime: nil, endTime: nil
+📱 Initializing original performer to: Dani Daniels (ID: 85)
+📡 GraphQL Response Status: 200
+📥 Response preview: {"data":{"findScene":{"id":"640","title":"","details":"","url":null,"date":null,"rating100":null,"or...
+✅ Found full scene for marker: 
+ℹ️ Setting startSeconds parameter to 643.0 for scene 640
+🎬 Using exact HLS format: http://192.168.86.100:9999/scene/640/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=643&_ts=1747926075
+🎬 Starting navigation to scene with marker timestamp - should trigger immediate playback
+🔄 MARKER SHUFFLE CONTEXT: Attempting to use in-place player update
+🔄 Preserving marker shuffle context in standard navigation
+🚀 NAVIGATION - Navigating to scene:  with startSeconds: Optional(643.0), endSeconds: nil
+⏱ Current playback position: 1039.921716273 seconds
+🎬 GlobalVideoManager: Stopping all 0 active preview players
+🧹 GlobalVideoManager: Cleaning up all 0 active players
+🧹 GlobalVideoManager: Cleaning up all 0 active players
+⏱ Setting current timestamp to: 643.0 seconds
+⏱ Adding scene to navigation path
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/1249/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1039&_ts=1747926070
+📱 Extracted timestamp from URL: 1039
+📱 VideoPlayerView init - scene: 1249, startTime: nil, endTime: nil
+📱 Initializing original performer to: Dani Daniels (ID: 85)
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/1249/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1039&_ts=1747926070
+📱 Extracted timestamp from URL: 1039
+📱 VideoPlayerView init - scene: 640, startTime: nil, endTime: nil
+📱 Initializing original performer to: Austin Kincaid (ID: 35)
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/640/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=643&_ts=1747926075
+📱 Extracted timestamp from URL: 643
+📱 Updated effectiveStartTime to 643 from URL
+🎬 Creating video player for URL: http://192.168.86.100:9999/scene/640/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=643&_ts=1747926075
+📱 Extracted scene ID: 640
+📱 Using saved exact HLS URL format: http://192.168.86.100:9999/scene/640/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=643&_ts=1747926075
+📱 Extracted timestamp from URL: 643
+🎬 Final URL being used: http://192.168.86.100:9999/scene/640/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=643&_ts=1747926075
+⏱ Explicit start time to use: Optional(643.0)
+🎬 Creating player item with AVURLAsset
+▶️ Attempting to force immediate playback
+⏱ CRITICAL: Performing immediate seek to 643.0 seconds
+📱 VideoPlayerView appeared
+📱 Modes - Random jump: OFF, Marker shuffle: ON
+📱 Marker navigation check: true
+📱 Using stored startTime from UserDefaults for marker: 643.0
+📱 Setting original performer to: Austin Kincaid (ID: 35)
+📊 Detected marker navigation with startTime: 643.0
+📊 Using marker from appModel: 
+📱 FullScreenVideoPlayer appeared with startTime: Optional(643.0)
+⏱ FullScreenVideoPlayer will seek to 643.0 seconds
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/640/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=643&_ts=1747926075
+📱 Extracted timestamp from URL: 643
+📱 Updated effectiveStartTime to 643 from URL
+📱 VideoPlayerView init - scene: 1249, startTime: nil, endTime: nil
+📱 Initializing original performer to: Dani Daniels (ID: 85)
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/1249/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1039&_ts=1747926070
+📱 Extracted timestamp from URL: 1039
+📱 VideoPlayerView init - scene: 1249, startTime: nil, endTime: nil
+📱 Initializing original performer to: Dani Daniels (ID: 85)
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/1249/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1039&_ts=1747926070
+📱 Extracted timestamp from URL: 1039
+📱 VideoPlayerView init - scene: 640, startTime: nil, endTime: nil
+📱 Initializing original performer to: Austin Kincaid (ID: 35)
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/640/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=643&_ts=1747926075
+📱 Extracted timestamp from URL: 643
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/1249/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1039&_ts=1747926070
+📱 Extracted timestamp from URL: 1039
+📱 VideoPlayerView disappeared
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/1249/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1039&_ts=1747926070
+📱 Extracted timestamp from URL: 1039
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/640/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=643&_ts=1747926075
+📱 Extracted timestamp from URL: 643
+📱 VideoPlayerView init - scene: 640, startTime: nil, endTime: nil
+📱 Initializing original performer to: Austin Kincaid (ID: 35)
+📱 VideoPlayerView init - scene: 1249, startTime: nil, endTime: nil
+📱 Initializing original performer to: Dani Daniels (ID: 85)
+⏱ CRITICAL: Performing delayed seek to 643.0 seconds
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/640/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=643&_ts=1747926075
+📱 Extracted timestamp from URL: 643
+⏱ Delayed seek completed with result: true
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+🎬 Player item status changed to: 1
+🎬 Player item is ready to play
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+▶️ Forcing play after ready status
+⏱ CRITICAL: Seeking to explicit time 643.0 seconds after ready status
+⏱ Current time 643.0 is already close to target 643.0
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+▶️ CRITICAL: Playback forced after seeking
+✅ Player status: PLAYING
+⏱ Current playback position: 643.0 seconds
+👋 Emergency exit gesture detected
+📱 Force closing video player
+🔇 AGGRESSIVE AUDIO CLEANUP: Killing all audio
+🔇 Stopping VideoPlayerRegistry player
+⚠️ Player status: PAUSED
+⚠️ Player status: PAUSED
+🔇 Stopping all preview players via GlobalVideoManager
+🔇 Forcibly interrupting AVAudioSession
+🔇 Finding all AVPlayers in view hierarchy
+🔇 Stopping player 1 of 1
+⚠️ Player status: PAUSED
+🔇 Final cleanup
+📍 Attempting to restore to previous view: 
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/1249/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1039&_ts=1747926070
+📱 Extracted timestamp from URL: 1039
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/640/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=643&_ts=1747926075
+📱 Extracted timestamp from URL: 643
+📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/640/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=643&_ts=1747926075
+📱 Extracted timestamp from URL: 643
+⏱ Current playback position: 643.591199339 seconds
+🎬 GlobalVideoManager: Stopping all 0 active preview players
+🧹 GlobalVideoManager: Cleaning up all 0 active players
+🧹 GlobalVideoManager: Cleaning up all 0 active players
+📱 VideoPlayerView disappeared
