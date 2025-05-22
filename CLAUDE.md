@@ -1,0 +1,3 @@
+- remember to push to github when I have approved that something is working as it should
+- also dont overengineer a solution
+- dont add things until you know they aren't there to begin with
