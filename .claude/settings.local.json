@@ -15,7 +15,9 @@
       "Bash(xcrun simctl list:*)",
       "Bash(rm:*)",
       "Bash(cat:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }
