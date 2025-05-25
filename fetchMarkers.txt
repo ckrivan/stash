@@ -1,0 +1,95 @@
+    func fetchMarkers(page: Int = 1, appendResults: Bool = false, performerId: String? = nil) async {
+        isLoading = true
+        
+        // Generate a random seed for consistent random sorting
+        let randomSeed = Int.random(in: 0...999999)
+        
+        let graphQLQuery = """
+        {
+            "operationName": "FindSceneMarkers",
+            "variables": {
+                "filter": {
+                    "page": \(page),
+                    "per_page": 100,
+                    "sort": "random_\(randomSeed)",
+                    "direction": "ASC"
+                },
+                "scene_marker_filter": {
+                    \(performerId != nil ? "\"performers\": {\"value\": [\"\(performerId!)\"], \"modifier\": \"INCLUDES_ALL\"}" : "")
+                }
+            },
+            "query": "query FindSceneMarkers($filter: FindFilterType, $scene_marker_filter: SceneMarkerFilterType) { findSceneMarkers(filter: $filter, scene_marker_filter: $scene_marker_filter) { count scene_markers { ...SceneMarkerData __typename } __typename } } fragment SceneMarkerData on SceneMarker { id title seconds end_seconds stream preview screenshot scene { ...SceneMarkerSceneData __typename } primary_tag { id name __typename } tags { id name __typename } __typename } fragment SceneMarkerSceneData on Scene { id title files { width height path __typename } performers { id name image_path __typename } __typename }"
+        }
+        """
+        
+        print("🔍 Fetching markers (page \(page)) from \(serverAddress)")
+        
+        guard let url = URL(string: "\(serverAddress)/graphql") else {
+            print("❌ Invalid URL for markers")
+            isLoading = false
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("*/*", forHTTPHeaderField: "Accept")
+        request.setValue("gzip, deflate", forHTTPHeaderField: "Accept-Encoding")
+        request.setValue("Mozilla/5.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("keep-alive", forHTTPHeaderField: "Connection")
+        request.setValue("u=3, i", forHTTPHeaderField: "Priority")
+        request.setValue(serverAddress, forHTTPHeaderField: "Origin")
+        request.setValue("nc_sameSiteCookielax=true; nc_sameSiteCookiestrict=true", forHTTPHeaderField: "Cookie")
+        request.setValue("\(serverAddress)/scenes/markers", forHTTPHeaderField: "Referer")
+        request.httpBody = graphQLQuery.data(using: .utf8)
+        
+        // Add API Key header which wasn't in the original but might be needed according to documentation
+        request.setValue(apiKey, forHTTPHeaderField: "ApiKey")
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            
+            // Debug: Print the response data
+            if let jsonString = String(data: data, encoding: .utf8)?.prefix(500) {
+                print("🔍 Response data preview: \(jsonString)...")
+            }
+            
+            let response = try JSONDecoder().decode(SceneMarkersResponse.self, from: data)
+            
+            await MainActor.run {
+                if appendResults {
+                    // Filter out duplicates before appending
+                    let newMarkers = response.data.findSceneMarkers.scene_markers.filter { newMarker in
+                        !self.markers.contains { $0.id == newMarker.id }
+                    }
+                    self.markers.append(contentsOf: newMarkers)
+                    print("✅ Added \(newMarkers.count) new markers")
+                    
+                    // Debug log for first marker
+                    if let firstMarker = self.markers.first {
+                        print("📊 First marker details:")
+                        print("  ID: \(firstMarker.id)")
+                        print("  Title: \(firstMarker.title)")
+                        print("  Scene ID: \(firstMarker.scene.id)")
+                    }
+                } else {
+                    self.markers = response.data.findSceneMarkers.scene_markers
+                    print("✅ Set \(response.data.findSceneMarkers.scene_markers.count) markers")
+                    
+                    // Debug log for first marker
+                    if let firstMarker = self.markers.first {
+                        print("📊 First marker details:")
+                        print("  ID: \(firstMarker.id)")
+                        print("  Title: \(firstMarker.title)")
+                        print("  Scene ID: \(firstMarker.scene.id)")
+                    }
+                }
+                
+                self.isLoading = false
+            }
+        } catch {
+            print("❌ Error loading markers: \(error)")
+            self.error = error
+            isLoading = false
+        }
+    }

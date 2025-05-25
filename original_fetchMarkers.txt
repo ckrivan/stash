@@ -1,0 +1,381 @@
+    func fetchMarkers(page: Int = 1, appendResults: Bool = false, performerId: String? = nil) async {
+        isLoading = true
+
+        // Define GraphQL error structure (ensure it exists and is correctly defined)
+        struct GraphQLError: Decodable {
+            let message: String
+            let path: [String]?
+        }
+
+        // Use the absolute simplest query possible to get any markers
+        var filterDict: [String: Any] = [
+            "page": page,
+            "per_page": 40
+        ]
+
+        // Create the query string with proper JSON formatting
+        let query = """
+        {
+            "operationName": "FindSceneMarkers",
+            "variables": {
+                "filter": \(encodeJSON(filterDict))
+            },
+            "query": "query FindSceneMarkers($filter: FindFilterType) { findSceneMarkers(filter: $filter) { count scene_markers { id title seconds stream preview screenshot scene { id title } primary_tag { id name } tags { id name } } } }"
+        }
+        """
+
+        print("🔍 Fetching markers (page \(page)) from \(serverAddress)")
+        print("🔍 Query excerpt: \(query.prefix(200))...")
+
+        do {
+            // Looking at the curl command more closely, the apikey isn't in the URL
+            guard let url = URL(string: "\(serverAddress)/graphql") else {
+                print("❌ Invalid URL for fetching markers: \(serverAddress)/graphql")
+                throw StashAPIError.invalidURL
+            }
+            print("🔍 Using standard graphql URL without apikey parameter")
+
+            // Create and configure the request with headers matching the working curl command
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("*/*", forHTTPHeaderField: "Accept")
+            request.setValue("gzip, deflate", forHTTPHeaderField: "Accept-Encoding")
+            request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15", forHTTPHeaderField: "User-Agent")
+            request.setValue("keep-alive", forHTTPHeaderField: "Connection")
+            request.setValue("nc_sameSiteCookielax=true; nc_sameSiteCookiestrict=true", forHTTPHeaderField: "Cookie")
+            request.setValue("en-US,en;q=0.9", forHTTPHeaderField: "Accept-Language")
+            request.setValue("u=3, i", forHTTPHeaderField: "Priority")
+
+            // Set the origin to match exactly
+            request.setValue(serverAddress, forHTTPHeaderField: "Origin")
+            // Set a referer that matches the server's expectation exactly as in the curl command
+            request.setValue("\(serverAddress)/scenes/markers?q=cowgirl%20-reverse&sortby=random_60376890&perPage=20&disp=2", forHTTPHeaderField: "Referer")
+
+            // Analyze the request headers in the curl command more carefully
+            print("🔍 Using exact headers from the curl command")
+
+            // Since we're still getting errors, let's try a hybrid approach - using both the Cookie and the ApiKey
+            // Some Stash instances might use cookies for frontend auth but still need ApiKey for API calls
+            print("🔍 Using hybrid auth approach with both Cookie and ApiKey")
+            request.setValue(apiKey, forHTTPHeaderField: "ApiKey")
+
+            // Set the request body
+            let jsonData = query.data(using: .utf8)!
+            request.setValue("\(jsonData.count)", forHTTPHeaderField: "Content-Length")
+            request.httpBody = jsonData
+
+            // Execute the request
+            let (data, urlResponse) = try await URLSession.shared.data(for: request)
+
+            // Log the HTTP response status
+            if let httpResp = urlResponse as? HTTPURLResponse {
+                print("🔍 HTTP response status: \(httpResp.statusCode)")
+
+                // Check for HTTP errors
+                if httpResp.statusCode >= 400 {
+                    print("❌ HTTP error: \(httpResp.statusCode)")
+                    throw StashAPIError.serverError(httpResp.statusCode)
+                }
+            }
+
+            // Debug the raw response in more detail
+            if let jsonString = String(data: data, encoding: .utf8) {
+                // Always show FULL response for debugging
+                print("🔍 FULL Response data (\(data.count) bytes):\n\(jsonString)")
+
+                // Try extracting error information if data doesn't match our expected format
+                do {
+                    if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                        if let message = json["message"] as? String {
+                            print("❌ API Error Message: \(message)")
+                        }
+                        if let status = json["status"] as? Int {
+                            print("❌ API Status Code: \(status)")
+                        }
+                    }
+                } catch {
+                    print("❌ Failed to parse response as JSON: \(error)")
+                }
+            }
+
+            // Define the response structure to match exactly what the server returns
+            // Simplified response structure that matches our simpler query
+            struct SceneMarkersResponse: Decodable {
+                struct Data: Decodable {
+                    struct FindSceneMarkers: Decodable {
+                        let count: Int
+                        let scene_markers: [SceneMarker]
+                    }
+                    let findSceneMarkers: FindSceneMarkers
+                }
+                let data: Data?
+                let errors: [GraphQLError]?
+
+                    // Convert to our standard SceneMarker model
+                    func toSceneMarker() -> SceneMarker {
+                        let scenePerformers = scene.performers?.map { performer in
+                            StashScene.Performer(id: performer.id,
+                                                 name: performer.name,
+                                                 gender: nil,
+                                                 image_path: performer.image_path,
+                                                 scene_count: nil,
+                                                 favorite: nil,
+                                                 rating100: nil)
+                        } ?? []
+
+                        // Construct paths object if files are available
+                        let scenePaths = SceneMarker.MarkerScene.ScenePaths(
+                            screenshot: screenshot,
+                            preview: preview,
+                            stream: stream
+                        )
+
+                        // Create a scene with performers
+                        let markerScene = SceneMarker.MarkerScene(
+                            id: scene.id,
+                            title: scene.title,
+                            paths: scenePaths,
+                            performers: scenePerformers
+                        )
+
+                        // Create the primary tag
+                        let primaryTag = SceneMarker.Tag(id: primary_tag.id, name: primary_tag.name)
+
+                        // Map the tags
+                        let mappedTags = tags.map { SceneMarker.Tag(id: $0.id, name: $0.name) }
+
+                        return SceneMarker(
+                            id: id,
+                            title: title,
+                            seconds: seconds,
+                            stream: stream,
+                            preview: preview,
+                            screenshot: screenshot,
+                            scene: markerScene,
+                            primary_tag: primaryTag,
+                            tags: mappedTags
+                        )
+                    }
+                }
+            }
+
+            do {
+                // Attempt to decode the response
+                let response = try JSONDecoder().decode(SceneMarkersResponse.self, from: data)
+
+                // Check for GraphQL errors
+                if let errors = response.errors, !errors.isEmpty {
+                    let errorMessages = errors.map { $0.message }.joined(separator: ", ")
+                    print("❌ GraphQL errors: \(errorMessages)")
+                    throw StashAPIError.graphQLError(errorMessages)
+                }
+
+                // Check for missing data field
+                guard let responseData = response.data else {
+                    print("❌ Missing data field in response")
+                    throw StashAPIError.dataNotFound("No data field in response")
+                }
+
+                print("✅ Successfully decoded \(responseData.findSceneMarkers.scene_markers.count) markers")
+
+                // Log details of first marker for debugging
+                if let firstMarker = responseData.findSceneMarkers.scene_markers.first {
+                    print("📊 First marker details:")
+                    print("  ID: \(firstMarker.id)")
+                    print("  Title: \(firstMarker.title)")
+                    print("  Scene ID: \(firstMarker.scene.id)")
+                    print("  Has performers: \(firstMarker.scene.performers != nil && !(firstMarker.scene.performers?.isEmpty ?? true))")
+                    if let performers = firstMarker.scene.performers, !performers.isEmpty {
+                        print("  First performer: \(performers[0].name) (ID: \(performers[0].id))")
+                    }
+                }
+
+                // Convert the typed response to our model
+                // The markers are already in the right format - no conversion needed
+                let sceneMarkers = responseData.findSceneMarkers.scene_markers
+                print("✅ Decoded \(sceneMarkers.count) markers directly")
+
+                await MainActor.run {
+                    if appendResults {
+                        // Filter out duplicates before appending
+                        let newMarkers = sceneMarkers.filter { newMarker in
+                            !self.markers.contains { $0.id == newMarker.id }
+                        }
+                        self.markers.append(contentsOf: newMarkers)
+                        print("✅ Added \(newMarkers.count) new markers (total: \(self.markers.count))")
+                    } else {
+                        self.markers = sceneMarkers
+                        print("✅ Set \(sceneMarkers.count) markers")
+                    }
+
+                    self.isLoading = false
+                }
+            } catch let decodingError {
+                print("❌ JSON decoding error: \(decodingError)")
+
+                // Try to provide more detailed error information
+                if let decodingError = decodingError as? DecodingError {
+                    switch decodingError {
+                    case .keyNotFound(let key, let context):
+                        print("❌ Missing key: \(key.stringValue) in \(context.codingPath)")
+                    case .typeMismatch(let type, let context):
+                        print("❌ Type mismatch: expected \(type) in \(context.codingPath)")
+                    case .valueNotFound(let type, let context):
+                        print("❌ Value not found: \(type) in \(context.codingPath)")
+                    case .dataCorrupted(let context):
+                        print("❌ Data corrupted: \(context)")
+                    @unknown default:
+                        print("❌ Unknown decoding error")
+                    }
+                }
+
+                // Manual fallback: extract markers directly from JSON if possible
+                if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let dataObject = json["data"] as? [String: Any],
+                   let findSceneMarkers = dataObject["findSceneMarkers"] as? [String: Any],
+                   let sceneMarkersArray = findSceneMarkers["scene_markers"] as? [[String: Any]] {
+
+                    print("🔍 Direct JSON extraction found \(sceneMarkersArray.count) markers")
+
+                    // Try to manually construct markers (enhanced version)
+                    var manualMarkers: [SceneMarker] = []
+
+                    for markerData in sceneMarkersArray {
+                        // Use NSNumber for better number handling
+                        if let id = markerData["id"] as? String,
+                           let title = markerData["title"] as? String,
+                           let seconds = (markerData["seconds"] as? NSNumber)?.floatValue ?? (markerData["seconds"] as? Double).flatMap({ Float($0) }),
+                           let stream = markerData["stream"] as? String,
+                           let preview = markerData["preview"] as? String,
+                           let screenshot = markerData["screenshot"] as? String,
+                           let sceneData = markerData["scene"] as? [String: Any],
+                           let sceneId = sceneData["id"] as? String,
+                           let primaryTagData = markerData["primary_tag"] as? [String: Any],
+                           let primaryTagId = primaryTagData["id"] as? String,
+                           let primaryTagName = primaryTagData["name"] as? String,
+                           seconds != nil { // Ensure seconds is not nil
+
+                            // Get performers if available
+                            var scenePerformers: [StashScene.Performer] = []
+                            if let performersArray = sceneData["performers"] as? [[String: Any]] {
+                                for performerData in performersArray {
+                                    if let performerId = performerData["id"] as? String,
+                                       let performerName = performerData["name"] as? String {
+                                        let performer = StashScene.Performer(
+                                            id: performerId,
+                                            name: performerName,
+                                            gender: nil,
+                                            image_path: performerData["image_path"] as? String,
+                                            scene_count: nil,
+                                            favorite: nil,
+                                            rating100: nil
+                                        )
+                                        scenePerformers.append(performer)
+                                    }
+                                }
+                            }
+
+                            // Get tags if available
+                            var markerTags: [SceneMarker.Tag] = []
+                            if let tagsArray = markerData["tags"] as? [[String: Any]] {
+                                for tagData in tagsArray {
+                                    if let tagId = tagData["id"] as? String,
+                                       let tagName = tagData["name"] as? String {
+                                        let tag = SceneMarker.Tag(id: tagId, name: tagName)
+                                        markerTags.append(tag)
+                                    }
+                                }
+                            }
+
+                            // Create scene paths
+                            let scenePaths = SceneMarker.MarkerScene.ScenePaths(
+                                screenshot: screenshot,
+                                preview: preview,
+                                stream: stream
+                            )
+
+                            // Create scene with performers
+                            let sceneTitle = sceneData["title"] as? String
+                            let markerScene = SceneMarker.MarkerScene(
+                                id: sceneId,
+                                title: sceneTitle,
+                                paths: scenePaths,
+                                performers: scenePerformers.isEmpty ? nil : scenePerformers
+                            )
+
+                            // Create a complete marker with all available data
+                            let marker = SceneMarker(
+                                id: id,
+                                title: title,
+                                seconds: seconds,
+                                stream: stream,
+                                preview: preview,
+                                screenshot: screenshot,
+                                scene: markerScene,
+                                primary_tag: SceneMarker.Tag(id: primaryTagId, name: primaryTagName),
+                                tags: markerTags
+                            )
+
+                            manualMarkers.append(marker)
+                        }
+                    }
+
+                    if !manualMarkers.isEmpty {
+                        print("✅ Successfully created \(manualMarkers.count) markers manually")
+
+                        // Log details of first marker for debugging
+                        if let firstMarker = manualMarkers.first {
+                            print("📊 First manual marker details:")
+                            print("  ID: \(firstMarker.id)")
+                            print("  Title: \(firstMarker.title)")
+                            print("  Scene ID: \(firstMarker.scene.id)")
+                            print("  Has performers: \(firstMarker.scene.performers != nil && !(firstMarker.scene.performers?.isEmpty ?? true))")
+                            if let performers = firstMarker.scene.performers, !performers.isEmpty {
+                                print("  First performer: \(performers[0].name) (ID: \(performers[0].id))")
+                            }
+                            print("  Screenshot URL: \(firstMarker.screenshot)")
+                            print("  Stream URL: \(firstMarker.stream)")
+                        }
+
+                        // Update markers on main thread
+                        Task { @MainActor in
+                            if appendResults {
+                                // Filter out duplicates before appending
+                                let newMarkers = manualMarkers.filter { newMarker in
+                                    !self.markers.contains { $0.id == newMarker.id }
+                                }
+                                self.markers.append(contentsOf: newMarkers)
+                                print("✅ Added \(newMarkers.count) new markers manually (total: \(self.markers.count))")
+                            } else {
+                                self.markers = manualMarkers
+                                print("✅ Set \(manualMarkers.count) markers manually")
+                            }
+
+                            self.isLoading = false
+                        }
+                        return // Exit without throwing error since we recovered
+                    } else {
+                        print("⚠️ Failed to extract any valid markers manually")
+                    }
+                }
+
+                // If all else fails, throw the original error
+                throw StashAPIError.decodingError(decodingError)
+            }
+        } catch {
+            print("❌ Error fetching markers: \(error)")
+            if let apiError = error as? StashAPIError {
+                print("❌ StashAPI Error: \(apiError)")
+            } else {
+                print("❌ Other Error: \(error.localizedDescription)")
+            }
+
+            await MainActor.run {
+                self.error = error
+                self.isLoading = false
+            }
+        }
+    }
+
+    // Fetches markers by tag ID

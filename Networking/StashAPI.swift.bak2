@@ -1,0 +1,1685 @@
+import Foundation
+import SwiftUI
+import Combine
+
+enum PerformerFilter {
+    case all
+    case lessThanTwo
+    case twoOrMore
+    case tenOrMore
+}
+
+struct ScenesResponseData: Decodable {
+    let findScenes: FindScenesResult
+
+    struct FindScenesResult: Decodable {
+        let scenes: [StashScene]
+        let count: Int
+    }
+}
+
+struct GraphQLResponse<T: Decodable>: Decodable {
+    let data: T
+    let errors: [GraphQLError]?
+}
+
+struct GraphQLError: Decodable {
+    let message: String
+}
+
+struct PerformersResponse: Decodable {
+    let findPerformers: FindPerformersResult
+
+    struct FindPerformersResult: Decodable {
+        let count: Int
+        let performers: [StashScene.Performer]
+    }
+}
+
+struct ScenesResponse: Decodable {
+    let data: ScenesData
+
+    struct ScenesData: Decodable {
+        let findScenes: FindScenesResult
+
+        struct FindScenesResult: Decodable {
+            let count: Int
+            let scenes: [StashScene]
+        }
+    }
+}
+
+struct SceneResponse: Decodable {
+    let findScene: StashScene
+}
+
+struct SystemStatus: Decodable {
+    let databaseSchema: Int?
+    let databasePath: String?
+    let configPath: String?
+    let appSchema: Int?
+    let status: String?
+    let appName: String?
+    let appVersion: String?
+    let logFile: String?
+    let maxSessionAge: Int?
+}
+
+struct TagSearchResponse: Decodable {
+    let data: TagData
+
+    struct TagData: Decodable {
+        let findTags: TagResults
+
+        struct TagResults: Decodable {
+            let count: Int
+            let tags: [StashScene.Tag]
+        }
+    }
+}
+
+/// Stats data response from the Stash API
+struct StatsDataResponse: Decodable {
+    let stats: StashStats
+}
+
+class StashAPI: ObservableObject {
+    // MARK: - Published Properties
+    @Published var scenes: [StashScene] = []
+    @Published var isLoading = false
+    @Published var error: Error?
+    @Published var performers: [StashScene.Performer] = []
+    @Published var markers: [SceneMarker] = []
+    @Published var totalSceneCount: Int = 0
+    @Published var totalPerformerCount: Int = 0
+    @Published var connectionStatus: ConnectionStatus = .unknown
+    @Published var sceneID: String?
+    @Published var isAuthenticated = false
+    @Published var isConnected = false
+    @Published var systemStatus: SystemStatus?
+    @Published var serverAddressPublic = ""
+    @Published var preview: Bool = false
+
+    // MARK: - Properties
+    let serverAddress: String
+    private var currentTask: Task<Void, Never>?
+    private var cancellables = Set<AnyCancellable>()
+
+    // API Authentication
+    private let apiKey: String
+
+    let decoder = JSONDecoder()
+    let encoder = JSONEncoder()
+
+    // MARK: - Connection Status
+    enum ConnectionStatus: Equatable {
+        case connected
+        case disconnected
+        case authenticationFailed
+        case unknown
+        case failed(Error)
+
+        static func == (lhs: ConnectionStatus, rhs: ConnectionStatus) -> Bool {
+            switch (lhs, rhs) {
+            case (.connected, .connected),
+                 (.disconnected, .disconnected),
+                 (.authenticationFailed, .authenticationFailed),
+                 (.unknown, .unknown):
+                return true
+            case (.failed(let lhsError), .failed(let rhsError)):
+                return lhsError.localizedDescription == rhsError.localizedDescription
+            default:
+                return false
+            }
+        }
+    }
+
+    // MARK: - Initialization
+    init(serverAddress: String, apiKey: String) {
+        self.serverAddress = serverAddress
+        self.apiKey = apiKey
+        print("🔄 StashAPI initializing with server: \(serverAddress)")
+        print("🔑 Using API key: \(apiKey.prefix(10))...")
+
+        self.decoder.keyDecodingStrategy = .convertFromSnakeCase
+
+        // Check if we have an API key
+        if !apiKey.isEmpty {
+            self.isAuthenticated = true
+        }
+
+        // Configure session
+        URLSession.shared.configuration.timeoutIntervalForRequest = 30.0
+        URLSession.shared.configuration.timeoutIntervalForResource = 60.0
+
+        // Trigger a connection check asynchronously
+        Task {
+            await checkAndUpdateConnectionStatus()
+        }
+    }
+
+    // Check server connection and update the connectionStatus property
+    private func checkAndUpdateConnectionStatus() async {
+        print("🔄 Checking connection status...")
+        do {
+            // Try to connect to the server
+            try await checkServerConnection()
+            await MainActor.run {
+                self.connectionStatus = .connected
+                self.isConnected = true
+                self.error = nil
+                print("✅ Connection successful")
+            }
+        } catch let error as StashAPIError {
+            await MainActor.run {
+                switch error {
+                case .authenticationFailed:
+                    print("🔒 Authentication failed - check API key")
+                    self.connectionStatus = .authenticationFailed
+                case .connectionFailed(let reason):
+                    print("❌ Connection failed: \(reason)")
+                    self.connectionStatus = .disconnected
+                case .invalidURL:
+                    print("❌ Invalid server URL configured")
+                    self.connectionStatus = .failed(error)
+                default:
+                    print("❌ Connection error: \(error.localizedDescription)")
+                    self.connectionStatus = .failed(error)
+                }
+                self.error = error
+                self.isConnected = false
+            }
+
+            // Try to determine if server is reachable without authentication
+            do {
+                guard let url = URL(string: serverAddress) else {
+                    return
+                }
+
+                var request = URLRequest(url: url)
+                request.timeoutInterval = 5
+
+                let (_, response) = try await URLSession.shared.data(for: request)
+
+                if let httpResponse = response as? HTTPURLResponse {
+                    print("📡 Basic server check response: \(httpResponse.statusCode)")
+
+                    await MainActor.run {
+                        if (200...299).contains(httpResponse.statusCode) {
+                            // Server is reachable but we had auth issues
+                            if self.connectionStatus != .authenticationFailed {
+                                self.connectionStatus = .authenticationFailed
+                            }
+                        } else if (500...599).contains(httpResponse.statusCode) {
+                            self.connectionStatus = .failed(StashAPIError.serverError(httpResponse.statusCode))
+                        }
+                    }
+                }
+            } catch {
+                print("❌ Server completely unreachable: \(error.localizedDescription)")
+                await MainActor.run {
+                    self.connectionStatus = .disconnected
+                }
+            }
+        } catch {
+            print("❌ Unexpected error during connection check: \(error.localizedDescription)")
+            await MainActor.run {
+                self.connectionStatus = .failed(error)
+                self.error = error
+                self.isConnected = false
+            }
+        }
+    }
+
+    // Helper method to retry connection
+    func retryConnection() async {
+        print("🔄 Retrying connection...")
+        await checkAndUpdateConnectionStatus()
+    }
+
+    // Helper to get a user-friendly connection status message
+    var connectionStatusMessage: String {
+        switch connectionStatus {
+        case .connected:
+            return "Connected to server"
+        case .disconnected:
+            return "Unable to connect to server"
+        case .authenticationFailed:
+            return "Authentication failed - check API key"
+        case .unknown:
+            return "Checking connection..."
+        case .failed(let error):
+            if let stashError = error as? StashAPIError {
+                return stashError.localizedDescription
+            } else {
+                return "Connection failed: \(error.localizedDescription)"
+            }
+        }
+    }
+    
+    // MARK: - Authentication Methods
+    private func configureRequestWithAuth(_ request: inout URLRequest, referer: String? = nil) {
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("*/*", forHTTPHeaderField: "Accept")
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.setValue(apiKey, forHTTPHeaderField: "ApiKey")
+        request.setValue(serverAddress, forHTTPHeaderField: "Origin")
+        if let referer = referer {
+            request.setValue(referer, forHTTPHeaderField: "Referer")
+        }
+        request.timeoutInterval = 30.0
+    }
+
+    // MARK: - Modern Async/Await GraphQL Methods
+
+    /// Public method to execute GraphQL queries directly with async/await
+    func executeGraphQLQueryAsync(_ query: String) async throws -> Data {
+        guard let url = URL(string: "\(serverAddress)/graphql") else {
+            throw StashAPIError.invalidURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("*/*", forHTTPHeaderField: "Accept")
+        request.setValue("ApiKey \(apiKey)", forHTTPHeaderField: "ApiKey")
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.setValue(serverAddress, forHTTPHeaderField: "Origin")
+        request.httpBody = query.data(using: .utf8)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
+            throw StashAPIError.serverError(httpResponse.statusCode)
+        }
+
+        return data
+    }
+
+    /// Performs a GraphQL request using async/await
+    private func performGraphQLRequest<T: Decodable>(query: String, variables: [String: Any]? = nil) async throws -> T {
+        guard let url = URL(string: "\(serverAddress)/graphql") else {
+            throw StashAPIError.invalidURL
+        }
+
+        // Create the request body
+        var requestBody: [String: Any] = [
+            "query": query
+        ]
+        if let variables = variables {
+            requestBody["variables"] = variables
+        }
+
+        // Convert request body to JSON data
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: requestBody) else {
+            throw StashAPIError.invalidData("Cannot serialize request body")
+        }
+
+        // Create and configure the request
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("ApiKey \(apiKey)", forHTTPHeaderField: "ApiKey")
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.httpBody = jsonData
+
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+
+            if let httpResponse = response as? HTTPURLResponse {
+                print("📡 GraphQL Response Status: \(httpResponse.statusCode)")
+
+                if httpResponse.statusCode == 401 {
+                    throw StashAPIError.authenticationFailed
+                }
+
+                if !(200...299).contains(httpResponse.statusCode) {
+                    throw StashAPIError.serverError(httpResponse.statusCode)
+                }
+            }
+
+            return try JSONDecoder().decode(T.self, from: data)
+        } catch {
+            print("❌ GraphQL Error: \(error)")
+            throw error
+        }
+    }
+
+    // Add a version of performGraphQLRequest that returns raw Data
+    private func performGraphQLRequest(query: String, variables: [String: Any]? = nil) async throws -> Data {
+        guard let url = URL(string: "\(serverAddress)/graphql") else {
+            throw StashAPIError.invalidURL
+        }
+
+        // Create the request body
+        var requestBody: [String: Any] = [
+            "query": query
+        ]
+        if let variables = variables {
+            requestBody["variables"] = variables
+        }
+
+        // Convert request body to JSON data
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: requestBody) else {
+            throw StashAPIError.invalidData("Cannot serialize request body")
+        }
+
+        // Create and configure the request
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("ApiKey \(apiKey)", forHTTPHeaderField: "ApiKey")
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.httpBody = jsonData
+
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+
+            if let httpResponse = response as? HTTPURLResponse {
+                print("📡 GraphQL Response Status: \(httpResponse.statusCode)")
+
+                if httpResponse.statusCode == 401 {
+                    throw StashAPIError.authenticationFailed
+                }
+
+                if !(200...299).contains(httpResponse.statusCode) {
+                    throw StashAPIError.serverError(httpResponse.statusCode)
+                }
+            }
+
+            return data
+        } catch {
+            print("❌ GraphQL Error: \(error)")
+            throw error
+        }
+    }
+
+    // Public method to execute GraphQL queries directly
+    public func executeGraphQLQuery(_ query: String) async throws -> Data {
+        guard let url = URL(string: "\(serverAddress)/graphql") else {
+            throw StashAPIError.invalidURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("*/*", forHTTPHeaderField: "Accept")
+        request.setValue("ApiKey \(apiKey)", forHTTPHeaderField: "ApiKey")
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.setValue(serverAddress, forHTTPHeaderField: "Origin")
+        request.httpBody = query.data(using: .utf8)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
+            throw StashAPIError.serverError(httpResponse.statusCode)
+        }
+
+        return data
+    }
+    
+    // MARK: - Scenes Methods
+    func fetchScenes(page: Int = 1, sort: String = "file_mod_time", direction: String = "DESC", appendResults: Bool = false, filterOptions: FilterOptions? = nil) async {
+        do {
+            // Generate random seed for random sorting
+            let randomSeed = Int.random(in: 0...999999)
+            let sortField = sort == "random" ? "random_\(randomSeed)" : sort
+            
+            // Prepare variables
+            var queryVars: [String: Any] = [
+                "filter": [
+                    "page": page,
+                    "per_page": 100,
+                    "sort": sortField,
+                    "direction": direction
+                ]
+            ]
+            
+            // Add scene filters if provided
+            if let filterOptions = filterOptions {
+                let sceneFilter = filterOptions.generateSceneFilter()
+                if !sceneFilter.isEmpty {
+                    queryVars["scene_filter"] = sceneFilter
+                }
+            }
+            
+            // Prepare GraphQL query
+            let graphQLRequest: [String: Any] = [
+                "operationName": "FindScenes",
+                "variables": queryVars,
+                "query": """
+                query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) {
+                    findScenes(filter: $filter, scene_filter: $scene_filter) {
+                        count
+                        scenes {
+                            id
+                            title
+                            details
+                            url
+                            date
+                            rating100
+                            organized
+                            o_counter
+                            paths {
+                                screenshot
+                                preview
+                                stream
+                                webp
+                                vtt
+                                sprite
+                                funscript
+                                interactive_heatmap
+                            }
+                            files {
+                                size
+                                duration
+                                video_codec
+                                width
+                                height
+                            }
+                            performers {
+                                id
+                                name
+                                gender
+                                image_path
+                                scene_count
+                            }
+                            tags {
+                                id
+                                name
+                            }
+                            studio {
+                                id
+                                name
+                            }
+                            stash_ids {
+                                endpoint
+                                stash_id
+                            }
+                            created_at
+                            updated_at
+                        }
+                    }
+                }
+                """
+            ]
+            
+            // Convert to JSON data
+            let jsonData = try JSONSerialization.data(withJSONObject: graphQLRequest)
+            
+            guard let url = URL(string: "\(serverAddress)/graphql") else {
+                throw StashAPIError.invalidURL
+            }
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            configureRequestWithAuth(&request)
+            request.httpBody = jsonData
+
+            print("📤 Fetching scenes page \(page) (sort: \(sort), direction: \(direction))")
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            // Check for task cancellation
+            if Task.isCancelled {
+                print("⚠️ Scene fetch task was cancelled")
+                throw StashAPIError.taskCancelled
+            }
+            
+            // Log HTTP response code for debugging
+            if let httpResponse = response as? HTTPURLResponse {
+                print("📥 HTTP response: \(httpResponse.statusCode)")
+                
+                // Check for server errors
+                if httpResponse.statusCode >= 400 {
+                    throw StashAPIError.serverError(httpResponse.statusCode)
+                }
+            }
+            
+            // Decode the response
+            let scenesResponse = try JSONDecoder().decode(GraphQLResponse<ScenesResponseData>.self, from: data)
+            
+            // Check for GraphQL errors
+            if let errors = scenesResponse.errors, !errors.isEmpty {
+                let errorMessages = errors.map { $0.message }.joined(separator: ", ")
+                throw StashAPIError.graphQLError(errorMessages)
+            }
+            
+            // Update our data on the main thread
+            await MainActor.run {
+                // Update total count
+                self.totalSceneCount = scenesResponse.data.findScenes.count
+                
+                // Update scenes array
+                if appendResults {
+                    // Filter out duplicates before appending
+                    let newScenes = scenesResponse.data.findScenes.scenes.filter { newScene in
+                        !self.scenes.contains { $0.id == newScene.id }
+                    }
+                    self.scenes.append(contentsOf: newScenes)
+                    print("✅ Added \(newScenes.count) new scenes (total: \(self.scenes.count))")
+                } else {
+                    self.scenes = scenesResponse.data.findScenes.scenes
+                    print("✅ Loaded \(self.scenes.count) scenes")
+                }
+                
+                self.isLoading = false
+                self.error = nil
+            }
+        } catch {
+            // Only update UI state if task wasn't cancelled
+            if !Task.isCancelled {
+                await MainActor.run {
+                    print("❌ Error fetching scenes: \(error.localizedDescription)")
+                    self.error = error
+                    self.isLoading = false
+                }
+            }
+        }
+    }
+    
+    // MARK: - Execute GraphQL Query Method
+    // Removed duplicate method - using other executeGraphQLQuery implementation instead
+    
+    // MARK: - Performer Scenes Method
+    func fetchPerformerScenes(performerId: String, page: Int = 1, perPage: Int = 100, sort: String = "file_mod_time", direction: String = "DESC", appendResults: Bool = false) async {
+        do {
+            // Prepare variables
+            var queryVars: [String: Any] = [
+                "filter": [
+                    "page": page,
+                    "per_page": perPage,
+                    "sort": sort,
+                    "direction": direction
+                ],
+                "performer_id": performerId
+            ]
+
+            // Prepare GraphQL query
+            let graphQLRequest: [String: Any] = [
+                "operationName": "FindPerformerScenes",
+                "variables": queryVars,
+                "query": """
+                query FindPerformerScenes($filter: FindFilterType, $performer_id: ID!) {
+                    findScenes(filter: $filter, scene_filter: { performers: [$performer_id] }) {
+                        count
+                        scenes {
+                            id
+                            title
+                            details
+                            url
+                            date
+                            rating100
+                            organized
+                            o_counter
+                            paths {
+                                screenshot
+                                preview
+                                stream
+                                webp
+                                vtt
+                                sprite
+                                funscript
+                                interactive_heatmap
+                            }
+                            files {
+                                size
+                                duration
+                                video_codec
+                                width
+                                height
+                            }
+                            performers {
+                                id
+                                name
+                                gender
+                                image_path
+                                scene_count
+                            }
+                            tags {
+                                id
+                                name
+                            }
+                            studio {
+                                id
+                                name
+                            }
+                            stash_ids {
+                                endpoint
+                                stash_id
+                            }
+                            created_at
+                            updated_at
+                        }
+                    }
+                }
+                """
+            ]
+
+            // Convert to JSON data
+            let jsonData = try JSONSerialization.data(withJSONObject: graphQLRequest)
+
+            guard let url = URL(string: "\(serverAddress)/graphql") else {
+                throw StashAPIError.invalidURL
+            }
+
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            configureRequestWithAuth(&request)
+            request.httpBody = jsonData
+
+            print("📤 Fetching performer scenes (ID: \(performerId), page: \(page)")
+
+            let (data, response) = try await URLSession.shared.data(for: request)
+
+            // Check for task cancellation
+            if Task.isCancelled {
+                print("⚠️ Performer scenes fetch task was cancelled")
+                throw StashAPIError.taskCancelled
+            }
+
+            // Log HTTP response code for debugging
+            if let httpResponse = response as? HTTPURLResponse {
+                print("📥 HTTP response: \(httpResponse.statusCode)")
+
+                // Check for server errors
+                if httpResponse.statusCode >= 400 {
+                    throw StashAPIError.serverError(httpResponse.statusCode)
+                }
+            }
+
+            // Decode the response
+            let scenesResponse = try JSONDecoder().decode(GraphQLResponse<ScenesResponseData>.self, from: data)
+
+            // Check for GraphQL errors
+            if let errors = scenesResponse.errors, !errors.isEmpty {
+                let errorMessages = errors.map { $0.message }.joined(separator: ", ")
+                throw StashAPIError.graphQLError(errorMessages)
+            }
+
+            // Update our data on the main thread
+            await MainActor.run {
+                // Update total count
+                self.totalSceneCount = scenesResponse.data.findScenes.count
+
+                // Update scenes array
+                if appendResults {
+                    // Filter out duplicates before appending
+                    let newScenes = scenesResponse.data.findScenes.scenes.filter { newScene in
+                        !self.scenes.contains { $0.id == newScene.id }
+                    }
+                    self.scenes.append(contentsOf: newScenes)
+                    print("✅ Added \(newScenes.count) new performer scenes (total: \(self.scenes.count))")
+                } else {
+                    self.scenes = scenesResponse.data.findScenes.scenes
+                    print("✅ Loaded \(self.scenes.count) performer scenes")
+                }
+
+                self.isLoading = false
+                self.error = nil
+            }
+        } catch {
+            // Only update UI state if task wasn't cancelled
+            if !Task.isCancelled {
+                await MainActor.run {
+                    print("❌ Error fetching performer scenes: \(error.localizedDescription)")
+                    self.error = error
+                    self.isLoading = false
+                }
+            }
+        }
+    }
+
+    // MARK: - System Methods
+
+    func getSystemStatus(completion: @escaping (Result<SystemStatus, Error>) -> Void) {
+        let query = """
+        query SystemStatus {
+          systemStatus {
+            databaseSchema
+            databasePath
+            configPath
+            appSchema
+            status
+            appName
+            appVersion
+            logFile
+            maxSessionAge
+          }
+        }
+        """
+
+        struct SystemStatusResponse: Decodable {
+            let systemStatus: SystemStatus
+        }
+
+        executeGraphQLQuery<SystemStatusResponse>(query) { result in
+            switch result {
+            case .success(let response):
+                self.systemStatus = response.systemStatus
+                self.isConnected = true
+                completion(.success(response.systemStatus))
+            case .failure(let error):
+                self.isConnected = false
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// Checks if the Stash server is reachable and if the API key is valid
+    func checkServerConnection() async throws {
+        print("🔄 Checking server connection to \(serverAddress)")
+
+        guard let url = URL(string: "\(serverAddress)/graphql") else {
+            print("❌ Invalid server URL")
+            throw StashAPIError.invalidURL
+        }
+
+        // Create a simple query to check server status
+        let query = """
+        {
+            "operationName": "FindPerformers",
+            "variables": {
+                "filter": {
+                    "page": 1,
+                    "per_page": 1,
+                    "sort": "name",
+                    "direction": "ASC"
+                }
+            },
+            "query": "query FindPerformers($filter: FindFilterType) { findPerformers(filter: $filter) { count performers { id name } } }"
+        }
+        """
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        // Add both authentication methods to ensure compatibility
+        request.setValue(apiKey, forHTTPHeaderField: "ApiKey")
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+
+        request.httpBody = query.data(using: .utf8)
+
+        do {
+            print("📤 Sending connection check request...")
+            let (data, response) = try await URLSession.shared.data(for: request)
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                print("❌ Invalid response type")
+                throw StashAPIError.invalidResponse
+            }
+
+            print("📡 Server responded with status code: \(httpResponse.statusCode)")
+
+            switch httpResponse.statusCode {
+            case 200:
+                guard !data.isEmpty else {
+                    print("❌ Empty response data")
+                    throw StashAPIError.emptyResponse
+                }
+
+                // Try to decode the response
+                if let jsonString = String(data: data, encoding: .utf8) {
+                    print("📥 Response: \(jsonString.prefix(200))...")
+                }
+
+                do {
+                    let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+
+                    // Check if we got a data field
+                    guard let dataField = json?["data"] as? [String: Any] else {
+                        print("❌ Response missing data field")
+                        throw StashAPIError.invalidData("Response missing data field")
+                    }
+
+                    // Check if we have performers data
+                    guard let findPerformers = dataField["findPerformers"] as? [String: Any] else {
+                        print("❌ Response missing performers data")
+                        throw StashAPIError.invalidData("Response missing performers data")
+                    }
+
+                    print("✅ Server connection successful")
+                    print("📊 Performers data: \(findPerformers)")
+
+                } catch {
+                    print("❌ Failed to parse response: \(error)")
+                    throw StashAPIError.decodingError(error)
+                }
+
+            case 401, 403:
+                print("🔒 Authentication failed")
+                throw StashAPIError.authenticationFailed
+
+            case 404:
+                print("❌ Server endpoint not found")
+                throw StashAPIError.connectionFailed("Server endpoint not found")
+
+            case 500...599:
+                print("❌ Server error: \(httpResponse.statusCode)")
+                throw StashAPIError.serverError(httpResponse.statusCode)
+
+            default:
+                print("❌ Unexpected status code: \(httpResponse.statusCode)")
+                throw StashAPIError.invalidResponse
+            }
+
+        } catch let error as StashAPIError {
+            print("❌ StashAPI Error: \(error.localizedDescription)")
+            throw error
+        } catch {
+            print("❌ Network Error: \(error.localizedDescription)")
+            throw StashAPIError.networkError(error)
+        }
+    }
+
+    /// Fetches statistics from Stash server
+    func fetchStats() async throws -> StashStats {
+        do {
+            let query = """
+            query {
+              stats {
+                scene_count
+                scenes_size
+                scene_duration
+                image_count
+                images_size
+                gallery_count
+                performer_count
+                studio_count
+                movie_count
+                tag_count
+              }
+            }
+            """
+
+            let response: GraphQLResponse<StatsDataResponse> = try await performGraphQLRequest(query: query)
+
+            // Check for errors in the response
+            if let errors = response.errors, !errors.isEmpty {
+                let errorMessages = errors.map { $0.message }.joined(separator: ", ")
+                throw StashAPIError.graphQLError(errorMessages)
+            }
+
+            DispatchQueue.main.async {
+                self.connectionStatus = .connected
+            }
+
+            return response.data.stats
+        } catch {
+            DispatchQueue.main.async {
+                self.connectionStatus = .failed(error)
+            }
+
+            NSLog("Error fetching stats: \(error)")
+            throw error
+        }
+    }
+
+    // MARK: - Random Scene/Performer Methods
+
+    func fetchRandomScene(completion: @escaping (Result<StashScene, Error>) -> Void) {
+        let query = """
+        query FindRandomScene {
+          findRandomScene {
+            id
+            title
+            details
+            url
+            date
+            rating100
+            o_counter
+            organized
+            interactive
+            files {
+              id
+              path
+              size
+              duration
+              video_codec
+              audio_codec
+              width
+              height
+              frame_rate
+              bit_rate
+            }
+            paths {
+              screenshot
+              preview
+              stream
+              webp
+              vtt
+              chapters_vtt
+              sprite
+              funscript
+            }
+            scene_markers {
+              id
+              scene {
+                id
+              }
+              title
+              seconds
+              primary_tag {
+                id
+                name
+              }
+              tags {
+                id
+                name
+              }
+              stream
+              preview
+              screenshot
+            }
+            galleries {
+              id
+              title
+              files {
+                path
+              }
+              folder {
+                path
+              }
+            }
+            studio {
+              id
+              name
+              image_path
+            }
+            movies {
+              movie {
+                id
+                name
+                front_image_path
+              }
+              scene_index
+            }
+            tags {
+              id
+              name
+            }
+            performers {
+              id
+              name
+              gender
+              favorite
+              image_path
+            }
+            stash_ids {
+              endpoint
+              stash_id
+            }
+          }
+        }
+        """
+
+        struct SceneResponse: Decodable {
+            let findRandomScene: StashScene
+        }
+
+        executeGraphQLQuery<SceneResponse>(query) { result in
+            switch result {
+            case .success(let response):
+                completion(.success(response.findRandomScene))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func fetchRandomPerformer(completion: @escaping (Result<StashScene.Performer, Error>) -> Void) {
+        let query = """
+        query FindRandomPerformer {
+          findRandomPerformer {
+            id
+            name
+            gender
+            url
+            twitter
+            instagram
+            birthdate
+            death_date
+            ethnicity
+            country
+            eye_color
+            height_cm
+            measurements
+            fake_tits
+            penis_length
+            circumcised
+            hair_color
+            weight
+            created_at
+            updated_at
+            favorite
+            ignore_auto_tag
+            image_path
+            scene_count
+            image_count
+            gallery_count
+            movie_count
+            tags {
+              id
+              name
+            }
+            stash_ids {
+              stash_id
+              endpoint
+            }
+            rating100
+            details
+            aliases
+          }
+        }
+        """
+
+        struct PerformerResponse: Decodable {
+            let findRandomPerformer: StashScene.Performer
+        }
+
+        executeGraphQLQuery<PerformerResponse>(query) { result in
+            switch result {
+            case .success(let response):
+                completion(.success(response.findRandomPerformer))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    // MARK: - Tag Methods
+
+    func findTags(filter: TagFilter? = nil, completion: @escaping (Result<[StashScene.Tag], Error>) -> Void) {
+        let query = """
+        query FindTags($filter: TagFilterType) {
+          findTags(tag_filter: $filter) {
+            count
+            tags {
+              id
+              name
+              aliases
+              image_path
+              scene_count
+            }
+          }
+        }
+        """
+
+        var variables: [String: Any] = [:]
+        if let filter = filter {
+            variables["filter"] = filter.toDictionary()
+        }
+
+        struct TagsResponse: Decodable {
+            let findTags: TagsData
+
+            struct TagsData: Decodable {
+                let count: Int
+                let tags: [StashScene.Tag]
+            }
+        }
+
+        executeGraphQLQuery<TagsResponse>(query, variables: variables) { result in
+            switch result {
+            case .success(let response):
+                completion(.success(response.findTags.tags))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    // Extension to send method for GraphQL queries when using async/await
+    func send<T: Decodable>(query: String) async throws -> GraphQLResponse<T> {
+        // Use the existing performGraphQLRequest method
+        return try await performGraphQLRequest(query: query)
+    }
+
+    // MARK: - Additional Missing Methods
+
+    func searchTags(query: String, completion: @escaping (Result<[StashScene.Tag], Error>) -> Void) {
+        let graphQLQuery = """
+        query FindTags($filter: FindFilterType) {
+          findTags(filter: $filter) {
+            count
+            tags {
+              id
+              name
+              scene_count
+              image_count
+            }
+          }
+        }
+        """
+
+        let variables: [String: Any] = [
+            "filter": [
+                "q": query,
+                "per_page": 10,
+                "sort": "name",
+                "direction": "ASC"
+            ]
+        ]
+
+        struct TagSearchResponse: Decodable {
+            let findTags: TagsData
+
+            struct TagsData: Decodable {
+                let count: Int
+                let tags: [StashScene.Tag]
+            }
+        }
+
+        executeGraphQLQuery<TagSearchResponse>(graphQLQuery, variables: variables) { result in
+            switch result {
+            case .success(let response):
+                completion(.success(response.findTags.tags))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func findTag(id: String, completion: @escaping (Result<StashScene.Tag, Error>) -> Void) {
+        let query = """
+        query FindTag($id: ID!) {
+          findTag(id: $id) {
+            id
+            name
+            aliases
+            image_path
+            scene_count
+          }
+        }
+        """
+
+        let variables: [String: Any] = ["id": id]
+
+        struct TagResponse: Decodable {
+            let findTag: StashScene.Tag
+        }
+
+        executeGraphQLQuery<TagResponse>(query, variables: variables) { result in
+            switch result {
+            case .success(let response):
+                completion(.success(response.findTag))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func fetchPerformers(filter: PerformerFilter = .all, page: Int = 1, appendResults: Bool = false, search: String = "", completion: @escaping (Result<[StashScene.Performer], Error>) -> Void) {
+        let sceneCountValue: String
+        switch filter {
+        case .all:
+            sceneCountValue = "0"
+        case .lessThanTwo:
+            sceneCountValue = "2"
+        case .twoOrMore:
+            sceneCountValue = "2"
+        case .tenOrMore:
+            sceneCountValue = "10"
+        }
+
+        let sceneCountModifier = filter == .lessThanTwo ? "LESS_THAN" : "GREATER_THAN"
+
+        let escapedQuery = search.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
+        let query = """
+        query FindPerformers($filter: FindFilterType, $performer_filter: PerformerFilterType) {
+            findPerformers(filter: $filter, performer_filter: $performer_filter) {
+                count
+                performers {
+                    id
+                    name
+                    gender
+                    image_path
+                    scene_count
+                    favorite
+                }
+            }
+        }
+        """
+
+        let variables: [String: Any] = [
+            "filter": [
+                "q": escapedQuery,
+                "page": page,
+                "per_page": 25,
+                "sort": "name",
+                "direction": "ASC"
+            ],
+            "performer_filter": [
+                "scene_count": [
+                    "modifier": sceneCountModifier,
+                    "value": sceneCountValue
+                ]
+            ]
+        ]
+
+        struct PerformersResponse: Decodable {
+            let findPerformers: FindPerformersResult
+
+            struct FindPerformersResult: Decodable {
+                let count: Int
+                let performers: [StashScene.Performer]
+            }
+        }
+
+        executeGraphQLQuery<PerformersResponse>(query, variables: variables) { result in
+            switch result {
+            case .success(let response):
+                if appendResults {
+                    // Filter out duplicates before appending
+                    let newPerformers = response.findPerformers.performers.filter { newPerformer in
+                        !self.performers.contains { $0.id == newPerformer.id }
+                    }
+                    self.performers.append(contentsOf: newPerformers)
+                    self.totalPerformerCount = response.findPerformers.count
+                    completion(.success(self.performers))
+                } else {
+                    self.performers = response.findPerformers.performers
+                    self.totalPerformerCount = response.findPerformers.count
+                    completion(.success(response.findPerformers.performers))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func searchScenes(query: String, completion: @escaping (Result<[StashScene], Error>) -> Void) {
+        // Escape special characters in the search term
+        let escaped = query
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
+
+        // Use filter.q for full-text search across scenes
+        let graphQLQuery = """
+        query FindScenes($filter: FindFilterType) {
+            findScenes(filter: $filter) {
+                count
+                scenes {
+                    id
+                    title
+                    details
+                    url
+                    date
+                    rating100
+                    organized
+                    o_counter
+                    paths {
+                        screenshot
+                        preview
+                        stream
+                    }
+                    files {
+                        size
+                        duration
+                        video_codec
+                        width
+                        height
+                    }
+                    performers {
+                        id
+                        name
+                    }
+                    tags {
+                        id
+                        name
+                    }
+                    studio {
+                        id
+                        name
+                    }
+                    stash_ids {
+                        endpoint
+                        stash_id
+                    }
+                    created_at
+                    updated_at
+                }
+            }
+        }
+        """
+
+        let variables: [String: Any] = [
+            "filter": [
+                "q": escaped,
+                "page": 1,
+                "per_page": 40,
+                "sort": "title",
+                "direction": "ASC"
+            ]
+        ]
+
+        executeGraphQLQuery<ScenesResponseData>(graphQLQuery, variables: variables) { result in
+            switch result {
+            case .success(let response):
+                completion(.success(response.findScenes.scenes))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func fetchPerformerMarkers(performerId: String, page: Int = 1, completion: @escaping (Result<[SceneMarker], Error>) -> Void) {
+        let graphQLQuery = """
+        query FindSceneMarkers($filter: FindFilterType, $scene_marker_filter: SceneMarkerFilterType) {
+            findSceneMarkers(filter: $filter, scene_marker_filter: $scene_marker_filter) {
+                count
+                scene_markers {
+                    id
+                    title
+                    seconds
+                    stream
+                    preview
+                    screenshot
+                    scene {
+                        id
+                        title
+                        paths {
+                            screenshot
+                            preview
+                            stream
+                        }
+                        performers {
+                            id
+                            name
+                            image_path
+                        }
+                        studio {
+                            id
+                            name
+                        }
+                    }
+                    primary_tag {
+                        id
+                        name
+                    }
+                    tags {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+        """
+
+        let variables: [String: Any] = [
+            "filter": [
+                "page": page,
+                "per_page": 50
+            ],
+            "scene_marker_filter": [
+                "performers": [
+                    "value": [performerId],
+                    "modifier": "INCLUDES_ALL"
+                ]
+            ]
+        ]
+
+        struct SceneMarkersResponse: Decodable {
+            let findSceneMarkers: SceneMarkersData
+
+            struct SceneMarkersData: Decodable {
+                let count: Int
+                let scene_markers: [SceneMarker]
+            }
+        }
+
+        executeGraphQLQuery<SceneMarkersResponse>(graphQLQuery, variables: variables) { result in
+            switch result {
+            case .success(let response):
+                completion(.success(response.findSceneMarkers.scene_markers))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func searchMarkers(query: String, completion: @escaping (Result<[SceneMarker], Error>) -> Void) {
+        let graphQLQuery = """
+        query FindSceneMarkers($filter: FindFilterType) {
+            findSceneMarkers(filter: $filter) {
+                count
+                scene_markers {
+                    id
+                    title
+                    seconds
+                    stream
+                    preview
+                    screenshot
+                    scene {
+                        id
+                        title
+                        paths {
+                            screenshot
+                            preview
+                            stream
+                        }
+                        performers {
+                            id
+                            name
+                            image_path
+                        }
+                        studio {
+                            id
+                            name
+                        }
+                    }
+                    primary_tag {
+                        id
+                        name
+                    }
+                    tags {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+        """
+
+        let variables: [String: Any] = [
+            "filter": [
+                "q": query,
+                "page": 1,
+                "per_page": 40,
+                "sort": "title",
+                "direction": "ASC"
+            ]
+        ]
+
+        struct SceneMarkersResponse: Decodable {
+            let findSceneMarkers: SceneMarkersData
+
+            struct SceneMarkersData: Decodable {
+                let count: Int
+                let scene_markers: [SceneMarker]
+            }
+        }
+
+        executeGraphQLQuery<SceneMarkersResponse>(graphQLQuery, variables: variables) { result in
+            switch result {
+            case .success(let response):
+                completion(.success(response.findSceneMarkers.scene_markers))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func createSceneMarker(sceneId: String, title: String, seconds: Float, primaryTagId: String, tagIds: [String], completion: @escaping (Result<SceneMarker, Error>) -> Void) {
+        let query = """
+        mutation SceneMarkerCreate($input: SceneMarkerCreateInput!) {
+            sceneMarkerCreate(input: $input) {
+                id
+                title
+                seconds
+                stream
+                preview
+                screenshot
+                primary_tag {
+                    id
+                    name
+                }
+                tags {
+                    id
+                    name
+                }
+                scene {
+                    id
+                    title
+                }
+            }
+        }
+        """
+
+        let input: [String: Any] = [
+            "scene_id": sceneId,
+            "title": title,
+            "seconds": seconds,
+            "primary_tag_id": primaryTagId,
+            "tag_ids": tagIds
+        ]
+
+        let variables: [String: Any] = ["input": input]
+
+        struct CreateMarkerResponse: Decodable {
+            let sceneMarkerCreate: SceneMarker
+        }
+
+        executeGraphQLQuery<CreateMarkerResponse>(query, variables: variables) { result in
+            switch result {
+            case .success(let response):
+                completion(.success(response.sceneMarkerCreate))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func testConnection(completion: @escaping (Bool) -> Void) {
+        let query = """
+        query SystemStatus {
+          systemStatus {
+            status
+          }
+        }
+        """
+
+        struct SystemStatusResponse: Decodable {
+            let systemStatus: SystemStatus
+        }
+
+        executeGraphQLQuery<SystemStatusResponse>(query) { result in
+            switch result {
+            case .success(_):
+                completion(true)
+            case .failure(_):
+                completion(false)
+            }
+        }
+    }
+
+    // Method for async/await calls and to support MarkersView
+    func fetchMarkers(page: Int = 1, appendResults: Bool = false) async {
+        let query = """
+        {
+            "operationName": "FindSceneMarkers",
+            "variables": {
+                "filter": {
+                    "page": \(page),
+                    "per_page": 40
+                }
+            },
+            "query": "query FindSceneMarkers($filter: FindFilterType) { findSceneMarkers(filter: $filter) { count scene_markers { id title seconds stream preview screenshot scene { id title paths { screenshot preview stream } } primary_tag { id name } tags { id name } } } }"
+        }
+        """
+
+        isLoading = true
+
+        do {
+            guard let url = URL(string: "\(serverAddress)/graphql") else {
+                throw StashAPIError.invalidURL
+            }
+
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("ApiKey \(apiKey)", forHTTPHeaderField: "ApiKey")
+            request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+            request.httpBody = query.data(using: .utf8)
+
+            let (data, _) = try await URLSession.shared.data(for: request)
+
+            struct SceneMarkersResponse: Decodable {
+                struct Data: Decodable {
+                    struct FindSceneMarkers: Decodable {
+                        let count: Int
+                        let scene_markers: [SceneMarker]
+                    }
+                    let findSceneMarkers: FindSceneMarkers
+                }
+                let data: Data
+            }
+
+            let response = try JSONDecoder().decode(SceneMarkersResponse.self, from: data)
+
+            await MainActor.run {
+                if appendResults {
+                    // Filter out duplicates before appending
+                    let newMarkers = response.data.findSceneMarkers.scene_markers.filter { newMarker in
+                        !self.markers.contains { $0.id == newMarker.id }
+                    }
+                    self.markers.append(contentsOf: newMarkers)
+                } else {
+                    self.markers = response.data.findSceneMarkers.scene_markers
+                }
+
+                self.isLoading = false
+            }
+        } catch {
+            print("Error fetching markers: \(error)")
+            await MainActor.run {
+                self.error = error
+                self.isLoading = false
+            }
+        }
+    }
+}
+
+// MARK: - Additional Data Models
+
+// StashStats model for stats endpoint
+struct StashStats: Codable {
+    let scene_count: Int
+    let scenes_size: Int64
+    let scene_duration: Double
+    let image_count: Int
+    let images_size: Int64
+    let gallery_count: Int
+    let performer_count: Int
+    let studio_count: Int
+    let movie_count: Int
+    let tag_count: Int
+}
+
+// Additional filter models
+struct TagFilter {
+    var name: String?
+    var sceneCount: Int?
+
+    func toDictionary() -> [String: Any] {
+        var result: [String: Any] = [:]
+        if let name = name {
+            result["name"] = ["modifier": "INCLUDES", "value": name]
+        }
+        if let sceneCount = sceneCount {
+            result["scene_count"] = ["modifier": "GREATER_THAN", "value": sceneCount]
+        }
+        return result
+    }
+}

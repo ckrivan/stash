@@ -18,7 +18,8 @@
       "Bash(ls:*)",
       "Bash(git branch:*)",
       "Bash(git push:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(cp:*)"
     ],
     "deny": []
   }

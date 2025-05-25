@@ -1,0 +1,1061 @@
+import SwiftUI
+import AVKit
+import Foundation
+import ObjectiveC
+import Combine
+
+// Helper extension to find the topmost view controller
+extension UIViewController {
+    func topMostViewController() -> UIViewController {
+        // If this controller is presenting another controller, recurse into that one
+        if let presentedViewController = self.presentedViewController {
+            return presentedViewController.topMostViewController()
+        }
+        
+        // Handle different controller types
+        if let navigationController = self as? UINavigationController {
+            if let visibleViewController = navigationController.visibleViewController {
+                return visibleViewController.topMostViewController()
+            }
+            return navigationController
+        } else if let tabBarController = self as? UITabBarController {
+            if let selectedViewController = tabBarController.selectedViewController {
+                return selectedViewController.topMostViewController()
+            }
+            return tabBarController
+        }
+        
+        // This is the top-most view controller
+        return self
+    }
+}
+
+// Using shared ScaleButtonStyle defined in AnimationModifiers.swift
+
+// Observer for monitoring player item
+class PlayerItemObserver: NSObject, ObservableObject {
+    // Published properties to make this class ObservableObject compliant
+    @Published var streamAttempts = 0
+    @Published var isBufferEmpty = false
+    @Published var isPlaybackLikely = true
+    
+    // Callback handlers
+    var onStreamingToggle: ((Bool) -> Void)?
+    var onBufferEmpty: (() -> Void)?
+    
+    // Track which objects and keypaths we're observing to prevent double removal
+    private var observedItems = NSMapTable<NSObject, NSMutableSet>.weakToStrongObjects()
+    
+    // Added to ensure synchronization during initialization and deallocation
+    private let lock = NSLock()
+    
+    deinit {
+        // Ensure we clean up any observers that might still be active when this observer is deallocated
+        print("🧹 PlayerItemObserver being deallocated")
+        // Use safe version to prevent crash
+        safelyRemoveAllObservers()
+    }
+    
+    // Method to safely add an observer and track it
+    func safelyAddObserver(to object: NSObject, forKeyPath keyPath: String) {
+        lock.lock()
+        defer { lock.unlock() }
+        
+        // Get or create the set of keypaths for this object
+        let keypaths: NSMutableSet
+        if let existingKeypaths = observedItems.object(forKey: object) {
+            keypaths = existingKeypaths
+        } else {
+            keypaths = NSMutableSet()
+            observedItems.setObject(keypaths, forKey: object)
+        }
+        
+        // Only add the observer if we're not already observing this keypath
+        if !keypaths.contains(keyPath) {
+            // Create a unique context pointer based on the keypath to avoid ambiguity
+            let contextValue = keyPath.hash
+            let contextPointer = UnsafeMutableRawPointer(bitPattern: contextValue)
+            
+            object.addObserver(self, forKeyPath: keyPath, options: [.new, .initial], context: contextPointer)
+            keypaths.add(keyPath)
+            print("👀 Added observer for keyPath: \(keyPath) with context \(contextValue)")
+        } else {
+            print("ℹ️ Already observing keyPath: \(keyPath)")
+        }
+    }
+    
+    // Method to safely remove an observer and update tracking
+    func safelyRemoveObserver(from object: NSObject, forKeyPath keyPath: String) {
+        lock.lock()
+        defer { lock.unlock() }
+        
+        // Check if we're observing this object
+        guard let keypaths = observedItems.object(forKey: object) else {
+            print("ℹ️ No observers found for object")
+            return
+        }
+        
+        // Check if we're observing this keypath
+        if keypaths.contains(keyPath) {
+            // Use the same context as when adding
+            let contextValue = keyPath.hash
+            let contextPointer = UnsafeMutableRawPointer(bitPattern: contextValue)
+            
+            do {
+                // Use try-catch to handle potential errors
+                try {
+                    object.removeObserver(self, forKeyPath: keyPath, context: contextPointer)
+                }()
+                keypaths.remove(keyPath)
+                print("👋 Removed observer for keyPath: \(keyPath)")
+                
+                // If we removed all keypaths for this object, remove it from our tracking
+                if keypaths.count == 0 {
+                    observedItems.removeObject(forKey: object)
+                }
+            } catch {
+                print("⚠️ Error removing observer: \(error.localizedDescription)")
+                // Remove from tracking anyway to avoid getting into an inconsistent state
+                keypaths.remove(keyPath)
+                if keypaths.count == 0 {
+                    observedItems.removeObject(forKey: object)
+                }
+            }
+        } else {
+            print("ℹ️ Not observing keyPath: \(keyPath)")
+        }
+    }
+    
+    // Remove all observers with objc_sync
+    func removeAllObservers() {
+        objc_sync_enter(self)
+        defer { objc_sync_exit(self) }
+        
+        // Create a copy to avoid mutation during enumeration
+        let enumerator = observedItems.keyEnumerator()
+        let objectsToRemove = NSMutableArray()
+        
+        while let object = enumerator.nextObject() as? NSObject {
+            objectsToRemove.add(object)
+        }
+        
+        // Now safely remove all observers
+        for case let object as NSObject in objectsToRemove {
+            if let keypaths = observedItems.object(forKey: object) {
+                for case let keyPath as String in keypaths {
+                    do {
+                        object.removeObserver(self, forKeyPath: keyPath)
+                        print("👋 Cleanup: removed observer for keyPath: \(keyPath)")
+                    } catch {
+                        print("ℹ️ Cleanup: observer already removed for keyPath: \(keyPath)")
+                    }
+                }
+            }
+            observedItems.removeObject(forKey: object)
+        }
+        
+        // Clear the map
+        observedItems = NSMapTable<NSObject, NSMutableSet>.weakToStrongObjects()
+    }
+    
+    // Safe version to use during deallocation
+    func safelyRemoveAllObservers() {
+        lock.lock()
+        defer { lock.unlock() }
+        
+        // Create a snapshot to avoid mutation during enumeration
+        let snapshot = NSMapTable<NSObject, NSMutableSet>.weakToStrongObjects()
+        let enumerator = observedItems.keyEnumerator()
+        
+        while let object = enumerator.nextObject() as? NSObject {
+            if let keypaths = observedItems.object(forKey: object) {
+                snapshot.setObject(keypaths.mutableCopy() as? NSMutableSet, forKey: object)
+            }
+        }
+        
+        // Clear the original map first to prevent any new observers from being added during cleanup
+        observedItems = NSMapTable<NSObject, NSMutableSet>.weakToStrongObjects()
+        
+        // Now safely remove all observers from the snapshot
+        let objectsEnumerator = snapshot.keyEnumerator()
+        while let object = objectsEnumerator.nextObject() as? NSObject {
+            if let keypaths = snapshot.object(forKey: object) {
+                for case let keyPath as String in keypaths {
+                    do {
+                        object.removeObserver(self, forKeyPath: keyPath)
+                        print("👋 Safe cleanup: removed observer for keyPath: \(keyPath)")
+                    } catch {
+                        // Just continue if an error occurs - we're in deinit anyway
+                        print("ℹ️ Safe cleanup: observer already removed for keyPath: \(keyPath)")
+                    }
+                }
+            }
+        }
+    }
+    
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        guard let keyPath = keyPath, let object = object as? NSObject else {
+            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
+            return
+        }
+        
+        if keyPath == "playbackLikelyToKeepUp" {
+            if let item = object as? AVPlayerItem {
+                // Update the published property on the main thread
+                DispatchQueue.main.async {
+                    self.isPlaybackLikely = item.isPlaybackLikelyToKeepUp
+                    if !item.isPlaybackLikelyToKeepUp {
+                        print("⚠️ Playback not likely to keep up - buffer issues")
+                        // Natural recovery will happen
+                    } else {
+                        print("✅ Playback likely to keep up again")
+                    }
+                }
+            }
+        } else if keyPath == "playbackBufferEmpty" {
+            if let item = object as? AVPlayerItem {
+                // Update the published property on the main thread
+                DispatchQueue.main.async {
+                    self.isBufferEmpty = item.isPlaybackBufferEmpty
+                    if item.isPlaybackBufferEmpty {
+                        print("⚠️ Playback buffer empty")
+                        self.onBufferEmpty?()
+                    } else {
+                        print("✅ Playback buffer filled")
+                    }
+                }
+            }
+        } else {
+            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
+        }
+    }
+}
+
+struct MarkerRow: View {
+    let marker: SceneMarker
+    let serverAddress: String
+    let isVisible: Bool // Whether this marker is currently visible in the scroll view
+    let onTitleTap: (SceneMarker) -> Void
+    let onTagTap: (String) -> Void
+    
+    // State
+    @State private var isMuted = true
+    @State private var isPreviewPlaying = false
+    @State private var streamAttempts = 0
+    @State private var showStreamingOptions = false
+    @State private var isLoadingScene = false
+    @State private var selectedPerformer: StashScene.Performer?
+    @State private var associatedPerformer: StashScene.Performer?
+    
+    // Environment
+    @EnvironmentObject private var appModel: AppModel
+    
+    // View models
+    @StateObject private var playerManager = VideoPlayerManager()
+    @State private var player: AVPlayer?
+    
+    // Observer for player item - use StateObject instead of lazy var to allow state to be modified within the View
+    @StateObject private var playerObserver = PlayerItemObserver()
+    
+    // Stream URL with preview prioritization - using working format
+    private var streamURL: URL? {
+        // Extract the marker ID and scene ID
+        let markerId = marker.id
+        let sceneId = marker.scene.id
+        
+        // Clean up server address
+        let baseServerURL = serverAddress.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        
+        // Use the specific scene_marker stream endpoint format from the working example
+        // This is the most reliable format based on testing
+        let markerStreamUrl = "\(baseServerURL)/scene/\(sceneId)/scene_marker/\(markerId)/stream"
+        print("🔍 Using marker stream URL: \(markerStreamUrl)")
+        
+        return URL(string: markerStreamUrl)
+    }
+    
+    // Format duration in mm:ss format
+    private func formatDuration(_ seconds: Float) -> String {
+        let minutes = Int(seconds) / 60
+        let remainingSeconds = Int(seconds) % 60
+        return String(format: "%d:%02d", minutes, remainingSeconds)
+    }
+    
+    // Main View
+    var body: some View {
+        // Cache title for consistent use
+        let titleValue = marker.title.isEmpty ? "Untitled" : marker.title
+
+        return VStack(alignment: .leading) {
+            // Thumbnail with preview - based on VisionOS implementation
+            GeometryReader { geometry in
+                ZStack {
+                    // Thumbnail
+                    AsyncImage(url: URL(string: marker.screenshot)) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(16/9, contentMode: .fill)
+                    } placeholder: {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.2))
+                    }
+                    .opacity(isPreviewPlaying ? 0 : 1) // Hide thumbnail when video is playing
+
+                    // Video preview
+                    if isVisible && isPreviewPlaying {
+                        VideoPlayer(player: player)
+                            .aspectRatio(16/9, contentMode: .fill)
+                            .onAppear {
+                                player?.isMuted = isMuted
+                                
+                                if player == nil, let url = streamURL {
+                                    print("🔍 MarkerRow - Setting up player with URL: \(url)")
+                                    setupPreviewPlayer(videoURL: url)
+                                    
+                                    // Start playback after a short delay to allow proper initialization
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        player?.play()
+                                        
+                                        // Use the improved seeking process for better reliability
+                                        let markerTime = Double(marker.seconds)
+                                        print("⏱️ Seeking to marker position during appearance: \(markerTime) seconds")
+                                        
+                                        // Always start at beginning first to ensure proper loading
+                                        player?.seek(to: .zero) { _ in
+                                            // Then seek to marker position with high precision
+                                            let seekTime = CMTime(seconds: markerTime, preferredTimescale: 600)
+                                            player?.seek(to: seekTime, toleranceBefore: .zero, toleranceAfter: .zero) { success in
+                                                print("⏱️ Appearance seek completed: \(success ? "success" : "failed")")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                    }
+
+                    // Duration overlay only
+                    HStack {
+                        Text(formatDuration(marker.seconds))
+                            .font(.caption)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(.ultraThinMaterial)
+                            .cornerRadius(4)
+
+                        Spacer()
+                    }
+                    .padding(8)
+                    
+                    // No play button or other overlay elements
+                }
+                .contentShape(Rectangle()) // Ensure the entire area is tappable
+                .onTapGesture {
+                    // Handle thumbnail tap for inline preview only, don't navigate to full screen
+                    handleTap()
+                }
+                // Monitor visibility changes to manage player lifecycle
+                .onChange(of: isVisible) { _, newIsVisible in
+                    print("📱 MarkerRow: Visibility changed to \(newIsVisible)")
+                    
+                    if newIsVisible {
+                        // Preload performer when visible
+                        if associatedPerformer == nil, let performers = marker.scene.performers, !performers.isEmpty {
+                            associatedPerformer = performers.first
+                        }
+                    } else {
+                        // Stop playback when out of view
+                        if isPreviewPlaying {
+                            isPreviewPlaying = false
+                            cleanupPlayer()
+                        }
+                    }
+                }
+                // Using isVisible prop from parent instead of checking viewport here
+                .onAppear {
+                    // Handle any setup needed when component appears
+                    print("📱 MarkerRow: Row appeared for marker: \(marker.id)")
+                }
+            }
+            .frame(height: 180)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            
+            // Info section with higher priority for title
+            VStack(alignment: .leading, spacing: 8) {
+                // Title section gets higher layout priority to ensure it's always visible
+                VStack(alignment: .leading) {
+                    // Title in separate stack with better contrast
+                    HStack {
+                        Button(action: {
+                            // Instead of using playMarkerVideo which has complex logic,
+                            // use the direct navigation function which is more reliable
+                            print("🎬 Marker title tapped - using direct navigation")
+                            onTitleTap(marker)
+                        }) {
+                            Text(titleValue)
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .lineLimit(2) // Allow up to 2 lines for longer titles
+                                .fixedSize(horizontal: false, vertical: true) // Ensure text doesn't get cut off
+                                .padding(.vertical, 4) // Add padding above and below title
+                                .foregroundColor(.primary) // Ensure high contrast
+                                .layoutPriority(100) // Give title highest layout priority
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    // Controls in separate row
+                    HStack {
+                        // Marker ID for debugging
+                        Text("ID: \(marker.id)")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                            .opacity(0.7)
+                        
+                        Spacer()
+                        
+                        // Tag editing button (for consistency with SceneRow)
+                        Button(action: { 
+                            // No tag editing for markers, so play marker instead
+                            playMarkerVideo()
+                         }) {
+                            Image(systemName: "tag")
+                                .foregroundColor(.blue)
+                        }
+                        
+                        // Display timestamp for the marker
+                        HStack(spacing: 2) {
+                            Image(systemName: "clock.fill")
+                                .foregroundColor(.orange)
+                            Text(marker.formattedTime)
+                                .foregroundColor(.secondary)
+                        }
+                        .font(.subheadline)
+                    }
+                }
+                
+                // Performer (if available)
+                if let performer = associatedPerformer {
+                    HStack {
+                        Button(action: {
+                            selectedPerformer = performer
+                        }) {
+                            Text(performer.name)
+                                .font(.subheadline)
+                                .foregroundColor(.blue)
+                        }
+                    }
+                    .lineLimit(1)
+                }
+                
+                // Tags (primary tag + regular tags)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 4) {
+                        // Primary tag
+                        Button(action: { onTagTap(marker.primary_tag.name) }) {
+                            HStack(spacing: 3) {
+                                Image(systemName: "tag.fill")
+                                    .font(.system(size: 10))
+                                Text(marker.primary_tag.name)
+                                    .fontWeight(.medium)
+                            }
+                            .font(.caption)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 5)
+                            .background(Color.blue.opacity(0.2))
+                            .cornerRadius(12)
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                        
+                        // Additional tags
+                        ForEach(marker.tags) { tag in
+                            Button(action: { onTagTap(tag.name) }) {
+                                Text(tag.name)
+                                    .font(.caption)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.secondary.opacity(0.15))
+                                    .cornerRadius(12)
+                            }
+                            .buttonStyle(ScaleButtonStyle())
+                        }
+                    }
+                }
+                
+                // Scene info
+                HStack(spacing: 12) {
+                    Label("From: \(marker.scene.title ?? "Unknown Scene")", systemImage: "film")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(8)
+        }
+        // Use minimal styling to match SceneRow grid appearance
+        .cornerRadius(8)
+        .shadow(radius: 1)
+        .scaleEffect(isVisible ? 1.0 : 0.98)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isVisible)
+        .onDisappear {
+            print("🔍 MarkerRow disappearing - cleaning up resources")
+            cleanupPlayer()
+            // Can't call playerObserver.removeAllObservers() directly in onDisappear as it would require mutating self
+            DispatchQueue.main.async {
+                GlobalVideoManager.shared.cleanupAllPlayers()
+            }
+        }
+        .navigationDestination(isPresented: Binding(
+            get: { selectedPerformer != nil },
+            set: { if !$0 { selectedPerformer = nil } }
+        )) {
+            if let performer = selectedPerformer {
+                PerformerDetailView(performer: performer)
+            }
+        }
+    }
+    
+    // Handle the tap gesture - completely rewritten for reliability
+    private func handleTap() {
+        print("🔄 MarkerRow - Tap detected on marker: \(marker.id)")
+        
+        // Only respond to taps if the marker is visible
+        guard isVisible else {
+            print("⚠️ MarkerRow - Tap ignored, marker not visible: \(marker.id)")
+            return
+        }
+        
+        // Reset streaming options view if shown
+        if showStreamingOptions {
+            showStreamingOptions = false
+            streamAttempts = 0
+            return
+        }
+        
+        // Toggle playback state immediately
+        isPreviewPlaying.toggle()
+        
+        if isPreviewPlaying {
+            print("🔍 MarkerRow - Starting playback for marker: \(marker.id)")
+            
+            // First ensure any existing player is cleaned up
+            cleanupPlayer()
+            
+            // Small delay to ensure cleanup is complete
+            let capturedURL = self.streamURL // Capture URL outside the closure
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                
+                if let url = capturedURL {
+                    print("🔍 Setting up new player with URL: \(url)")
+                    
+                    // Create the player with our URL
+                    self.setupPreviewPlayer(videoURL: url)
+                    
+                    // After setup, start playback with immediate seek
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        guard let player = self.player else { return }
+                        
+                        // Always start at beginning first to ensure proper loading
+                        player.seek(to: .zero) { _ in
+                            
+                            // Start playback
+                            player.play()
+                            
+                            // Now seek to the marker position with proper timing
+                            let markerTime = Double(self.marker.seconds)
+                            print("⏱️ Seeking to marker position: \(markerTime) seconds")
+                            
+                            // Use a more reliable seek approach
+                            let seekTime = CMTime(seconds: markerTime, preferredTimescale: 600)
+                            
+                            // Give a slight delay before seeking to ensure playback has initialized
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                // Perform the seek with completion handler
+                                player.seek(to: seekTime, toleranceBefore: .zero, toleranceAfter: .zero) { success in
+                                    print("⏱️ Primary seek completed: \(success ? "success" : "failed")")
+                                    
+                                    // Even if successful, reinforce the seek after a short delay
+                                    // This helps with certain stream types that might reset position
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        if let player = self.player, player.timeControlStatus == .playing {
+                                            // Make sure we're not at the beginning (within 1 second)
+                                            let currentTime = player.currentTime().seconds
+                                            if currentTime < 1.0 || abs(currentTime - markerTime) > 1.0 {
+                                                print("⏱️ Performing reinforcement seek to: \(markerTime), current time: \(currentTime)")
+                                                
+                                                // Try a direct seek as a final attempt
+                                                player.seek(to: seekTime)
+                                                
+                                                // Add a third seek attempt after a longer delay for challenging streams
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                                    if let player = self.player, player.timeControlStatus == .playing {
+                                                        let finalTime = player.currentTime().seconds
+                                                        if abs(finalTime - markerTime) > 0.5 {
+                                                            print("🔄 Final reinforcement seek to: \(markerTime), current time: \(finalTime)")
+                                                            player.seek(to: seekTime)
+                                                        }
+                                                    }
+                                                }
+                                            } else {
+                                                print("✅ Player correctly positioned at: \(currentTime) seconds")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    print("❌ Failed to create stream URL for marker: \(self.marker.id)")
+                    
+                    // Try fallback URLs
+                    self.tryFallbackURL()
+                }
+            }
+        } else {
+            // If we're stopping playback
+            print("🔍 Stopping playback for marker: \(marker.id)")
+            
+            player?.pause()
+        }
+    }
+    
+    private func setupPreviewPlayer(videoURL: URL) {
+        print("🔍 MarkerRow setupPreviewPlayer - Setting up player with URL: \(videoURL)")
+        
+        // Increment attempt counter for fallback tracking
+        self.streamAttempts += 1
+        
+        // Simplified headers that match working fetch requests
+        let headers = [
+            "Accept": "*/*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15",
+            "X-Playback-Session-Id": UUID().uuidString,
+            "Referer": "\(serverAddress)/scenes/markers",
+            "Range": "bytes=0-"
+        ]
+        
+        // Basic asset options for reliable streaming
+        let assetOptions: [String: Any] = [
+            "AVURLAssetHTTPHeaderFieldsKey": headers,
+            "AVURLAssetAllowsExpensiveNetworkAccess": true
+        ]
+        
+        // Create asset and player item
+        let asset = AVURLAsset(url: videoURL, options: assetOptions)
+        let playerItem = AVPlayerItem(asset: asset)
+        
+        // Create new player with minimal configuration to avoid issues
+        let newPlayer = AVPlayer(playerItem: playerItem)
+        newPlayer.isMuted = true
+        newPlayer.automaticallyWaitsToMinimizeStalling = true
+        
+        // Store the player in state
+        self.player = newPlayer
+        print("✅ Player created with URL: \(videoURL)")
+        
+        // Register with global manager for cleanup
+        GlobalVideoManager.shared.registerPlayer(newPlayer)
+        
+        // Simple status observer focused only on essential states
+        let statusObserver = playerItem.observe(\.status) { item, _ in
+            // Handle player item status changes
+            
+            DispatchQueue.main.async {
+                switch item.status {
+                case .readyToPlay:
+                    print("✅ Player ready to play")
+                    self.streamAttempts = 0
+                    
+                case .failed:
+                    print("❌ Player failed: \(String(describing: item.error))")
+                    
+                    // Try fallback URL if available
+                    if self.streamAttempts < 3 {
+                        print("🔄 Trying fallback URL (attempt \(self.streamAttempts))")
+                        self.tryFallbackURL(currentURL: videoURL)
+                    }
+                    
+                case .unknown:
+                    print("⚠️ Player status unknown")
+                    
+                @unknown default:
+                    break
+                }
+            }
+        }
+        
+        // Store observer to prevent deallocation
+        if playerItem.accessibilityElements == nil {
+            playerItem.accessibilityElements = [statusObserver]
+        } else if let elements = playerItem.accessibilityElements {
+            playerItem.accessibilityElements = elements + [statusObserver]
+        }
+        
+        // Simple notification for looping
+        NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime,
+            object: playerItem,
+            queue: .main
+        ) { _ in
+            DispatchQueue.main.async {
+                if let player = self.player, self.isPreviewPlaying {
+                    // Loop playback by returning to marker position
+                    let markerTime = Double(self.marker.seconds)
+                    let seekTime = CMTime(seconds: markerTime, preferredTimescale: 600)
+                    player.seek(to: seekTime)
+                    player.play()
+                }
+            }
+        }
+        
+        // Use the safer method for adding observers
+        playerObserver.safelyAddObserver(to: playerItem, forKeyPath: "playbackLikelyToKeepUp")
+        
+        // Track that we've added observers
+        if playerItem.accessibilityElements == nil {
+            playerItem.accessibilityElements = [NSObject()]
+        }
+    }
+    
+    private func cleanupPlayer() {
+        // Safely access the player using a local copy to avoid race conditions
+        guard let currentPlayer = player else {
+            print("ℹ️ No player to clean up")
+            return
+        }
+        
+        // First pause and mute the player
+        currentPlayer.pause()
+        currentPlayer.isMuted = true
+        currentPlayer.volume = 0
+        
+        // Use a local variable to indicate cleanup status
+        var didCleanupObservers = false
+        
+        // Create a local reference to the playerItem to avoid it changing during cleanup
+        if let playerItem = currentPlayer.currentItem {
+            // Remove notification observers
+            NotificationCenter.default.removeObserver(self, name: .AVPlayerItemDidPlayToEndTime, object: playerItem)
+            NotificationCenter.default.removeObserver(self, name: .AVPlayerItemFailedToPlayToEndTime, object: playerItem)
+            
+            // Track whether we've added observers to avoid removal errors
+            let addedObservers = playerItem.accessibilityElements != nil
+            
+            // Only try to remove KVO observers if we've actually added them
+            if addedObservers {
+                didCleanupObservers = true
+                
+                // Use the playerObserver's safer methods to remove all observers
+                playerObserver.safelyRemoveObserver(from: playerItem, forKeyPath: "playbackLikelyToKeepUp")
+                playerObserver.safelyRemoveObserver(from: playerItem, forKeyPath: "playbackBufferEmpty")
+                
+                // Remove the status observer stored in accessibilityElements
+                if let elements = playerItem.accessibilityElements as? [Any] {
+                    playerItem.accessibilityElements = nil
+                    print("🧹 Removed \(elements.count) stored observers")
+                }
+            } else {
+                print("ℹ️ No observers were added to this player item")
+            }
+            
+            // Clear out the accessibility elements to avoid future issues
+            playerItem.accessibilityElements = nil
+        }
+        
+        // Unregister from global manager - do this before nulling the player reference
+        GlobalVideoManager.shared.unregisterPlayer(currentPlayer)
+        
+        // Set player item to nil to release all resources
+        currentPlayer.replaceCurrentItem(with: nil)
+        
+        // Clear player reference - only do this at the very end
+        DispatchQueue.main.async {
+            // Use an async call to break potential retain cycles
+            self.player = nil
+            print("🧹 Player reference fully released")
+        }
+        
+        print("🧹 Player resources cleaned up successfully (observers: \(didCleanupObservers ? "removed" : "none found"))")
+    }
+    
+    // Try a fallback URL if the current one fails - simplified and focused on reliability
+    private func tryFallbackURL(currentURL: URL? = nil) {
+        // Limit fallback attempts
+        if self.streamAttempts >= 3 {
+            print("⚠️ Too many fallback attempts (\(streamAttempts)), stopping")
+            return
+        }
+        
+        // Clean up server address
+        let baseServerURL = serverAddress.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        let markerId = marker.id
+        let sceneId = marker.scene.id
+        
+        // Create ordered list of fallback URLs to try - prioritized by reliability
+        var fallbackURLs = [String]()
+        
+        // Fallback 1: Primary marker stream endpoint (most reliable)
+        fallbackURLs.append("\(baseServerURL)/scene/\(sceneId)/scene_marker/\(markerId)/stream")
+        
+        // Fallback 2: Direct marker endpoint
+        fallbackURLs.append("\(baseServerURL)/scene_marker/\(markerId)/stream")
+        
+        // Fallback 3: Preview endpoint
+        fallbackURLs.append("\(baseServerURL)/scene/\(sceneId)/scene_marker/\(markerId)/preview")
+        
+        // Fallback 4: Scene stream with timestamp
+        fallbackURLs.append("\(baseServerURL)/scene/\(sceneId)/stream?apikey=\(appModel.api.apiKeyForURLs)&start=\(marker.seconds)")
+        
+        print("🔄 Trying fallback URLs")
+        
+        // Find a URL we haven't tried yet
+        for urlString in fallbackURLs {
+            guard let fallbackURL = URL(string: urlString) else { continue }
+            
+            if currentURL == nil || fallbackURL.absoluteString != currentURL!.absoluteString {
+                print("🔄 Trying fallback URL: \(fallbackURL)")
+                
+                // Clean up existing player before creating a new one
+                cleanupPlayer()
+                
+                // Small delay to ensure cleanup is complete
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    
+                    // Create the new player with fallback URL
+                    self.setupPreviewPlayer(videoURL: fallbackURL)
+                    
+                    // Start playback after setup with reliable seek behavior
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        guard let player = self.player else { return }
+                        
+                        // Start playback
+                        player.play()
+                        
+                        // Seek to marker timestamp with a slight delay to ensure playback has initialized
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            let markerTime = Double(self.marker.seconds)
+                            let seekTime = CMTime(seconds: markerTime, preferredTimescale: 600)
+                            
+                            // Use a simpler, more direct seek for fallbacks
+                            player.seek(to: seekTime)
+                            print("⏱️ Seek to marker position after fallback: \(markerTime) seconds")
+                            
+                        }
+                    }
+                }
+                return
+            }
+        }
+        
+        print("⚠️ No more fallbacks to try")
+        
+        // Reset preview playing state since all fallbacks failed
+        DispatchQueue.main.async {
+            self.isPreviewPlaying = false
+        }
+    }
+    
+    // Public method to play marker video with HLS streaming
+    func playMarkerVideo() {
+        print("🎬 Playing marker: \(marker.title) at \(marker.seconds) seconds")
+        print("🎬 Scene ID from marker: \(marker.scene.id)")
+        print("🎬 Marker ID: \(marker.id)")
+
+        // Get the root view controller using a more reliable approach
+        func findTopViewController() -> UIViewController? {
+            // First try the most reliable method for iOS 15+
+            guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let sceneDelegate = scene.delegate as? UIWindowSceneDelegate,
+                  let window = scene.windows.first(where: { $0.isKeyWindow }) else {
+                
+                // Fallback for older iOS versions
+                guard let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) ?? UIApplication.shared.windows.first else {
+                    return nil
+                }
+                
+                return keyWindow.rootViewController?.topMostViewController()
+            }
+            
+            return window.rootViewController?.topMostViewController()
+        }
+        
+        guard let rootViewController = findTopViewController() else {
+            print("❌ Failed to get required application context")
+            // Fallback method using scene-based approach
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let controller = windowScene.windows.first?.rootViewController {
+                presentPlayerViewController(on: controller)
+                return
+            }
+            
+            print("⚠️ Could not find any suitable view controller - using indirect navigation")
+            // Use playFullScene which knows how to fetch the complete StashScene
+            playFullScene()
+            return
+        }
+        
+        // Present using the found controller
+        presentPlayerViewController(on: rootViewController)
+    }
+    
+    // Helper method to present the player view controller
+    private func presentPlayerViewController(on viewController: UIViewController) {
+        // Instead of manually constructing a player view controller,
+        // use the playFullScene method which will properly fetch the full scene
+        // and navigate to it using appModel.navigateToScene
+        print("🎬 Using playFullScene to properly fetch and navigate to scene")
+        playFullScene()
+    }
+    
+    // Method to play full scene
+    private func playFullScene() {
+        // Scene is not optional in this context
+        let scene = marker.scene
+        
+        Task {
+            isLoadingScene = true
+            // Clean up preview player first
+            cleanupPlayer()
+            
+            // Fetch the specific scene by ID
+            print("🎬 Fetching scene details for ID: \(scene.id)")
+            do {
+                if let fullScene = try await appModel.api.fetchScene(byID: scene.id) {
+                    print("✅ Found full scene details for ID: \(scene.id)")
+                    
+                    // Open the video player with the full scene and marker start time
+                    await MainActor.run {
+                        appModel.navigateToScene(fullScene, startSeconds: Double(marker.seconds))
+                    }
+                } else {
+                    print("❌ Failed to find scene with ID: \(scene.id)")
+                }
+            } catch {
+                print("❌ Error loading scene: \(error)")
+            }
+            
+            isLoadingScene = false
+        }
+    }
+    
+    // Update the getAssociatedPerformer function with improved error handling
+    private func getAssociatedPerformer() async -> StashScene.Performer? {
+        // Only fetch if the view is still visible
+        guard isVisible else { return nil }
+        
+        // Check if marker scene already has performers loaded from the updated query
+        if let performers = marker.scene.performers, !performers.isEmpty {
+            print("✅ Using cached performer info for scene \(marker.scene.id)")
+            return performers.first
+        }
+        
+        print("🔍 Fetching performer info for scene \(marker.scene.id)")
+        
+        // Get API key from app model
+        let apiKey = appModel.api.apiKeyForURLs
+        
+        // Using a more complete query that includes all performer fields
+        let query = """
+        {"operationName":"FindScene","variables":{"id":"\(marker.scene.id)"},"query":"query FindScene($id: ID!) {\\n  findScene(id: $id) {\\n    id\\n    title\\n    performers {\\n      id\\n      name\\n      gender\\n      image_path\\n      scene_count\\n      favorite\\n      rating100\\n    }\\n  }\\n}"}
+        """
+        
+        guard let url = URL(string: "\(serverAddress)/graphql") else {
+            print("❌ Invalid URL for fetching performers: \(serverAddress)/graphql")
+            return nil
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("*/*", forHTTPHeaderField: "Accept")
+        request.setValue("gzip, deflate", forHTTPHeaderField: "Accept-Encoding")
+        request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15", forHTTPHeaderField: "User-Agent")
+        request.setValue("keep-alive", forHTTPHeaderField: "Connection")
+        request.setValue("nc_sameSiteCookielax=true; nc_sameSiteCookiestrict=true", forHTTPHeaderField: "Cookie")
+        request.setValue("en-US,en;q=0.9", forHTTPHeaderField: "Accept-Language")
+        request.setValue(serverAddress, forHTTPHeaderField: "Origin")
+        request.setValue("\(serverAddress)/scenes/markers", forHTTPHeaderField: "Referer")
+        
+        // Set ApiKey header for authentication
+        // apiKey is a non-optional String
+        request.setValue(apiKey, forHTTPHeaderField: "ApiKey")
+        
+        // Set the request body
+        let jsonData = query.data(using: .utf8)!
+        request.setValue("\(jsonData.count)", forHTTPHeaderField: "Content-Length")
+        request.httpBody = jsonData
+        
+        do {
+            // Add a task check to prevent cancelled request errors
+            try Task.checkCancellation()
+            
+            print("🌐 Sending performer request for scene \(marker.scene.id)")
+            let (data, response) = try await URLSession.shared.data(for: request)
+            try Task.checkCancellation()
+            
+            // Log the HTTP response status
+            if let httpResp = response as? HTTPURLResponse {
+                print("🔍 HTTP response status for performer fetch: \(httpResp.statusCode)")
+                
+                // Check for HTTP errors
+                if httpResp.statusCode >= 400 {
+                    print("❌ HTTP error: \(httpResp.statusCode)")
+                    return nil
+                }
+            }
+            
+            // Define response structure with proper error handling
+            struct SceneResponse: Decodable {
+                struct DataResponse: Decodable {
+                    struct SceneData: Decodable {
+                        let id: String
+                        let title: String?
+                        let performers: [StashScene.Performer]
+                    }
+                    let findScene: SceneData
+                }
+                let data: DataResponse?
+                
+                struct GraphQLError: Decodable {
+                    let message: String
+                }
+                let errors: [GraphQLError]?
+            }
+            
+            // Attempt decoding with error handling
+            do {
+                let response = try JSONDecoder().decode(SceneResponse.self, from: data)
+                
+                // Check for GraphQL errors
+                if let errors = response.errors, !errors.isEmpty {
+                    let errorMessages = errors.map { $0.message }.joined(separator: ", ")
+                    print("❌ GraphQL errors in performer fetch: \(errorMessages)")
+                    return nil
+                }
+                
+                // Check for missing data
+                guard let responseData = response.data else {
+                    print("❌ Missing data field in response")
+                    return nil
+                }
+                
+                if responseData.findScene.performers.isEmpty {
+                    print("ℹ️ No performers found for scene \(marker.scene.id)")
+                    return nil
+                }
+                
+                print("✅ Successfully fetched \(responseData.findScene.performers.count) performers for scene \(marker.scene.id)")
+                return responseData.findScene.performers.first
+            } catch let decodingError {
+                print("❌ JSON decoding error: \(decodingError)")
+                return nil
+            }
+        } catch is CancellationError {
+            // Ignore cancellation errors
+            print("ℹ️ Performer fetch was cancelled")
+            return nil
+        } catch {
+            print("❌ Error fetching performer for scene \(marker.scene.id): \(error)")
+            return nil
+        }
+    }
+}
