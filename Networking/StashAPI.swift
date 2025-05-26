@@ -731,13 +731,23 @@ class StashAPI: ObservableObject {
                 queryVars["scene_filter"] = sceneFilter
             }
             
-            // Prepare GraphQL query
-            let graphQLRequest: [String: Any] = [
-                "operationName": "FindScenes",
-                "variables": queryVars,
-                "query": """
+            // Prepare GraphQL query - dynamic based on whether we have scene filters
+            let hasSceneFilter = !sceneFilter.isEmpty
+            let queryString: String
+            
+            if hasSceneFilter {
+                queryString = """
                 query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) {
                     findScenes(filter: $filter, scene_filter: $scene_filter) {
+                """
+            } else {
+                queryString = """
+                query FindScenes($filter: FindFilterType) {
+                    findScenes(filter: $filter) {
+                """
+            }
+            
+            let fullQuery = queryString + """
                         count
                         scenes {
                             id
@@ -780,16 +790,15 @@ class StashAPI: ObservableObject {
                                 id
                                 name
                             }
-                            stash_ids {
-                                endpoint
-                                stash_id
-                            }
-                            created_at
-                            updated_at
                         }
                     }
                 }
                 """
+            
+            let graphQLRequest: [String: Any] = [
+                "operationName": "FindScenes",
+                "variables": queryVars,
+                "query": fullQuery
             ]
             
             // Convert to JSON data
