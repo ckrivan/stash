@@ -46,8 +46,9 @@ struct MediaLibraryView: View {
                 GridItem(.adaptive(minimum: 350, maximum: 450), spacing: 20)
             ]
         } else {
+            // Much smaller minimum for iPhone to fit screen properly
             return [
-                GridItem(.adaptive(minimum: 300, maximum: 400), spacing: 16)
+                GridItem(.adaptive(minimum: 280, maximum: 350), spacing: 12)
             ]
         }
     }

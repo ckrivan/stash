@@ -79,25 +79,28 @@ struct SceneRow: View {
                                 playRandomPositionInScene(scene)
                             } label: {
                                 ZStack {
-                                    // Background circle - BRIGHT PURPLE
+                                    // Background circle - BRIGHT PURPLE (smaller on iPhone)
+                                    let buttonSize: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 60 : 50
+                                    let iconSize: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 30 : 24
+                                    
                                     Circle()
                                         .fill(Color.purple)
-                                        .frame(width: 60, height: 60)
+                                        .frame(width: buttonSize, height: buttonSize)
                                         .shadow(color: .black.opacity(0.5), radius: 3, x: 0, y: 2)
 
                                     // Icon - LARGER
                                     Image(systemName: "shuffle")
-                                        .font(.system(size: 30, weight: .bold))
+                                        .font(.system(size: iconSize, weight: .bold))
                                         .foregroundColor(.white)
 
                                     // Animated outer border
                                     Circle()
                                         .strokeBorder(Color.white, lineWidth: 3)
-                                        .frame(width: 60, height: 60)
+                                        .frame(width: buttonSize, height: buttonSize)
                                 }
                                 .scaleEffect(1.1)
                             }
-                            .padding(12)
+                            .padding(UIDevice.current.userInterfaceIdiom == .pad ? 12 : 8)
                         }
                         Spacer()
                     }
@@ -159,7 +162,7 @@ struct SceneRow: View {
             .clipShape(RoundedRectangle(cornerRadius: 8))
             
             // Info section with higher priority for title - STYLING MATCHED TO MARKERROW
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: UIDevice.current.userInterfaceIdiom == .pad ? 8 : 6) {
                 // Title section gets higher layout priority to ensure it's always visible
                 VStack(alignment: .leading) {
                     // Title in separate stack with PURPLE COLOR and UNDERLINE like MarkerRow
@@ -168,11 +171,11 @@ struct SceneRow: View {
                             onSceneSelected(scene)
                         }) {
                             Text(titleValue)
-                                .font(.headline)
+                                .font(UIDevice.current.userInterfaceIdiom == .pad ? .headline : .subheadline)
                                 .fontWeight(.bold)
                                 .lineLimit(2) // Allow up to 2 lines for longer titles
                                 .fixedSize(horizontal: false, vertical: true) // Ensure text doesn't get cut off
-                                .padding(.vertical, 4) // Add padding above and below title
+                                .padding(.vertical, UIDevice.current.userInterfaceIdiom == .pad ? 4 : 2) // Add padding above and below title
                                 .foregroundColor(.purple) // CHANGED TO PURPLE
                                 .underline() // ADDED UNDERLINE
                                 .layoutPriority(100) // Give title highest layout priority
@@ -295,7 +298,7 @@ struct SceneRow: View {
                     .foregroundColor(.secondary)
                 }
             }
-            .padding(8)
+            .padding(UIDevice.current.userInterfaceIdiom == .pad ? 8 : 6)
         }
         .background(Color(UIColor.secondarySystemBackground))
         .cornerRadius(12)

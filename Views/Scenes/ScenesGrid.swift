@@ -14,7 +14,7 @@ struct ScenesGrid: View {
     @State private var currentIndex = 0
     
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 16) {
+        LazyVGrid(columns: columns, spacing: UIDevice.current.userInterfaceIdiom == .pad ? 16 : 10) {
             ForEach(Array(scenes.enumerated()), id: \.element.id) { index, scene in
                 SceneRow(
                     scene: scene,
@@ -46,7 +46,7 @@ struct ScenesGrid: View {
                     .padding()
             }
         }
-        .padding()
+        .padding(UIDevice.current.userInterfaceIdiom == .pad ? 16 : 8)
     }
 }
 
