@@ -231,39 +231,39 @@ struct MediaLibraryView: View {
         }
         .navigationTitle("Media Library")
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                HStack {
-                    Button {
-                        Task {
-                            await resetAndReload()
-                        }
-                    } label: {
-                        Image(systemName: "shuffle")
-                    }
-                    .simultaneousGesture(
-                        LongPressGesture(minimumDuration: 0.5)
-                            .onEnded { _ in
-                                playRandomScene()
-                            }
-                    )
-                    .contextMenu {
+            // Only show toolbar buttons on iPad - iOS uses inline filter button only
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    HStack {
                         Button {
                             Task {
                                 await resetAndReload()
                             }
                         } label: {
-                            Label("Shuffle List", systemImage: "shuffle")
+                            Image(systemName: "shuffle")
+                        }
+                        .simultaneousGesture(
+                            LongPressGesture(minimumDuration: 0.5)
+                                .onEnded { _ in
+                                    playRandomScene()
+                                }
+                        )
+                        .contextMenu {
+                            Button {
+                                Task {
+                                    await resetAndReload()
+                                }
+                            } label: {
+                                Label("Shuffle List", systemImage: "shuffle")
+                            }
+                            
+                            Button {
+                                playRandomScene()
+                            } label: {
+                                Label("Shuffle Play", systemImage: "play.fill")
+                            }
                         }
                         
-                        Button {
-                            playRandomScene()
-                        } label: {
-                            Label("Shuffle Play", systemImage: "play.fill")
-                        }
-                    }
-                    
-                    // Only show filter button on iPad - iOS will have it inline with search
-                    if UIDevice.current.userInterfaceIdiom == .pad {
                         FilterMenuView(
                             currentFilter: $currentFilter,
                             onDefaultSelected: {
