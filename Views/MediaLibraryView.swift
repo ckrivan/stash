@@ -1,6 +1,7 @@
 import SwiftUI
 import AVKit
 import Foundation
+import UIKit
 
 struct MediaLibraryToolbar: View {
     let onShowFilters: () -> Void
@@ -69,21 +70,25 @@ struct MediaLibraryView: View {
                 currentFilter: $currentFilter,
                 onDefaultSelected: {
                     Task {
+                        currentFilter = "newest"
                         await appModel.api.fetchScenes(page: 1, sort: "date", direction: "DESC")
                     }
                 },
                 onNewestSelected: {
                     Task {
+                        currentFilter = "default"
                         await resetAndReload()
                     }
                 },
                 onOCounterSelected: {
                     Task {
+                        currentFilter = "random"
                         await appModel.api.fetchScenes(page: 1, sort: "random", direction: "DESC")
                     }
                 },
                 onRandomSelected: {
                     Task {
+                        currentFilter = "o_counter"
                         await appModel.api.fetchScenes(page: 1, sort: "o_counter", direction: "DESC")
                     }
                 },
