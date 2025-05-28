@@ -70,22 +70,22 @@ struct MediaLibraryView: View {
                 currentFilter: $currentFilter,
                 onDefaultSelected: {
                     Task {
-                        await filterAction(filter: "newest", sort: "date", direction: "DESC")
+                        await filterAction(filter: "default", sort: "random", direction: "DESC")
                     }
                 },
                 onNewestSelected: {
                     Task {
-                        await filterAction(filter: "default", sort: "random", direction: "DESC")
+                        await filterAction(filter: "newest", sort: "date", direction: "DESC")
                     }
                 },
                 onOCounterSelected: {
                     Task {
-                        await filterAction(filter: "random", sort: "o_counter", direction: "DESC")
+                        await filterAction(filter: "o_counter", sort: "o_counter", direction: "DESC")
                     }
                 },
                 onRandomSelected: {
                     Task {
-                        await filterAction(filter: "o_counter", sort: "random", direction: "DESC")
+                        await filterAction(filter: "random", sort: "random", direction: "DESC")
                     }
                 },
                 onAdvancedFilters: {
@@ -269,7 +269,7 @@ struct MediaLibraryView: View {
                             currentFilter: $currentFilter,
                             onDefaultSelected: {
                                 Task {
-                                    await resetAndReload()
+                                    await filterAction(filter: "default", sort: "random", direction: "DESC")
                                 }
                             },
                             onNewestSelected: {
