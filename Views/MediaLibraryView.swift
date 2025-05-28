@@ -70,7 +70,7 @@ struct MediaLibraryView: View {
                 currentFilter: $currentFilter,
                 onDefaultSelected: {
                     Task {
-                        await filterAction(filter: "default", sort: "random", direction: "DESC")
+                        await filterAction(filter: "default", sort: "updated_at", direction: "DESC")
                     }
                 },
                 onNewestSelected: {
@@ -269,7 +269,7 @@ struct MediaLibraryView: View {
                             currentFilter: $currentFilter,
                             onDefaultSelected: {
                                 Task {
-                                    await filterAction(filter: "default", sort: "random", direction: "DESC")
+                                    await filterAction(filter: "default", sort: "updated_at", direction: "DESC")
                                 }
                             },
                             onNewestSelected: {
