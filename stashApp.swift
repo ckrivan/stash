@@ -36,5 +36,66 @@ struct stashApp: App {
                     }
                 }
         }
+        .commands {
+            VideoPlayerCommands()
+        }
+    }
+}
+
+// MARK: - Video Player Commands for Mac Catalyst
+struct VideoPlayerCommands: Commands {
+    var body: some Commands {
+        CommandMenu("Video Player") {
+            Button("Next Scene") {
+                VideoPlayerCommands.sendKeyboardShortcut(.keyboardV)
+            }
+            .keyboardShortcut("v", modifiers: [])
+            
+            Button("Seek Backward 30s") {
+                VideoPlayerCommands.sendKeyboardShortcut(.keyboardB)
+            }
+            .keyboardShortcut("b", modifiers: [])
+            
+            Button("Random Position Jump") {
+                VideoPlayerCommands.sendKeyboardShortcut(.keyboardN)
+            }
+            .keyboardShortcut("n", modifiers: [])
+            
+            Button("Performer Random Scene") {
+                VideoPlayerCommands.sendKeyboardShortcut(.keyboardM)
+            }
+            .keyboardShortcut("m", modifiers: [])
+            
+            Button("Library Random Shuffle") {
+                VideoPlayerCommands.sendKeyboardShortcut(.keyboardComma)
+            }
+            .keyboardShortcut(",", modifiers: [])
+            
+            Divider()
+            
+            Button("Seek Backward 30s") {
+                VideoPlayerCommands.sendKeyboardShortcut(.keyboardLeftArrow)
+            }
+            .keyboardShortcut(.leftArrow, modifiers: [])
+            
+            Button("Seek Forward 30s") {
+                VideoPlayerCommands.sendKeyboardShortcut(.keyboardRightArrow)
+            }
+            .keyboardShortcut(.rightArrow, modifiers: [])
+            
+            Button("Toggle Play/Pause") {
+                VideoPlayerCommands.sendKeyboardShortcut(.keyboardSpacebar)
+            }
+            .keyboardShortcut(.space, modifiers: [])
+        }
+    }
+    
+    static func sendKeyboardShortcut(_ keyCode: UIKeyboardHIDUsage) {
+        // Send notification that can be picked up by the video player
+        NotificationCenter.default.post(
+            name: NSNotification.Name("VideoPlayerKeyboardShortcut"),
+            object: nil,
+            userInfo: ["keyCode": CFIndex(keyCode.rawValue)]
+        )
     }
 }

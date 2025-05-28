@@ -455,6 +455,18 @@ struct VideoPlayerView: View {
                     }
                 }
                 
+                // Listen for keyboard shortcuts from menu commands (Mac Catalyst)
+                NotificationCenter.default.addObserver(
+                    forName: NSNotification.Name("VideoPlayerKeyboardShortcut"),
+                    object: nil,
+                    queue: .main
+                ) { notification in
+                    if let keyCodeRaw = notification.userInfo?["keyCode"] as? CFIndex,
+                       let keyCode = UIKeyboardHIDUsage(rawValue: keyCodeRaw) {
+                        self.handleMenuKeyboardShortcut(keyCode)
+                    }
+                }
+                
                 // Listen for tag shuffle updates
                 NotificationCenter.default.addObserver(
                     forName: NSNotification.Name("UpdateVideoPlayerForTagShuffle"),
@@ -1966,6 +1978,48 @@ extension VideoPlayerView {
         }
         
         return .ignored
+    }
+    
+    /// Handle keyboard shortcuts from menu commands (Mac Catalyst fallback)
+    private func handleMenuKeyboardShortcut(_ keyCode: UIKeyboardHIDUsage) {
+        print("🎹 Menu keyboard shortcut received: \(keyCode.rawValue)")
+        
+        switch keyCode {
+        case .keyboardV:
+            print("🎹 Menu shortcut: V - Next Scene")
+            navigateToNextScene()
+            
+        case .keyboardB:
+            print("🎹 Menu shortcut: B - Seek backward 30 seconds")
+            seekVideo(by: -30)
+            
+        case .keyboardN:
+            print("🎹 Menu shortcut: N - Random position jump")
+            handleRandomVideo()
+            
+        case .keyboardM:
+            print("🎹 Menu shortcut: M - Performer random scene")
+            handlePerformerRandomVideo()
+            
+        case .keyboardComma:
+            print("🎹 Menu shortcut: , - Library random shuffle")
+            handlePureRandomVideo()
+            
+        case .keyboardLeftArrow:
+            print("🎹 Menu shortcut: ← - Seek backward 30 seconds")
+            seekVideo(by: -30)
+            
+        case .keyboardRightArrow:
+            print("🎹 Menu shortcut: → - Seek forward 30 seconds")
+            seekVideo(by: 30)
+            
+        case .keyboardSpacebar:
+            print("🎹 Menu shortcut: Space - Toggle play/pause")
+            togglePlayPause()
+            
+        default:
+            print("🎹 Menu shortcut: Unhandled key code \(keyCode.rawValue)")
+        }
     }
     
     /// Toggle play/pause state
