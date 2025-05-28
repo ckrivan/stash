@@ -78,6 +78,9 @@ class CustomVideoPlayer: AVPlayerViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
+        // Make this view controller the first responder to receive keyboard events
+        becomeFirstResponder()
+        
         // Find the transport controls container view
         if let contentOverlayView = self.contentOverlayView {
             // Configure buttons
@@ -708,5 +711,121 @@ class CustomVideoPlayer: AVPlayerViewController {
                 }
             }
         }
+    }
+    
+    // MARK: - Keyboard Handling
+    
+    override var canBecomeFirstResponder: Bool {
+        return true
+    }
+    
+    override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        guard let key = presses.first?.key else {
+            super.pressesBegan(presses, with: event)
+            return
+        }
+        
+        switch key.keyCode {
+        case .keyboardV:
+            print("🎹 Keyboard shortcut: V - Next Scene")
+            handleShuffleButtonTapped()
+            
+        case .keyboardB:
+            print("🎹 Keyboard shortcut: B - Seek backward 30 seconds")
+            seekVideo(by: -30)
+            
+        case .keyboardN:
+            print("🎹 Keyboard shortcut: N - Random position jump")
+            handleRandomJumpButtonTapped()
+            
+        case .keyboardM:
+            print("🎹 Keyboard shortcut: M - Performer random scene")
+            handlePerformerJumpButtonTapped()
+            
+        case .keyboardComma:
+            print("🎹 Keyboard shortcut: < - Library random shuffle (using performer jump)")
+            handlePerformerJumpButtonTapped()
+            
+        case .keyboardLeftArrow:
+            print("🎹 Keyboard shortcut: ← - Seek backward 30 seconds")
+            seekVideo(by: -30)
+            
+        case .keyboardRightArrow:
+            print("🎹 Keyboard shortcut: → - Seek forward 30 seconds")
+            seekVideo(by: 30)
+            
+        case .keyboardSpacebar:
+            print("🎹 Keyboard shortcut: Space - Toggle play/pause")
+            togglePlayPause()
+            
+        default:
+            super.pressesBegan(presses, with: event)
+        }
+    }
+    
+    /// Seek video forward or backward by specified seconds
+    private func seekVideo(by seconds: Double) {
+        guard let currentPlayer = player,
+              let currentItem = currentPlayer.currentItem else {
+            print("⚠️ Cannot seek - player or item not available")
+            return
+        }
+        
+        let currentTime = currentItem.currentTime()
+        let targetTime = CMTimeAdd(currentTime, CMTime(seconds: seconds, preferredTimescale: 1000))
+        
+        // Ensure we don't seek before the beginning or past the end
+        let duration = currentItem.duration
+        let zeroTime = CMTime.zero
+        
+        if duration.isValid && !duration.seconds.isNaN {
+            if targetTime.seconds < 0 {
+                currentPlayer.seek(to: zeroTime, toleranceBefore: .zero, toleranceAfter: .zero)
+                print("⏱ Seeking to beginning of video")
+                return
+            } else if targetTime.seconds > duration.seconds {
+                currentPlayer.seek(to: duration, toleranceBefore: .zero, toleranceAfter: .zero)
+                print("⏱ Seeking to end of video")
+                return
+            }
+        }
+        
+        print("⏱ Seeking by \(seconds) seconds to \(targetTime.seconds)")
+        currentPlayer.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero) { success in
+            if success {
+                print("✅ Successfully seeked by \(seconds) seconds")
+                
+                // Provide haptic feedback
+                let generator = UIImpactFeedbackGenerator(style: .light)
+                generator.impactOccurred()
+                
+                // Ensure playback continues
+                if currentPlayer.timeControlStatus != .playing {
+                    currentPlayer.play()
+                }
+            } else {
+                print("❌ Seek operation failed")
+            }
+        }
+    }
+    
+    /// Toggle play/pause state
+    private func togglePlayPause() {
+        guard let currentPlayer = player else {
+            print("⚠️ Cannot toggle play/pause - player not found")
+            return
+        }
+        
+        if currentPlayer.timeControlStatus == .playing {
+            currentPlayer.pause()
+            print("⏸️ Paused playback")
+        } else {
+            currentPlayer.play()
+            print("▶️ Resumed playback")
+        }
+        
+        // Provide haptic feedback
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.impactOccurred()
     }
 }

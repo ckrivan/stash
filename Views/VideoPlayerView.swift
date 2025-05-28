@@ -318,10 +318,10 @@ struct VideoPlayerView: View {
                                     }
                             )
 
-                            // Seek forward 60 seconds button
+                            // Seek forward 30 seconds button
                             Button {
-                                print("⏩ Seek forward 60 seconds")
-                                seekVideo(by: 60)
+                                print("⏩ Seek forward 30 seconds")
+                                seekVideo(by: 30)
                             } label: {
                                 ZStack {
                                     // Background circle
@@ -331,7 +331,7 @@ struct VideoPlayerView: View {
                                         .shadow(color: .black, radius: 4)
 
                                     // Icon
-                                    Image(systemName: "goforward.60")
+                                    Image(systemName: "goforward.30")
                                         .font(.system(size: 20, weight: .bold))
                                         .foregroundColor(.white)
 
@@ -352,6 +352,9 @@ struct VideoPlayerView: View {
             .navigationBarHidden(true) // Hide the navigation bar completely
             .statusBarHidden(true)     // Hide the status bar for full immersion
             .ignoresSafeArea(.all)     // Ignore all safe areas for true full screen
+            .onKeyPress(phases: .down) { keyPress in
+                return handleKeyPress(keyPress)
+            }
             .onAppear {
                 print("📱 VideoPlayerView appeared")
                 appModel.currentScene = scene
@@ -1899,6 +1902,90 @@ extension VideoPlayerView {
                 }
             }
         }
+    }
+    
+    /// Handle keyboard shortcuts for video player controls
+    private func handleKeyPress(_ keyPress: KeyPress) -> KeyPress.Result {
+        let key = keyPress.key
+        
+        // Handle character keys
+        let character = key.character
+        switch character.lowercased() {
+        case "v":
+            // Previous scene / Next Scene button
+            print("🎹 Keyboard shortcut: V - Next Scene")
+            navigateToNextScene()
+            return .handled
+            
+        case "b":
+            // Seek backward 30 seconds
+            print("🎹 Keyboard shortcut: B - Seek backward 30 seconds")
+            seekVideo(by: -30)
+            return .handled
+            
+        case "n":
+            // Random position jump
+            print("🎹 Keyboard shortcut: N - Random position jump")
+            handleRandomVideo()
+            return .handled
+            
+        case "m":
+            // Performer random scene
+            print("🎹 Keyboard shortcut: M - Performer random scene")
+            handlePerformerRandomVideo()
+            return .handled
+            
+        case "<", ",":
+            // Library random shuffle
+            print("🎹 Keyboard shortcut: < - Library random shuffle")
+            handlePureRandomVideo()
+            return .handled
+            
+        default:
+            break
+        }
+        
+        // Handle special keys (arrows)
+        if key == .leftArrow {
+            print("🎹 Keyboard shortcut: ← - Seek backward 30 seconds")
+            seekVideo(by: -30)
+            return .handled
+        }
+        
+        if key == .rightArrow {
+            print("🎹 Keyboard shortcut: → - Seek forward 30 seconds")
+            seekVideo(by: 30)
+            return .handled
+        }
+        
+        // Handle space bar for play/pause
+        if key == .space {
+            print("🎹 Keyboard shortcut: Space - Toggle play/pause")
+            togglePlayPause()
+            return .handled
+        }
+        
+        return .ignored
+    }
+    
+    /// Toggle play/pause state
+    private func togglePlayPause() {
+        guard let player = getCurrentPlayer() else {
+            print("⚠️ Cannot toggle play/pause - player not found")
+            return
+        }
+        
+        if player.timeControlStatus == .playing {
+            player.pause()
+            print("⏸️ Paused playback")
+        } else {
+            player.play()
+            print("▶️ Resumed playback")
+        }
+        
+        // Provide haptic feedback
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.impactOccurred()
     }
     
 }
