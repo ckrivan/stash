@@ -201,14 +201,86 @@ struct MediaLibraryView: View {
         }
         .navigationTitle("Media Library")
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                HStack {
+            // Different toolbar layout for iOS vs iPad
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                // iPad: Keep buttons in navigation bar
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    HStack {
+                        Button {
+                            Task {
+                                await resetAndReload()
+                            }
+                        } label: {
+                            Image(systemName: "shuffle")
+                        }
+                        .simultaneousGesture(
+                            LongPressGesture(minimumDuration: 0.5)
+                                .onEnded { _ in
+                                    playRandomScene()
+                                }
+                        )
+                        .contextMenu {
+                            Button {
+                                Task {
+                                    await resetAndReload()
+                                }
+                            } label: {
+                                Label("Shuffle List", systemImage: "shuffle")
+                            }
+                            
+                            Button {
+                                playRandomScene()
+                            } label: {
+                                Label("Shuffle Play", systemImage: "play.fill")
+                            }
+                        }
+                        
+                        FilterMenuView(
+                            currentFilter: $currentFilter,
+                            onDefaultSelected: {
+                                Task {
+                                    await resetAndReload()
+                                }
+                            },
+                            onNewestSelected: {
+                                Task {
+                                    await appModel.api.fetchScenes(page: 1, sort: "date", direction: "DESC")
+                                }
+                            },
+                            onOCounterSelected: {
+                                Task {
+                                    await appModel.api.fetchScenes(page: 1, sort: "o_counter", direction: "DESC")
+                                }
+                            },
+                            onRandomSelected: {
+                                Task {
+                                    await appModel.api.fetchScenes(page: 1, sort: "random", direction: "DESC")
+                                }
+                            },
+                            onAdvancedFilters: {
+                                showingFilters = true
+                            },
+                            onReload: {
+                                Task {
+                                    await resetAndReload()
+                                }
+                            }
+                        )
+                    }
+                }
+            } else {
+                // iOS: Move to bottom toolbar to avoid overlap
+                ToolbarItemGroup(placement: .bottomBar) {
                     Button {
                         Task {
                             await resetAndReload()
                         }
                     } label: {
-                        Image(systemName: "shuffle")
+                        VStack(spacing: 2) {
+                            Image(systemName: "shuffle")
+                            Text("Shuffle")
+                                .font(.caption2)
+                        }
                     }
                     .simultaneousGesture(
                         LongPressGesture(minimumDuration: 0.5)
@@ -231,6 +303,8 @@ struct MediaLibraryView: View {
                             Label("Shuffle Play", systemImage: "play.fill")
                         }
                     }
+                    
+                    Spacer()
                     
                     FilterMenuView(
                         currentFilter: $currentFilter,
