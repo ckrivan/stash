@@ -9,28 +9,28 @@
 📱 Configured URLSession for increased reliability
 📱 Initializing AppModel
 📱 AppModel already connected to http://192.168.86.100:9999
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/0816BFE9-85CC-4B0B-AEEF-8481BE011BCB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
 📡 Server responded with status code: 200
 📥 Response: {"data":{"findPerformers":{"count":957,"performers":[{"id":"55","name":"Aaliyah Love"}]}}}...
 ✅ Server connection successful
-📊 Performers data: ["performers": <__NSSingleObjectArrayI 0x6000000182b0>(
+📊 Performers data: ["count": 957, "performers": <__NSSingleObjectArrayI 0x6000000109d0>(
 {
     id = 55;
     name = "Aaliyah Love";
 }
 )
-, "count": 957]
+]
 ♻️ Reusing existing StashAPI instance
 🚀 Initializing app state in SplashScreen
 📱 Pre-fetching markers data
 🔍 Fetching markers (page 1) from http://192.168.86.100:9999
 ✅ Connection successful
-🔍 Response data preview: {"data":{"findSceneMarkers":{"count":4548,"scene_markers":[{"id":"4408","title":"Blowjob_AI","seconds":432,"end_seconds":null,"stream":"http://192.168.86.100:9999/scene/4265/scene_marker/4408/stream","preview":"http://192.168.86.100:9999/scene/4265/scene_marker/4408/preview","screenshot":"http://192.168.86.100:9999/scene/4265/scene_marker/4408/screenshot","scene":{"id":"4265","title":"Busty Cheerleader Does the Splits, Gets Some Dick","files":[{"width":1920,"height":1080,"path":"/Volumes/Backup/...
+🔍 Response data preview: {"data":{"findSceneMarkers":{"count":4548,"scene_markers":[{"id":"5759","title":"Licking Penis_AI","seconds":1856,"end_seconds":null,"stream":"http://192.168.86.100:9999/scene/2200/scene_marker/5759/stream","preview":"http://192.168.86.100:9999/scene/2200/scene_marker/5759/preview","screenshot":"http://192.168.86.100:9999/scene/2200/scene_marker/5759/screenshot","scene":{"id":"2200","title":"Deja Vu...","files":[{"width":1440,"height":1080,"path":"/Volumes/Backup/List/Kylee Strutt/Kylee_Strutt_-...
 ✅ Set 500 markers
 📊 First marker details:
-  ID: 4408
-  Title: Blowjob_AI
-  Scene ID: 4265
+  ID: 5759
+  Title: Licking Penis_AI
+  Scene ID: 2200
 📱 Pre-fetched 500 markers
 ♻️ Reusing existing StashAPI instance for: http://192.168.86.100:9999
 ♻️ Reusing existing StashAPI instance for: http://192.168.86.100:9999
@@ -39,23 +39,23 @@ load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/Co
 📡 Server responded with status code: 200
 📥 Response: {"data":{"findPerformers":{"count":957,"performers":[{"id":"55","name":"Aaliyah Love"}]}}}...
 ✅ Server connection successful
-📊 Performers data: ["performers": <__NSSingleObjectArrayI 0x600000010440>(
+📊 Performers data: ["count": 957, "performers": <__NSSingleObjectArrayI 0x600000028030>(
 {
     id = 55;
     name = "Aaliyah Love";
 }
 )
-, "count": 957]
+]
 🔄 Prefetching initial data...
 🔐 Configuring auth:
    API Key: [eyJhbGciOi...] (140 chars)
    Server: http://192.168.86.100:9999
 📤 Fetching scenes page 1 (sort: random, direction: DESC)
 📥 HTTP response: 200
-📥 Response data length: 175132 bytes
-📥 First 500 characters of response: {"data":{"findScenes":{"count":4707,"scenes":[{"id":"3599","title":"","details":"","url":null,"date":null,"rating100":null,"organized":false,"o_counter":0,"paths":{"screenshot":"http://192.168.86.100:9999/scene/3599/screenshot?t=1723837993","preview":"http://192.168.86.100:9999/scene/3599/preview","stream":"http://192.168.86.100:9999/scene/3599/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zX
-✅ Loaded 95 scenes (filtered from 100 total)
-✅ Prefetched 95 scenes while in splash screen
+📥 Response data length: 168409 bytes
+📥 First 500 characters of response: {"data":{"findScenes":{"count":4707,"scenes":[{"id":"381","title":"","details":"","url":null,"date":null,"rating100":null,"organized":false,"o_counter":0,"paths":{"screenshot":"http://192.168.86.100:9999/scene/381/screenshot?t=1723836806","preview":"http://192.168.86.100:9999/scene/381/preview","stream":"http://192.168.86.100:9999/scene/381/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo","
+✅ Loaded 99 scenes (filtered from 100 total)
+✅ Prefetched 99 scenes while in splash screen
 📡 Fetching performers with query: {
     "operationName": "FindPerformers",
     "variables": {
@@ -88,22 +88,19 @@ load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/Co
 📊 PerformersAPI: Setting performers array with 196 performers
 📊 PerformersAPI: After setting, self.performers has 196 items
 ✅ Prefetched 196 performers while in splash screen
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 95
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 99
 📱 ContentView appeared
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 95
-AddInstanceForFactory: No factory registered for id <CFUUID 0x600000290140> F8BB1C28-BAE8-11D6-9C31-00039315CD46
-📱 SCENE ROW: Rendering scene: 3599, title: 
-📱 SCENE ROW: Rendering scene: 3903, title: Cum Drippers 10 - Scene 2: Zoey Nixon
-📱 SCENE ROW: Rendering scene: 857, title: 
-📱 SCENEROW: Visibility changed for scene 3599 to true
-🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/3599/preview
-📱 SCENEROW: Visibility changed for scene 857 to true
-🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/857/preview
-📱 SCENEROW: Visibility changed for scene 3903 to true
-🔥 Starting preview for scene: Cum Drippers 10 - Scene 2: Zoey Nixon with URL: http://192.168.86.100:9999/scene/3903/preview
-📱 SCENE ROW: Rendering scene: 3599, title: 
-📱 SCENE ROW: Rendering scene: 3903, title: Cum Drippers 10 - Scene 2: Zoey Nixon
-📱 SCENE ROW: Rendering scene: 857, title: 
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 99
+AddInstanceForFactory: No factory registered for id <CFUUID 0x600000291f40> F8BB1C28-BAE8-11D6-9C31-00039315CD46
+📱 SCENE ROW: Rendering scene: 381, title: 
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 804, title: Callie
+📱 SCENEROW: Visibility changed for scene 275 to true
+🔥 Starting preview for scene: Ashlynn Brooke ends up cum covered and smiling with URL: http://192.168.86.100:9999/scene/275/preview
+📱 SCENEROW: Visibility changed for scene 381 to true
+🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/381/preview
+📱 SCENE ROW: Rendering scene: 381, title: 
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
 📱 Loading scenes for tab
 🔐 Configuring auth:
    API Key: [eyJhbGciOi...] (140 chars)
@@ -112,385 +109,173 @@ AddInstanceForFactory: No factory registered for id <CFUUID 0x600000290140> F8BB
 🎬 GlobalVideoManager: Registered player, total active: 1
 🎬 GlobalVideoManager: Registered player, total active: 2
 🎬 GlobalVideoManager: Registered player, total active: 3
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/0816BFE9-85CC-4B0B-AEEF-8481BE011BCB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
 📥 HTTP response: 200
-📥 Response data length: 179700 bytes
-📥 First 500 characters of response: {"data":{"findScenes":{"count":4707,"scenes":[{"id":"1878","title":"Romeo Price Fucks Teen Jillian Janson His Student","details":"Jillian Janson and Romeo Price have a forbidden relationship. Sure, she's 18, but the taboo is stil there. As such, they must meet after school in clandestine operations to get each other off. Jillian Janson arrives wearing leggings and a tight shirt. Which are quickly stripped off. Romeo begins to rub her pussy and get her aroused. Jillian takes his dick into her han
-📱 SCENEROW: Visibility changed for scene 857 to false
-🔥 Stopping preview for scene: 
-📱 SCENE ROW: Rendering scene: 857, title: 
+📥 Response data length: 156835 bytes
+📥 First 500 characters of response: {"data":{"findScenes":{"count":4707,"scenes":[{"id":"3694","title":"Tori Black - Naughty College Schoolgirls #46","details":"We love it when a girl hungers for cock so much she comes back for another round. That's exactly what happened with Tori Black. Our little brunette vixen who has a need getting fucked hard. She first teases us by fondling her pussy then moves on to fondling our nut sack. This girl wants it bad so we shove our meat deep in her tight twat and drill this babe. She takes every
        LoudnessManager.mm:721   unable to open stream for LoudnessManager plist
-✅ Loaded 99 scenes (filtered from 100 total)
-🎬 GlobalVideoManager: Unregistered player, total active: 2
-Unable to set Enhance Dialogue preference: need xpcConnection to access Enhance Dialogue preferences
-Unable to set Enhance Dialogue preference: need xpcConnection to access Enhance Dialogue preferences
-📱 SCENE ROW: Rendering scene: 3599, title: 
-📱 SCENE ROW: Rendering scene: 3903, title: Cum Drippers 10 - Scene 2: Zoey Nixon
-📱 SCENE ROW: Rendering scene: 3599, title: 
-📱 SCENE ROW: Rendering scene: 3903, title: Cum Drippers 10 - Scene 2: Zoey Nixon
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-📱 SCENE ROW: Rendering scene: 3599, title: 
-📱 SCENE ROW: Rendering scene: 3903, title: Cum Drippers 10 - Scene 2: Zoey Nixon
-📱 SCENE ROW: Rendering scene: 3599, title: 
-📱 SCENE ROW: Rendering scene: 3903, title: Cum Drippers 10 - Scene 2: Zoey Nixon
-📱 SCENE ROW: Rendering scene: 3599, title: 
-📱 SCENE ROW: Rendering scene: 3903, title: Cum Drippers 10 - Scene 2: Zoey Nixon
-112387          HALC_ProxyIOContext.cpp:1621  HALC_ProxyIOContext::IOWorkLoop: skipping cycle due to overload
-📱 SCENE ROW: Rendering scene: 3599, title: 
-📱 SCENE ROW: Rendering scene: 3903, title: Cum Drippers 10 - Scene 2: Zoey Nixon
-📱 SCENE ROW: Rendering scene: 3599, title: 
-📱 SCENE ROW: Rendering scene: 3903, title: Cum Drippers 10 - Scene 2: Zoey Nixon
-📱 SCENE ROW: Rendering scene: 3599, title: 
-📱 SCENE ROW: Rendering scene: 3903, title: Cum Drippers 10 - Scene 2: Zoey Nixon
-📱 SCENE ROW: Rendering scene: 3599, title: 
-📱 SCENE ROW: Rendering scene: 3903, title: Cum Drippers 10 - Scene 2: Zoey Nixon
-📱 SCENE ROW: Rendering scene: 3599, title: 
-📱 SCENE ROW: Rendering scene: 3903, title: Cum Drippers 10 - Scene 2: Zoey Nixon
-📱 SCENE ROW: Rendering scene: 3599, title: 
-📱 SCENE ROW: Rendering scene: 3903, title: Cum Drippers 10 - Scene 2: Zoey Nixon
-📱 SCENE ROW: Rendering scene: 3599, title: 
-📱 SCENE ROW: Rendering scene: 3903, title: Cum Drippers 10 - Scene 2: Zoey Nixon
-🎯 scenesContent - filter: newest, scope: scenes, markers: 0, scenes: 99
-📱 SCENE ROW: Rendering scene: 1878, title: Romeo Price Fucks Teen Jillian Janson His Student
-📱 SCENE ROW: Rendering scene: 3291, title: Camo Coochie
-📱 SCENE ROW: Rendering scene: 2091, title: Behind My Stepbrother's Towel
-📱 SCENEROW: Visibility changed for scene 1878 to true
-🔥 Starting preview for scene: Romeo Price Fucks Teen Jillian Janson His Student with URL: http://192.168.86.100:9999/scene/1878/preview
-📱 SCENEROW: Visibility changed for scene 3291 to true
-🔥 Starting preview for scene: Camo Coochie with URL: http://192.168.86.100:9999/scene/3291/preview
-📱 SCENE ROW: Rendering scene: 1878, title: Romeo Price Fucks Teen Jillian Janson His Student
-📱 SCENE ROW: Rendering scene: 3291, title: Camo Coochie
-112387          HALC_ProxyIOContext.cpp:1621  HALC_ProxyIOContext::IOWorkLoop: skipping cycle due to overload
-🎬 GlobalVideoManager: Registered player, total active: 3
-🎬 GlobalVideoManager: Registered player, total active: 4
-🎬 GlobalVideoManager: Registered player, total active: 5
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Fetching scenes page 1 (sort: date, direction: DESC)
-📥 HTTP response: 200
-📥 Response data length: 294997 bytes
-📥 First 500 characters of response: {"data":{"findScenes":{"count":4707,"scenes":[{"id":"4572","title":"Melody Marks Squeezes In Some Lucky Hang Time","details":"Adorable, precious bestie and wife Melody Marks has some bad news for Lucky when he arrived at the hotel, that his girlfriend missed her flight and would have to fly out the next day. Seeing how bummed out he was, Melody encourages him to stick around and hang out, and they both could find some fun to fill in the time. With that, Melody gets very forward and lets Lucky kn
-✅ Loaded 95 scenes (filtered from 100 total)
-Unable to set Enhance Dialogue preference: need xpcConnection to access Enhance Dialogue preferences
-Unable to set Enhance Dialogue preference: need xpcConnection to access Enhance Dialogue preferences
-📱 SCENE ROW: Rendering scene: 1878, title: Romeo Price Fucks Teen Jillian Janson His Student
-📱 SCENE ROW: Rendering scene: 3291, title: Camo Coochie
-📱 SCENE ROW: Rendering scene: 3291, title: Camo Coochie
-📱 SCENE ROW: Rendering scene: 1878, title: Romeo Price Fucks Teen Jillian Janson His Student
-📱 SCENE ROW: Rendering scene: 3291, title: Camo Coochie
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-📱 SCENE ROW: Rendering scene: 1878, title: Romeo Price Fucks Teen Jillian Janson His Student
-📱 SCENE ROW: Rendering scene: 3291, title: Camo Coochie
-📱 SCENE ROW: Rendering scene: 1878, title: Romeo Price Fucks Teen Jillian Janson His Student
-📱 SCENE ROW: Rendering scene: 3291, title: Camo Coochie
-📱 SCENE ROW: Rendering scene: 3599, title: 
-📱 SCENE ROW: Rendering scene: 3903, title: Cum Drippers 10 - Scene 2: Zoey Nixon
-📱 SCENE ROW: Rendering scene: 1878, title: Romeo Price Fucks Teen Jillian Janson His Student
-📱 SCENE ROW: Rendering scene: 3291, title: Camo Coochie
-📱 SCENE ROW: Rendering scene: 1878, title: Romeo Price Fucks Teen Jillian Janson His Student
-📱 SCENE ROW: Rendering scene: 3291, title: Camo Coochie
-🎯 scenesContent - filter: o_counter, scope: scenes, markers: 0, scenes: 95
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4404, title: Dear Diary
-📱 SCENEROW: Visibility changed for scene 4571 to true
-🔥 Starting preview for scene: February 2025 Fantasy Of The Month - S6:E6 with URL: http://192.168.86.100:9999/scene/4571/preview
-📱 SCENEROW: Visibility changed for scene 4572 to true
-🔥 Starting preview for scene: Melody Marks Squeezes In Some Lucky Hang Time with URL: http://192.168.86.100:9999/scene/4572/preview
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-🎬 GlobalVideoManager: Registered player, total active: 6
-🎬 GlobalVideoManager: Registered player, total active: 7
-🎬 GlobalVideoManager: Registered player, total active: 8
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Fetching scenes page 1 (sort: o_counter, direction: DESC)
-📥 HTTP response: 200
-📥 Response data length: 153854 bytes
-📥 First 500 characters of response: {"data":{"findScenes":{"count":4707,"scenes":[{"id":"4971","title":"","details":"","url":null,"date":null,"rating100":null,"organized":false,"o_counter":2,"paths":{"screenshot":"http://192.168.86.100:9999/scene/4971/screenshot?t=1746121273","preview":"http://192.168.86.100:9999/scene/4971/preview","stream":"http://192.168.86.100:9999/scene/4971/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zX
-✅ Loaded 100 scenes (filtered from 100 total)
-Unable to set Enhance Dialogue preference: need xpcConnection to access Enhance Dialogue preferences
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4404, title: Dear Diary
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-Unable to set Enhance Dialogue preference: need xpcConnection to access Enhance Dialogue preferences
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 1878, title: Romeo Price Fucks Teen Jillian Janson His Student
-📱 SCENE ROW: Rendering scene: 3291, title: Camo Coochie
-📱 SCENE ROW: Rendering scene: 2091, title: Behind My Stepbrother's Towel
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-🎯 scenesContent - filter: random, scope: scenes, markers: 0, scenes: 100
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 520, title: 
-📱 SCENEROW: Visibility changed for scene 4971 to true
-🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/4971/preview
-📱 SCENEROW: Visibility changed for scene 4917 to true
-🔥 Starting preview for scene: We Love When Justice and Amy Play Fight Then Make Up with URL: http://192.168.86.100:9999/scene/4917/preview
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4971, title: 
-🎬 GlobalVideoManager: Registered player, total active: 9
-🎬 GlobalVideoManager: Registered player, total active: 10
-🎬 GlobalVideoManager: Registered player, total active: 11
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Fetching scenes page 1 (sort: random, direction: DESC)
-📥 HTTP response: 200
-📥 Response data length: 174522 bytes
-📥 First 500 characters of response: {"data":{"findScenes":{"count":4707,"scenes":[{"id":"1209","title":"Sexting","details":"On a quiet afternoon, Den and Josephine relax on the couch.  Quickly glancing away from his phone messages, he notices her angelic visage as she leisurely reads a magazine.  When he tries to snap a photo, she notices and quickly shies away.  A little encouragement relaxes her to the point where she gives him a little tease of her bare shoulders, then another, and soon her shirt is unbuttoned.  They embrace - 
 ✅ Loaded 97 scenes (filtered from 100 total)
 Unable to set Enhance Dialogue preference: need xpcConnection to access Enhance Dialogue preferences
 Unable to set Enhance Dialogue preference: need xpcConnection to access Enhance Dialogue preferences
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4971, title: 
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4971, title: 
+📱 SCENE ROW: Rendering scene: 381, title: 
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 381, title: 
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/0816BFE9-85CC-4B0B-AEEF-8481BE011BCB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/0816BFE9-85CC-4B0B-AEEF-8481BE011BCB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/0816BFE9-85CC-4B0B-AEEF-8481BE011BCB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 381, title: 
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 381, title: 
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 381, title: 
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 381, title: 
+103435          HALC_ProxyIOContext.cpp:1621  HALC_ProxyIOContext::IOWorkLoop: skipping cycle due to overload
+📱 SCENE ROW: Rendering scene: 381, title: 
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 381, title: 
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 381, title: 
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 381, title: 
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 381, title: 
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 381, title: 
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 381, title: 
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 381, title: 
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 381, title: 
+🎯 scenesContent - filter: newest, scope: scenes, markers: 0, scenes: 97
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 4404, title: Dear Diary
+📱 SCENEROW: Visibility changed for scene 3083 to true
+🔥 Starting preview for scene: Ass Bouncing! with URL: http://192.168.86.100:9999/scene/3083/preview
+📱 SCENEROW: Visibility changed for scene 3694 to true
+🔥 Starting preview for scene: Tori Black - Naughty College Schoolgirls #46 with URL: http://192.168.86.100:9999/scene/3694/preview
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+🎬 GlobalVideoManager: Registered player, total active: 4
+🎬 GlobalVideoManager: Registered player, total active: 5
+🎬 GlobalVideoManager: Registered player, total active: 6
+Unable to set Enhance Dialogue preference: need xpcConnection to access Enhance Dialogue preferences
+Unable to set Enhance Dialogue preference: need xpcConnection to access Enhance Dialogue preferences
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/0816BFE9-85CC-4B0B-AEEF-8481BE011BCB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/0816BFE9-85CC-4B0B-AEEF-8481BE011BCB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/0816BFE9-85CC-4B0B-AEEF-8481BE011BCB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 4404, title: Dear Diary
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/0816BFE9-85CC-4B0B-AEEF-8481BE011BCB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/0816BFE9-85CC-4B0B-AEEF-8481BE011BCB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/0816BFE9-85CC-4B0B-AEEF-8481BE011BCB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/0816BFE9-85CC-4B0B-AEEF-8481BE011BCB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+📱 SCENE ROW: Rendering scene: 381, title: 
+📱 SCENE ROW: Rendering scene: 275, title: Ashlynn Brooke ends up cum covered and smiling
+📱 SCENE ROW: Rendering scene: 804, title: Callie
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+103435          HALC_ProxyIOContext.cpp:1621  HALC_ProxyIOContext::IOWorkLoop: skipping cycle due to overload
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
 🎯 scenesContent - filter: o_counter, scope: scenes, markers: 0, scenes: 97
-📱 SCENE ROW: Rendering scene: 1209, title: Sexting
-📱 SCENE ROW: Rendering scene: 428, title: Ashlynn Brooke - Naughty Cheerleader Club #01
-📱 SCENE ROW: Rendering scene: 3091, title: Squirt & Creampie!
-📱 SCENEROW: Visibility changed for scene 428 to true
-🔥 Starting preview for scene: Ashlynn Brooke - Naughty Cheerleader Club #01 with URL: http://192.168.86.100:9999/scene/428/preview
-📱 SCENEROW: Visibility changed for scene 1209 to true
-🔥 Starting preview for scene: Sexting with URL: http://192.168.86.100:9999/scene/1209/preview
-📱 SCENE ROW: Rendering scene: 1209, title: Sexting
-📱 SCENE ROW: Rendering scene: 428, title: Ashlynn Brooke - Naughty Cheerleader Club #01
-🎬 GlobalVideoManager: Registered player, total active: 12
-🎬 GlobalVideoManager: Registered player, total active: 13
-🎬 GlobalVideoManager: Registered player, total active: 14
-🎬 GlobalVideoManager: Unregistered player, total active: 13
-🎬 GlobalVideoManager: Unregistered player, total active: 12
-🎬 GlobalVideoManager: Unregistered player, total active: 11
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Fetching scenes page 1 (sort: o_counter, direction: DESC)
-📥 HTTP response: 200
-📥 Response data length: 153854 bytes
-📥 First 500 characters of response: {"data":{"findScenes":{"count":4707,"scenes":[{"id":"4971","title":"","details":"","url":null,"date":null,"rating100":null,"organized":false,"o_counter":2,"paths":{"screenshot":"http://192.168.86.100:9999/scene/4971/screenshot?t=1746121273","preview":"http://192.168.86.100:9999/scene/4971/preview","stream":"http://192.168.86.100:9999/scene/4971/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zX
-✅ Loaded 100 scenes (filtered from 100 total)
-📱 SCENE ROW: Rendering scene: 1209, title: Sexting
-📱 SCENE ROW: Rendering scene: 428, title: Ashlynn Brooke - Naughty Cheerleader Club #01
-Unable to set Enhance Dialogue preference: need xpcConnection to access Enhance Dialogue preferences
-Unable to set Enhance Dialogue preference: need xpcConnection to access Enhance Dialogue preferences
-📱 SCENE ROW: Rendering scene: 1209, title: Sexting
-📱 SCENE ROW: Rendering scene: 428, title: Ashlynn Brooke - Naughty Cheerleader Club #01
-📱 SCENE ROW: Rendering scene: 1209, title: Sexting
-📱 SCENE ROW: Rendering scene: 428, title: Ashlynn Brooke - Naughty Cheerleader Club #01
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 1209, title: Sexting
-📱 SCENE ROW: Rendering scene: 428, title: Ashlynn Brooke - Naughty Cheerleader Club #01
-📱 SCENE ROW: Rendering scene: 1209, title: Sexting
-📱 SCENE ROW: Rendering scene: 428, title: Ashlynn Brooke - Naughty Cheerleader Club #01
-📱 SCENE ROW: Rendering scene: 1209, title: Sexting
-📱 SCENE ROW: Rendering scene: 428, title: Ashlynn Brooke - Naughty Cheerleader Club #01
-🎯 scenesContent - filter: newest, scope: scenes, markers: 0, scenes: 100
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 520, title: 
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Fetching scenes page 1 (sort: date, direction: DESC)
-📥 HTTP response: 200
-📥 Response data length: 294997 bytes
-📥 First 500 characters of response: {"data":{"findScenes":{"count":4707,"scenes":[{"id":"4572","title":"Melody Marks Squeezes In Some Lucky Hang Time","details":"Adorable, precious bestie and wife Melody Marks has some bad news for Lucky when he arrived at the hotel, that his girlfriend missed her flight and would have to fly out the next day. Seeing how bummed out he was, Melody encourages him to stick around and hang out, and they both could find some fun to fill in the time. With that, Melody gets very forward and lets Lucky kn
-✅ Loaded 95 scenes (filtered from 100 total)
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 1209, title: Sexting
-📱 SCENE ROW: Rendering scene: 428, title: Ashlynn Brooke - Naughty Cheerleader Club #01
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 520, title: 
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 520, title: 
-📱 SCENE ROW: Rendering scene: 4971, title: 
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-📱 SCENE ROW: Rendering scene: 4917, title: We Love When Justice and Amy Play Fight Then Make Up
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 95
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
 📱 SCENE ROW: Rendering scene: 4404, title: Dear Diary
-📱 SCENEROW: Visibility changed for scene 4571 to true
-🔥 Starting preview for scene: February 2025 Fantasy Of The Month - S6:E6 with URL: http://192.168.86.100:9999/scene/4571/preview
-📱 SCENEROW: Visibility changed for scene 4572 to true
-🔥 Starting preview for scene: Melody Marks Squeezes In Some Lucky Hang Time with URL: http://192.168.86.100:9999/scene/4572/preview
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-🎬 GlobalVideoManager: Registered player, total active: 12
-🎬 GlobalVideoManager: Registered player, total active: 13
-🎬 GlobalVideoManager: Registered player, total active: 14
-🎬 GlobalVideoManager: Unregistered player, total active: 13
-🎬 GlobalVideoManager: Unregistered player, total active: 12
-🎬 GlobalVideoManager: Unregistered player, total active: 11
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Fetching scenes page 1 (sort: updated_at, direction: DESC)
-📥 HTTP response: 200
-📥 Response data length: 119482 bytes
-📥 First 500 characters of response: {"data":{"findScenes":{"count":4707,"scenes":[{"id":"2875","title":"Fucked Hard With Vengeance!","details":"I remember being at the gym last week, and meeting this smoking hot babe named Susana. Perfect ass and tits, and an athletic body! This chick is fucking PERFECT! We creep up by the gym and wait for her to get out, then offer her a ride... ON THIS DICK! HAHAAA! We offer her cash like we always do, and before you know it she is taking her clothes off and eagerly sucking cock. Everyone has a 
-✅ Loaded 100 scenes (filtered from 100 total)
-Unable to set Enhance Dialogue preference: need xpcConnection to access Enhance Dialogue preferences
-Unable to set Enhance Dialogue preference: need xpcConnection to access Enhance Dialogue preferences
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4404, title: Dear Diary
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4404, title: Dear Diary
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/148EB0D0-4B6C-41DE-BA83-87DDCD0305FB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-112387          HALC_ProxyIOContext.cpp:1621  HALC_ProxyIOContext::IOWorkLoop: skipping cycle due to overload
-112387          HALC_ProxyIOContext.cpp:1621  HALC_ProxyIOContext::IOWorkLoop: skipping cycle due to overload
+103435          HALC_ProxyIOContext.cpp:1621  HALC_ProxyIOContext::IOWorkLoop: skipping cycle due to overload
 Visual isTranslatable: NO; reason: observation failure: noObservations
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-112387          HALC_ProxyIOContext.cpp:1621  HALC_ProxyIOContext::IOWorkLoop: skipping cycle due to overload
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
-📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
-📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+🎯 scenesContent - filter: random, scope: scenes, markers: 0, scenes: 97
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 4404, title: Dear Diary
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+🎯 scenesContent - filter: o_counter, scope: scenes, markers: 0, scenes: 97
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 4404, title: Dear Diary
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/0816BFE9-85CC-4B0B-AEEF-8481BE011BCB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/0816BFE9-85CC-4B0B-AEEF-8481BE011BCB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 4404, title: Dear Diary
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 4404, title: Dear Diary
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/0816BFE9-85CC-4B0B-AEEF-8481BE011BCB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/0816BFE9-85CC-4B0B-AEEF-8481BE011BCB/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+🎯 scenesContent - filter: newest, scope: scenes, markers: 0, scenes: 97
+📱 SCENE ROW: Rendering scene: 3694, title: Tori Black - Naughty College Schoolgirls #46
+📱 SCENE ROW: Rendering scene: 3083, title: Ass Bouncing!
+📱 SCENE ROW: Rendering scene: 4404, title: Dear Diary
+Visual isTranslatable: NO; reason: observation failure: noObservations
+Request to remove background on an unsupported device. Error Domain=com.apple.VisionKit.RemoveBackground Code=-8 "(null)"
+Error generating mask only remove background image: <VKCImageSubjectHighlightView: 0x104ed21c0> id: 2 - Error Domain=com.apple.VisionKit.RemoveBackground Code=-8 "(null)"
+Visual isTranslatable: NO; reason: observation failure: noObservations
+Failed to get dominant result for text LID: lidInconclusive
+Visual isTranslatable: NO; not offering translation: lidInconclusive
+103435          HALC_ProxyIOContext.cpp:1621  HALC_ProxyIOContext::IOWorkLoop: skipping cycle due to overload
+Request to remove background on an unsupported device. Error Domain=com.apple.VisionKit.RemoveBackground Code=-8 "(null)"
+Error generating mask only remove background image: <VKCImageSubjectHighlightView: 0x105abf200> id: 3 - Error Domain=com.apple.VisionKit.RemoveBackground Code=-8 "(null)"
+Request to remove background on an unsupported device. Error Domain=com.apple.VisionKit.RemoveBackground Code=-8 "(null)"
+Error generating mask only remove background image: <VKCImageSubjectHighlightView: 0x13cb50c00> id: 4 - Error Domain=com.apple.VisionKit.RemoveBackground Code=-8 "(null)"

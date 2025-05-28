@@ -327,8 +327,7 @@ struct MediaLibraryView: View {
     }
     
     private func filterAction(filter: String, sort: String, direction: String) async {
-        // Update state and make API call atomically to prevent UI flashing
-        currentFilter = filter
+        // DON'T set currentFilter here - let the Picker handle that
         currentPage = 1
         hasMorePages = true
         

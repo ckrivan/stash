@@ -87,6 +87,20 @@ struct UniversalSearchView: View {
                             Text("Random").tag("random")
                         }
                         .pickerStyle(InlinePickerStyle())
+                        .onChange(of: currentFilter) { _, newValue in
+                            switch newValue {
+                            case "default":
+                                onDefaultSelected?()
+                            case "newest":
+                                onNewestSelected?()
+                            case "o_counter":
+                                onOCounterSelected?()
+                            case "random":
+                                onRandomSelected?()
+                            default:
+                                break
+                            }
+                        }
                         
                         Divider()
                         
