@@ -13,7 +13,7 @@ struct FilterMenuView: View {
         switch currentFilter {
         case "default": return "Default"
         case "newest": return "Newest"
-        case "o_counter": return "O-Counter"
+        case "o_counter": return "Most Played"
         case "random": return "Random"
         default: return "Filter"
         }
@@ -25,7 +25,7 @@ struct FilterMenuView: View {
                 Picker("Sorting", selection: $currentFilter) {
                     Text("Default").tag("default")
                     Text("Newest").tag("newest")
-                    Text("O-Counter").tag("o_counter")
+                    Text("Most Played").tag("o_counter")
                     Text("Random").tag("random")
                 }
                 .pickerStyle(InlinePickerStyle())

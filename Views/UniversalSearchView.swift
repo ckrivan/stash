@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct UniversalSearchView: View {
     @Binding var searchText: String
@@ -83,11 +84,12 @@ struct UniversalSearchView: View {
                         Picker("Sorting", selection: $currentFilter) {
                             Text("Default").tag("default")
                             Text("Newest").tag("newest")
-                            Text("O-Counter").tag("o_counter")
+                            Text("Most Played").tag("o_counter")
                             Text("Random").tag("random")
                         }
                         .pickerStyle(InlinePickerStyle())
                         .onChange(of: currentFilter) { _, newValue in
+                            print("🎯 iPhone filter changed to: \(newValue)")
                             switch newValue {
                             case "default":
                                 onDefaultSelected?()

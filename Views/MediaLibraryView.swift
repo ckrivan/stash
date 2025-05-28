@@ -1,7 +1,6 @@
 import SwiftUI
 import AVKit
 import Foundation
-import UIKit
 
 struct MediaLibraryToolbar: View {
     let onShowFilters: () -> Void
@@ -69,21 +68,25 @@ struct MediaLibraryView: View {
                 // Pass filter actions for iOS inline button
                 currentFilter: $currentFilter,
                 onDefaultSelected: {
+                    print("📱 iPhone: Default filter selected")
                     Task {
-                        await filterAction(filter: "default", sort: "updated_at", direction: "DESC")
+                        await filterAction(filter: "default", sort: "file_mod_time", direction: "DESC")
                     }
                 },
                 onNewestSelected: {
+                    print("📱 iPhone: Newest filter selected")
                     Task {
                         await filterAction(filter: "newest", sort: "date", direction: "DESC")
                     }
                 },
                 onOCounterSelected: {
+                    print("📱 iPhone: Most Played filter selected")
                     Task {
                         await filterAction(filter: "o_counter", sort: "o_counter", direction: "DESC")
                     }
                 },
                 onRandomSelected: {
+                    print("📱 iPhone: Random filter selected")
                     Task {
                         await filterAction(filter: "random", sort: "random", direction: "DESC")
                     }
@@ -269,7 +272,7 @@ struct MediaLibraryView: View {
                             currentFilter: $currentFilter,
                             onDefaultSelected: {
                                 Task {
-                                    await filterAction(filter: "default", sort: "updated_at", direction: "DESC")
+                                    await filterAction(filter: "default", sort: "file_mod_time", direction: "DESC")
                                 }
                             },
                             onNewestSelected: {
@@ -312,6 +315,7 @@ struct MediaLibraryView: View {
     }
     
     private func initialLoad() async {
+        print("📱 initialLoad() called - currentFilter: \(currentFilter)")
         currentPage = 1
         hasMorePages = true
         appModel.api.scenes = []
@@ -327,19 +331,39 @@ struct MediaLibraryView: View {
     }
     
     private func filterAction(filter: String, sort: String, direction: String) async {
-        // DON'T set currentFilter here - let the Picker handle that
+        print("📱 filterAction called - filter: \(filter), sort: \(sort), direction: \(direction)")
+        print("📱 currentFilter before: \(currentFilter)")
+        
+        // Set currentFilter to keep UI in sync
+        await MainActor.run {
+            currentFilter = filter
+        }
+        
+        print("📱 currentFilter after: \(currentFilter)")
         currentPage = 1
         hasMorePages = true
         
-        // Clear scenes momentarily to show loading state
+        // Clear scenes to show loading state and force UI refresh
         let previousScenes = appModel.api.scenes
+        await MainActor.run {
+            appModel.api.scenes = []
+            appModel.objectWillChange.send()
+        }
+        print("📱 About to call fetchScenes with sort: \(sort)")
         
         do {
             await appModel.api.fetchScenes(page: 1, sort: sort, direction: direction)
+            print("📱 fetchScenes completed successfully, scenes count: \(appModel.api.scenes.count)")
+            await MainActor.run {
+                appModel.objectWillChange.send()
+            }
         } catch {
             // If API call fails, restore previous scenes
-            appModel.api.scenes = previousScenes
-            print("❌ Filter action failed, restored previous scenes")
+            await MainActor.run {
+                appModel.api.scenes = previousScenes
+                appModel.objectWillChange.send()
+            }
+            print("❌ Filter action failed, restored previous scenes. Error: \(error)")
         }
     }
     
@@ -363,7 +387,7 @@ struct MediaLibraryView: View {
         case "custom":
             await appModel.api.fetchScenes(page: currentPage, sort: "date", direction: "DESC", appendResults: false, filterOptions: filterOptions)
         default:
-            await appModel.api.fetchScenes(page: currentPage, sort: "random", direction: "DESC", appendResults: false)
+            await appModel.api.fetchScenes(page: currentPage, sort: "file_mod_time", direction: "DESC", appendResults: false)
         }
     }
     
@@ -387,7 +411,7 @@ struct MediaLibraryView: View {
         case "custom":
             await appModel.api.fetchScenes(page: currentPage, sort: "date", direction: "DESC", appendResults: true, filterOptions: filterOptions)
         default:
-            await appModel.api.fetchScenes(page: currentPage, sort: "random", direction: "DESC", appendResults: true)
+            await appModel.api.fetchScenes(page: currentPage, sort: "file_mod_time", direction: "DESC", appendResults: true)
         }
 
         hasMorePages = appModel.api.scenes.count > previousCount
