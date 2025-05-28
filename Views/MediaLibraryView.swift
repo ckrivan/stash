@@ -69,26 +69,22 @@ struct MediaLibraryView: View {
                 currentFilter: $currentFilter,
                 onDefaultSelected: {
                     Task {
-                        currentFilter = "default"
-                        await resetAndReload()
+                        await appModel.api.fetchScenes(page: 1, sort: "date", direction: "DESC")
                     }
                 },
                 onNewestSelected: {
                     Task {
-                        currentFilter = "newest"
-                        await appModel.api.fetchScenes(page: 1, sort: "date", direction: "DESC")
+                        await resetAndReload()
                     }
                 },
                 onOCounterSelected: {
                     Task {
-                        currentFilter = "o_counter"
-                        await appModel.api.fetchScenes(page: 1, sort: "o_counter", direction: "DESC")
+                        await appModel.api.fetchScenes(page: 1, sort: "random", direction: "DESC")
                     }
                 },
                 onRandomSelected: {
                     Task {
-                        currentFilter = "random"
-                        await appModel.api.fetchScenes(page: 1, sort: "random", direction: "DESC")
+                        await appModel.api.fetchScenes(page: 1, sort: "o_counter", direction: "DESC")
                     }
                 },
                 onAdvancedFilters: {
@@ -272,25 +268,21 @@ struct MediaLibraryView: View {
                             currentFilter: $currentFilter,
                             onDefaultSelected: {
                                 Task {
-                                    currentFilter = "default"
                                     await resetAndReload()
                                 }
                             },
                             onNewestSelected: {
                                 Task {
-                                    currentFilter = "newest"
                                     await appModel.api.fetchScenes(page: 1, sort: "date", direction: "DESC")
                                 }
                             },
                             onOCounterSelected: {
                                 Task {
-                                    currentFilter = "o_counter"
                                     await appModel.api.fetchScenes(page: 1, sort: "o_counter", direction: "DESC")
                                 }
                             },
                             onRandomSelected: {
                                 Task {
-                                    currentFilter = "random"
                                     await appModel.api.fetchScenes(page: 1, sort: "random", direction: "DESC")
                                 }
                             },
