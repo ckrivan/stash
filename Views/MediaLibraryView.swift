@@ -70,26 +70,22 @@ struct MediaLibraryView: View {
                 currentFilter: $currentFilter,
                 onDefaultSelected: {
                     Task {
-                        currentFilter = "newest"
-                        await appModel.api.fetchScenes(page: 1, sort: "date", direction: "DESC")
+                        await filterAction(filter: "newest", sort: "date", direction: "DESC")
                     }
                 },
                 onNewestSelected: {
                     Task {
-                        currentFilter = "default"
-                        await resetAndReload()
+                        await filterAction(filter: "default", sort: "random", direction: "DESC")
                     }
                 },
                 onOCounterSelected: {
                     Task {
-                        currentFilter = "random"
-                        await appModel.api.fetchScenes(page: 1, sort: "random", direction: "DESC")
+                        await filterAction(filter: "random", sort: "o_counter", direction: "DESC")
                     }
                 },
                 onRandomSelected: {
                     Task {
-                        currentFilter = "o_counter"
-                        await appModel.api.fetchScenes(page: 1, sort: "o_counter", direction: "DESC")
+                        await filterAction(filter: "o_counter", sort: "random", direction: "DESC")
                     }
                 },
                 onAdvancedFilters: {
@@ -278,17 +274,17 @@ struct MediaLibraryView: View {
                             },
                             onNewestSelected: {
                                 Task {
-                                    await appModel.api.fetchScenes(page: 1, sort: "date", direction: "DESC")
+                                    await filterAction(filter: "newest", sort: "date", direction: "DESC")
                                 }
                             },
                             onOCounterSelected: {
                                 Task {
-                                    await appModel.api.fetchScenes(page: 1, sort: "o_counter", direction: "DESC")
+                                    await filterAction(filter: "o_counter", sort: "o_counter", direction: "DESC")
                                 }
                             },
                             onRandomSelected: {
                                 Task {
-                                    await appModel.api.fetchScenes(page: 1, sort: "random", direction: "DESC")
+                                    await filterAction(filter: "random", sort: "random", direction: "DESC")
                                 }
                             },
                             onAdvancedFilters: {
@@ -328,6 +324,24 @@ struct MediaLibraryView: View {
         currentFilter = "default"  // Reset filter to default
         searchScope = .scenes  // Reset scope to scenes
         await initialLoad()
+    }
+    
+    private func filterAction(filter: String, sort: String, direction: String) async {
+        // Update state and make API call atomically to prevent UI flashing
+        currentFilter = filter
+        currentPage = 1
+        hasMorePages = true
+        
+        // Clear scenes momentarily to show loading state
+        let previousScenes = appModel.api.scenes
+        
+        do {
+            await appModel.api.fetchScenes(page: 1, sort: sort, direction: direction)
+        } catch {
+            // If API call fails, restore previous scenes
+            appModel.api.scenes = previousScenes
+            print("❌ Filter action failed, restored previous scenes")
+        }
     }
     
     private func loadScenes() async {
