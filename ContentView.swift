@@ -6,6 +6,7 @@ struct ContentView: View {
     @EnvironmentObject var appModel: AppModel
     @State private var isLoadingContent = false
     @State private var showingConnectionRetry = false
+    @State private var showingSettings = false
     
     var body: some View {
         if appModel.isConnected {
@@ -78,8 +79,8 @@ struct ContentView: View {
                     }
                 }
                 
-                // Settings button overlay - hide when in video player
-                if appModel.currentScene == nil {
+                // Settings button overlay - hide when in video player and on iOS
+                if appModel.currentScene == nil && UIDevice.current.userInterfaceIdiom == .pad {
                     VStack {
                         HStack {
                             Spacer()
@@ -122,6 +123,25 @@ struct ContentView: View {
             .onChange(of: appModel.activeTab) { _, newTab in
                 print("📱 Tab changed to: \(newTab)")
                 ensureContentLoaded()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ShowSettings"))) { _ in
+                // Show settings as sheet for iOS users
+                showingSettings = true
+            }
+            .sheet(isPresented: $showingSettings) {
+                NavigationStack {
+                    SettingsView()
+                        .environmentObject(appModel)
+                        .navigationTitle("Settings")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("Done") {
+                                    showingSettings = false
+                                }
+                            }
+                        }
+                }
             }
         } else {
             VStack(spacing: 20) {

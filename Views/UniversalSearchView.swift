@@ -111,6 +111,13 @@ struct UniversalSearchView: View {
                         Button(action: { onReload?() }) {
                             Label("Reload", systemImage: "arrow.clockwise")
                         }
+                        
+                        Button(action: {
+                            // Navigate to settings - we'll need to handle this differently
+                            NotificationCenter.default.post(name: Notification.Name("ShowSettings"), object: nil)
+                        }) {
+                            Label("Settings", systemImage: "gear")
+                        }
                     } label: {
                         Image(systemName: "line.3.horizontal.decrease.circle")
                             .foregroundColor(.purple)
