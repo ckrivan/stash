@@ -77,17 +77,45 @@ struct UniversalSearchView: View {
                         )
                 )
                 
-                // Add filter button on iOS only
+                // Add compact filter button on iOS only
                 if UIDevice.current.userInterfaceIdiom != .pad {
-                    FilterMenuView(
-                        currentFilter: $currentFilter,
-                        onDefaultSelected: onDefaultSelected ?? {},
-                        onNewestSelected: onNewestSelected ?? {},
-                        onOCounterSelected: onOCounterSelected ?? {},
-                        onRandomSelected: onRandomSelected ?? {},
-                        onAdvancedFilters: onAdvancedFilters ?? {},
-                        onReload: onReload ?? {}
-                    )
+                    Menu {
+                        Picker("Sorting", selection: $currentFilter) {
+                            Text("Default").tag("default")
+                            Text("Newest").tag("newest")
+                            Text("O-Counter").tag("o_counter")
+                            Text("Random").tag("random")
+                        }
+                        .pickerStyle(InlinePickerStyle())
+                        .onChange(of: currentFilter) { _, newValue in
+                            switch newValue {
+                            case "default":
+                                onDefaultSelected?()
+                            case "newest":
+                                onNewestSelected?()
+                            case "o_counter":
+                                onOCounterSelected?()
+                            case "random":
+                                onRandomSelected?()
+                            default:
+                                break
+                            }
+                        }
+                        
+                        Divider()
+                        
+                        Button(action: { onAdvancedFilters?() }) {
+                            Label("Advanced Filters", systemImage: "slider.horizontal.3")
+                        }
+                        
+                        Button(action: { onReload?() }) {
+                            Label("Reload", systemImage: "arrow.clockwise")
+                        }
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                            .foregroundColor(.purple)
+                            .font(.system(size: 18))
+                    }
                 }
                 
                 if showingCancelButton {
