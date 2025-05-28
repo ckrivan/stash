@@ -6,6 +6,15 @@ struct UniversalSearchView: View {
     @Binding var searchScope: SearchScope
     var onSearch: ((String, SearchScope) -> Void)?
     
+    // Filter actions for iOS inline button
+    @Binding var currentFilter: String
+    var onDefaultSelected: (() -> Void)?
+    var onNewestSelected: (() -> Void)?
+    var onOCounterSelected: (() -> Void)?
+    var onRandomSelected: (() -> Void)?
+    var onAdvancedFilters: (() -> Void)?
+    var onReload: (() -> Void)?
+    
     @FocusState private var isSearchFieldFocused: Bool
     @State private var showingCancelButton = false
     
@@ -67,6 +76,19 @@ struct UniversalSearchView: View {
                                 .stroke(isSearchFieldFocused ? Color.purple : Color.clear, lineWidth: 2)
                         )
                 )
+                
+                // Add filter button on iOS only
+                if UIDevice.current.userInterfaceIdiom != .pad {
+                    FilterMenuView(
+                        currentFilter: $currentFilter,
+                        onDefaultSelected: onDefaultSelected ?? {},
+                        onNewestSelected: onNewestSelected ?? {},
+                        onOCounterSelected: onOCounterSelected ?? {},
+                        onRandomSelected: onRandomSelected ?? {},
+                        onAdvancedFilters: onAdvancedFilters ?? {},
+                        onReload: onReload ?? {}
+                    )
+                }
                 
                 if showingCancelButton {
                     Button("Cancel") {
@@ -146,6 +168,7 @@ struct UniversalSearchView_Previews: PreviewProvider {
     @State static var searchText = ""
     @State static var isSearching = false
     @State static var searchScope = UniversalSearchView.SearchScope.scenes
+    @State static var currentFilter = "default"
     
     static var previews: some View {
         VStack {
@@ -155,7 +178,14 @@ struct UniversalSearchView_Previews: PreviewProvider {
                 searchScope: $searchScope,
                 onSearch: { query, scope in
                     print("Searching for: \(query) in \(scope)")
-                }
+                },
+                currentFilter: $currentFilter,
+                onDefaultSelected: { print("Default selected") },
+                onNewestSelected: { print("Newest selected") },
+                onOCounterSelected: { print("O Counter selected") },
+                onRandomSelected: { print("Random selected") },
+                onAdvancedFilters: { print("Advanced filters") },
+                onReload: { print("Reload") }
             )
             .padding()
             
