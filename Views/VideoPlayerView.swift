@@ -30,9 +30,84 @@ class CustomPlayerViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
+        // Make this view controller the first responder to intercept keyboard events
+        becomeFirstResponder()
+        
         // Try to find and hide the gear button by walking the view hierarchy
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.hideGearButton(in: self.playerVC.view)
+        }
+    }
+    
+    override var canBecomeFirstResponder: Bool {
+        return true
+    }
+    
+    override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        guard let key = presses.first?.key else {
+            super.pressesBegan(presses, with: event)
+            return
+        }
+        
+        // Override default AVPlayer arrow key behavior (15s -> 30s)
+        switch key.keyCode {
+        case .keyboardLeftArrow:
+            print("🎹 Overriding AVPlayer default: ← - Seek backward 30 seconds (was 15)")
+            seekVideo(by: -30)
+            return // Don't call super to prevent default behavior
+            
+        case .keyboardRightArrow:
+            print("🎹 Overriding AVPlayer default: → - Seek forward 30 seconds (was 15)")
+            seekVideo(by: 30)
+            return // Don't call super to prevent default behavior
+            
+        default:
+            super.pressesBegan(presses, with: event)
+        }
+    }
+    
+    private func seekVideo(by seconds: Double) {
+        guard let player = playerVC.player,
+              let currentItem = player.currentItem else {
+            print("⚠️ Cannot seek - player or item not available")
+            return
+        }
+        
+        let currentTime = currentItem.currentTime()
+        let targetTime = CMTimeAdd(currentTime, CMTime(seconds: seconds, preferredTimescale: 1000))
+        
+        // Ensure we don't seek before the beginning or past the end
+        let duration = currentItem.duration
+        let zeroTime = CMTime.zero
+        
+        if duration.isValid && !duration.seconds.isNaN {
+            if targetTime.seconds < 0 {
+                player.seek(to: zeroTime, toleranceBefore: .zero, toleranceAfter: .zero)
+                print("⏱ Seeking to beginning of video")
+                return
+            } else if targetTime.seconds > duration.seconds {
+                player.seek(to: duration, toleranceBefore: .zero, toleranceAfter: .zero)
+                print("⏱ Seeking to end of video")
+                return
+            }
+        }
+        
+        print("⏱ Seeking by \(seconds) seconds to \(targetTime.seconds)")
+        player.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero) { success in
+            if success {
+                print("✅ Successfully seeked by \(seconds) seconds")
+                
+                // Provide haptic feedback
+                let generator = UIImpactFeedbackGenerator(style: .light)
+                generator.impactOccurred()
+                
+                // Ensure playback continues
+                if player.timeControlStatus != .playing {
+                    player.play()
+                }
+            } else {
+                print("❌ Seek operation failed")
+            }
         }
     }
     

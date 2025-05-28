@@ -725,7 +725,18 @@ class CustomVideoPlayer: AVPlayerViewController {
             return
         }
         
+        // Intercept and override the default AVPlayer arrow key behavior
         switch key.keyCode {
+        case .keyboardLeftArrow:
+            print("🎹 Overriding AVPlayer: ← - Seek backward 30 seconds (was 15)")
+            seekVideo(by: -30)
+            return // Don't call super to prevent default 15-second behavior
+            
+        case .keyboardRightArrow:
+            print("🎹 Overriding AVPlayer: → - Seek forward 30 seconds (was 15)")
+            seekVideo(by: 30)
+            return // Don't call super to prevent default 15-second behavior
+            
         case .keyboardV:
             print("🎹 Keyboard shortcut: V - Next Scene")
             handleShuffleButtonTapped()
@@ -745,14 +756,6 @@ class CustomVideoPlayer: AVPlayerViewController {
         case .keyboardComma:
             print("🎹 Keyboard shortcut: < - Library random shuffle (using performer jump)")
             handlePerformerJumpButtonTapped()
-            
-        case .keyboardLeftArrow:
-            print("🎹 Keyboard shortcut: ← - Seek backward 30 seconds")
-            seekVideo(by: -30)
-            
-        case .keyboardRightArrow:
-            print("🎹 Keyboard shortcut: → - Seek forward 30 seconds")
-            seekVideo(by: 30)
             
         case .keyboardSpacebar:
             print("🎹 Keyboard shortcut: Space - Toggle play/pause")
