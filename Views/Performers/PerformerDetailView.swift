@@ -84,6 +84,10 @@ struct PerformerDetailView: View {
             // CRITICAL: Set current performer context for VideoPlayerView
             appModel.currentPerformer = performer
             print("🎯 DETAIL - Set currentPerformer to: \(performer.name)")
+            
+            // Automatically trigger performer navigation (was behind "Test Nav" button)
+            print("🚀 Auto-triggering performer navigation for: \(performer.name)")
+            appModel.navigateToPerformer(performer)
 
             // Check if we're returning from a video player session
             // If so, respect the requested tab selection
@@ -326,25 +330,6 @@ struct PerformerDetailView: View {
         }
     }
     
-    // Direct navigation test button
-    private func testPerformerNavigation() {
-        print("🧪 TEST: EXTREME DIRECT NAVIGATION to: \(performer.name)")
-        
-        // Force a vibration for immediate feedback
-        let impact = UIImpactFeedbackGenerator(style: .heavy)
-        impact.impactOccurred()
-        
-        // Clear any existing view state
-        appModel.api.scenes = []
-        appModel.api.markers = []
-        
-        // Force the UI to update
-        DispatchQueue.main.async {
-            // Force navigation with cleared state
-            print("🧪🧪🧪 FORCING NAVIGATION")
-            self.appModel.navigateToPerformer(self.performer)
-        }
-    }
     
     private var scenesContent: some View {
         ScrollView {
@@ -431,18 +416,6 @@ struct PerformerDetailView: View {
                             .foregroundColor(.primary)
                         
                         Spacer()
-                        
-                        // Test button for direct performer navigation
-                        Button(action: testPerformerNavigation) {
-                            HStack(spacing: 4) {
-                                Image(systemName: "person.fill.badge.plus")
-                                Text("Test Nav")
-                            }
-                            .font(.system(size: 14, weight: .medium))
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.green)
-                        .padding(.trailing, 8)
                         
                         Button(action: shuffleAndPlayScene) {
                             HStack(spacing: 4) {
