@@ -71,6 +71,11 @@ struct VideoPlayerCommands: Commands {
             }
             .keyboardShortcut(",", modifiers: [])
             
+            Button("Restart from Beginning") {
+                VideoPlayerCommands.sendKeyboardShortcut(.keyboardR)
+            }
+            .keyboardShortcut("r", modifiers: [])
+            
             Divider()
             
             Button("Seek Backward 30s") {

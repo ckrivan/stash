@@ -12,6 +12,8 @@ struct SceneRow: View {
     @StateObject private var previewPlayer = VideoPlayerViewModel()
     var onSceneUpdated: (StashScene) -> Void
     var onSceneSelected: (StashScene) -> Void
+    @EnvironmentObject private var appModel: AppModel
+    @State private var isIncrementingOCounter = false
     
     var body: some View {
         // Log scene info for debugging
@@ -57,6 +59,12 @@ struct SceneRow: View {
                             Button(action: {
                                 isMuted.toggle()
                                 previewPlayer.player.isMuted = isMuted
+                                
+                                // If unmuting this preview, use proper audio management
+                                if !isMuted {
+                                    // Use the proper play method that pauses other players
+                                    previewPlayer.play()
+                                }
                             }) {
                                 Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
                                     .foregroundColor(.white)
@@ -210,15 +218,62 @@ struct SceneRow: View {
                                 .font(.subheadline)
                             }
 
-                            // Display o_counter when available
+                            // Display o_counter when available - TAPPABLE TO INCREMENT
                             if let oCounter = scene.o_counter, oCounter > 0 {
-                                HStack(spacing: 2) {
-                                    Image(systemName: "number.circle.fill")
-                                        .foregroundColor(.orange) // CHANGED TO ORANGE
-                                    Text("\(oCounter)")
-                                        .foregroundColor(.secondary)
+                                Button(action: {
+                                    print("📊 SCENEROW: Incrementing o_counter for scene \(scene.id)")
+                                    Task {
+                                        await incrementOCounter()
+                                    }
+                                }) {
+                                    HStack(spacing: 2) {
+                                        if isIncrementingOCounter {
+                                            ProgressView()
+                                                .scaleEffect(0.8)
+                                                .progressViewStyle(CircularProgressViewStyle(tint: .orange))
+                                        } else {
+                                            Image(systemName: "number.circle.fill")
+                                                .foregroundColor(.orange)
+                                        }
+                                        Text("\(oCounter)")
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .font(.subheadline)
+                                    .padding(.horizontal, 4)
+                                    .padding(.vertical, 2)
+                                    .background(isIncrementingOCounter ? Color.orange.opacity(0.3) : Color.orange.opacity(0.1))
+                                    .cornerRadius(6)
+                                    .animation(.easeInOut(duration: 0.2), value: isIncrementingOCounter)
                                 }
-                                .font(.subheadline)
+                                .buttonStyle(PlainButtonStyle())
+                            } else {
+                                // Show zero counter with + button
+                                Button(action: {
+                                    print("📊 SCENEROW: Incrementing o_counter for scene \(scene.id) from 0")
+                                    Task {
+                                        await incrementOCounter()
+                                    }
+                                }) {
+                                    HStack(spacing: 2) {
+                                        if isIncrementingOCounter {
+                                            ProgressView()
+                                                .scaleEffect(0.8)
+                                                .progressViewStyle(CircularProgressViewStyle(tint: .orange))
+                                        } else {
+                                            Image(systemName: "plus.circle")
+                                                .foregroundColor(.orange)
+                                        }
+                                        Text("0")
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .font(.subheadline)
+                                    .padding(.horizontal, 4)
+                                    .padding(.vertical, 2)
+                                    .background(isIncrementingOCounter ? Color.orange.opacity(0.3) : Color.orange.opacity(0.1))
+                                    .cornerRadius(6)
+                                    .animation(.easeInOut(duration: 0.2), value: isIncrementingOCounter)
+                                }
+                                .buttonStyle(PlainButtonStyle())
                             }
                         }
                     }
@@ -313,6 +368,24 @@ struct SceneRow: View {
                 showingTagEditor = false
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("MainVideoPlayerStarted"))) { _ in
+            // Stop all preview videos when a main video starts
+            if isVisible {
+                print("🔇 Main video started - stopping preview for scene: \(scene.title ?? "")")
+                stopPreview()
+            }
+        }
+        .onAppear {
+            // Ensure preview is muted when row appears
+            previewPlayer.player.isMuted = true
+            isMuted = true
+        }
+        .onDisappear {
+            // Clean up preview when row disappears
+            if isVisible {
+                stopPreview()
+            }
+        }
     }
     
     private func formatDuration(_ duration: Float?) -> String {
@@ -355,8 +428,19 @@ struct SceneRow: View {
             let asset = AVURLAsset(url: url, options: ["AVURLAssetHTTPHeaderFieldsKey": request.allHTTPHeaderFields ?? [:]])
             let playerItem = AVPlayerItem(asset: asset)
             previewPlayer.player.replaceCurrentItem(with: playerItem)
-            previewPlayer.player.isMuted = isMuted
-            previewPlayer.player.play()
+            
+            // Always ensure preview is muted by default to prevent audio conflicts
+            previewPlayer.player.isMuted = true
+            isMuted = true
+            
+            // Use the proper play method that handles audio management
+            if isMuted {
+                // If muted, just play directly without audio management
+                previewPlayer.player.play()
+            } else {
+                // Use the proper play method that pauses other players
+                previewPlayer.play()
+            }
         } else {
             print("❌ No valid preview or stream URL found for scene ID \(scene.id)")
         }
@@ -366,6 +450,40 @@ struct SceneRow: View {
         print("🔥 Stopping preview for scene: \(scene.title ?? "")")
         previewPlayer.cleanup()
         isVisible = false
+    }
+
+    /// Increments the o_counter for this scene
+    private func incrementOCounter() async {
+        // Set loading state
+        await MainActor.run {
+            isIncrementingOCounter = true
+        }
+        
+        do {
+            let currentOCounter = scene.o_counter ?? 0
+            
+            // Ensure minimum feedback duration for better UX
+            async let apiCall = appModel.api.incrementSceneOCounter(sceneID: scene.id, currentValue: currentOCounter)
+            async let minimumDelay: Void = Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+            
+            let updatedScene = try await apiCall
+            try await minimumDelay
+            
+            print("✅ SCENEROW: Successfully incremented o_counter for scene \(scene.id), from \(currentOCounter) to \(updatedScene.o_counter ?? 0)")
+            
+            // Update the scene in the parent view
+            await MainActor.run {
+                onSceneUpdated(updatedScene)
+                isIncrementingOCounter = false
+            }
+        } catch {
+            print("❌ SCENEROW: Failed to increment o_counter for scene \(scene.id): \(error)")
+            // Still wait minimum time even on error for consistent UX
+            try? await Task.sleep(nanoseconds: 300_000_000) // 0.3 seconds
+            await MainActor.run {
+                isIncrementingOCounter = false
+            }
+        }
     }
 
     /// Plays the scene from a random position

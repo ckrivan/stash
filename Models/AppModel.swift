@@ -208,6 +208,9 @@ class AppModel: ObservableObject {
     func navigateToScene(_ scene: StashScene, startSeconds: Double? = nil, endSeconds: Double? = nil) {
         print("🚀 NAVIGATION - Navigating to scene: \(scene.title ?? "Untitled") with startSeconds: \(String(describing: startSeconds)), endSeconds: \(String(describing: endSeconds))")
         
+        // Notify that a main video is starting - this will stop all preview videos
+        NotificationCenter.default.post(name: Notification.Name("MainVideoPlayerStarted"), object: nil)
+        
         // Check if we're in any shuffle context to handle audio properly
         let isMarkerShuffle = UserDefaults.standard.bool(forKey: "isMarkerShuffleContext")
         let isTagShuffle = UserDefaults.standard.bool(forKey: "isTagSceneShuffleContext")
@@ -1137,6 +1140,11 @@ class AppModel: ObservableObject {
     @Published var isTagSceneShuffleMode: Bool = false
     @Published var shuffleTagId: String? = nil
     
+    // MARK: - Most Played Shuffle System
+    @Published var mostPlayedShuffleQueue: [StashScene] = []
+    @Published var currentMostPlayedShuffleIndex: Int = 0
+    @Published var isMostPlayedShuffleMode: Bool = false
+    
     /// Start tag scene shuffle for a specific tag
     func startTagSceneShuffle(forTag tagId: String, tagName: String, displayedScenes: [StashScene]) {
         print("🎲 Starting tag scene shuffle for tag: \(tagName)")
@@ -1327,6 +1335,149 @@ class AppModel: ObservableObject {
         shuffleTagId = nil
         UserDefaults.standard.set(false, forKey: "isTagSceneShuffleContext")
         UserDefaults.standard.set(false, forKey: "isTagSceneShuffleMode")
+    }
+    
+    // MARK: - Most Played Shuffle Functions
+    
+    /// Start most played shuffle mode with all scenes that have o_counter > 0
+    func startMostPlayedShuffle(from allScenes: [StashScene]) {
+        print("🎯 Starting most played shuffle mode")
+        
+        // Filter to only scenes with o_counter > 0
+        let mostPlayedScenes = allScenes.filter { scene in
+            if let oCounter = scene.o_counter, oCounter > 0 {
+                return true
+            }
+            return false
+        }
+        
+        guard !mostPlayedScenes.isEmpty else {
+            print("⚠️ No scenes with play count found")
+            return
+        }
+        
+        // Set shuffle context
+        isMostPlayedShuffleMode = true
+        UserDefaults.standard.set(true, forKey: "isMostPlayedShuffleMode")
+        UserDefaults.standard.set(true, forKey: "isRandomJumpMode")
+        
+        // Create shuffled queue
+        mostPlayedShuffleQueue = mostPlayedScenes.shuffled()
+        currentMostPlayedShuffleIndex = 0
+        
+        print("✅ Created most played shuffle queue with \(mostPlayedShuffleQueue.count) scenes")
+        
+        // Start playing first scene
+        if let firstScene = mostPlayedShuffleQueue.first {
+            print("🎯 Starting playback with first most played scene: \(firstScene.title ?? "Untitled") (o_counter: \(firstScene.o_counter ?? 0))")
+            navigateToScene(firstScene)
+            
+            // Jump to random position after delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                if let player = VideoPlayerRegistry.shared.currentPlayer {
+                    VideoPlayerUtility.jumpToRandomPosition(in: player)
+                }
+            }
+        }
+    }
+    
+    /// Get next scene in most played shuffle
+    private func nextMostPlayedScene() -> StashScene? {
+        guard isMostPlayedShuffleMode && !mostPlayedShuffleQueue.isEmpty else {
+            return nil
+        }
+        
+        currentMostPlayedShuffleIndex = (currentMostPlayedShuffleIndex + 1) % mostPlayedShuffleQueue.count
+        return mostPlayedShuffleQueue[currentMostPlayedShuffleIndex]
+    }
+    
+    /// Get previous scene in most played shuffle
+    private func previousMostPlayedScene() -> StashScene? {
+        guard isMostPlayedShuffleMode && !mostPlayedShuffleQueue.isEmpty else {
+            return nil
+        }
+        
+        currentMostPlayedShuffleIndex = currentMostPlayedShuffleIndex > 0 ? currentMostPlayedShuffleIndex - 1 : mostPlayedShuffleQueue.count - 1
+        return mostPlayedShuffleQueue[currentMostPlayedShuffleIndex]
+    }
+    
+    /// Jump to next scene in most played shuffle
+    func shuffleToNextMostPlayedScene() {
+        print("🎯 shuffleToNextMostPlayedScene called")
+        
+        guard let nextScene = nextMostPlayedScene() else {
+            print("⚠️ No next scene available in most played shuffle")
+            return
+        }
+        
+        print("🎯 Shuffling to next most played scene: \(nextScene.title ?? "Untitled") (o_counter: \(nextScene.o_counter ?? 0))")
+        
+        // Use the same approach as tag shuffle - update the existing VideoPlayerView
+        let hlsStreamURL = nextScene.paths.stream
+            .replacingOccurrences(of: "/stream?", with: "/stream.m3u8?")
+            .appending("&resolution=ORIGINAL&_ts=\(Int(Date().timeIntervalSince1970))")
+        
+        print("🎯 Most played shuffle HLS URL: \(hlsStreamURL)")
+        
+        // Post notification to update current video player
+        NotificationCenter.default.post(
+            name: NSNotification.Name("UpdateVideoPlayerForMostPlayedShuffle"),
+            object: nil,
+            userInfo: [
+                "scene": nextScene,
+                "hlsURL": hlsStreamURL
+            ]
+        )
+        
+        // Jump to random position after delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            if let player = VideoPlayerRegistry.shared.currentPlayer {
+                VideoPlayerUtility.jumpToRandomPosition(in: player)
+            }
+        }
+        
+        print("🔄 Posted notification to update current video player for most played shuffle")
+    }
+    
+    /// Jump to previous scene in most played shuffle
+    func shuffleToPreviousMostPlayedScene() {
+        guard let previousScene = previousMostPlayedScene() else {
+            print("⚠️ No previous scene available in most played shuffle")
+            return
+        }
+        
+        print("🎯 Shuffling to previous most played scene: \(previousScene.title ?? "Untitled")")
+        
+        // Use same approach as next scene
+        let hlsStreamURL = previousScene.paths.stream
+            .replacingOccurrences(of: "/stream?", with: "/stream.m3u8?")
+            .appending("&resolution=ORIGINAL&_ts=\(Int(Date().timeIntervalSince1970))")
+        
+        NotificationCenter.default.post(
+            name: NSNotification.Name("UpdateVideoPlayerForMostPlayedShuffle"),
+            object: nil,
+            userInfo: [
+                "scene": previousScene,
+                "hlsURL": hlsStreamURL
+            ]
+        )
+        
+        // Jump to random position after delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            if let player = VideoPlayerRegistry.shared.currentPlayer {
+                VideoPlayerUtility.jumpToRandomPosition(in: player)
+            }
+        }
+    }
+    
+    /// Stop most played shuffle mode
+    func stopMostPlayedShuffle() {
+        print("🛑 Stopping most played shuffle mode")
+        isMostPlayedShuffleMode = false
+        mostPlayedShuffleQueue.removeAll()
+        currentMostPlayedShuffleIndex = 0
+        UserDefaults.standard.set(false, forKey: "isMostPlayedShuffleMode")
+        UserDefaults.standard.set(false, forKey: "isRandomJumpMode")
     }
 }
 

@@ -11,8 +11,33 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
         // Ensure AppModel is properly initialized and authenticates
         initializeAppModel()
+        
+        // Set up global audio management
+        setupGlobalAudioManagement()
 
         return true
+    }
+    
+    private func setupGlobalAudioManagement() {
+        // Listen for when main video starts and stop all preview videos
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name("MainVideoPlayerStarted"),
+            object: nil,
+            queue: .main
+        ) { _ in
+            print("🔇 AppDelegate: Main video started - stopping all preview players")
+            GlobalVideoManager.shared.stopAllPreviews()
+        }
+        
+        // Listen for app going to background and stop all audio
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            print("🔇 AppDelegate: App went to background - stopping all audio")
+            GlobalVideoManager.shared.stopAllPreviews()
+        }
     }
 
     private func initializeAppModel() {

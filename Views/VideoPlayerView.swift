@@ -485,6 +485,9 @@ struct VideoPlayerView: View {
                     await scheduleControlsHide()
                 }
                 
+                // Notify that main video player has started - this stops all preview videos
+                NotificationCenter.default.post(name: Notification.Name("MainVideoPlayerStarted"), object: nil)
+                
                 // Listen for marker shuffle updates to avoid navigation flicker
                 NotificationCenter.default.addObserver(
                     forName: NSNotification.Name("UpdateVideoPlayerForMarkerShuffle"),
@@ -581,6 +584,46 @@ struct VideoPlayerView: View {
                         }
                     }
                 }
+                
+                // Listen for most played shuffle updates
+                NotificationCenter.default.addObserver(
+                    forName: NSNotification.Name("UpdateVideoPlayerForMostPlayedShuffle"),
+                    object: nil,
+                    queue: .main
+                ) { notification in
+                    print("🎯 Received most played shuffle update notification")
+                    if let userInfo = notification.userInfo,
+                       let newScene = userInfo["scene"] as? StashScene,
+                       let hlsURL = userInfo["hlsURL"] as? String {
+                        
+                        print("🎯 Updating VideoPlayerView to new most played scene: \(newScene.id)")
+                        
+                        // Update the current scene - most played shuffle doesn't use start/end times
+                        currentScene = newScene
+                        effectiveStartTime = nil
+                        effectiveEndTime = nil
+                        
+                        // Update the current player with new content
+                        if let player = getCurrentPlayer() {
+                            print("🎯 Updating player with new most played scene content")
+                            
+                            // Create new player item with the HLS URL
+                            if let url = URL(string: hlsURL) {
+                                let headers = ["User-Agent": "StashApp/iOS"]
+                                let asset = AVURLAsset(url: url, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
+                                let playerItem = AVPlayerItem(asset: asset)
+                                
+                                // Replace current item
+                                player.replaceCurrentItem(with: playerItem)
+                                
+                                // Start playing from the beginning
+                                player.seek(to: .zero) { _ in
+                                    player.play()
+                                }
+                            }
+                        }
+                    }
+                }
             }
             .onDisappear {
                 print("📱 VideoPlayerView disappeared - cleaning up video player")
@@ -591,9 +634,10 @@ struct VideoPlayerView: View {
                 // Check if we're in shuffle mode - if so, let navigation handle cleanup
                 let isMarkerShuffle = UserDefaults.standard.bool(forKey: "isMarkerShuffleContext")
                 let isTagShuffle = UserDefaults.standard.bool(forKey: "isTagSceneShuffleContext")
+                let isMostPlayedShuffle = UserDefaults.standard.bool(forKey: "isMostPlayedShuffleMode")
                 
                 // Only clean up video player for non-shuffle navigation
-                if !isMarkerShuffle && !isTagShuffle {
+                if !isMarkerShuffle && !isTagShuffle && !isMostPlayedShuffle {
                     if let player = VideoPlayerRegistry.shared.currentPlayer {
                         print("🔇 Disposing of video player on view disappear (non-shuffle)")
                         player.pause()
@@ -956,6 +1000,21 @@ extension VideoPlayerView {
                 return
             } else {
                 print("🏷️ ❌ Tag scene shuffle queue empty")
+            }
+        }
+        
+        // If we're in most played shuffle mode, use the most played shuffle system
+        if appModel.isMostPlayedShuffleMode {
+            print("🎯 In most played shuffle mode")
+            print("🎯 Queue size: \(appModel.mostPlayedShuffleQueue.count)")
+            print("🎯 Current index: \(appModel.currentMostPlayedShuffleIndex)")
+            
+            if !appModel.mostPlayedShuffleQueue.isEmpty {
+                print("🎯 ✅ Using most played shuffle queue - going to next scene")
+                appModel.shuffleToNextMostPlayedScene()
+                return
+            } else {
+                print("🎯 ❌ Most played shuffle queue empty")
             }
         }
         
@@ -2028,6 +2087,12 @@ extension VideoPlayerView {
             handlePureRandomVideo()
             return .handled
             
+        case "r":
+            // Restart scene from beginning
+            print("🎹 Keyboard shortcut: R - Restart from beginning")
+            restartFromBeginning()
+            return .handled
+            
         default:
             break
         }
@@ -2080,6 +2145,10 @@ extension VideoPlayerView {
             print("🎹 Menu shortcut: , - Library random shuffle")
             handlePureRandomVideo()
             
+        case .keyboardR:
+            print("🎹 Menu shortcut: R - Restart from beginning")
+            restartFromBeginning()
+            
         case .keyboardLeftArrow:
             print("🎹 Menu shortcut: ← - Seek backward 30 seconds")
             seekVideo(by: -30)
@@ -2114,6 +2183,30 @@ extension VideoPlayerView {
         
         // Provide haptic feedback
         let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.impactOccurred()
+    }
+    
+    /// Restart video from the beginning
+    private func restartFromBeginning() {
+        guard let player = getCurrentPlayer() else {
+            print("⚠️ Cannot restart - player not found")
+            return
+        }
+        
+        print("🔄 Restarting video from beginning")
+        
+        // Seek to beginning
+        player.seek(to: .zero, toleranceBefore: .zero, toleranceAfter: .zero) { success in
+            if success {
+                print("✅ Successfully restarted from beginning")
+                player.play()
+            } else {
+                print("❌ Failed to restart from beginning")
+            }
+        }
+        
+        // Provide haptic feedback
+        let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
     }
     
