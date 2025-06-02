@@ -396,18 +396,26 @@ class GlobalVideoManager {
 
     func stopAllPreviews() {
         DispatchQueue.main.async {
-            print("🎬 GlobalVideoManager: Stopping all \(self.activePlayers.count) active preview players")
+            print("🎬 GlobalVideoManager: Stopping and cleaning up all \(self.activePlayers.count) active preview players")
             for player in self.activePlayers {
+                // More aggressive cleanup to prevent audio overlap
                 player.pause()
+                player.isMuted = true  // Immediately mute to stop audio
+                player.replaceCurrentItem(with: nil)  // Clear the item completely
             }
         }
     }
 
     func pauseAllExcept(_ player: AVPlayer) {
         DispatchQueue.main.async {
+            print("🎬 GlobalVideoManager: Pausing all players except the current one")
             for activePlayer in self.activePlayers {
-                if activePlayer != player && activePlayer.timeControlStatus == .playing {
-                    activePlayer.pause()
+                if activePlayer != player {
+                    // More aggressive pause to prevent audio overlap
+                    if activePlayer.timeControlStatus == .playing {
+                        activePlayer.pause()
+                    }
+                    activePlayer.isMuted = true  // Mute to be extra sure
                 }
             }
         }

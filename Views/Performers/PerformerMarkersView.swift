@@ -102,6 +102,9 @@ struct PerformerMarkersView: View {
                         // Header with performer info, back button
                         HStack {
                             Button(action: {
+                                // Stop all preview players before navigating back
+                                GlobalVideoManager.shared.stopAllPreviews()
+                                
                                 selectedPerformer = nil
                                 appModel.api.markers = []
                                 searchText = ""
@@ -182,6 +185,10 @@ struct PerformerMarkersView: View {
                                     marker: marker,
                                     serverAddress: appModel.serverAddress,
                                     onTitleTap: { marker in
+                                        // Stop all preview players before starting full-screen video
+                                        print("📱 PerformerMarkersView: Stopping all previews before navigating to full-screen")
+                                        GlobalVideoManager.shared.stopAllPreviews()
+                                        
                                         // Set HLS preference first
                                         setHLSPreference(for: marker)
                                         // Use more reliable direct navigation method
@@ -215,6 +222,9 @@ struct PerformerMarkersView: View {
                                 )
                                 .frame(maxWidth: .infinity)
                                 .onTapGesture(count: 2) {
+                                    // Stop all preview players before double-tap navigation
+                                    GlobalVideoManager.shared.stopAllPreviews()
+                                    
                                     // Double tap should also set preference and navigate
                                     setHLSPreference(for: marker)
                                     // Use async for more reliable navigation
@@ -303,6 +313,9 @@ struct PerformerMarkersView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
+                        // Stop all preview players before navigating back
+                        GlobalVideoManager.shared.stopAllPreviews()
+                        
                         // Clear the selection and return to performer selection
                         withAnimation {
                             selectedPerformer = nil
@@ -329,6 +342,11 @@ struct PerformerMarkersView: View {
                         }
                     }
             }
+        }
+        .onDisappear {
+            // Cleanup all video players when the view disappears
+            print("📱 PerformerMarkersView disappeared - cleaning up all video players")
+            GlobalVideoManager.shared.stopAllPreviews()
         }
     }
     

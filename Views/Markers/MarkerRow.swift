@@ -131,13 +131,21 @@ struct MarkerRow: View {
                     }
                 }
                 .onTapGesture {
-                    // Toggle preview on tap
-                    isPreviewPlaying.toggle()
-                    
+                    // Toggle preview on tap - ensure only one preview plays at a time
                     if isPreviewPlaying {
-                        startPreview()
-                    } else {
+                        // Stop this preview
+                        isPreviewPlaying = false
                         stopPreview()
+                    } else {
+                        // Stop all other previews first, then start this one
+                        print("📱 MarkerRow \(marker.id) - stopping all other previews before starting new one")
+                        GlobalVideoManager.shared.stopAllPreviews()
+                        
+                        // Small delay to ensure cleanup, then start this preview
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            isPreviewPlaying = true
+                            startPreview()
+                        }
                     }
                 }
                 // Handle visibility changes
@@ -379,11 +387,13 @@ struct MarkerRow: View {
                 .stroke(Color.purple.opacity(0.3), lineWidth: 1) // ADDED PURPLE BORDER
         )
         .onDisappear {
-            // Ensure cleanup when row disappears
+            // Ensure immediate cleanup when row disappears
+            print("📱 MarkerRow \(marker.id) - onDisappear called, cleaning up player")
             if isPreviewPlaying {
                 isPreviewPlaying = false
-                cleanupPlayer()
             }
+            // Always cleanup player on disappear to prevent memory leaks
+            stopPreview()
         }
     }
     
@@ -526,10 +536,11 @@ struct MarkerRow: View {
                 // Only preload the URL when visible
                 getStreamURL()
             } else {
-                // When scrolled out of view, ALWAYS stop playing
+                // When scrolled out of view, ALWAYS stop playing and cleanup immediately
                 if isPreviewPlaying {
+                    print("📱 MarkerRow \(marker.id) scrolled out of view - stopping preview immediately")
                     isPreviewPlaying = false
-                    cleanupPlayer()
+                    stopPreview() // Use stopPreview instead of cleanupPlayer for complete cleanup
                 }
             }
         }
