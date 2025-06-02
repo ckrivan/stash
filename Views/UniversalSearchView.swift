@@ -15,6 +15,7 @@ struct UniversalSearchView: View {
     var onRandomSelected: (() -> Void)?
     var onAdvancedFilters: (() -> Void)?
     var onReload: (() -> Void)?
+    var onShuffleMostPlayed: (() -> Void)?
     
     @FocusState private var isSearchFieldFocused: Bool
     @State private var showingCancelButton = false
@@ -114,6 +115,13 @@ struct UniversalSearchView: View {
                             Label("Reload", systemImage: "arrow.clockwise")
                         }
                         
+                        if currentFilter == "o_counter" {
+                            Divider()
+                            Button(action: { onShuffleMostPlayed?() }) {
+                                Label("Shuffle Most Played", systemImage: "number.circle.fill")
+                            }
+                        }
+                        
                         Button(action: {
                             // Navigate to settings - we'll need to handle this differently
                             NotificationCenter.default.post(name: Notification.Name("ShowSettings"), object: nil)
@@ -174,6 +182,31 @@ struct UniversalSearchView: View {
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
+                    
+                    // Most Played Shuffle button
+                    Button(action: {
+                        print("🎯 Most Played Shuffle tapped from scope selector")
+                        onShuffleMostPlayed?()
+                    }) {
+                        HStack(spacing: 5) {
+                            Image(systemName: "number.circle.fill")
+                                .font(.system(size: 14))
+                                .foregroundColor(.orange)
+                            Image(systemName: "shuffle")
+                                .font(.system(size: 14))
+                                .foregroundColor(.orange)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.orange.opacity(0.2))
+                        .foregroundColor(.orange)
+                        .cornerRadius(15)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 15)
+                                .stroke(Color.orange.opacity(0.5), lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
                 .padding(.horizontal)
             }

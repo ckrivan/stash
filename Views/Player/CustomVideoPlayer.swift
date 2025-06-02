@@ -2,7 +2,7 @@ import AVKit
 import UIKit
 import SwiftUI
 
-class CustomVideoPlayer: AVPlayerViewController {
+class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
     // MARK: - Properties
     private var scenes: [StashScene] = []
     private var currentIndex: Int = 0
@@ -112,6 +112,22 @@ class CustomVideoPlayer: AVPlayerViewController {
             let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleButtonVisibility))
             contentOverlayView.addGestureRecognizer(tapGesture)
             
+            // Add pan gesture for swipe-like seeking to multiple views
+            let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
+            panGesture.delegate = self
+            panGesture.maximumNumberOfTouches = 1
+            panGesture.cancelsTouchesInView = false
+            contentOverlayView.addGestureRecognizer(panGesture)
+            
+            // Also add to main view
+            let panGestureMain = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
+            panGestureMain.delegate = self
+            panGestureMain.maximumNumberOfTouches = 1
+            panGestureMain.cancelsTouchesInView = false
+            view.addGestureRecognizer(panGestureMain)
+            
+            print("👆 Added pan gestures for swipe seeking: left = seek back 10s, right = seek forward 10s")
+            
             // Remove gear button and settings which appear in marker playback
             // First, immediate check to hide initial buttons
             hideSettingsButtons()
@@ -146,6 +162,7 @@ class CustomVideoPlayer: AVPlayerViewController {
         
         // Check and apply aspect ratio correction
         applyAspectRatioCorrection()
+        
         
         // Start playback automatically
         player?.play()
@@ -340,6 +357,75 @@ class CustomVideoPlayer: AVPlayerViewController {
                 self.hideSettingsButtons()
             }
         }
+    }
+    
+    // MARK: - Pan Gesture Handler (for swipe-like seeking)
+    
+    @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        switch gesture.state {
+        case .began:
+            print("👆 Pan gesture began")
+        case .changed:
+            let translation = gesture.translation(in: gesture.view)
+            // Uncomment for detailed tracking: print("👆 Pan changed: x=\(translation.x), y=\(translation.y)")
+        case .ended:
+            let velocity = gesture.velocity(in: gesture.view)
+            let translation = gesture.translation(in: gesture.view)
+            
+            print("👆 Pan gesture ended - translation: x=\(translation.x), y=\(translation.y), velocity: x=\(velocity.x), y=\(velocity.y)")
+            
+            // More lenient thresholds for detection
+            let minDistance: CGFloat = 30  // Reduced from 50
+            let minVelocity: CGFloat = 200 // Reduced from 500
+            
+            // Ensure horizontal movement is dominant
+            let isHorizontalSwipe = abs(translation.x) > abs(translation.y)
+            
+            if isHorizontalSwipe && abs(translation.x) > minDistance && abs(velocity.x) > minVelocity {
+                if translation.x > 0 {
+                    // Swipe right - seek forward
+                    print("👆 ✅ SWIPE RIGHT DETECTED (via pan) - seeking forward 10 seconds")
+                    seekVideo(by: 10)
+                    
+                    // Provide haptic feedback
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
+                } else {
+                    // Swipe left - seek backward
+                    print("👆 ✅ SWIPE LEFT DETECTED (via pan) - seeking back 10 seconds")
+                    seekVideo(by: -10)
+                    
+                    // Provide haptic feedback
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
+                }
+            } else {
+                print("👆 Pan gesture didn't meet swipe criteria: isHorizontal=\(isHorizontalSwipe), distance=\(abs(translation.x)), velocity=\(abs(velocity.x))")
+            }
+        case .cancelled, .failed:
+            print("👆 Pan gesture cancelled/failed")
+        default:
+            break
+        }
+    }
+    
+    // MARK: - UIGestureRecognizerDelegate
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        // Allow pan gestures to work alongside other gestures
+        print("👆 Gesture recognizer simultaneous check: \(gestureRecognizer) with \(otherGestureRecognizer)")
+        return true
+    }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        // Make sure pan gestures can receive touches
+        print("👆 Gesture recognizer should receive touch: \(gestureRecognizer) at location: \(touch.location(in: gestureRecognizer.view))")
+        return true
+    }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBegin gesture: UIGestureRecognizer) -> Bool {
+        print("👆 Gesture recognizer should begin: \(gestureRecognizer)")
+        return true
     }
     
     private enum ButtonPosition {
