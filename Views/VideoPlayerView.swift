@@ -25,6 +25,9 @@ class CustomPlayerViewController: UIViewController {
         playerVC.view.frame = view.bounds
         playerVC.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         playerVC.didMove(toParent: self)
+        
+        // Add pan gesture for swipe seeking
+        setupSwipeGestures()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -33,8 +36,11 @@ class CustomPlayerViewController: UIViewController {
         // Make this view controller the first responder to intercept keyboard events
         becomeFirstResponder()
         
-        // Try to find and hide the gear button by walking the view hierarchy
+        print("🎬 CustomPlayerViewController viewDidAppear - setting up additional gestures")
+        
+        // Add gestures with delay to ensure view hierarchy is ready
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.setupAdditionalGestures()
             self.hideGearButton(in: self.playerVC.view)
         }
     }
@@ -126,6 +132,95 @@ class CustomPlayerViewController: UIViewController {
             hideGearButton(in: subview)
         }
     }
+    
+    // MARK: - Swipe Gesture Setup
+    
+    private func setupSwipeGestures() {
+        // Add pan gesture for swipe-like seeking
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
+        panGesture.maximumNumberOfTouches = 1
+        panGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(panGesture)
+        
+        print("👆 Added pan gesture for swipe seeking: left = seek back 10s, right = seek forward 10s")
+    }
+    
+    private func setupAdditionalGestures() {
+        print("🎬 Setting up additional gestures with delay...")
+        
+        // Add pan gesture directly to player view
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
+        panGesture.maximumNumberOfTouches = 1
+        panGesture.cancelsTouchesInView = false
+        playerVC.view.addGestureRecognizer(panGesture)
+        
+        // Also try adding to content overlay view if it exists
+        if let contentOverlay = playerVC.contentOverlayView {
+            let panGesture2 = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
+            panGesture2.maximumNumberOfTouches = 1
+            panGesture2.cancelsTouchesInView = false
+            contentOverlay.addGestureRecognizer(panGesture2)
+            print("👆 Added pan gesture to contentOverlayView")
+        }
+        
+        print("👆 Added additional pan gestures to player views")
+    }
+    
+    @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        switch gesture.state {
+        case .began:
+            print("👆 🟢 Pan gesture BEGAN")
+        case .changed:
+            // Uncomment for detailed tracking:
+            // let translation = gesture.translation(in: gesture.view)
+            // print("👆 Pan changed: x=\(translation.x)")
+            break
+        case .ended:
+            let velocity = gesture.velocity(in: gesture.view)
+            let translation = gesture.translation(in: gesture.view)
+            
+            print("👆 🔴 Pan gesture ENDED - translation: x=\(translation.x), y=\(translation.y), velocity: x=\(velocity.x), y=\(velocity.y)")
+            
+            // Very lenient thresholds for detection
+            let minDistance: CGFloat = 20  // Reduced from 30
+            let minVelocity: CGFloat = 100 // Reduced from 200
+            
+            // Ensure horizontal movement is dominant
+            let isHorizontalSwipe = abs(translation.x) > abs(translation.y)
+            
+            if isHorizontalSwipe && abs(translation.x) > minDistance && abs(velocity.x) > minVelocity {
+                if translation.x > 0 {
+                    // Swipe right - seek forward
+                    print("👆 ✅ SWIPE RIGHT DETECTED (via pan) - seeking forward 10 seconds")
+                    seekVideo(by: 10)
+                    
+                    // Provide haptic feedback
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
+                } else {
+                    // Swipe left - seek backward
+                    print("👆 ✅ SWIPE LEFT DETECTED (via pan) - seeking back 10 seconds")
+                    seekVideo(by: -10)
+                    
+                    // Provide haptic feedback
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
+                }
+            } else {
+                print("👆 ❌ Pan gesture didn't meet swipe criteria:")
+                print("   isHorizontal: \(isHorizontalSwipe)")
+                print("   distance: \(abs(translation.x)) (min: \(minDistance))")
+                print("   velocity: \(abs(velocity.x)) (min: \(minVelocity))")
+            }
+        case .cancelled:
+            print("👆 🟡 Pan gesture CANCELLED")
+        case .failed:
+            print("👆 🔴 Pan gesture FAILED")
+        default:
+            break
+        }
+    }
+    
 }
 
 struct VideoPlayerView: View {
@@ -202,7 +297,7 @@ struct VideoPlayerView: View {
                     }
                 }
 
-                // This transparent layer captures taps across the entire view
+                // This transparent layer captures taps and swipes across the entire view
                 Color.clear
                     .contentShape(Rectangle())
                     .onTapGesture {
@@ -218,6 +313,41 @@ struct VideoPlayerView: View {
                             }
                         }
                     }
+                    .gesture(
+                        DragGesture(minimumDistance: 20, coordinateSpace: .local)
+                            .onEnded { value in
+                                let horizontalAmount = value.translation.width
+                                let verticalAmount = value.translation.height
+                                
+                                print("👆 DragGesture ended - horizontal: \(horizontalAmount), vertical: \(verticalAmount)")
+                                
+                                // Check if this is primarily a horizontal swipe (more horizontal than vertical movement)
+                                if abs(horizontalAmount) > abs(verticalAmount) && abs(horizontalAmount) > 30 {
+                                    if horizontalAmount > 0 {
+                                        // Swipe right - seek forward 10 seconds
+                                        print("👆 ✅ SWIPE RIGHT DETECTED - seeking forward 10 seconds")
+                                        VideoPlayerRegistry.shared.seek(by: 10)
+                                        
+                                        // Haptic feedback
+                                        let generator = UIImpactFeedbackGenerator(style: .light)
+                                        generator.impactOccurred()
+                                    } else {
+                                        // Swipe left - seek backward 10 seconds
+                                        print("👆 ✅ SWIPE LEFT DETECTED - seeking back 10 seconds")
+                                        VideoPlayerRegistry.shared.seek(by: -10)
+                                        
+                                        // Haptic feedback
+                                        let generator = UIImpactFeedbackGenerator(style: .light)
+                                        generator.impactOccurred()
+                                    }
+                                } else {
+                                    print("👆 ❌ DragGesture didn't qualify as horizontal swipe:")
+                                    print("   horizontal: \(abs(horizontalAmount)) (min: 30)")
+                                    print("   vertical: \(abs(verticalAmount))")
+                                    print("   isHorizontal: \(abs(horizontalAmount) > abs(verticalAmount))")
+                                }
+                            }
+                    )
 
                 // Control overlay - only show when showControls is true
                 if showControls {
@@ -2557,4 +2687,49 @@ class VideoPlayerRegistry {
     var playerViewController: AVPlayerViewController?
 
     private init() {}
+    
+    func seek(by seconds: Double) {
+        guard let player = currentPlayer,
+              let currentItem = player.currentItem else {
+            print("⚠️ Cannot seek - player or item not available")
+            return
+        }
+        
+        let currentTime = currentItem.currentTime()
+        let targetTime = CMTimeAdd(currentTime, CMTime(seconds: seconds, preferredTimescale: 1000))
+        
+        // Ensure we don't seek before the beginning or past the end
+        let duration = currentItem.duration
+        let zeroTime = CMTime.zero
+        
+        if duration.isValid && !duration.seconds.isNaN {
+            if targetTime.seconds < 0 {
+                player.seek(to: zeroTime, toleranceBefore: .zero, toleranceAfter: .zero)
+                print("⏱ Seeking to beginning of video")
+                return
+            } else if targetTime.seconds > duration.seconds {
+                player.seek(to: duration, toleranceBefore: .zero, toleranceAfter: .zero)
+                print("⏱ Seeking to end of video")
+                return
+            }
+        }
+        
+        print("⏱ Seeking by \(seconds) seconds to \(targetTime.seconds)")
+        player.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero) { success in
+            if success {
+                print("✅ Successfully seeked by \(seconds) seconds")
+                
+                // Provide haptic feedback
+                let generator = UIImpactFeedbackGenerator(style: .light)
+                generator.impactOccurred()
+                
+                // Ensure playback continues
+                if player.timeControlStatus != .playing {
+                    player.play()
+                }
+            } else {
+                print("❌ Seek operation failed")
+            }
+        }
+    }
 }
