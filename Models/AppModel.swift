@@ -765,7 +765,7 @@ class AppModel: ObservableObject {
     @Published var shuffleTagFilter: String? = nil
     @Published var shuffleSearchQuery: String? = nil
     
-    /// Start marker shuffle for a specific tag - loads ALL markers from API
+    /// Start marker shuffle for a specific tag - loads ALL markers from API for comprehensive shuffle
     func startMarkerShuffle(forTag tagId: String, tagName: String, displayedMarkers: [SceneMarker]) {
         print("🎲 Starting marker shuffle for tag: \(tagName) - loading ALL markers from API")
         
@@ -783,7 +783,7 @@ class AppModel: ObservableObject {
         }
     }
     
-    /// Start marker shuffle for search results - loads ALL markers from API
+    /// Start marker shuffle for search results - loads ALL markers from API for comprehensive shuffle
     func startMarkerShuffle(forSearchQuery query: String, displayedMarkers: [SceneMarker]) {
         print("🎲 Starting marker shuffle for search: \(query) - loading ALL markers from API")
         
@@ -812,8 +812,8 @@ class AppModel: ObservableObject {
         while currentPage <= maxPages {
             print("🔄 Loading page \(currentPage) for search: '\(query)'")
             
-            // Use the existing search API method
-            await api.updateMarkersFromSearch(query: query, page: currentPage, appendResults: false)
+            // Use the existing search API method with larger batch size for shuffle
+            await api.updateMarkersFromSearch(query: query, page: currentPage, appendResults: false, perPage: 500)
             let newMarkers = api.markers
             
             print("📊 Page \(currentPage): API returned \(newMarkers.count) markers")
@@ -917,8 +917,8 @@ class AppModel: ObservableObject {
         while currentPage <= maxPages {
             print("🔄 Loading page \(currentPage) for tag: \(tagName)")
             
-            // Use the existing tag API method
-            await api.fetchMarkersByTag(tagId: tagId, page: currentPage, appendResults: false)
+            // Use the existing tag API method with larger batch size for shuffle
+            await api.fetchMarkersByTag(tagId: tagId, page: currentPage, appendResults: false, perPage: 500)
             let newMarkers = api.markers
             
             if newMarkers.isEmpty {

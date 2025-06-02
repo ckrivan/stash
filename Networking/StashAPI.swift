@@ -186,6 +186,7 @@ class StashAPI: ObservableObject {
     @Published var markers: [SceneMarker] = []
     @Published var totalSceneCount: Int = 0
     @Published var totalPerformerCount: Int = 0
+    @Published var totalMarkerCount: Int = 0
     @Published var connectionStatus: ConnectionStatus = .unknown
     @Published var sceneID: String?
     @Published var isAuthenticated = false
@@ -686,7 +687,7 @@ class StashAPI: ObservableObject {
             var queryVars: [String: Any] = [
                 "filter": [
                     "page": page,
-                    "per_page": 100,
+                    "per_page": 500,
                     "sort": sortField,
                     "direction": direction
                 ]
@@ -964,7 +965,7 @@ class StashAPI: ObservableObject {
             // Also include tags for VR filtering
             let query = """
             {
-                "query": "{ findScenes(filter: {page: \(page), per_page: 100, sort: \\"date\\", direction: \\"DESC\\"}) { count scenes { id title paths { screenshot stream } tags { id name } } } }"
+                "query": "{ findScenes(filter: {page: \(page), per_page: 500, sort: \\"date\\", direction: \\"DESC\\"}) { count scenes { id title paths { screenshot stream } tags { id name } } } }"
             }
             """
 
@@ -2032,6 +2033,47 @@ class StashAPI: ObservableObject {
         let response: SceneUpdateResponse = try await performGraphQLRequest(query: query, variables: variables)
         return response.sceneUpdate
     }
+    
+    func incrementSceneOCounter(sceneID: String, currentValue: Int) async throws -> StashScene {
+        // Use the correct sceneAddO mutation that Stash expects
+        let query = """
+        mutation SceneAddO($id: ID!, $times: [Timestamp!]) {
+            sceneAddO(id: $id, times: $times) {
+                count
+                history
+                __typename
+            }
+        }
+        """
+
+        let variables: [String: Any] = [
+            "id": sceneID
+        ]
+
+        struct SceneAddOResponse: Decodable {
+            let data: DataWrapper
+            
+            struct DataWrapper: Decodable {
+                let sceneAddO: OCounterResult
+            }
+            
+            struct OCounterResult: Decodable {
+                let count: Int
+                let history: [String]
+                let __typename: String
+            }
+        }
+
+        let response: SceneAddOResponse = try await performGraphQLRequest(query: query, variables: variables)
+        print("✅ O-counter incremented successfully to: \(response.data.sceneAddO.count)")
+        
+        // After incrementing, we need to fetch the updated scene to return it
+        if let updatedScene = try await fetchScene(byID: sceneID) {
+            return updatedScene
+        } else {
+            throw NSError(domain: "StashAPI", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to fetch updated scene after incrementing o_counter"])
+        }
+    }
 
     // Async version of searchTags
     func searchTags(query: String) async throws -> [StashScene.Tag] {
@@ -2355,7 +2397,7 @@ class StashAPI: ObservableObject {
             "filter": [
                 "q": escaped,
                 "page": 1,
-                "per_page": 100,
+                "per_page": 500,
                 "sort": "title",
                 "direction": "ASC"
             ]
@@ -2382,7 +2424,7 @@ class StashAPI: ObservableObject {
             "filter": [
                 "q": escaped,
                 "page": 1,
-                "per_page": 100,
+                "per_page": 500,
                 "sort": "title",
                 "direction": "ASC"
             ]
@@ -2666,9 +2708,50 @@ class StashAPI: ObservableObject {
             }
         }
     }
+    
+    /// Search markers with pagination support
+    /// - Parameters:
+    ///   - query: Search query
+    ///   - page: Page number (starts at 1)
+    ///   - perPage: Number of results per page
+    ///   - completion: Callback with result
+    func searchMarkers(query: String, page: Int = 1, perPage: Int = 50, completion: @escaping (Result<[SceneMarker], Error>) -> Void) {
+        Task {
+            do {
+                let markers = try await searchMarkersCore(query: query, page: page, perPage: perPage)
+                DispatchQueue.main.async {
+                    completion(.success(markers))
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
+    
+    /// Search markers with pagination support (async version)
+    /// - Parameters:
+    ///   - query: Search query
+    ///   - page: Page number (starts at 1)
+    ///   - perPage: Number of results per page
+    /// - Returns: Array of matching markers
+    func searchMarkers(query: String, page: Int = 1, perPage: Int = 50) async throws -> [SceneMarker] {
+        return try await searchMarkersCore(query: query, page: page, perPage: perPage)
+    }
+    
+    /// Search markers with pagination support and total count
+    /// - Parameters:
+    ///   - query: Search query
+    ///   - page: Page number (starts at 1)
+    ///   - perPage: Number of results per page
+    /// - Returns: Tuple of (markers, totalCount)
+    func searchMarkersWithCount(query: String, page: Int = 1, perPage: Int = 50) async throws -> ([SceneMarker], Int) {
+        return try await searchMarkersCoreWithCount(query: query, page: page, perPage: perPage)
+    }
 
     // Core implementation for searching markers
-    private func searchMarkersCore(query: String) async throws -> [SceneMarker] {
+    private func searchMarkersCore(query: String, page: Int = 1, perPage: Int = 50) async throws -> [SceneMarker] {
         // Ensure the query is properly formatted
         let cleanQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         print("🔎 Marker search query: '\(cleanQuery)'")
@@ -2683,8 +2766,8 @@ class StashAPI: ObservableObject {
         let variables: [String: Any] = [
             "filter": [
                 "q": cleanQuery,
-                "page": 1,
-                "per_page": 100,
+                "page": page,
+                "per_page": perPage,
                 "sort": "title",
                 "direction": "ASC"
             ]
@@ -2752,6 +2835,94 @@ class StashAPI: ObservableObject {
         }
 
         return markersResponse.data.findSceneMarkers.scene_markers
+    }
+    
+    // Core implementation for searching markers with count
+    private func searchMarkersCoreWithCount(query: String, page: Int = 1, perPage: Int = 50) async throws -> ([SceneMarker], Int) {
+        // Ensure the query is properly formatted
+        let cleanQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        print("🔎 Marker search query with count: '\(cleanQuery)'")
+        
+        // Check if this is a tag search (starts with #)
+        if cleanQuery.hasPrefix("#") {
+            let tagName = String(cleanQuery.dropFirst()).trimmingCharacters(in: .whitespacesAndNewlines)
+            print("🏷️ Performing exact tag search for: '\(tagName)'")
+            let markers = try await searchMarkersByExactTag(tagName: tagName)
+            return (markers, markers.count) // For tag searches, return the actual count
+        }
+        
+        let variables: [String: Any] = [
+            "filter": [
+                "q": cleanQuery,
+                "page": page,
+                "per_page": perPage,
+                "sort": "title",
+                "direction": "ASC"
+            ]
+        ]
+        
+        let graphQLQuery = """
+        query FindSceneMarkers($filter: FindFilterType) {
+            findSceneMarkers(filter: $filter) {
+                count
+                scene_markers {
+                    id
+                    title
+                    seconds
+                    stream
+                    preview
+                    screenshot
+                    scene {
+                        id
+                        title
+                        paths {
+                            screenshot
+                            preview
+                            stream
+                        }
+                        performers {
+                            id
+                            name
+                            image_path
+                        }
+                        studio {
+                            id
+                            name
+                        }
+                    }
+                    primary_tag {
+                        id
+                        name
+                    }
+                    tags {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+        """
+        
+        struct SceneMarkersResponse: Decodable {
+            struct Data: Decodable {
+                struct FindSceneMarkers: Decodable {
+                    let count: Int
+                    let scene_markers: [SceneMarker]
+                }
+                let findSceneMarkers: FindSceneMarkers
+            }
+            let data: Data
+            let errors: [GraphQLError]?
+        }
+
+        let markersResponse: SceneMarkersResponse = try await performGraphQLRequest(query: graphQLQuery, variables: variables)
+        
+        if let errors = markersResponse.errors, !errors.isEmpty {
+            let errorMessages = errors.map { $0.message }.joined(separator: ", ")
+            throw StashAPIError.graphQLError(errorMessages)
+        }
+
+        return (markersResponse.data.findSceneMarkers.scene_markers, markersResponse.data.findSceneMarkers.count)
     }
 
     // Public async version of searchMarkers
@@ -2851,7 +3022,7 @@ class StashAPI: ObservableObject {
         let markerVariables: [String: Any] = [
             "filter": [
                 "page": 1,
-                "per_page": 100,
+                "per_page": 50,
                 "sort": "title",
                 "direction": "ASC"
             ],
@@ -2882,7 +3053,7 @@ class StashAPI: ObservableObject {
 
     /// Helper method that updates the internal markers array with search results
     /// - Parameter query: Search term
-    func updateMarkersFromSearch(query: String, page: Int = 1, appendResults: Bool = false) async {
+    func updateMarkersFromSearch(query: String, page: Int = 1, appendResults: Bool = false, perPage: Int = 50) async {
         isLoading = true
 
         // Use proper JSON serialization to avoid format issues
@@ -2892,7 +3063,7 @@ class StashAPI: ObservableObject {
                 "filter": [
                     "q": query,
                     "page": page,
-                    "per_page": 500,
+                    "per_page": perPage,
                     "sort": "title",
                     "direction": "ASC"
                 ],
@@ -2973,6 +3144,7 @@ class StashAPI: ObservableObject {
                 
                 // Include the total count in the log
                 print("✅ Total available markers: \(response.data.findSceneMarkers.count)")
+                self.totalMarkerCount = response.data.findSceneMarkers.count
                 self.isLoading = false
             }
         } catch {
@@ -3067,7 +3239,7 @@ class StashAPI: ObservableObject {
     }
 
     // Method for async/await calls and to support MarkersView
-    func fetchMarkers(page: Int = 1, appendResults: Bool = false, performerId: String? = nil) async {
+    func fetchMarkers(page: Int = 1, appendResults: Bool = false, performerId: String? = nil, perPage: Int = 500) async {
         isLoading = true
         
         // Generate a random seed for consistent random sorting
@@ -3079,7 +3251,7 @@ class StashAPI: ObservableObject {
             "variables": {
                 "filter": {
                     "page": \(page),
-                    "per_page": 500,
+                    "per_page": \(perPage),
                     "sort": "random_\(randomSeed)",
                     "direction": "ASC"
                 },
@@ -3156,6 +3328,8 @@ class StashAPI: ObservableObject {
                 } else {
                     self.markers = response.data.findSceneMarkers.scene_markers
                     print("✅ Set \(response.data.findSceneMarkers.scene_markers.count) markers")
+                    print("✅ Total available markers: \(response.data.findSceneMarkers.count)")
+                    self.totalMarkerCount = response.data.findSceneMarkers.count
 
                     // Debug log for first marker
                     if let firstMarker = self.markers.first {
@@ -3174,7 +3348,7 @@ class StashAPI: ObservableObject {
             isLoading = false
         }
     }// END NEW FETCHMARKERS
-    func fetchMarkersByTag(tagId: String, page: Int = 1, appendResults: Bool = false) async {
+    func fetchMarkersByTag(tagId: String, page: Int = 1, appendResults: Bool = false, perPage: Int = 50) async {
         isLoading = true
 
         let query = """
@@ -3183,7 +3357,7 @@ class StashAPI: ObservableObject {
             "variables": {
                 "filter": {
                     "page": \(page),
-                    "per_page": 500,
+                    "per_page": \(perPage),
                     "sort": "title",
                     "direction": "ASC"
                 },
@@ -3256,6 +3430,8 @@ class StashAPI: ObservableObject {
                 } else {
                     self.markers = decodedResponse.data.findSceneMarkers.scene_markers
                     print("✅ Set \(decodedResponse.data.findSceneMarkers.scene_markers.count) markers for tag \(tagId)")
+                    print("✅ Total available markers: \(decodedResponse.data.findSceneMarkers.count)")
+                    self.totalMarkerCount = decodedResponse.data.findSceneMarkers.count
                 }
 
                 self.isLoading = false
@@ -3293,12 +3469,27 @@ class StashAPI: ObservableObject {
     
     /// Simple search for markers by tag name - simplified version
     func searchMarkersByTagName(tagName: String) async {
-        print("🏷️ Simplified tag search for: '\(tagName)'")
+        print("🏷️ Tag-based search for: '\(tagName)'")
         isLoading = true
         
-        // For now, just fall back to regular text search since that works
-        // We can enhance this later if needed
-        await updateMarkersFromSearch(query: tagName, page: 1, appendResults: false)
+        do {
+            // First search for the tag to get its ID
+            let tagResponse = try await searchTags(query: tagName)
+            
+            if let tag = tagResponse.first {
+                print("🏷️ Found tag: \(tag.name) (ID: \(tag.id))")
+                // Use proper tag-based marker search
+                await fetchMarkersByTag(tagId: tag.id, page: 1, appendResults: false)
+            } else {
+                print("⚠️ Tag '\(tagName)' not found, falling back to text search")
+                // Fallback to text search if tag not found
+                await updateMarkersFromSearch(query: tagName, page: 1, appendResults: false)
+            }
+        } catch {
+            print("❌ Error searching for tag '\(tagName)': \(error)")
+            // Fallback to text search on error
+            await updateMarkersFromSearch(query: tagName, page: 1, appendResults: false)
+        }
     }
     
     /// Fetch markers by tag and return them (used for shuffle system)
