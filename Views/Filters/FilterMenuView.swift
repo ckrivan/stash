@@ -22,26 +22,32 @@ struct FilterMenuView: View {
     var body: some View {
         HStack(spacing: 8) {
             Menu {
-                Picker("Sorting", selection: $currentFilter) {
-                    Text("Default").tag("default")
-                    Text("Newest").tag("newest")
-                    Text("Most Played").tag("o_counter")
-                    Text("Random").tag("random")
+                Button(action: {
+                    print("🎯 iPad FilterMenuView: Default button tapped")
+                    onDefaultSelected()
+                }) {
+                    Label("Default", systemImage: currentFilter == "default" ? "checkmark" : "")
                 }
-                .pickerStyle(InlinePickerStyle())
-                .onChange(of: currentFilter) { newValue in
-                    switch newValue {
-                    case "default":
-                        onDefaultSelected()
-                    case "newest":
-                        onNewestSelected()
-                    case "o_counter":
-                        onOCounterSelected()
-                    case "random":
-                        onRandomSelected()
-                    default:
-                        break
-                    }
+                
+                Button(action: {
+                    print("🎯 iPad FilterMenuView: Newest button tapped")
+                    onNewestSelected()
+                }) {
+                    Label("Newest", systemImage: currentFilter == "newest" ? "checkmark" : "")
+                }
+                
+                Button(action: {
+                    print("🎯 iPad FilterMenuView: Most Played button tapped")
+                    onOCounterSelected()
+                }) {
+                    Label("Most Played", systemImage: currentFilter == "o_counter" ? "checkmark" : "")
+                }
+                
+                Button(action: {
+                    print("🎯 iPad FilterMenuView: Random button tapped")
+                    onRandomSelected()
+                }) {
+                    Label("Random", systemImage: currentFilter == "random" ? "checkmark" : "")
                 }
                 
                 Divider()

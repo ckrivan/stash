@@ -58,7 +58,8 @@ struct MarkersView: View {
             displayedMarkers = allMarkers
         }
         
-        // Log marker counts for debugging
+        // Enhanced logging for debugging
+        print("🔍 updateDisplayedMarkers: allMarkers=\(allMarkers.count), displayedMarkers=\(displayedMarkers.count), selectedTagId=\(selectedTagId ?? "nil")")
         logMarkerCounts(source: "updateDisplayedMarkers")
     }
 
@@ -224,8 +225,9 @@ struct MarkersView: View {
                         // Info about what we're shuffling
                         VStack(alignment: .leading, spacing: 4) {
                             if !appModel.searchQuery.isEmpty {
-                                Text("Shuffle search results for '\(appModel.searchQuery)'")
-                                    .font(.subheadline)
+                                Text("Search: \(appModel.searchQuery)")
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
                                     .foregroundColor(.primary)
                             } else if let selectedTagId = selectedTagId,
                                       let marker = displayedMarkers.first(where: {
@@ -235,14 +237,36 @@ struct MarkersView: View {
                                       let tagName = (marker.primary_tag.id == selectedTagId ?
                                                    marker.primary_tag.name :
                                                    marker.tags.first(where: { $0.id == selectedTagId })?.name) {
-                                Text("Shuffle all '\(tagName)' markers")
-                                    .font(.subheadline)
+                                Text("\(tagName)")
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
                                     .foregroundColor(.primary)
                             }
                             
-                            Text("Found \(displayedMarkers.count) markers")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Displayed: \(displayedMarkers.count) markers")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                
+                                if appModel.api.totalMarkerCount > 0 && appModel.api.totalMarkerCount != displayedMarkers.count {
+                                    Text("Total available: \(appModel.api.totalMarkerCount) markers")
+                                        .font(.caption)
+                                        .foregroundColor(.blue)
+                                        .fontWeight(.medium)
+                                }
+                                
+                                if !appModel.searchQuery.isEmpty {
+                                    Text("Shuffle loads ALL matching markers (may be slow)")
+                                        .font(.caption2)
+                                        .foregroundColor(.orange)
+                                        .fontWeight(.medium)
+                                } else if selectedTagId != nil {
+                                    Text("Shuffle loads ALL tag markers (may be slow)")
+                                        .font(.caption2)
+                                        .foregroundColor(.orange)
+                                        .fontWeight(.medium)
+                                }
+                            }
                         }
                         
                         Spacer()
@@ -460,7 +484,7 @@ struct MarkersView: View {
         .onChange(of: appModel.searchQuery) { _, newValue in
             Task {
                 if !newValue.isEmpty {
-                    print("🔍 Search text changed to: '\(newValue)'")
+                    print("🔍 MARKERSVIEW: Search text changed to: '\(newValue)'")
                     appModel.isSearching = true
                     await searchMarkers(query: newValue)
                     updateDisplayedMarkers()
@@ -500,12 +524,13 @@ struct MarkersView: View {
     }
 
     private func searchMarkers(query: String) async {
-        print("🔍 Searching markers with query: '\(query)'")
+        print("🔍 MARKERSVIEW: Searching markers with query: '\(query)'")
         isLoading = true
         
-        // Reset pagination state
+        // Reset pagination state and clear any existing tag filter
         currentPage = 1
         hasMorePages = true
+        selectedTagId = nil  // Clear tag filter when searching
 
         // Determine if this is a tag search or general text search
         // Use tag search for queries that look like tag names (no spaces, short words)
@@ -523,6 +548,7 @@ struct MarkersView: View {
         // Get search results and log count
         allMarkers = appModel.api.markers
         print("🔍 Search returned \(allMarkers.count) markers for query: '\(query)'")
+        print("🔍 DEBUG: api.markers count: \(appModel.api.markers.count), allMarkers count: \(allMarkers.count)")
         
         // Perform additional logging to understand returned data
         if let first = allMarkers.first {
@@ -535,12 +561,16 @@ struct MarkersView: View {
             hasMorePages = false
             print("🏷️ Tag search complete: found \(allMarkers.count) markers")
         } else {
-            // Text searches are paginated
-            hasMorePages = allMarkers.count >= 500
+            // Text searches are paginated (search API functions still use 500 per page)
+            hasMorePages = allMarkers.count >= 500  
             print("🔍 Has more pages: \(hasMorePages ? "Yes" : "No"), found \(allMarkers.count) markers (of max 500)")
         }
         
         isLoading = false
+        
+        // Debug: Force UI update and ensure displayedMarkers gets updated
+        print("🔍 DEBUG: About to call updateDisplayedMarkers() with allMarkers.count=\(allMarkers.count)")
+        updateDisplayedMarkers()
     }
 
     private func loadMoreSearchResults() async {
@@ -622,9 +652,9 @@ struct MarkersView: View {
             }
         }
 
-        // Try to fetch markers with more detailed logging
+        // Try to fetch markers with more detailed logging (using smaller batch size for better UX)
         print("📊 MarkersView attempting to fetch markers...")
-        await appModel.api.fetchMarkers(page: currentPage, appendResults: false)
+        await appModel.api.fetchMarkers(page: currentPage, appendResults: false, perPage: 50)
         print("📊 MarkersView markers fetch completed, received: \(appModel.api.markers.count)")
 
         // Print first marker details if available for debugging
@@ -713,7 +743,7 @@ struct MarkersView: View {
 
         print("🔥 Loading more markers (page \(currentPage))")
         let previousCount = allMarkers.count
-        await appModel.api.fetchMarkers(page: currentPage, appendResults: true)
+        await appModel.api.fetchMarkers(page: currentPage, appendResults: true, perPage: 50)
 
         // Add new markers without duplicates
         let newMarkers = appModel.api.markers.filter { marker in
