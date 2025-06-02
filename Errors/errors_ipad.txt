@@ -1,0 +1,345 @@
+🆕 Creating new StashAPI instance
+🔄 StashAPI initializing with server: http://192.168.86.100:9999
+🔑 Using API key: [eyJhbGciOi...]
+🔑 API key length: 140 characters
+🔄 Checking connection status...
+🔄 Checking server connection to http://192.168.86.100:9999
+📤 Sending connection check request...
+📡 Server responded with status code: 200
+📥 Response: {"data":{"findPerformers":{"count":957,"performers":[{"id":"55","name":"Aaliyah Love"}]}}}...
+✅ Server connection successful
+📱 App launched - loading application state
+📊 Performers data: ["count": 957, "performers": <__NSSingleObjectArrayI 0x14232c3a0>(
+{
+    id = 55;
+    name = "Aaliyah Love";
+}
+)
+]
+📱 Configured URLSession for increased reliability
+📱 Initializing AppModel
+📱 AppModel already connected to http://192.168.86.100:9999
+♻️ Reusing existing StashAPI instance
+🚀 Initializing app state in SplashScreen
+♻️ Reusing existing StashAPI instance for: http://192.168.86.100:9999
+✅ Connection successful
+📱 Pre-fetching markers data
+🔍 Fetching markers (page 1) from http://192.168.86.100:9999
+Unable to open mach-O at path: /Library/Caches/com.apple.xbs/Binaries/RenderBox/install/Root/System/Library/PrivateFrameworks/RenderBox.framework/default.metallib  Error:2
+🔍 Response data preview: {"data":{"findSceneMarkers":{"count":5766,"scene_markers":[{"id":"5961","title":"Grabbing Ass","seconds":348,"end_seconds":428,"stream":"http://192.168.86.100:9999/scene/4447/scene_marker/5961/stream","preview":"http://192.168.86.100:9999/scene/4447/scene_marker/5961/preview","screenshot":"http://192.168.86.100:9999/scene/4447/scene_marker/5961/screenshot","scene":{"id":"4447","title":"Marie McCray - Naughty College Schoolgirls #51","files":[{"width":1920,"height":1080,"path":"/Volumes/Backup/Li...
+✅ Set 500 markers
+✅ Total available markers: 5766
+📊 First marker details:
+  ID: 5961
+  Title: Grabbing Ass
+  Scene ID: 4447
+📱 Pre-fetched 500 markers
+♻️ Reusing existing StashAPI instance for: http://192.168.86.100:9999
+🔄 Checking server connection to http://192.168.86.100:9999
+📤 Sending connection check request...
+📡 Server responded with status code: 200
+📥 Response: {"data":{"findPerformers":{"count":957,"performers":[{"id":"55","name":"Aaliyah Love"}]}}}...
+✅ Server connection successful
+📊 Performers data: ["performers": <__NSSingleObjectArrayI 0x14232c920>(
+{
+    id = 55;
+    name = "Aaliyah Love";
+}
+)
+, "count": 957]
+🔄 Prefetching initial data...
+🔐 Configuring auth:
+   API Key: [eyJhbGciOi...] (140 chars)
+   Server: http://192.168.86.100:9999
+📤 Fetching scenes page 1 (sort: random, direction: DESC)
+📥 HTTP response: 200
+📥 Response data length: 876780 bytes
+📥 First 500 characters of response: {"data":{"findScenes":{"count":4547,"scenes":[{"id":"1259","title":"After The Sleepover","details":"It’s okay, You didn’t do anything wrong.. It’s perfectly natural, right? You’re a young man. Of course you have urges… But you probably don’t want to talk to your best friend’s mom about stuff like this…\n***Starring Danielle Renae***","url":"https://momcomesfirst.com/after-the-sleepover/","date":"2024-02-13","rating100":null,"organized":false,"o_counter":0,"paths":{"screenshot":"http://192.168.86
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 0
+🎯 iPad Toolbar - currentFilter: default
+📱 ContentView appeared
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 0
+🎯 iPad Toolbar - currentFilter: default
+App is being debugged, do not track this hang
+Hang detected: 1.40s (debugger attached, not reporting)
+✅ Loaded 500 scenes (filtered from 500 total)
+📱 Loading scenes for tab
+🔐 Configuring auth:
+   API Key: [eyJhbGciOi...] (140 chars)
+   Server: http://192.168.86.100:9999
+📤 Fetching scenes page 1 (sort: random, direction: DESC)
+No symbol named '' found in system symbol set
+No symbol named '' found in system symbol set
+No symbol named '' found in system symbol set
+No symbol named '' found in system symbol set
+No symbol named '' found in system symbol set
+No symbol named '' found in system symbol set
+✅ Prefetched 500 scenes while in splash screen
+📡 Fetching performers with query: {
+    "operationName": "FindPerformers",
+    "variables": {
+        "filter": {
+            "q": "",
+            "page": 1,
+            "per_page": 10000,
+            "sort": "name",
+            "direction": "ASC"
+        },
+        "performer_filter": {
+            "gender": {
+                "value": "FEMALE",
+                "modifier": "EQUALS"
+            },
+            "scene_count": {
+                "modifier": "GREATER_THAN",
+                "value": "2"
+            }
+        }
+    },
+    "query": "query FindPerformers($filter: FindFilterType, $performer_filter: PerformerFilterType) { findPerformers(filter: $filter, performer_filter: $performer_filter) { count performers { id name gender image_path scene_count favorite } } }"
+}
+🔐 Configuring auth:
+   API Key: [eyJhbGciOi...] (140 chars)
+   Server: http://192.168.86.100:9999
+📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
+No symbol named '' found in system symbol set
+No symbol named '' found in system symbol set
+No symbol named '' found in system symbol set
+📥 HTTP response: 200
+📥 Response preview: {"data":{"findPerformers":{"count":190,"performers":[{"id":"1","name":"Abbey Rain","gender":"FEMALE"...
+📊 PerformersAPI: Setting performers array with 190 performers
+📊 PerformersAPI: After setting, self.performers has 190 items
+✅ Prefetched 190 performers while in splash screen
+📥 HTTP response: 200
+📥 Response data length: 866713 bytes
+📥 First 500 characters of response: {"data":{"findScenes":{"count":4547,"scenes":[{"id":"2233","title":"Welcome Home","details":"LaSirena69 catches Sam jerking off to VR porn and can’t help but play with his cock.","url":"https://puremature.com/video/welcome-home-78e0926d-7e18-4288-a4cc-30c2786b72dd","date":"2021-06-02","rating100":null,"organized":false,"o_counter":0,"paths":{"screenshot":"http://192.168.86.100:9999/scene/2233/screenshot?t=1737383895","preview":"http://192.168.86.100:9999/scene/2233/preview","stream":"http://192.
+✅ Loaded 500 scenes (filtered from 500 total)
+📱 initialLoad() called - currentFilter: default
+📤 loadScenes called - currentFilter: default, searchScope: scenes, markers count: 0
+🔐 Configuring auth:
+   API Key: [eyJhbGciOi...] (140 chars)
+   Server: http://192.168.86.100:9999
+📤 Fetching scenes page 1 (sort: file_mod_time, direction: DESC)
+📥 HTTP response: 200
+📥 Response data length: 823409 bytes
+📥 First 500 characters of response: {"data":{"findScenes":{"count":4547,"scenes":[{"id":"4991","title":"","details":"","url":null,"date":null,"rating100":null,"organized":false,"o_counter":0,"paths":{"screenshot":"http://192.168.86.100:9999/scene/4991/screenshot?t=1748610076","preview":"http://192.168.86.100:9999/scene/4991/preview","stream":"http://192.168.86.100:9999/scene/4991/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zX
+✅ Loaded 500 scenes (filtered from 500 total)
+🎯 scenesContent - filter: default, scope: markers, markers: 0, scenes: 500
+🎯 iPad Toolbar - currentFilter: default
+📱 SCENE ROW: Rendering scene: 4991, title: 
+📱 SCENE ROW: Rendering scene: 4990, title: 
+📱 SCENE ROW: Rendering scene: 4979, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
+📱 SCENEROW: Visibility changed for scene 4980 to true
+🔥 Starting preview for scene: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock) with URL: http://192.168.86.100:9999/scene/4980/preview
+📱 SCENEROW: Visibility changed for scene 4991 to true
+🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/4991/preview
+📱 SCENEROW: Visibility changed for scene 4978 to true
+🔥 Starting preview for scene: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock) with URL: http://192.168.86.100:9999/scene/4978/preview
+📱 SCENEROW: Visibility changed for scene 4979 to true
+🔥 Starting preview for scene: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock) with URL: http://192.168.86.100:9999/scene/4979/preview
+📱 SCENEROW: Visibility changed for scene 4990 to true
+🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/4990/preview
+📱 SCENEROW: Visibility changed for scene 4977 to true
+🔥 Starting preview for scene: Small town girl loves big dick with URL: http://192.168.86.100:9999/scene/4977/preview
+📱 SCENE ROW: Rendering scene: 4991, title: 
+📱 SCENE ROW: Rendering scene: 4990, title: 
+📱 SCENE ROW: Rendering scene: 4979, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
+🎬 GlobalVideoManager: Registered player, total active: 1
+🎬 GlobalVideoManager: Registered player, total active: 2
+🎬 GlobalVideoManager: Registered player, total active: 3
+🎬 GlobalVideoManager: Registered player, total active: 4
+🎬 GlobalVideoManager: Registered player, total active: 5
+🎬 GlobalVideoManager: Registered player, total active: 6
+App is being debugged, do not track this hang
+Hang detected: 0.38s (debugger attached, not reporting)
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
+🎯 iPad Toolbar - currentFilter: default
+📱 SCENE ROW: Rendering scene: 4991, title: 
+📱 SCENE ROW: Rendering scene: 4990, title: 
+📱 SCENE ROW: Rendering scene: 4979, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
+📱 SCENE ROW: Rendering scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4990, title: 
+📱 SCENE ROW: Rendering scene: 4990, title: 
+📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4979, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4991, title: 
+📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
+📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
+No symbol named '' found in system symbol set
+No symbol named '' found in system symbol set
+No symbol named '' found in system symbol set
+📱 SCENE ROW: Rendering scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4990, title: 
+📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4979, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4991, title: 
+📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
+📱 SCENE ROW: Rendering scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4990, title: 
+📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4979, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4991, title: 
+📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
+📱 SCENE ROW: Rendering scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4990, title: 
+📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4979, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4991, title: 
+📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
+📱 SCENE ROW: Rendering scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4990, title: 
+📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4979, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4991, title: 
+📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
+No symbol named '' found in system symbol set
+No symbol named '' found in system symbol set
+No symbol named '' found in system symbol set
+📱 SCENE ROW: Rendering scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4990, title: 
+📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4979, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4991, title: 
+📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
+📱 SCENEROW: Random Jump button tapped for scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+🎲 SCENEROW: Playing scene from random position
+🎲 SCENEROW: Enabled random jump mode for future navigation
+🚀 NAVIGATION - Navigating to scene: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock) with startSeconds: nil, endSeconds: nil
+🔇 AppDelegate: Main video started - stopping all preview players
+🎲 Skipping audio kill - in shuffle mode (marker: true, tag: true)
+🎯 Set lastNavigatedSceneId to: 4980
+⏱ Adding scene to navigation path
+🔇 Main video started - stopping preview for scene: Small town girl loves big dick
+🔥 Stopping preview for scene: Small town girl loves big dick
+🔇 Main video started - stopping preview for scene: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+🔥 Stopping preview for scene: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+🔇 Main video started - stopping preview for scene: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+🔥 Stopping preview for scene: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+🔇 Main video started - stopping preview for scene: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+🔥 Stopping preview for scene: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+🔇 Main video started - stopping preview for scene: 
+🔥 Stopping preview for scene: 
+🔇 Main video started - stopping preview for scene: 
+🔥 Stopping preview for scene: 
+📱 SCENE ROW: Rendering scene: 4991, title: 
+📱 SCENE ROW: Rendering scene: 4990, title: 
+📱 SCENE ROW: Rendering scene: 4979, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
+🎯 iPad Toolbar - currentFilter: default
+📱 SCENE ROW: Rendering scene: 4991, title: 
+📱 SCENE ROW: Rendering scene: 4990, title: 
+📱 SCENE ROW: Rendering scene: 4979, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
+🎯 iPad Toolbar - currentFilter: default
+📱 SCENE ROW: Rendering scene: 4991, title: 
+📱 SCENE ROW: Rendering scene: 4990, title: 
+📱 SCENE ROW: Rendering scene: 4979, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
+📱 VideoPlayerView init - scene: 4980, startTime: nil, endTime: nil
+📱 Initializing original performer to: Cory Chase (ID: 301)
+🎬 Creating video player for URL: http://192.168.86.100:9999/scene/4980/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
+📱 Extracted scene ID: 4980
+🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/4980/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
+🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/4980/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1748877138
+🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/4980/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1748877138
+🎬 Final URL being used: http://192.168.86.100:9999/scene/4980/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1748877138
+⏱ Explicit start time to use: nil
+🎬 Creating player item with AVURLAsset
+▶️ Attempting to force immediate playback
+🎬 ContentView: StashScene navigation destination appeared for scene 4980
+📱 VideoPlayerView appeared
+📱 Setting original performer to: Cory Chase (gender: FEMALE)
+🔇 AppDelegate: Main video started - stopping all preview players
+📱 FullScreenVideoPlayer appeared with startTime: nil
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
+🎯 iPad Toolbar - currentFilter: default
+📱 SCENE ROW: Rendering scene: 4991, title: 
+📱 SCENE ROW: Rendering scene: 4990, title: 
+📱 SCENE ROW: Rendering scene: 4979, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
+📱 SCENE ROW: Rendering scene: 4991, title: 
+📱 SCENE ROW: Rendering scene: 4990, title: 
+📱 SCENE ROW: Rendering scene: 4979, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
+🎯 iPad Toolbar - currentFilter: default
+📱 SCENE ROW: Rendering scene: 4991, title: 
+📱 SCENE ROW: Rendering scene: 4990, title: 
+📱 SCENE ROW: Rendering scene: 4979, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
+📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
+📱 VideoPlayerView init - scene: 4980, startTime: nil, endTime: nil
+📱 Initializing original performer to: Cory Chase (ID: 301)
+🎬 GlobalVideoManager: Stopping all 6 active preview players
+🎬 GlobalVideoManager: Unregistered player, total active: 5
+🎬 GlobalVideoManager: Unregistered player, total active: 4
+🎬 GlobalVideoManager: Unregistered player, total active: 3
+🎬 GlobalVideoManager: Unregistered player, total active: 2
+🎬 GlobalVideoManager: Unregistered player, total active: 1
+🎬 GlobalVideoManager: Unregistered player, total active: 0
+🎬 GlobalVideoManager: Stopping all 0 active preview players
+No symbol named '' found in system symbol set
+No symbol named '' found in system symbol set
+No symbol named '' found in system symbol set
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+No symbol named '' found in system symbol set
+No symbol named '' found in system symbol set
+No symbol named '' found in system symbol set
+🎲 SCENEROW: Got player from registry, attempting to jump to random position
+🎲 SCENEROW: Player not ready yet, will retry in 1.5 seconds
+🎬 Player item status changed to: 1
+🎬 Player item is ready to play
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+▶️ Forcing play after ready status
+✅ Player status: PLAYING
+⏱ Current playback position: 0.0 seconds
+⏱ Current playback position: 0.0 seconds
+🎲 SCENEROW: Player is now ready (retry), jumping to random position
+🎲 Current video duration: 749.07 seconds
+🎲 Current position: 1.001731089 seconds
+🎲 Jumping to random position: 314.1192561447996 seconds (5:14)
+🎲 Seeking to new position...
+⏱ Current playback position: 1.002184839 seconds
+⏱ Current playback position: 1.035330131 seconds
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+⏱ Current playback position: 314.0 seconds
+✅ Successfully jumped to 5:14
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+✅ Player status: PLAYING
+⏱ Current playback position: 314.0 seconds
+⏱ Current playback position: 314.0 seconds
+⏱ Current playback position: 315.000089039 seconds
+⏱ Current playback position: 316.000151706 seconds
+⏱ Current playback position: 317.000130413 seconds
+⏱ Current playback position: 318.000071622 seconds
+⏱ Current playback position: 319.000084872 seconds
+⏱ Current playback position: 320.000088205 seconds
+👆 Tap detected - toggling controls
+⏱ Current playback position: 321.000086788 seconds
+⏱ Current playback position: 322.000066122 seconds
+⏱ Current playback position: 323.000155788 seconds
+⏱ Current playback position: 324.000130914 seconds

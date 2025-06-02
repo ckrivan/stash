@@ -1,0 +1,77 @@
+
+📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
+📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
+📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
+📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
+📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
+📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
+📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
+📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
+📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
+📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 95
+📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
+📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
+📱 SCENE ROW: Rendering scene: 4404, title: Dear Diary
+🎯 iPhone filter changed to: default
+📱 iPhone: Default filter selected
+📱 filterAction called - filter: default, sort: updated_at, direction: DESC
+📱 currentFilter before: default
+📱 currentFilter after: default
+📱 SCENE ROW: Rendering scene: 4572, title: Melody Marks Squeezes In Some Lucky Hang Time
+📱 SCENE ROW: Rendering scene: 4571, title: February 2025 Fantasy Of The Month - S6:E6
+📱 About to call fetchScenes with sort: updated_at
+🔐 Configuring auth:
+   API Key: [eyJhbGciOi...] (140 chars)
+   Server: http://192.168.86.100:9999
+📤 Fetching scenes page 1 (sort: updated_at, direction: DESC)
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 0
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 0
+📥 HTTP response: 200
+📥 Response data length: 119482 bytes
+📥 First 500 characters of response: {"data":{"findScenes":{"count":4707,"scenes":[{"id":"2875","title":"Fucked Hard With Vengeance!","details":"I remember being at the gym last week, and meeting this smoking hot babe named Susana. Perfect ass and tits, and an athletic body! This chick is fucking PERFECT! We creep up by the gym and wait for her to get out, then offer her a ride... ON THIS DICK! HAHAAA! We offer her cash like we always do, and before you know it she is taking her clothes off and eagerly sucking cock. Everyone has a 
+🎬 GlobalVideoManager: Unregistered player, total active: 2
+🎬 GlobalVideoManager: Unregistered player, total active: 1
+🎬 GlobalVideoManager: Unregistered player, total active: 0
+✅ Loaded 100 scenes (filtered from 100 total)
+📱 fetchScenes completed successfully, scenes count: 100
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 100
+📱 SCENE ROW: Rendering scene: 2875, title: Fucked Hard With Vengeance!
+📱 SCENE ROW: Rendering scene: 3269, title: 
+📱 SCENE ROW: Rendering scene: 2876, title: 
+🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 100
+📱 SCENE ROW: Rendering scene: 3269, title: 
+📱 SCENE ROW: Rendering scene: 2875, title: Fucked Hard With Vengeance!
+📱 SCENE ROW: Rendering scene: 2876, title: 
+📱 SCENEROW: Visibility changed for scene 3269 to true
+🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/3269/preview
+📱 SCENEROW: Visibility changed for scene 2875 to true
+🔥 Starting preview for scene: Fucked Hard With Vengeance! with URL: http://192.168.86.100:9999/scene/2875/preview
+📱 SCENE ROW: Rendering scene: 3269, title: 
+📱 SCENE ROW: Rendering scene: 2875, title: Fucked Hard With Vengeance!
+🎬 GlobalVideoManager: Registered player, total active: 1
+🎬 GlobalVideoManager: Registered player, total active: 2
+🎬 GlobalVideoManager: Registered player, total active: 3
+Unable to set Enhance Dialogue preference: need xpcConnection to access Enhance Dialogue preferences
+📱 SCENE ROW: Rendering scene: 2875, title: Fucked Hard With Vengeance!
+📱 SCENE ROW: Rendering scene: 2875, title: Fucked Hard With Vengeance!
+Unable to set Enhance Dialogue preference: need xpcConnection to access Enhance Dialogue preferences
+📱 SCENE ROW: Rendering scene: 3269, title: 
+📱 SCENE ROW: Rendering scene: 3269, title: 
+📱 SCENE ROW: Rendering scene: 2875, title: Fucked Hard With Vengeance!
+📱 SCENE ROW: Rendering scene: 3269, title: 
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/34CDC315-E234-45B2-92E9-0CA3C95F3D9B/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/34CDC315-E234-45B2-92E9-0CA3C95F3D9B/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+load_eligibility_plist: Failed to open /Users/charleskrivan/Library/Developer/CoreSimulator/Devices/E40E15DB-1435-4578-A48B-B0E3E453BFD5/data/Containers/Data/Application/34CDC315-E234-45B2-92E9-0CA3C95F3D9B/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+📱 SCENE ROW: Rendering scene: 2875, title: Fucked Hard With Vengeance!
+📱 SCENE ROW: Rendering scene: 3269, title: 
+📱 SCENE ROW: Rendering scene: 2875, title: Fucked Hard With Vengeance!
+📱 SCENE ROW: Rendering scene: 3269, title: 
+📱 SCENE ROW: Rendering scene: 2875, title: Fucked Hard With Vengeance!
+📱 SCENE ROW: Rendering scene: 3269, title: 
+📱 SCENE ROW: Rendering scene: 2875, title: Fucked Hard With Vengeance!
+📱 SCENE ROW: Rendering scene: 3269, title: 
+📱 SCENE ROW: Rendering scene: 2875, title: Fucked Hard With Vengeance!
+📱 SCENE ROW: Rendering scene: 3269, title: 
+📱 SCENE ROW: Rendering scene: 2875, title: Fucked Hard With Vengeance!
+📱 SCENE ROW: Rendering scene: 3269, title: 
