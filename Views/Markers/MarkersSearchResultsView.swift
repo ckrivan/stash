@@ -53,30 +53,38 @@ struct MarkersSearchResultsView: View {
                 print("🎲 PROMINENT SHUFFLE BUTTON TAPPED - LOADING ALL MARKERS FROM API")
                 print("🎲 Current displayed markers: \(markers.count)")
                 
-                // Determine if this is a tag-based search or text search
+                // Always treat marker search results as text-based searches to get ALL matching markers
+                // This ensures we fetch all markers from the server, not just the displayed ones
                 if !markers.isEmpty {
-                    // Check if all markers have the same primary tag (tag search)
-                    let firstTag = markers[0].primary_tag
-                    let allSameTag = markers.allSatisfy { $0.primary_tag.id == firstTag.id }
+                    // Check if we can extract the search query from the markers
+                    // For text searches like "cumshot", we want ALL markers containing that term
+                    print("🎲 Marker search results detected - treating as text search")
                     
-                    if allSameTag {
-                        // This is a tag-based search - fetch ALL markers with this tag
-                        print("🎲 Tag-based search detected: '\(firstTag.name)'")
-                        print("🎲 Fetching ALL '\(firstTag.name)' markers from server...")
-                        appModel.startMarkerShuffle(forTag: firstTag.id, tagName: firstTag.name, displayedMarkers: markers)
+                    // Try to get search query from app model first
+                    if !appModel.searchQuery.isEmpty {
+                        print("🎲 Using appModel.searchQuery: '\(appModel.searchQuery)'")
+                        appModel.startMarkerShuffle(forSearchQuery: appModel.searchQuery, displayedMarkers: markers)
+                    } else if let currentShuffleQuery = appModel.shuffleSearchQuery {
+                        print("🎲 Using existing shuffleSearchQuery: '\(currentShuffleQuery)'")
+                        appModel.startMarkerShuffle(forSearchQuery: currentShuffleQuery, displayedMarkers: markers)
                     } else {
-                        // This is a text search - fetch ALL markers matching the search query
-                        print("🎲 Text search detected, using search query: '\(appModel.searchQuery)'")
-                        if !appModel.searchQuery.isEmpty {
-                            appModel.startMarkerShuffle(forSearchQuery: appModel.searchQuery, displayedMarkers: markers)
+                        // If no search query in app model, check if all markers share the same primary tag
+                        let firstTag = markers[0].primary_tag
+                        let allSameTag = markers.allSatisfy { $0.primary_tag.id == firstTag.id }
+                        
+                        if allSameTag {
+                            // All markers have same tag - treat as tag search
+                            print("🎲 All markers share tag '\(firstTag.name)' - using tag-based shuffle")
+                            appModel.startMarkerShuffle(forTag: firstTag.id, tagName: firstTag.name, displayedMarkers: markers)
                         } else {
-                            // Fallback to just shuffling displayed markers
-                            print("🎲 No search query available, shuffling displayed markers only")
+                            // Mixed tags - try to infer search term from marker titles/tags
+                            print("🎲 Mixed marker results - using displayed markers only as fallback")
                             appModel.startMarkerShuffle(withMarkers: markers)
                         }
                     }
                 } else {
                     // Fallback to simple shuffle if no markers
+                    print("🎲 No markers available - cannot start shuffle")
                     appModel.startMarkerShuffle(withMarkers: markers)
                 }
             }) {
@@ -264,12 +272,10 @@ struct MarkerRowWrapper: View {
             },
             onShuffleTap: { tagId in
                 // Handle shuffle from individual marker row in search results
-                print("🎲 Individual marker shuffle in search results for tag ID: \(tagId)")
+                print("🎲 Individual marker shuffle button tapped for tag ID: \(tagId)")
                 let tagName = marker.primary_tag.name
-                // Get all markers from the parent view (search results)
-                if let parent = appModel.api.markers.first?.primary_tag.name {
-                    appModel.startMarkerShuffle(forSearchQuery: appModel.searchQuery, displayedMarkers: appModel.api.markers)
-                }
+                print("🎲 Starting shuffle for tag: \(tagName) (ID: \(tagId))")
+                appModel.startMarkerShuffle(forTag: tagId, tagName: tagName, displayedMarkers: [marker])
             }
         )
         .frame(maxWidth: .infinity)
@@ -282,10 +288,21 @@ struct MarkerRowWrapper: View {
     }
     
     private func handleTagTap(_ tagName: String) {
-        // Tag navigation is handled elsewhere
-        if let tag = marker.tags.first(where: { $0.name == tagName }) {
-            // This would need to be handled via a different mechanism
-            // Since appModel doesn't have a selectedTag property
+        // Start shuffling markers for the tapped tag
+        print("🏷️ Tag tapped in search results: '\(tagName)' - starting tag-based shuffle")
+        
+        // Find the tag in either primary_tag or tags array
+        let primaryTag = marker.primary_tag
+        if primaryTag.name == tagName {
+            // Use primary tag for shuffle
+            print("🎲 Starting shuffle for primary tag: \(primaryTag.name) (ID: \(primaryTag.id))")
+            appModel.startMarkerShuffle(forTag: primaryTag.id, tagName: primaryTag.name, displayedMarkers: [marker])
+        } else if let foundTag = marker.tags.first(where: { $0.name == tagName }) {
+            // Use found tag for shuffle
+            print("🎲 Starting shuffle for secondary tag: \(foundTag.name) (ID: \(foundTag.id))")
+            appModel.startMarkerShuffle(forTag: foundTag.id, tagName: foundTag.name, displayedMarkers: [marker])
+        } else {
+            print("⚠️ Could not find tag '\(tagName)' in marker tags")
         }
     }
     

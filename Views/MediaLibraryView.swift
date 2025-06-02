@@ -761,6 +761,10 @@ struct MediaLibraryView: View {
                     currentFilter = "search"  // Ensure we stay in search mode
                     searchScope = .markers    // Ensure scope is set to markers
                     
+                    // IMPORTANT: Store the search query in app model for shuffle functionality
+                    appModel.searchQuery = query
+                    print("📝 Stored search query in appModel: '\(query)'")
+                    
                     // Enable pagination if we got a full page of results
                     hasMorePages = markers.count >= 50
                     
