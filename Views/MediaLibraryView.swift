@@ -36,6 +36,7 @@ struct MediaLibraryView: View {
     @State private var isSearching = false
     @State private var searchScope = UniversalSearchView.SearchScope.scenes
     @State private var searchedMarkers: [SceneMarker] = []
+    @State private var totalMarkerCount: Int = 0
     @State private var searchedTag: (id: String, name: String)? = nil
     @State private var viewRefreshId = UUID()  // Add view refresh trigger
     
@@ -98,6 +99,10 @@ struct MediaLibraryView: View {
                     Task {
                         await resetAndReload()
                     }
+                },
+                onShuffleMostPlayed: {
+                    print("🎯 iPhone: Shuffle Most Played tapped")
+                    shuffleMostPlayedScenes()
                 }
             )
             .padding(.vertical, 10)
@@ -172,9 +177,79 @@ struct MediaLibraryView: View {
             
             if !searchedMarkers.isEmpty && searchScope == .markers && currentFilter == "search" {
                 // Show marker search results
-                let _ = print("📍 Showing marker search results: \(searchedMarkers.count) markers")
-                MarkersSearchResultsView(markers: searchedMarkers)
-                    .environmentObject(appModel)
+                let _ = print("📍 Showing marker search results: \(searchedMarkers.count) markers (total: \(totalMarkerCount))")
+                VStack {
+                    MarkersSearchResultsView(markers: searchedMarkers, totalCount: totalMarkerCount) { marker in
+                        // Automatic pagination is disabled - users can manually load more with the button
+                        // This prevents performance issues from loading too many markers automatically
+                    }
+                    
+                    // Show load more button if we have more markers available
+                    if searchedMarkers.count >= 50 {
+                        VStack(spacing: 12) {
+                            if totalMarkerCount > 0 && searchedMarkers.count < totalMarkerCount {
+                                // Show load more button when there are more markers available
+                                Button(action: {
+                                    Task {
+                                        await loadMoreMarkersManually()
+                                    }
+                                }) {
+                                    HStack {
+                                        if isLoadingMore {
+                                            ProgressView()
+                                                .scaleEffect(0.8)
+                                                .padding(.trailing, 8)
+                                        } else {
+                                            Image(systemName: "arrow.down.circle.fill")
+                                                .font(.title2)
+                                                .padding(.trailing, 8)
+                                        }
+                                        
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(isLoadingMore ? "Loading..." : "Load More Markers")
+                                                .font(.headline)
+                                                .fontWeight(.semibold)
+                                            Text("Showing \(searchedMarkers.count) of \(totalMarkerCount) total")
+                                                .font(.caption)
+                                                .opacity(0.8)
+                                        }
+                                        
+                                        Spacer()
+                                    }
+                                    .foregroundColor(.white)
+                                    .padding()
+                                    .background(
+                                        LinearGradient(
+                                            colors: [Color.blue, Color.purple],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                                    .cornerRadius(12)
+                                    .shadow(color: .blue.opacity(0.3), radius: 4, x: 0, y: 2)
+                                }
+                                .disabled(isLoadingMore)
+                                .padding(.horizontal)
+                            } else {
+                                // Show completion message when all markers are loaded
+                                VStack(spacing: 8) {
+                                    Text("✅ All \(searchedMarkers.count) markers loaded")
+                                        .font(.caption)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.green)
+                                    Text("Use more specific search terms to narrow results")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding()
+                                .background(Color.green.opacity(0.1))
+                                .cornerRadius(8)
+                                .padding(.horizontal)
+                            }
+                        }
+                    }
+                }
+                .environmentObject(appModel)
             } else if searchedTag != nil && searchScope == .tags && currentFilter == "search" && !appModel.api.scenes.isEmpty {
                 // Show tag search results
                 let _ = print("🏷️ Showing tag search results: \(appModel.api.scenes.count) scenes for tag: \(searchedTag!.name)")
@@ -235,8 +310,9 @@ struct MediaLibraryView: View {
         }
         .navigationTitle("Media Library")
         .toolbar {
-            // Only show toolbar buttons on iPad - iOS uses inline filter button only
+            // Only show toolbar buttons on iPad - iOS uses inline filter button only  
             if UIDevice.current.userInterfaceIdiom == .pad {
+                let _ = print("🎯 iPad Toolbar - currentFilter: \(currentFilter)")
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack {
                         Button {
@@ -265,6 +341,15 @@ struct MediaLibraryView: View {
                                 playRandomScene()
                             } label: {
                                 Label("Shuffle Play", systemImage: "play.fill")
+                            }
+                            
+                            if currentFilter == "o_counter" {
+                                Divider()
+                                Button {
+                                    shuffleMostPlayedScenes()
+                                } label: {
+                                    Label("Shuffle Most Played", systemImage: "number.circle.fill")
+                                }
                             }
                         }
                         
@@ -418,9 +503,91 @@ struct MediaLibraryView: View {
         isLoadingMore = false
     }
     
+    private func loadMoreMarkers() async {
+        guard hasMorePages && !isLoadingMore && searchScope == .markers && !searchText.isEmpty else { return }
+        
+        // Limit total markers to prevent app from becoming unusable
+        guard searchedMarkers.count < 50 else {
+            print("⚠️ Reached marker limit (50) - stopping automatic pagination")
+            hasMorePages = false
+            return
+        }
+
+        isLoadingMore = true
+        currentPage += 1
+
+        print("🔥 Loading more markers (page \(currentPage)) for query: '\(searchText)' (current: \(searchedMarkers.count))")
+        let previousCount = searchedMarkers.count
+
+        do {
+            let newMarkers = try await appModel.api.searchMarkers(query: searchText, page: currentPage, perPage: 50)
+            print("📊 Found \(newMarkers.count) additional markers on page \(currentPage)")
+            
+            await MainActor.run {
+                // Filter out duplicates before appending
+                let uniqueNewMarkers = newMarkers.filter { newMarker in
+                    !searchedMarkers.contains { $0.id == newMarker.id }
+                }
+                
+                searchedMarkers.append(contentsOf: uniqueNewMarkers)
+                hasMorePages = uniqueNewMarkers.count >= 50
+                
+                print("✅ Added \(uniqueNewMarkers.count) new markers (total: \(searchedMarkers.count), hasMorePages: \(hasMorePages))")
+            }
+        } catch {
+            print("❌ Error loading more markers: \(error)")
+            await MainActor.run {
+                hasMorePages = false
+            }
+        }
+
+        isLoadingMore = false
+    }
+    
+    private func loadMoreMarkersManually() async {
+        guard !isLoadingMore && searchScope == .markers && !searchText.isEmpty else { return }
+
+        isLoadingMore = true
+        currentPage += 1
+
+        print("🔥 Manual loading more markers (page \(currentPage)) for query: '\(searchText)' (current: \(searchedMarkers.count))")
+        let previousCount = searchedMarkers.count
+
+        do {
+            let newMarkers = try await appModel.api.searchMarkers(query: searchText, page: currentPage, perPage: 50)
+            print("📊 Found \(newMarkers.count) additional markers on page \(currentPage)")
+            
+            await MainActor.run {
+                // Filter out duplicates before appending
+                let uniqueNewMarkers = newMarkers.filter { newMarker in
+                    !searchedMarkers.contains { $0.id == newMarker.id }
+                }
+                
+                searchedMarkers.append(contentsOf: uniqueNewMarkers)
+                hasMorePages = uniqueNewMarkers.count >= 50
+                
+                print("✅ Added \(uniqueNewMarkers.count) new markers (total: \(searchedMarkers.count), hasMorePages: \(hasMorePages))")
+            }
+        } catch {
+            print("❌ Error loading more markers: \(error)")
+            await MainActor.run {
+                hasMorePages = false
+            }
+        }
+
+        isLoadingMore = false
+    }
+    
     private func playRandomScene() {
         guard let randomScene = appModel.api.scenes.randomElement() else { return }
         appModel.navigateToScene(randomScene)
+    }
+    
+    private func shuffleMostPlayedScenes() {
+        print("🎯 Starting most played shuffle from MediaLibraryView")
+        
+        // Use the AppModel's new most played shuffle system
+        appModel.startMostPlayedShuffle(from: appModel.api.scenes)
     }
     
     private func performSearch(query: String, scope: UniversalSearchView.SearchScope) async {
@@ -436,7 +603,7 @@ struct MediaLibraryView: View {
         await MainActor.run {
             currentFilter = "search"
             currentPage = 1
-            hasMorePages = false // Disable pagination for search results
+            hasMorePages = (scope == .markers) // Enable pagination for marker searches, disable for others
             searchScope = scope  // Ensure scope is set correctly
             
             // Clear previous search results based on scope
@@ -576,10 +743,10 @@ struct MediaLibraryView: View {
                 }
                 
             case .markers:
-                // Search markers and store them directly
-                print("🔍 Searching markers with query: '\(query)'")
-                let markers = try await appModel.api.searchMarkers(query: query)
-                print("📊 Found \(markers.count) markers matching '\(query)'")
+                // Search markers with pagination support and total count
+                print("🔍 Searching markers with query: '\(query)' (page 1)")
+                let (markers, totalCount) = try await appModel.api.searchMarkersWithCount(query: query, page: 1, perPage: 50)
+                print("📊 Found \(markers.count) markers matching '\(query)' on page 1 (total: \(totalCount))")
                 
                 // Debug - print first few marker titles
                 for (index, marker) in markers.prefix(5).enumerated() {
@@ -588,12 +755,17 @@ struct MediaLibraryView: View {
                 
                 await MainActor.run {
                     searchedMarkers = markers
+                    totalMarkerCount = totalCount
                     appModel.api.scenes = []  // Clear scenes since we're showing markers
                     appModel.api.totalSceneCount = 0
                     currentFilter = "search"  // Ensure we stay in search mode
                     searchScope = .markers    // Ensure scope is set to markers
+                    
+                    // Enable pagination if we got a full page of results
+                    hasMorePages = markers.count >= 50
+                    
                     viewRefreshId = UUID()   // Force view refresh
-                    print("✅ Stored \(markers.count) marker results - filter: \(currentFilter), scope: \(searchScope)")
+                    print("✅ Stored \(markers.count) marker results (total: \(totalCount)) - filter: \(currentFilter), scope: \(searchScope), hasMorePages: \(hasMorePages)")
                     // Explicitly trigger UI update
                     appModel.objectWillChange.send()
                 }

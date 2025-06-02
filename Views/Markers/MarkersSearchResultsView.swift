@@ -2,7 +2,15 @@ import SwiftUI
 
 struct MarkersSearchResultsView: View {
     let markers: [SceneMarker]
+    let totalCount: Int?
+    let onMarkerAppear: ((SceneMarker) -> Void)?
     @EnvironmentObject private var appModel: AppModel
+    
+    init(markers: [SceneMarker], totalCount: Int? = nil, onMarkerAppear: ((SceneMarker) -> Void)? = nil) {
+        self.markers = markers
+        self.totalCount = totalCount
+        self.onMarkerAppear = onMarkerAppear
+    }
     
     private var columns: [GridItem] {
         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -24,6 +32,13 @@ struct MarkersSearchResultsView: View {
                     ForEach(markers, id: \.id) { marker in
                         MarkerRowWrapper(marker: marker)
                             .environmentObject(appModel)
+                            .onAppear {
+                                // Only trigger pagination when we're near the end of the list
+                                if let markerIndex = markers.firstIndex(where: { $0.id == marker.id }),
+                                   markerIndex >= markers.count - 10 { // Trigger when within last 10 items
+                                    onMarkerAppear?(marker)
+                                }
+                            }
                     }
                 }
                 .padding(.horizontal)
@@ -73,9 +88,15 @@ struct MarkersSearchResultsView: View {
                         Text("Shuffle All")
                             .font(.title2)
                             .fontWeight(.bold)
-                        Text("Load ALL matching markers from server")
-                            .font(.caption)
-                            .opacity(0.9)
+                        if let totalCount = totalCount {
+                            Text("Load ALL \(totalCount) matching markers from server")
+                                .font(.caption)
+                                .opacity(0.9)
+                        } else {
+                            Text("Load ALL matching markers from server")
+                                .font(.caption)
+                                .opacity(0.9)
+                        }
                     }
                     
                     Spacer()
