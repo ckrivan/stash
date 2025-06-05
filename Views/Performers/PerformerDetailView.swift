@@ -9,6 +9,8 @@ struct PerformerDetailView: View {
     @State private var selectedTab = 0 // 0 for scenes, 1 for markers
     @State private var markerCount: Int = 0
     @State private var performerScenes: [StashScene] = [] // Local state for scenes
+    @State private var isLoadingScenes = false
+    @State private var isLoadingMarkers = false
 
     init(performer: StashScene.Performer) {
         self.performer = performer
@@ -31,30 +33,12 @@ struct PerformerDetailView: View {
                 // Scenes Tab
                 scenesContent
                     .tag(0)
-                    .onAppear {
-                        // Force scenes to load when tab is first shown
-                        print("💡 SCENE TAB - Tab content appeared directly")
-                        // Force scene load regardless of state to ensure we always get scenes
-                        // This prevents empty scenes issue 
-                        Task {
-                            print("💡 SCENE TAB - Always loading scenes on tab appear")
-                            await loadScenes()
-                        }
-                    }
+                    // Remove onAppear from tab content to prevent duplicate loading
 
                 // Markers Tab
                 markersContent
                     .tag(1)
-                    .onAppear {
-                        // Force markers to load when tab is first shown
-                        print("💡 MARKERS TAB - Tab content appeared directly")
-                        if appModel.api.markers.isEmpty {
-                            Task {
-                                print("💡 MARKERS TAB - Forcing marker load from tab content appear")
-                                await loadMarkers()
-                            }
-                        }
-                    }
+                    // Remove onAppear from tab content to prevent duplicate loading
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
@@ -84,10 +68,6 @@ struct PerformerDetailView: View {
             // CRITICAL: Set current performer context for VideoPlayerView
             appModel.currentPerformer = performer
             print("🎯 DETAIL - Set currentPerformer to: \(performer.name)")
-            
-            // Automatically trigger performer navigation (was behind "Test Nav" button)
-            print("🚀 Auto-triggering performer navigation for: \(performer.name)")
-            appModel.navigateToPerformer(performer)
 
             // Check if we're returning from a video player session
             // If so, respect the requested tab selection
@@ -109,171 +89,28 @@ struct PerformerDetailView: View {
                 selectedTab = 0
             }
 
+            // Load content only if we don't already have it
             Task(priority: .userInitiated) {
-                print("🚀 DETAIL - Checking for existing scenes")
-
-                // First check if we already have scenes (from navigateToPerformer)
-                if !appModel.api.scenes.isEmpty {
+                // Only load scenes if we don't have them already
+                if performerScenes.isEmpty && appModel.api.scenes.isEmpty {
+                    print("🚀 DETAIL - No scenes loaded yet, loading now")
+                    await loadScenes()
+                } else if performerScenes.isEmpty && !appModel.api.scenes.isEmpty {
+                    // Sync API scenes to local state if needed
                     await MainActor.run {
                         performerScenes = appModel.api.scenes
-                        print("✅ DETAIL - Found \(performerScenes.count) pre-loaded scenes")
+                        print("✅ DETAIL - Synced \(performerScenes.count) existing scenes")
                     }
-                    return
                 }
-
-                // If no scenes yet, load them
-                print("⚡️ DETAIL - No pre-loaded scenes, starting query for \(performer.id)...")
-
-                // Force clear any existing scenes
-                await MainActor.run {
-                    performerScenes = []
-                    appModel.api.isLoading = true
+                
+                // Load markers in background if needed
+                if selectedTab == 1 && appModel.api.markers.isEmpty {
+                    await loadMarkers()
                 }
-
-                // Execute direct query
-                await appModel.api.fetchPerformerScenes(
-                    performerId: performer.id,
-                    page: 1,
-                    perPage: 40,
-                    sort: "date",
-                    direction: "DESC",
-                    appendResults: false
-                )
-
-                // Ensure local state is updated
-                await MainActor.run {
-                    performerScenes = appModel.api.scenes
-                    appModel.api.isLoading = false
-                    print("⚡️ DETAIL - Direct scenes query completed with \(performerScenes.count) scenes")
-                }
-
-                // Also load markers in the background
+                
+                // Always get marker count in background
                 Task.detached {
-                    await self.loadMarkers()
                     await self.getMarkerCount()
-                }
-
-                print("✅ DETAIL - Initial content loading completed")
-
-                // The rest of this code is kept as a fallback but won't execute
-                print("🚀 DETAIL - Direct query process complete")
-
-                // First, clear existing scenes to prevent showing incorrect data
-                await MainActor.run {
-                    print("🚀 DETAIL - Clearing scenes array")
-                    appModel.api.scenes = []
-                    appModel.api.isLoading = true
-                }
-
-                print("🚀 DETAIL - Using executeGraphQLQuery approach")
-
-                do {
-                    // Create a query using proper format
-                    let query = """
-                    {
-                        "operationName": "FindScenes",
-                        "variables": {
-                            "filter": {
-                                "page": 1,
-                                "per_page": 100,
-                                "sort": "date",
-                                "direction": "DESC"
-                            },
-                            "scene_filter": {
-                                "performers": {
-                                    "value": ["\(performer.id)"],
-                                    "modifier": "INCLUDES"
-                                }
-                            }
-                        },
-                        "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height } performers { id name gender scene_count } tags { id name } rating100 } } }"
-                    }
-                    """
-
-                    print("🚀 DETAIL - Executing query using StashAPI.executeGraphQLQuery")
-
-                    // Use executeGraphQLQuery which handles authentication properly
-                    let data = try await appModel.api.executeGraphQLQuery(query)
-
-                    print("🚀 DETAIL - Query executed successfully")
-
-                    if let responseString = String(data: data, encoding: .utf8) {
-                        print("🚀 DETAIL - Response data preview:")
-                        print(responseString.prefix(500))
-                        if responseString.count > 500 {
-                            print("... (truncated)")
-                        }
-                    }
-
-                    struct DirectFindScenesResponse: Decodable {
-                        struct Data: Decodable {
-                            struct FindScenes: Decodable {
-                                let count: Int
-                                let scenes: [StashScene]
-                            }
-                            let findScenes: FindScenes
-                        }
-                        let data: Data
-                        let errors: [GraphQLError]?
-                    }
-
-                    let directResponse = try JSONDecoder().decode(DirectFindScenesResponse.self, from: data)
-
-                    if let errors = directResponse.errors, !errors.isEmpty {
-                        let errorMessages = errors.map { $0.message }.joined(separator: ", ")
-                        print("🚀 DETAIL - GraphQL errors in query: \(errorMessages)")
-                        throw StashAPIError.graphQLError(errorMessages)
-                    } else {
-                        print("🚀 DETAIL - Query successful!")
-                        print("🚀 DETAIL - Found \(directResponse.data.findScenes.scenes.count) scenes")
-                        print("🚀 DETAIL - Total count: \(directResponse.data.findScenes.count)")
-
-                        if !directResponse.data.findScenes.scenes.isEmpty {
-                            let scene = directResponse.data.findScenes.scenes[0]
-                            print("🚀 DETAIL - First scene: \(scene.title ?? "No title") (ID: \(scene.id))")
-
-                            print("🚀 DETAIL - Checking performers in first scene:")
-                            for p in scene.performers {
-                                print("🚀 DETAIL - Scene has performer: \(p.name) (ID: \(p.id))")
-                                if p.id == performer.id {
-                                    print("🚀 DETAIL - ✅ MATCH: Scene has expected performer!")
-                                }
-                            }
-                        }
-
-                        await MainActor.run {
-                            print("🔄 DETAIL - About to update scenes array, current count: \(appModel.api.scenes.count)")
-                            appModel.api.scenes = directResponse.data.findScenes.scenes
-
-                            // IMPORTANT: Also update our local state - this fixes the view update issue
-                            performerScenes = directResponse.data.findScenes.scenes
-
-                            print("🔄 DETAIL - Updated scenes array, new count: \(appModel.api.scenes.count)")
-                            print("🔄 DETAIL - Updated local performerScenes, new count: \(performerScenes.count)")
-                            appModel.api.totalSceneCount = directResponse.data.findScenes.count
-                            appModel.api.isLoading = false
-                            print("✅ DETAIL - Query loaded \(directResponse.data.findScenes.scenes.count) scenes!")
-
-                            // Debug: Check first few scenes to verify content
-                            for (index, scene) in performerScenes.prefix(3).enumerated() {
-                                print("🔍 DETAIL - Scene \(index): \(scene.title ?? "No title") (ID: \(scene.id))")
-                                print("🔍 DETAIL - Has \(scene.performers.count) performers")
-                            }
-                        }
-                    }
-                } catch {
-                    print("❌ DETAIL - Query failed: \(error.localizedDescription)")
-                    print("🚀 DETAIL - Will fall back to standard method...")
-
-                    // Fall back to standard methods
-                    if selectedTab == 0 {
-                        await loadScenes()
-                        await getMarkerCount() // Load marker count in background
-                    } else {
-                        // Load both but prioritize markers
-                        await loadMarkers()
-                        await loadScenes() // Also load scenes for when user switches tabs
-                    }
                 }
             }
         }
@@ -305,13 +142,7 @@ struct PerformerDetailView: View {
                 }
             }
         }
-        .onChange(of: appModel.api.scenes) { _, newScenes in
-            // Sync API scenes to local state when they change
-            if !newScenes.isEmpty && performerScenes.isEmpty {
-                print("🔄 SYNC - API scenes changed, syncing to local state")
-                performerScenes = newScenes
-            }
-        }
+        // Removed onChange handler for appModel.api.scenes to prevent unnecessary view updates
     }
     
     // Note: This method is now unused as we've improved the onAppear logic
@@ -332,23 +163,25 @@ struct PerformerDetailView: View {
     
     
     private var scenesContent: some View {
-        ScrollView {
-            // Remove debug text for production
-            
-            // Always show loading state at top when loading
-            if appModel.api.isLoading {
-                VStack(spacing: 8) {
-                    ProgressView()
-                        .padding(.top, 20)
-                    Text("Loading scenes for \(performer.name)...")
-                        .foregroundColor(.secondary)
-                        .font(.subheadline)
+        ScrollViewReader { scrollProxy in
+            ScrollView {
+                VStack(spacing: 0) {
+                // Remove debug text for production
+                
+                // Always show loading state at top when loading
+                if appModel.api.isLoading {
+                    VStack(spacing: 8) {
+                        ProgressView()
+                            .padding(.top, 20)
+                        Text("Loading scenes for \(performer.name)...")
+                            .foregroundColor(.secondary)
+                            .font(.subheadline)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
                 }
-                .frame(maxWidth: .infinity)
-                .padding()
-            }
 
-            if performerScenes.isEmpty && appModel.api.scenes.isEmpty {
+                if performerScenes.isEmpty && appModel.api.scenes.isEmpty {
                 // Loading state
                 VStack(spacing: 20) {
                     if !appModel.api.isLoading {
@@ -380,33 +213,17 @@ struct PerformerDetailView: View {
                     }
                 }
                 .padding()
-                .onAppear {
-                    // Force load scenes immediately when this empty state appears
-                    print("⚠️ SCENES VIEW - Empty state appeared, forcing load")
-                    Task {
-                        // Introduce a small delay to allow UI to update first
-                        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
-                        await loadScenes()
-                    }
-                }
+                // Removed onAppear to prevent duplicate loading
             } else if performerScenes.isEmpty && !appModel.api.scenes.isEmpty {
                 // We have API scenes but haven't synced to local state yet
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 300))], spacing: 16) {
                     ForEach(appModel.api.scenes) { scene in
                         // Use our custom scene row with direct navigation
                         CustomPerformerSceneRow(scene: scene)
+                            .id("scene-\(scene.id)")
                     }
                 }
                 .padding()
-                .onAppear {
-                    print("🔄 SCENE SYNC - Syncing API scenes to local state")
-                    Task {
-                        await MainActor.run {
-                            performerScenes = appModel.api.scenes
-                            print("✅ SCENE SYNC - Synced \(performerScenes.count) scenes to local state")
-                        }
-                    }
-                }
             } else {
                 VStack(alignment: .leading, spacing: 0) {
                     // Header with scene count and shuffle button
@@ -435,30 +252,28 @@ struct PerformerDetailView: View {
                         ForEach(performerScenes) { scene in
                             // Use our custom scene row with direct navigation
                             CustomPerformerSceneRow(scene: scene)
+                                .id("scene-\(scene.id)")
                         }
                 }
                 .padding()
-                .onAppear {
-                    print("🌟 SCENES GRID - LazyVGrid appeared with \(performerScenes.count) scenes")
-                    // Debug the first few scenes
-                    for (index, scene) in performerScenes.prefix(3).enumerated() {
-                        print("🌟 SCENES GRID - Scene \(index): \(scene.title ?? "No title") (ID: \(scene.id))")
-                    }
-                }
                 } // End of VStack for scenes content
-            }
+                }
+            } // End of outer VStack
+        }
+        .id("scenesScrollView-\(performer.id)") // Add stable ID to prevent scroll reset
         }
     }
     
     private var markersContent: some View {
         ScrollView {
-            // Add debug Text to show actual markers count
-            Text("Debug: \(appModel.api.markers.count) markers, \(markerCount) total")
-                .font(.caption)
-                .foregroundColor(.gray)
-                .padding(.top, 4)
+            VStack(spacing: 0) {
+                // Add debug Text to show actual markers count
+                Text("Debug: \(appModel.api.markers.count) markers, \(markerCount) total")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                    .padding(.top, 4)
 
-            if appModel.api.markers.isEmpty {
+                if appModel.api.markers.isEmpty {
                 // Show loading indicator if API is loading or force trigger a load
                 VStack(spacing: 20) {
                     if appModel.api.isLoading {
@@ -484,13 +299,7 @@ struct PerformerDetailView: View {
                     }
                 }
                 .padding()
-                .onAppear {
-                    // Force load markers immediately when this empty state appears
-                    print("⚠️ MARKERS VIEW - Empty state appeared, forcing load")
-                    Task {
-                        await loadMarkers()
-                    }
-                }
+                // Removed onAppear to prevent duplicate loading
             } else {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 300))], spacing: 16) {
                     // Get markers list for this view
@@ -525,15 +334,20 @@ struct PerformerDetailView: View {
                     }
                 }
                 .padding()
-                .onAppear {
-                    print("🌟 MARKERS GRID - LazyVGrid appeared with \(appModel.api.markers.count) markers")
                 }
-            }
+            } // End of outer VStack
         }
+        .id("markersScrollView-\(performer.id)") // Add stable ID to prevent scroll reset
     }
     
     private func loadScenes() async {
         print("🔍 LOADSCENES - Starting load of scenes for performer: \(performer.name) (ID: \(performer.id))")
+
+        // Check if already loading
+        if isLoadingScenes {
+            print("⚠️ LOADSCENES - Already loading scenes, skipping duplicate request")
+            return
+        }
 
         // First, check if we already have scenes for this performer
         if !performerScenes.isEmpty {
@@ -551,6 +365,7 @@ struct PerformerDetailView: View {
 
         // Set loading state first thing
         await MainActor.run {
+            isLoadingScenes = true
             appModel.api.isLoading = true
         }
 
@@ -631,6 +446,11 @@ struct PerformerDetailView: View {
                     print("🔍 LOADSCENES - Scene \(index): \(scene.title ?? "No title") (ID: \(scene.id))")
                 }
             }
+            
+            // Reset loading flag on success
+            await MainActor.run {
+                isLoadingScenes = false
+            }
             return // Success! Exit early
         } catch {
             print("⚠️ LOADSCENES - Direct query failed: \(error.localizedDescription)")
@@ -665,10 +485,21 @@ struct PerformerDetailView: View {
         }
 
         print("✅ LOADSCENES - Loaded \(performerScenes.count) scenes for performer: \(performer.name)")
+        
+        // Reset loading flag
+        await MainActor.run {
+            isLoadingScenes = false
+        }
     }
     
     private func loadMarkers() async {
         print("🔍 LOADMARKERS - Starting load of markers for performer: \(performer.name) (ID: \(performer.id))")
+
+        // Check if already loading
+        if isLoadingMarkers {
+            print("⚠️ LOADMARKERS - Already loading markers, skipping duplicate request")
+            return
+        }
 
         // Check if we already have markers loaded
         if !appModel.api.markers.isEmpty {
@@ -676,8 +507,9 @@ struct PerformerDetailView: View {
             return
         }
 
-        // Clear existing markers first
+        // Set loading flag and clear existing markers
         await MainActor.run {
+            isLoadingMarkers = true
             appModel.api.markers = []
             print("🧹 LOADMARKERS - Cleared markers array")
         }
@@ -685,6 +517,11 @@ struct PerformerDetailView: View {
         print("🔄 LOADMARKERS - Calling fetchPerformerMarkers for performer \(performer.id)")
         await appModel.api.fetchPerformerMarkers(performerId: performer.id, page: 1, appendResults: false)
         print("✅ LOADMARKERS - Loaded \(appModel.api.markers.count) markers for performer: \(performer.name)")
+        
+        // Reset loading flag
+        await MainActor.run {
+            isLoadingMarkers = false
+        }
     }
     
     private func shuffleAndPlayScene() {
