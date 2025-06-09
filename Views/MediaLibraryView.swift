@@ -391,9 +391,20 @@ struct MediaLibraryView: View {
         .task {
             // Always attempt to load on appearance, but not when searching
             if appModel.api.scenes.isEmpty && currentFilter != "search" && searchedMarkers.isEmpty && !isSearching {
+                print("🔄 MediaLibraryView .task triggered - loading initial scenes")
                 Task {
                     await initialLoad()
                     print("🔄 Loaded scenes in MediaLibraryView: \(appModel.api.scenes.count)")
+                }
+            }
+        }
+        .onAppear {
+            // Fallback to ensure scenes load even if .task doesn't fire
+            if appModel.api.scenes.isEmpty && currentFilter != "search" && searchedMarkers.isEmpty && !isSearching {
+                print("🔄 MediaLibraryView .onAppear fallback - loading initial scenes")
+                Task {
+                    await initialLoad()
+                    print("🔄 Loaded scenes in MediaLibraryView (onAppear): \(appModel.api.scenes.count)")
                 }
             }
         }
