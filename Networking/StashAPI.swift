@@ -678,6 +678,7 @@ class StashAPI: ObservableObject {
         return VideoPlayerUtility.getVTTURL(forSceneID: sceneID)
     }
     func fetchScenes(page: Int = 1, sort: String = "file_mod_time", direction: String = "DESC", appendResults: Bool = false, filterOptions: FilterOptions? = nil) async {
+        print("🔄 StashAPI.fetchScenes called - page: \(page), sort: \(sort), direction: \(direction), appendResults: \(appendResults)")
         do {
             // Generate random seed for random sorting
             let randomSeed = Int.random(in: 0...999999)
