@@ -9,7 +9,7 @@ struct SceneRow: View {
     @State private var isVisible = false
     @State private var isMuted = true
     @State private var showingTagEditor = false
-    @StateObject private var previewPlayer = VideoPlayerViewModel()
+    @State private var showPreview = false
     var onSceneUpdated: (StashScene) -> Void
     var onSceneSelected: (StashScene) -> Void
     @EnvironmentObject private var appModel: AppModel
@@ -34,12 +34,15 @@ struct SceneRow: View {
                             .fill(Color.gray.opacity(0.2))
                     }
 
-                    // Video preview - check both paths.preview and paths.stream
-                    if isVisible {
-                        VideoPlayer(player: previewPlayer.player)
-                            .onAppear {
-                                previewPlayer.player.isMuted = isMuted
+                    // Video preview using StandardPreviewPlayer
+                    if isVisible && showPreview {
+                        StandardPreviewPlayer.forScene(
+                            scene,
+                            appModel: appModel,
+                            onTap: {
+                                onSceneSelected(scene)
                             }
+                        )
                     }
 
                     // Duration and mute overlay
@@ -55,24 +58,7 @@ struct SceneRow: View {
 
                         Spacer()
 
-                        if isVisible {
-                            Button(action: {
-                                isMuted.toggle()
-                                previewPlayer.player.isMuted = isMuted
-                                
-                                // If unmuting this preview, use proper audio management
-                                if !isMuted {
-                                    // Use the proper play method that pauses other players
-                                    previewPlayer.play()
-                                }
-                            }) {
-                                Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                                    .foregroundColor(.white)
-                                    .padding(8)
-                                    .background(.ultraThinMaterial)
-                                    .clipShape(Circle())
-                            }
-                        }
+                        // Mute button removed - handled by StandardPreviewPlayer
                     }
                     .padding(8)
 
@@ -377,7 +363,6 @@ struct SceneRow: View {
         }
         .onAppear {
             // Ensure preview is muted when row appears
-            previewPlayer.player.isMuted = true
             isMuted = true
         }
         .onDisappear {
@@ -402,53 +387,13 @@ struct SceneRow: View {
     }
     
     private func startPreview() {
-        // Try to get either preview URL or stream URL
-        var previewURLString = scene.paths.preview
-        if previewURLString == nil || previewURLString?.isEmpty == true {
-            // Fall back to stream URL if no preview URL
-            print("⚠️ No preview URL found for scene ID \(scene.id), falling back to stream URL")
-            previewURLString = scene.paths.stream
-        }
-        
-        if let urlString = previewURLString, let url = URL(string: urlString) {
-            print("🔥 Starting preview for scene: \(scene.title ?? "") with URL: \(urlString)")
-            
-            var request = URLRequest(url: url)
-            request.setValue("*/*", forHTTPHeaderField: "Accept")
-            request.setValue("identity", forHTTPHeaderField: "Accept-Encoding")
-            request.setValue("Mozilla/5.0", forHTTPHeaderField: "User-Agent")
-            request.setValue("bytes=0-1146540", forHTTPHeaderField: "Range")
-            
-            // If using a stream URL instead of preview, we need authentication
-            if urlString == scene.paths.stream, let api = StashAPI.shared {
-                request.setValue(api.apiKeyForURLs, forHTTPHeaderField: "ApiKey")
-                request.setValue("Bearer \(api.apiKeyForURLs)", forHTTPHeaderField: "Authorization")
-            }
-            
-            let asset = AVURLAsset(url: url, options: ["AVURLAssetHTTPHeaderFieldsKey": request.allHTTPHeaderFields ?? [:]])
-            let playerItem = AVPlayerItem(asset: asset)
-            previewPlayer.player.replaceCurrentItem(with: playerItem)
-            
-            // Always ensure preview is muted by default to prevent audio conflicts
-            previewPlayer.player.isMuted = true
-            isMuted = true
-            
-            // Use the proper play method that handles audio management
-            if isMuted {
-                // If muted, just play directly without audio management
-                previewPlayer.player.play()
-            } else {
-                // Use the proper play method that pauses other players
-                previewPlayer.play()
-            }
-        } else {
-            print("❌ No valid preview or stream URL found for scene ID \(scene.id)")
-        }
+        print("🔥 Starting preview for scene: \(scene.title ?? "")")
+        showPreview = true
     }
     
     private func stopPreview() {
         print("🔥 Stopping preview for scene: \(scene.title ?? "")")
-        previewPlayer.cleanup()
+        showPreview = false
         isVisible = false
     }
 

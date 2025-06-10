@@ -47,56 +47,56 @@ struct VideoPlayerCommands: Commands {
     var body: some Commands {
         CommandMenu("Video Player") {
             Button("Next Scene") {
-                VideoPlayerCommands.sendKeyboardShortcut(.keyboardV)
+                VideoPlayerMenuHandler.handleNextScene()
             }
             .keyboardShortcut("v", modifiers: [])
             
             Button("Seek Backward 30s") {
-                VideoPlayerCommands.sendKeyboardShortcut(.keyboardB)
+                VideoPlayerMenuHandler.handleSeekBackward()
             }
             .keyboardShortcut("b", modifiers: [])
             
             Button("Random Position Jump") {
-                VideoPlayerCommands.sendKeyboardShortcut(.keyboardN)
+                VideoPlayerMenuHandler.handleRandomJump()
             }
             .keyboardShortcut("n", modifiers: [])
             
             Button("Performer Random Scene") {
-                VideoPlayerCommands.sendKeyboardShortcut(.keyboardM)
+                VideoPlayerMenuHandler.handlePerformerScene()
             }
             .keyboardShortcut("m", modifiers: [])
             
             Button("Library Random Shuffle") {
-                VideoPlayerCommands.sendKeyboardShortcut(.keyboardComma)
+                VideoPlayerMenuHandler.handleLibraryRandom()
             }
             .keyboardShortcut(",", modifiers: [])
             
             Button("Restart from Beginning") {
-                VideoPlayerCommands.sendKeyboardShortcut(.keyboardR)
+                VideoPlayerMenuHandler.handleRestart()
             }
             .keyboardShortcut("r", modifiers: [])
             
             Divider()
             
             Button("Seek Backward 30s") {
-                VideoPlayerCommands.sendKeyboardShortcut(.keyboardLeftArrow)
+                VideoPlayerMenuHandler.handleSeekBackward()
             }
             .keyboardShortcut(.leftArrow, modifiers: [])
             
             Button("Seek Forward 30s") {
-                VideoPlayerCommands.sendKeyboardShortcut(.keyboardRightArrow)
+                VideoPlayerMenuHandler.handleSeekForward()
             }
             .keyboardShortcut(.rightArrow, modifiers: [])
             
             Button("Toggle Play/Pause") {
-                VideoPlayerCommands.sendKeyboardShortcut(.keyboardSpacebar)
+                VideoPlayerMenuHandler.handlePlayPause()
             }
             .keyboardShortcut(.space, modifiers: [])
         }
     }
     
     static func sendKeyboardShortcut(_ keyCode: UIKeyboardHIDUsage) {
-        // Send notification that can be picked up by the video player
+        // This method is now deprecated - use VideoPlayerMenuHandler methods instead
         NotificationCenter.default.post(
             name: NSNotification.Name("VideoPlayerKeyboardShortcut"),
             object: nil,

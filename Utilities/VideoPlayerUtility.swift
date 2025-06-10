@@ -506,6 +506,54 @@ extension VideoPlayerUtility {
         
         return true
     }
+    /// Creates and configures a StandardVideoPlayer for playing video content
+    /// - Parameters:
+    ///   - url: URL of the video to play
+    ///   - startTime: Optional starting time in seconds
+    ///   - scenes: Optional array of scenes for playlist functionality
+    ///   - currentIndex: The index of the current scene in the scenes array
+    ///   - appModel: The app model
+    /// - Returns: A configured StandardVideoPlayer
+    static func createStandardVideoPlayer(
+        url: URL,
+        startTime: Double? = nil,
+        scenes: [StashScene] = [],
+        currentIndex: Int = 0,
+        sceneID: String,
+        appModel: AppModel
+    ) -> StandardVideoPlayer {
+        let player = StandardVideoPlayer(
+            scenes: scenes,
+            currentIndex: currentIndex,
+            sceneID: sceneID,
+            appModel: appModel
+        )
+        
+        // Convert to HLS if needed
+        let finalURL: URL
+        if url.absoluteString.contains("stream.m3u8") {
+            finalURL = url
+        } else if let hlsURL = getHLSStreamURL(from: url) {
+            finalURL = hlsURL
+        } else {
+            finalURL = url
+        }
+        
+        // Create and configure player
+        let avPlayer = AVPlayer(url: finalURL)
+        player.player = avPlayer
+        
+        // Set start time if provided
+        if let startTime = startTime {
+            _ = seekToTime(player: avPlayer, time: startTime)
+        }
+        
+        // Start playback
+        avPlayer.play()
+        
+        return player
+    }
+    
     /// Creates and configures an AVPlayerViewController for playing video content
     /// - Parameters:
     ///   - url: URL of the video to play
