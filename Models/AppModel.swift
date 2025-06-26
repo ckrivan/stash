@@ -20,6 +20,8 @@ class AppModel: ObservableObject {
     @Published var currentPerformer: StashScene.Performer?
     @Published var currentMarker: SceneMarker?
     @Published var performerScenes: [StashScene] = [] // Separate array for performer scenes
+    @Published var lastWatchedScene: StashScene? // Track the last scene that was actually watched
+    @Published var watchHistory: [StashScene] = [] // Track the sequence of scenes watched in current session
     
     // MARK: - UI State
     @Published var activeTab: Tab = .scenes
@@ -230,6 +232,23 @@ class AppModel: ObservableObject {
         
         // Store both scene and timestamp in properties
         currentScene = scene
+        
+        // FIXED: Track this as the last watched scene for return navigation
+        lastWatchedScene = scene
+        print("🎯 HISTORY - Set lastWatchedScene to: \(scene.title ?? "Untitled")")
+        
+        // Add to watch history (avoid duplicates of consecutive same scene)
+        if watchHistory.last?.id != scene.id {
+            watchHistory.append(scene)
+            // Keep history to reasonable size (last 20 scenes)
+            if watchHistory.count > 20 {
+                watchHistory = Array(watchHistory.suffix(20))
+            }
+            print("🎯 HISTORY - Added to watch history: \(scene.title ?? "Untitled") (history count: \(watchHistory.count))")
+            print("🎯 HISTORY - Full history: \(watchHistory.map { $0.title ?? "Untitled" })")
+        } else {
+            print("🎯 HISTORY - Skipping duplicate scene: \(scene.title ?? "Untitled") (last in history: \(watchHistory.last?.title ?? "None"))")
+        }
         
         // Critical: Clear any stale scene data before setting new scene
         UserDefaults.standard.removeObject(forKey: "lastNavigatedSceneId")
@@ -665,6 +684,22 @@ class AppModel: ObservableObject {
         if !navigationPath.isEmpty {
             navigationPath.removeLast()
             print("📱 Removed last navigation item, remaining path count: \(navigationPath.count)")
+        }
+        
+        // FIXED: Navigate back to last watched scene in scenes view if we're returning to scenes tab
+        if manualExit && activeTab == .scenes && lastWatchedScene != nil {
+            print("🎯 HISTORY - Manual exit to scenes tab, will show watch history")
+            // Set a flag that MediaLibraryView can use to show watch history
+            if !watchHistory.isEmpty {
+                UserDefaults.standard.set(true, forKey: "showWatchHistory")
+                print("🎯 HISTORY - Set flag to show watch history (\(watchHistory.count) scenes)")
+                
+                // Also set scroll target for the first scene in history
+                if let firstScene = watchHistory.first {
+                    UserDefaults.standard.set(firstScene.id, forKey: "scrollToSceneId")
+                    print("🎯 HISTORY - Set scrollToSceneId to first in history: \(firstScene.id)")
+                }
+            }
         }
     }
     

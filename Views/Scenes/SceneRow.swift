@@ -362,6 +362,73 @@ struct SceneRow: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.purple.opacity(0.3), lineWidth: 1) // ADDED PURPLE BORDER
         )
+        .contextMenu {
+            Button(action: {
+                // Recently Added filter
+                Task {
+                    await appModel.api.fetchScenesExcludingVR(page: 1, sort: "created_at", direction: "DESC")
+                    await MainActor.run {
+                        appModel.objectWillChange.send()
+                    }
+                }
+            }) {
+                Label("Recently Added", systemImage: "plus.circle")
+            }
+            
+            Button(action: {
+                // Default Sort
+                Task {
+                    await appModel.api.fetchScenes(page: 1, sort: "file_mod_time", direction: "DESC")
+                    await MainActor.run {
+                        appModel.objectWillChange.send()
+                    }
+                }
+            }) {
+                Label("Default Sort", systemImage: "rectangle.grid.2x2")
+            }
+            
+            Button(action: {
+                // Newest Videos
+                Task {
+                    await appModel.api.fetchScenes(page: 1, sort: "date", direction: "DESC")
+                    await MainActor.run {
+                        appModel.objectWillChange.send()
+                    }
+                }
+            }) {
+                Label("Newest Videos", systemImage: "clock")
+            }
+            
+            Button(action: {
+                // Most Played
+                Task {
+                    await appModel.api.fetchScenes(page: 1, sort: "o_counter", direction: "DESC")
+                    await MainActor.run {
+                        appModel.objectWillChange.send()
+                    }
+                }
+            }) {
+                Label("Most Played", systemImage: "number.circle")
+            }
+            
+            Button(action: {
+                // Random Order
+                Task {
+                    await appModel.api.fetchScenes(page: 1, sort: "random", direction: "DESC")
+                    await MainActor.run {
+                        appModel.objectWillChange.send()
+                    }
+                }
+            }) {
+                Label("Random Order", systemImage: "shuffle")
+            }
+            
+            Divider()
+            
+            Button(action: { showingTagEditor = true }) {
+                Label("Edit Tags", systemImage: "tag")
+            }
+        }
         .sheet(isPresented: $showingTagEditor) {
             TagEditorView(scene: scene) { updatedScene in
                 onSceneUpdated(updatedScene)

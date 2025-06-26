@@ -46,6 +46,16 @@ struct ContentView: View {
                             .environmentObject(appModel)
                             .onAppear {
                                 print("🎬 ContentView: StashScene navigation destination appeared for scene \(scene.id)")
+                                
+                                // FIXED: Add to watch history when navigating directly to scene
+                                if appModel.watchHistory.last?.id != scene.id {
+                                    appModel.watchHistory.append(scene)
+                                    // Keep history to reasonable size (last 20 scenes)
+                                    if appModel.watchHistory.count > 20 {
+                                        appModel.watchHistory = Array(appModel.watchHistory.suffix(20))
+                                    }
+                                    print("🎯 HISTORY - Added to watch history via navigation: \(scene.title ?? "Untitled") (history count: \(appModel.watchHistory.count))")
+                                }
                             }
                     }
                     .navigationDestination(for: StashScene.Performer.self) { performer in
@@ -75,6 +85,32 @@ struct ContentView: View {
                         .environmentObject(appModel)
                         .onAppear {
                             print("🎬 ContentView: SceneMarker navigation destination appeared for marker \(marker.id) -> scene \(marker.scene.id)")
+                            
+                            // FIXED: Add marker's scene to watch history when navigating to marker
+                            let markerScene = StashScene(
+                                id: marker.scene.id,
+                                title: marker.title,
+                                details: nil,
+                                paths: StashScene.ScenePaths(
+                                    screenshot: marker.screenshot,
+                                    preview: marker.preview,
+                                    stream: marker.stream
+                                ),
+                                files: [],
+                                performers: [],
+                                tags: [],
+                                rating100: nil,
+                                o_counter: nil
+                            )
+                            
+                            if appModel.watchHistory.last?.id != markerScene.id {
+                                appModel.watchHistory.append(markerScene)
+                                // Keep history to reasonable size (last 20 scenes)
+                                if appModel.watchHistory.count > 20 {
+                                    appModel.watchHistory = Array(appModel.watchHistory.suffix(20))
+                                }
+                                print("🎯 HISTORY - Added marker scene to watch history: \(marker.title) (history count: \(appModel.watchHistory.count))")
+                            }
                         }
                     }
                 }
@@ -204,7 +240,14 @@ extension ContentView {
                 switch appModel.activeTab {
                 case .scenes:
                     print("📱 Loading scenes for tab")
-                    await appModel.api.fetchScenes(page: 1, sort: "random", direction: "DESC", appendResults: false)
+                    // FIXED: Load "Recently Added" (VR-excluded) as default view
+                    // This prevents randomizing when returning from video player
+                    if appModel.api.scenes.isEmpty {
+                        print("📱 No scenes loaded, loading recently added scenes (excluding VR)")
+                        await appModel.api.fetchScenesExcludingVR(page: 1, sort: "created_at", direction: "DESC", appendResults: false)
+                    } else {
+                        print("📱 Scenes already loaded (\(appModel.api.scenes.count)), preserving order")
+                    }
                     
                 case .performers:
                     print("📱 Loading performers for tab")
