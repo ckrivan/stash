@@ -67,6 +67,57 @@ class CustomPlayerViewController: UIViewController {
             seekVideo(by: 30)
             return // Don't call super to prevent default behavior
             
+        // Number keys for percentage seeking
+        case .keyboard1:
+            print("🎹 Number key 1 - Seek to 10%")
+            seekToPercentage(10)
+            return
+            
+        case .keyboard2:
+            print("🎹 Number key 2 - Seek to 20%")
+            seekToPercentage(20)
+            return
+            
+        case .keyboard3:
+            print("🎹 Number key 3 - Seek to 30%")
+            seekToPercentage(30)
+            return
+            
+        case .keyboard4:
+            print("🎹 Number key 4 - Seek to 40%")
+            seekToPercentage(40)
+            return
+            
+        case .keyboard5:
+            print("🎹 Number key 5 - Seek to 50%")
+            seekToPercentage(50)
+            return
+            
+        case .keyboard6:
+            print("🎹 Number key 6 - Seek to 60%")
+            seekToPercentage(60)
+            return
+            
+        case .keyboard7:
+            print("🎹 Number key 7 - Seek to 70%")
+            seekToPercentage(70)
+            return
+            
+        case .keyboard8:
+            print("🎹 Number key 8 - Seek to 80%")
+            seekToPercentage(80)
+            return
+            
+        case .keyboard9:
+            print("🎹 Number key 9 - Seek to 90%")
+            seekToPercentage(90)
+            return
+            
+        case .keyboard0:
+            print("🎹 Number key 0 - Seek to 95%")
+            seekToPercentage(95)
+            return
+            
         default:
             super.pressesBegan(presses, with: event)
         }
@@ -116,6 +167,43 @@ class CustomPlayerViewController: UIViewController {
             }
         }
     }
+    
+    private func seekToPercentage(_ percentage: Double) {
+        guard let player = playerVC.player,
+              let currentItem = player.currentItem else {
+            print("⚠️ Cannot seek to percentage - player or item not available")
+            return
+        }
+        
+        let duration = currentItem.duration
+        guard duration.isValid && !duration.seconds.isNaN && duration.seconds > 0 else {
+            print("⚠️ Cannot seek to percentage - invalid duration")
+            return
+        }
+        
+        let targetSeconds = duration.seconds * (percentage / 100.0)
+        let targetTime = CMTime(seconds: targetSeconds, preferredTimescale: 1000)
+        
+        print("⏱ Seeking to \(percentage)% (\(targetSeconds) seconds) of video duration \(duration.seconds)")
+        
+        player.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero) { success in
+            if success {
+                print("✅ Successfully seeked to \(percentage)% of video")
+                
+                // Provide haptic feedback
+                let generator = UIImpactFeedbackGenerator(style: .light)
+                generator.impactOccurred()
+                
+                // Ensure playback continues
+                if player.timeControlStatus != .playing {
+                    player.play()
+                }
+            } else {
+                print("❌ Seek to \(percentage)% operation failed")
+            }
+        }
+    }
+    
     
     func hideGearButton(in view: UIView) {
         // For debugging purposes, check if we have a button
@@ -1189,9 +1277,37 @@ extension VideoPlayerView {
             showControls = false
         }
         
+        // Set a failsafe timer to restore controls and keyboard responder if navigation fails
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+            if !self.showControls {
+                print("⚠️ FAILSAFE: Restoring controls after navigation timeout")
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    self.showControls = true
+                }
+            }
+        }
+        
+        // Also set a timer to ensure keyboard shortcuts remain functional
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            // Force keyboard responder status restoration
+            if let window = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .flatMap({ $0.windows })
+                .first(where: { $0.isKeyWindow }),
+               let rootVC = window.rootViewController {
+                self.ensureKeyboardResponder(rootVC)
+            }
+        }
+        
         // Get scenes from the app model - these represent the current context
         // (could be from a search, performer, tag, etc.)
         let contextScenes = appModel.api.scenes
+        
+        // Debug context information
+        print("📊 CONTEXT DEBUG - navigateToNextScene:")
+        print("📊   Current performer: \(appModel.currentPerformer?.name ?? "none")")
+        print("📊   Context scenes count: \(contextScenes.count)")
+        print("📊   Current scene: \(currentScene.title ?? "Untitled") (ID: \(currentScene.id))")
         
         // Get current index in the context's scene array
         let currentIndex = contextScenes.firstIndex(of: currentScene) ?? -1
@@ -1479,37 +1595,50 @@ extension VideoPlayerView {
     /// Plays a different scene featuring the same performer from current scene
     private func playPerformerRandomVideo() {
         print("🎯 PERFORMER BUTTON: Starting performer random video function")
+        
+        // Clear shuffle context when doing performer random jumps to prevent empty queue issues
+        if appModel.isMarkerShuffleMode {
+            print("🎯 PERFORMER BUTTON: Clearing shuffle context to prevent empty queue issues")
+            appModel.isMarkerShuffleMode = false
+            appModel.markerShuffleQueue = []
+            appModel.currentShuffleIndex = 0
+            appModel.shuffleTagFilter = nil
+            appModel.shuffleSearchQuery = nil
+            UserDefaults.standard.set(false, forKey: "isMarkerShuffleContext")
+        }
+        
+        // Debug context information
+        print("📊 CONTEXT DEBUG - playPerformerRandomVideo:")
+        print("📊   Current performer: \(appModel.currentPerformer?.name ?? "none")")
+        print("📊   Original performer: \(originalPerformer?.name ?? "none")")
+        print("📊   Context scenes count: \(appModel.api.scenes.count)")
 
         print("🎯 PERFORMER BUTTON: Current scene: \(currentScene.title ?? "Untitled") (ID: \(currentScene.id))")
         
-        // Determine which performer to use
+        // Determine which performer to use - prioritize female unless on male performer detail page
         var selectedPerformer: StashScene.Performer?
         
-        // First try to use the original performer if available
-        if let originalPerf = originalPerformer {
-            print("🎯 PERFORMER BUTTON: Original performer is: \(originalPerf.name) (ID: \(originalPerf.id))")
+        // Check if we're on a specific performer's detail page (male performer context)
+        if let currentPerformer = appModel.currentPerformer {
+            print("🎯 PERFORMER BUTTON: We're on performer detail page for: \(currentPerformer.name) (gender: \(currentPerformer.gender ?? "unknown"))")
             
-            // Check if the original performer is in the current scene
-            if currentScene.performers.contains(where: { $0.id == originalPerf.id }) {
-                // If yes, use the original performer
-                selectedPerformer = originalPerf
-                print("🎯 PERFORMER BUTTON: Using original performer (found in current scene)")
+            // If we're on a male performer's page, respect that and use him
+            if currentPerformer.gender == "MALE" {
+                print("🎯 PERFORMER BUTTON: On male performer page - will respect male preference")
+                selectedPerformer = currentPerformer
             } else {
-                // If original performer isn't in current scene, use the first performer from current scene
-                selectedPerformer = currentScene.performers.first
-                print("🎯 PERFORMER BUTTON: Original performer not in current scene, using first performer from current scene")
-                
-                // Update the originalPerformer to match this new performer
-                originalPerformer = selectedPerformer
+                // On female performer page - prioritize female performers from current scene
+                print("🎯 PERFORMER BUTTON: On female performer page - prioritizing female performers")
+                selectedPerformer = currentScene.performers.first(where: { $0.gender == "FEMALE" }) ?? currentPerformer
             }
         } else {
-            // If no original performer is set, use the first performer from the current scene
-            selectedPerformer = currentScene.performers.first
-            print("🎯 PERFORMER BUTTON: No original performer stored, using first performer from current scene")
-            
-            // Set this as the original performer
-            originalPerformer = selectedPerformer
+            // Not on performer detail page - always prioritize female performers
+            print("🎯 PERFORMER BUTTON: Not on performer detail page - defaulting to female preference")
+            selectedPerformer = currentScene.performers.first(where: { $0.gender == "FEMALE" }) ?? currentScene.performers.first
         }
+        
+        // Update originalPerformer to track our selection
+        originalPerformer = selectedPerformer
 
         // Make sure we have a performer to work with
         guard let selectedPerformer = selectedPerformer else {
@@ -1520,7 +1649,7 @@ extension VideoPlayerView {
             return
         }
 
-        print("🎯 PERFORMER BUTTON: Selected performer: \(selectedPerformer.name) (ID: \(selectedPerformer.id))")
+        print("🎯 PERFORMER BUTTON: Selected performer: \(selectedPerformer.name) (ID: \(selectedPerformer.id), gender: \(selectedPerformer.gender ?? "unknown"))")
         print("🎯 PERFORMER BUTTON: Current scene ID: \(currentScene.id), title: \(currentScene.title ?? "Untitled")")
 
         // Start a task to find and play another scene with this performer
@@ -2009,6 +2138,32 @@ extension VideoPlayerView {
             parentController = parentController?.presentedViewController
         }
         return nil
+    }
+    
+    /// Helper method to ensure keyboard responder status is maintained
+    private func ensureKeyboardResponder(_ rootVC: UIViewController) {
+        // Recursively find CustomPlayerViewController and ensure it's first responder
+        func findAndActivatePlayer(_ vc: UIViewController) {
+            if let customPlayer = vc as? CustomPlayerViewController {
+                if !customPlayer.isFirstResponder {
+                    print("🎹 FAILSAFE: Restoring keyboard responder for CustomPlayerViewController")
+                    customPlayer.becomeFirstResponder()
+                }
+                return
+            }
+            
+            // Check children
+            for child in vc.children {
+                findAndActivatePlayer(child)
+            }
+            
+            // Check presented view controllers
+            if let presented = vc.presentedViewController {
+                findAndActivatePlayer(presented)
+            }
+        }
+        
+        findAndActivatePlayer(rootVC)
     }
 
     /// Helper method to play a random scene
