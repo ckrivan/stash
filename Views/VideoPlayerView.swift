@@ -1615,30 +1615,29 @@ extension VideoPlayerView {
 
         print("🎯 PERFORMER BUTTON: Current scene: \(currentScene.title ?? "Untitled") (ID: \(currentScene.id))")
         
-        // Determine which performer to use - prioritize female unless on male performer detail page
+        // Determine which performer to use
         var selectedPerformer: StashScene.Performer?
         
-        // Check if we're on a specific performer's detail page (male performer context)
+        // FIXED: Always prioritize appModel.currentPerformer if set (from PerformerDetailView)
+        // This ensures that when we're on a specific performer's page, we always use that performer
         if let currentPerformer = appModel.currentPerformer {
-            print("🎯 PERFORMER BUTTON: We're on performer detail page for: \(currentPerformer.name) (gender: \(currentPerformer.gender ?? "unknown"))")
+            print("🎯 PERFORMER BUTTON: Using current performer from detail view: \(currentPerformer.name) (gender: \(currentPerformer.gender ?? "unknown"))")
+            selectedPerformer = currentPerformer
             
-            // If we're on a male performer's page, respect that and use him
-            if currentPerformer.gender == "MALE" {
-                print("🎯 PERFORMER BUTTON: On male performer page - will respect male preference")
-                selectedPerformer = currentPerformer
-            } else {
-                // On female performer page - prioritize female performers from current scene
-                print("🎯 PERFORMER BUTTON: On female performer page - prioritizing female performers")
-                selectedPerformer = currentScene.performers.first(where: { $0.gender == "FEMALE" }) ?? currentPerformer
-            }
+            // Update originalPerformer to maintain consistency
+            originalPerformer = currentPerformer
+        } else if let originalPerformer = originalPerformer {
+            // Fall back to original performer if no current performer context
+            print("🎯 PERFORMER BUTTON: Using original performer: \(originalPerformer.name)")
+            selectedPerformer = originalPerformer
         } else {
-            // Not on performer detail page - always prioritize female performers
-            print("🎯 PERFORMER BUTTON: Not on performer detail page - defaulting to female preference")
+            // Final fallback - use female performer from current scene
+            print("🎯 PERFORMER BUTTON: No performer context - defaulting to female from current scene")
             selectedPerformer = currentScene.performers.first(where: { $0.gender == "FEMALE" }) ?? currentScene.performers.first
+            
+            // Update originalPerformer to track our selection
+            originalPerformer = selectedPerformer
         }
-        
-        // Update originalPerformer to track our selection
-        originalPerformer = selectedPerformer
 
         // Make sure we have a performer to work with
         guard let selectedPerformer = selectedPerformer else {

@@ -527,19 +527,34 @@ struct PerformerDetailView: View {
     private func shuffleAndPlayScene() {
         print("🎲 Shuffle scenes for performer: \(performer.name)")
         
-        // Ensure we have scenes loaded
-        if performerScenes.isEmpty {
-            print("⚠️ No scenes available to shuffle")
+        // FIXED: Try both local performerScenes and appModel.api.scenes to ensure we have scenes
+        let availableScenes = !performerScenes.isEmpty ? performerScenes : appModel.api.scenes
+        
+        if availableScenes.isEmpty {
+            print("⚠️ No scenes available to shuffle - attempting to reload")
+            Task {
+                await loadScenes()
+                // After loading, try again if we have scenes now
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    if !self.performerScenes.isEmpty {
+                        self.shuffleAndPlayScene()
+                    }
+                }
+            }
             return
         }
         
-        // Get a random scene
-        guard let randomScene = performerScenes.randomElement() else {
+        // Get a random scene from available scenes
+        guard let randomScene = availableScenes.randomElement() else {
             print("⚠️ Could not get random scene")
             return
         }
         
-        print("🎲 Selected random scene: \(randomScene.title ?? "Untitled")")
+        print("🎲 Selected random scene: \(randomScene.title ?? "Untitled") from \(availableScenes.count) available scenes")
+        
+        // FIXED: Ensure currentPerformer is set before navigation to maintain context
+        appModel.currentPerformer = performer
+        print("🎯 SHUFFLE - Set currentPerformer to: \(performer.name)")
         
         // Navigate to the scene first
         appModel.navigateToScene(randomScene)
