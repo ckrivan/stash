@@ -208,6 +208,11 @@ class AppModel: ObservableObject {
     func navigateToScene(_ scene: StashScene, startSeconds: Double? = nil, endSeconds: Double? = nil) {
         print("🚀 NAVIGATION - Navigating to scene: \(scene.title ?? "Untitled") with startSeconds: \(String(describing: startSeconds)), endSeconds: \(String(describing: endSeconds))")
         
+        // FIXED: Set flag to indicate we're navigating to video (temporary navigation)
+        // This helps PerformerDetailView know not to clear performer context
+        UserDefaults.standard.set(true, forKey: "isNavigatingToVideo")
+        print("🎯 NAVIGATION - Set flag for temporary video navigation")
+        
         // Notify that a main video is starting - this will stop all preview videos
         NotificationCenter.default.post(name: Notification.Name("MainVideoPlayerStarted"), object: nil)
         
@@ -640,18 +645,26 @@ class AppModel: ObservableObject {
             }
         }
         
+        // Store current scene ID before clearing for potential restoration
+        let currentSceneId = currentScene?.id
+        
         // Clear current scene reference
         currentScene = nil
         
         // Clear any video-related UserDefaults if needed
-        if let sceneId = currentScene?.id {
+        if let sceneId = currentSceneId {
             UserDefaults.standard.removeObject(forKey: "scene_\(sceneId)_hlsURL")
             UserDefaults.standard.removeObject(forKey: "scene_\(sceneId)_isMarkerNavigation")
         }
         
+        // FIXED: Clear the temporary navigation flag since we're returning from video
+        UserDefaults.standard.removeObject(forKey: "isNavigatingToVideo")
+        print("🎯 NAVIGATION - Cleared temporary video navigation flag")
+        
         // If we have a navigation path and the last item is likely a video, remove it
         if !navigationPath.isEmpty {
             navigationPath.removeLast()
+            print("📱 Removed last navigation item, remaining path count: \(navigationPath.count)")
         }
     }
     

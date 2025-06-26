@@ -44,21 +44,34 @@ struct PerformerDetailView: View {
         }
         .navigationBarTitleDisplayMode(.inline) // Don't show title in navbar to avoid duplication
         .onDisappear {
-            // Reset scenes to default when leaving this view
-            // This fixes the issue of performer's scenes showing when navigating back
-            print("📱 PerformerDetailView disappeared - resetting scenes")
-            Task {
-                await MainActor.run {
-                    // Clear the performer-specific scenes
-                    appModel.api.scenes = []
-                    performerScenes = []
-                    appModel.currentPerformer = nil
-                }
-
-                // Reload the default scenes for the main library view
+            // FIXED: Only reset performer context when actually navigating away from performer entirely
+            // Don't clear when just going to video player temporarily
+            print("📱 PerformerDetailView disappeared")
+            
+            // Check if we're navigating to a video player (temporary) or actually leaving the performer
+            let isNavigatingToVideo = appModel.navigationPath.count > 0 && 
+                                    UserDefaults.standard.object(forKey: "isNavigatingToVideo") != nil
+            
+            if !isNavigatingToVideo {
+                print("📱 Actually leaving performer view - clearing performer context")
                 Task {
-                    await appModel.api.fetchScenes(page: 1, sort: "date", direction: "DESC")
+                    await MainActor.run {
+                        // Clear the performer-specific scenes only when truly leaving
+                        performerScenes = []
+                        appModel.currentPerformer = nil
+                    }
+
+                    // Only reload default scenes if we're going back to main scenes view
+                    if appModel.activeTab == .scenes {
+                        Task {
+                            await appModel.api.fetchScenes(page: 1, sort: "date", direction: "DESC")
+                        }
+                    }
                 }
+            } else {
+                print("📱 Temporarily navigating to video - preserving performer context")
+                // Remove the temporary navigation flag
+                UserDefaults.standard.removeObject(forKey: "isNavigatingToVideo")
             }
         }
         .onAppear {

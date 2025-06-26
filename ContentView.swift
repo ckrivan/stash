@@ -49,7 +49,7 @@ struct ContentView: View {
                             }
                     }
                     .navigationDestination(for: StashScene.Performer.self) { performer in
-                        PerformerTabView(performer: performer)
+                        PerformerDetailView(performer: performer)
                             .environmentObject(appModel)
                     }
                     .navigationDestination(for: StashScene.Tag.self) { tag in
