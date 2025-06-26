@@ -59,6 +59,8 @@ struct PerformerDetailView: View {
                         // Clear the performer-specific scenes only when truly leaving
                         performerScenes = []
                         appModel.currentPerformer = nil
+                        appModel.performerDetailViewPerformer = nil
+                        print("🎯 PERFORMER DETAIL: Cleared performerDetailViewPerformer context")
                     }
 
                     // Only reload default scenes if we're going back to main scenes view
@@ -81,6 +83,21 @@ struct PerformerDetailView: View {
             // CRITICAL: Set current performer context for VideoPlayerView
             appModel.currentPerformer = performer
             print("🎯 DETAIL - Set currentPerformer to: \(performer.name)")
+            
+            // PERFORMER DETAIL CONTEXT: Set dedicated performer for shuffle context
+            appModel.performerDetailViewPerformer = performer
+            print("🎯 PERFORMER DETAIL: Set performerDetailViewPerformer to: \(performer.name)")
+            
+            // SHUFFLE RESET: Clear any previous shuffle context from SceneRow
+            print("🎯 SHUFFLE RESET: Clearing previous shuffle context for clean performer mode")
+            appModel.isMarkerShuffleMode = false
+            appModel.markerShuffleQueue = []
+            appModel.currentShuffleIndex = 0
+            appModel.shuffleTagFilter = nil
+            appModel.shuffleSearchQuery = nil
+            UserDefaults.standard.set(false, forKey: "isMarkerShuffleContext")
+            UserDefaults.standard.removeObject(forKey: "isRandomJumpMode")
+            print("🎯 SHUFFLE RESET: All shuffle contexts cleared for performer mode")
 
             // Check if we're returning from a video player session
             // If so, respect the requested tab selection
@@ -232,7 +249,7 @@ struct PerformerDetailView: View {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 300))], spacing: 16) {
                     ForEach(appModel.api.scenes) { scene in
                         // Use our custom scene row with direct navigation
-                        CustomPerformerSceneRow(scene: scene)
+                        CustomPerformerSceneRow(scene: scene, performer: performer)
                             .id("scene-\(scene.id)")
                     }
                 }
@@ -264,7 +281,7 @@ struct PerformerDetailView: View {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 300))], spacing: 16) {
                         ForEach(performerScenes) { scene in
                             // Use our custom scene row with direct navigation
-                            CustomPerformerSceneRow(scene: scene)
+                            CustomPerformerSceneRow(scene: scene, performer: performer)
                                 .id("scene-\(scene.id)")
                         }
                 }
@@ -540,6 +557,16 @@ struct PerformerDetailView: View {
     private func shuffleAndPlayScene() {
         print("🎲 Shuffle scenes for performer: \(performer.name)")
         
+        // SHUFFLE RESET: Clear any previous shuffle context before starting new shuffle
+        print("🎯 SHUFFLE RESET: Clearing all shuffle context before performer shuffle")
+        appModel.isMarkerShuffleMode = false
+        appModel.markerShuffleQueue = []
+        appModel.currentShuffleIndex = 0
+        appModel.shuffleTagFilter = nil
+        appModel.shuffleSearchQuery = nil
+        UserDefaults.standard.set(false, forKey: "isMarkerShuffleContext")
+        UserDefaults.standard.removeObject(forKey: "isRandomJumpMode")
+        
         // FIXED: Try both local performerScenes and appModel.api.scenes to ensure we have scenes
         let availableScenes = !performerScenes.isEmpty ? performerScenes : appModel.api.scenes
         
@@ -567,7 +594,8 @@ struct PerformerDetailView: View {
         
         // FIXED: Ensure currentPerformer is set before navigation to maintain context
         appModel.currentPerformer = performer
-        print("🎯 SHUFFLE - Set currentPerformer to: \(performer.name)")
+        appModel.performerDetailViewPerformer = performer
+        print("🎯 SHUFFLE - Set currentPerformer and performerDetailViewPerformer to: \(performer.name)")
         
         // Navigate to the scene first
         appModel.navigateToScene(randomScene)

@@ -40,6 +40,16 @@ struct MediaLibraryView: View {
     @State private var searchedTag: (id: String, name: String)? = nil
     @State private var viewRefreshId = UUID()  // Add view refresh trigger
     
+    // Show watch history when we have watched scenes and the flag is set (returning from video)
+    private var shouldShowWatchHistory: Bool {
+        return !appModel.watchHistory.isEmpty && 
+               UserDefaults.standard.bool(forKey: "showWatchHistory") &&
+               currentFilter == "default" && 
+               !isSearching && 
+               searchScope == .scenes &&
+               searchText.isEmpty
+    }
+    
     private var columns: [GridItem] {
         // Use different column sizes on iPad vs iPhone
         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -278,8 +288,45 @@ struct MediaLibraryView: View {
                 }
                 .padding(.top, 40)
             } else {
+                // Show watch history if we have it and user is returning from video session
+                let displayScenes = shouldShowWatchHistory ? appModel.watchHistory : appModel.api.scenes
+                
+                if shouldShowWatchHistory && !appModel.watchHistory.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text("Recently Watched")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                            
+                            Spacer()
+                            
+                            Button("Clear History") {
+                                appModel.watchHistory.removeAll()
+                            }
+                            .buttonStyle(.bordered)
+                            .foregroundColor(.secondary)
+                            
+                            Button("Show All") {
+                                // Clear watch history flag and return to normal view
+                                UserDefaults.standard.removeObject(forKey: "showWatchHistory")
+                                Task {
+                                    await resetAndReload()
+                                }
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
+                        .padding(.horizontal)
+                        .padding(.top, 8)
+                        
+                        Text("\(appModel.watchHistory.count) scenes in your watch session")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal)
+                    }
+                }
+                
                 ScenesGrid(
-                    scenes: appModel.api.scenes,
+                    scenes: displayScenes,
                     columns: columns,
                     onSceneSelected: { scene in
                         appModel.navigateToScene(scene)
@@ -430,6 +477,9 @@ struct MediaLibraryView: View {
         print("📱 filterAction called - filter: \(filter), sort: \(sort), direction: \(direction)")
         print("📱 currentFilter before: \(currentFilter)")
         
+        // Clear watch history flag when user explicitly changes filters
+        UserDefaults.standard.removeObject(forKey: "showWatchHistory")
+        
         // Set currentFilter to keep UI in sync
         await MainActor.run {
             currentFilter = filter
@@ -448,8 +498,13 @@ struct MediaLibraryView: View {
         print("📱 About to call fetchScenes with sort: \(sort)")
         
         do {
-            await appModel.api.fetchScenes(page: 1, sort: sort, direction: direction)
-            print("📱 fetchScenes completed successfully, scenes count: \(appModel.api.scenes.count)")
+            if filter == "recently_added" {
+                print("📱 Using VR exclusion fetch for recently added")
+                await appModel.api.fetchScenesExcludingVR(page: 1, sort: sort, direction: direction)
+            } else {
+                await appModel.api.fetchScenes(page: 1, sort: sort, direction: direction)
+            }
+            print("📱 Fetch completed successfully, scenes count: \(appModel.api.scenes.count)")
             await MainActor.run {
                 appModel.objectWillChange.send()
             }

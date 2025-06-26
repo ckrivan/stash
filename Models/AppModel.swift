@@ -23,6 +23,9 @@ class AppModel: ObservableObject {
     @Published var lastWatchedScene: StashScene? // Track the last scene that was actually watched
     @Published var watchHistory: [StashScene] = [] // Track the sequence of scenes watched in current session
     
+    // MARK: - Performer Detail View Context
+    @Published var performerDetailViewPerformer: StashScene.Performer? // Dedicated performer for PerformerDetailView shuffle context
+    
     // MARK: - UI State
     @Published var activeTab: Tab = .scenes
     @Published var searchQuery: String = ""

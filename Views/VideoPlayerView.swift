@@ -7,8 +7,14 @@ import Combine
 class CustomPlayerViewController: UIViewController {
     let playerVC: AVPlayerViewController
     
-    init(playerVC: AVPlayerViewController) {
+    // Aspect ratio correction state
+    private var originalVideoGravity: AVLayerVideoGravity = .resizeAspect
+    private var isAspectRatioCorrected: Bool = false
+    private var currentScene: StashScene?
+    
+    init(playerVC: AVPlayerViewController, scene: StashScene? = nil) {
         self.playerVC = playerVC
+        self.currentScene = scene
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -116,6 +122,11 @@ class CustomPlayerViewController: UIViewController {
         case .keyboard0:
             print("🎹 Number key 0 - Seek to 95%")
             seekToPercentage(95)
+            return
+            
+        case .keyboardA:
+            print("🎹 A key - Toggle aspect ratio correction")
+            toggleAspectRatio()
             return
             
         default:
@@ -309,6 +320,223 @@ class CustomPlayerViewController: UIViewController {
         }
     }
     
+    // MARK: - Aspect Ratio Correction
+    
+    /// Toggles aspect ratio correction for anamorphic content
+    func toggleAspectRatio() {
+        print("🎥 CustomPlayerViewController: Toggle aspect ratio")
+        print("🎥 DEBUG: Current videoGravity = \(playerVC.videoGravity)")
+        
+        // Cycle through different video gravity modes + Smart Fill
+        switch playerVC.videoGravity {
+        case .resizeAspect:
+            playerVC.videoGravity = .resizeAspectFill
+            print("🎥 Switched to Aspect Fill (crops to fill screen)")
+        case .resizeAspectFill:
+            playerVC.videoGravity = .resize
+            print("🎥 Switched to Fill Screen (stretches to fit)")
+        case .resize:
+            // Smart Fill mode - intelligently choose best fit with minimal bars
+            applySmartFill()
+        default:
+            playerVC.videoGravity = .resizeAspect
+            print("🎥 Reset to Aspect Fit (maintains proportions)")
+        }
+        
+        print("🎥 DEBUG: New videoGravity = \(playerVC.videoGravity)")
+        
+        // Provide haptic feedback
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
+    }
+    
+    /// Smart Fill mode - intelligently chooses between aspect fit/fill for minimal black bars
+    private func applySmartFill() {
+        guard let player = playerVC.player,
+              let currentItem = player.currentItem else {
+            print("🎥 Smart Fill: No player or item available, using Aspect Fit")
+            playerVC.videoGravity = .resizeAspect
+            return
+        }
+        
+        // Get video dimensions
+        let videoSize = currentItem.presentationSize
+        guard videoSize.width > 0 && videoSize.height > 0 else {
+            print("🎥 Smart Fill: Invalid video dimensions, using Aspect Fit")
+            playerVC.videoGravity = .resizeAspect
+            return
+        }
+        
+        // Get screen dimensions
+        let screenSize = UIScreen.main.bounds.size
+        let videoAspectRatio = videoSize.width / videoSize.height
+        let screenAspectRatio = screenSize.width / screenSize.height
+        
+        // Detect common aspect ratios for better handling
+        let videoRatioString = getAspectRatioString(videoAspectRatio)
+        let screenRatioString = getAspectRatioString(screenAspectRatio)
+        
+        print("🎥 Smart Fill Analysis:")
+        print("📱 Screen: \(screenSize.width) x \(screenSize.height) (\(screenRatioString))")
+        print("🎬 Video: \(videoSize.width) x \(videoSize.height) (\(videoRatioString))")
+        
+        // Calculate how much black bar area each mode would create
+        let aspectFitBars = abs(videoAspectRatio - screenAspectRatio) / screenAspectRatio
+        let aspectFillCrop = abs(screenAspectRatio - videoAspectRatio) / videoAspectRatio
+        
+        // Special handling for common problematic aspect ratios
+        if videoRatioString.contains("4:3") && !screenRatioString.contains("4:3") {
+            // 4:3 video on modern screen - usually better with aspect fit
+            playerVC.videoGravity = .resizeAspect
+            print("🎥 Smart Fill: 4:3 video detected, using Aspect Fit for best viewing")
+        } else if videoRatioString.contains("16:10") {
+            // 16:10 videos often benefit from aspect fill on most modern screens
+            playerVC.videoGravity = .resizeAspectFill
+            print("🎥 Smart Fill: 16:10 video detected, using Aspect Fill for minimal bars")
+        } else if aspectFitBars < 0.10 { // Less than 10% black bar area
+            playerVC.videoGravity = .resizeAspect
+            print("🎥 Smart Fill: Using Aspect Fit (minimal bars: \(String(format: "%.1f", aspectFitBars * 100))%)")
+        } else if aspectFillCrop < 0.20 { // Less than 20% crop area
+            playerVC.videoGravity = .resizeAspectFill
+            print("🎥 Smart Fill: Using Aspect Fill (crop: \(String(format: "%.1f", aspectFillCrop * 100))%)")
+        } else {
+            // For really mismatched ratios, use aspect fit
+            playerVC.videoGravity = .resizeAspect
+            print("🎥 Smart Fill: Extreme ratio mismatch, using Aspect Fit for best viewing")
+        }
+    }
+    
+    /// Helper function to get human-readable aspect ratio string
+    private func getAspectRatioString(_ ratio: CGFloat) -> String {
+        let tolerance: CGFloat = 0.02
+        
+        // Common aspect ratios
+        if abs(ratio - 16.0/9.0) < tolerance { return "16:9" }
+        if abs(ratio - 4.0/3.0) < tolerance { return "4:3" }
+        if abs(ratio - 16.0/10.0) < tolerance { return "16:10" }
+        if abs(ratio - 21.0/9.0) < tolerance { return "21:9" }
+        if abs(ratio - 3.0/2.0) < tolerance { return "3:2" }
+        if abs(ratio - 5.0/4.0) < tolerance { return "5:4" }
+        if abs(ratio - 1.0) < tolerance { return "1:1" }
+        
+        // Return numeric ratio with 2 decimal places
+        return String(format: "%.2f:1", ratio)
+    }
+    
+    /// Detects if the current video is anamorphic and needs aspect ratio correction
+    private func isAnamorphicVideo() -> Bool {
+        // Get video dimensions from the current scene
+        guard let currentScene = currentScene,
+              let file = currentScene.files.first,
+              let width = file.width,
+              let height = file.height else {
+            return false
+        }
+        
+        print("🎥 Video dimensions: \(width)x\(height)")
+        
+        // Common anamorphic resolutions that should display as 16:9
+        let anamorphicResolutions: [(width: Int, height: Int)] = [
+            (1440, 1080), // Most common anamorphic format
+            (1920, 1440), // 4:3 anamorphic that should be 16:9
+            (960, 720),   // Smaller anamorphic format
+            (720, 540)    // Even smaller anamorphic format
+        ]
+        
+        // Check if current resolution matches any known anamorphic format
+        let isAnamorphic = anamorphicResolutions.contains { res in
+            width == res.width && height == res.height
+        }
+        
+        if isAnamorphic {
+            print("🎥 ✅ Detected anamorphic video: \(width)x\(height) - will correct to 16:9 aspect ratio")
+        } else {
+            print("🎥 ⚪ Standard video: \(width)x\(height) - no correction needed")
+        }
+        
+        return isAnamorphic
+    }
+    
+    /// Applies aspect ratio correction for anamorphic content
+    private func applyAspectRatioCorrection() {
+        guard let playerLayer = playerVC.view.layer.sublayers?.compactMap({ $0 as? AVPlayerLayer }).first else {
+            print("🎥 ❌ Could not find AVPlayerLayer for aspect ratio correction")
+            return
+        }
+        
+        // Store original video gravity
+        originalVideoGravity = playerLayer.videoGravity
+        
+        if isAnamorphicVideo() {
+            // For anamorphic content, use aspect fill to stretch the video to fill the screen properly
+            playerLayer.videoGravity = .resizeAspectFill
+            print("🎥 ✅ Applied aspect ratio correction: changed videoGravity to resizeAspectFill")
+            
+            // Apply additional transform to correct the aspect ratio mathematically
+            applyAnamorphicTransform(to: playerLayer)
+        } else {
+            // For standard content, ensure we use the default behavior
+            playerLayer.videoGravity = .resizeAspect
+            print("🎥 ⚪ Using standard aspect ratio for non-anamorphic content")
+        }
+        
+        isAspectRatioCorrected = true
+    }
+    
+    /// Applies a mathematical transform to correct anamorphic aspect ratio
+    private func applyAnamorphicTransform(to playerLayer: AVPlayerLayer) {
+        // Get video dimensions
+        guard let currentScene = currentScene,
+              let file = currentScene.files.first,
+              let width = file.width,
+              let height = file.height else {
+            return
+        }
+        
+        // Calculate the correction factor needed
+        let currentAspectRatio = Double(width) / Double(height)
+        let targetAspectRatio = 16.0 / 9.0 // Target 16:9 aspect ratio
+        
+        // For 1440x1080 (4:3), we need to stretch horizontally to achieve 16:9
+        let correctionFactor = targetAspectRatio / currentAspectRatio
+        
+        print("🎥 Transform calculation:")
+        print("  Current aspect ratio: \(currentAspectRatio) (\(width)x\(height))")
+        print("  Target aspect ratio: \(targetAspectRatio) (16:9)")
+        print("  Correction factor: \(correctionFactor)")
+        
+        // Apply transform to stretch the video horizontally
+        let transform = CATransform3DMakeScale(correctionFactor, 1.0, 1.0)
+        playerLayer.transform = transform
+        
+        print("🎥 ✅ Applied anamorphic transform with horizontal scale: \(correctionFactor)")
+    }
+    
+    /// Resets aspect ratio correction
+    private func resetAspectRatioCorrection() {
+        guard let playerLayer = playerVC.view.layer.sublayers?.compactMap({ $0 as? AVPlayerLayer }).first else {
+            return
+        }
+        
+        playerLayer.videoGravity = originalVideoGravity
+        playerLayer.transform = CATransform3DIdentity
+        isAspectRatioCorrected = false
+        print("🎥 🔄 Reset aspect ratio correction")
+    }
+    
+    /// Updates the current scene for aspect ratio detection
+    func updateScene(_ scene: StashScene) {
+        currentScene = scene
+        
+        // Auto-apply aspect ratio correction if the video is anamorphic
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            if self.isAnamorphicVideo() && !self.isAspectRatioCorrected {
+                print("🎥 Auto-applying aspect ratio correction for anamorphic video")
+                self.applyAspectRatioCorrection()
+            }
+        }
+    }
+    
 }
 
 struct VideoPlayerView: View {
@@ -331,6 +559,8 @@ struct VideoPlayerView: View {
     @State private var isRandomJumpMode: Bool = false
     // Track whether we're in marker shuffle mode
     @State private var isMarkerShuffleMode: Bool = false
+    // Prevent rapid-fire performer shuffle calls
+    @State private var isPerformerShuffleInProgress: Bool = false
     
     init(scene: StashScene, startTime: Double? = nil, endTime: Double? = nil) {
         self.scene = scene
@@ -651,6 +881,9 @@ struct VideoPlayerView: View {
             .onAppear {
                 print("📱 VideoPlayerView appeared")
                 appModel.currentScene = scene
+                
+                // Add scene to watch history when video player appears
+                addToWatchHistory()
 
                 // Check if this is a marker navigation
                 let isMarkerNavigation = UserDefaults.standard.bool(forKey: "scene_\(scene.id)_isMarkerNavigation")
@@ -1116,11 +1349,21 @@ extension VideoPlayerView {
                 if let randomScene = filteredScenes.randomElement() {
                     print("✅ Selected random scene with female performer: \(randomScene.title ?? "Untitled")")
                     
-                    // Update the current scene reference
+                    // Update the current scene reference AND add to watch history
                     await MainActor.run {
-                        print("🔄 Updating current scene reference")
+                        print("🔄 Updating current scene reference and adding to watch history")
                         currentScene = randomScene
                         appModel.currentScene = randomScene
+                        
+                        // IMPORTANT: Add to watch history (avoid duplicates of consecutive same scene)
+                        if appModel.watchHistory.last?.id != randomScene.id {
+                            appModel.watchHistory.append(randomScene)
+                            // Keep history to reasonable size (last 20 scenes)
+                            if appModel.watchHistory.count > 20 {
+                                appModel.watchHistory = Array(appModel.watchHistory.suffix(20))
+                            }
+                            print("🔄 SHUFFLE: Added to watch history: \(randomScene.title ?? "Untitled") (history count: \(appModel.watchHistory.count))")
+                        }
                         
                         // When shuffling to a new scene, update the original performer to first female performer
                         // But ONLY if we don't already have an original performer set
@@ -1549,10 +1792,20 @@ extension VideoPlayerView {
         if let randomScene = filteredScenes.randomElement() {
             print("✅ Selected fallback random scene: \(randomScene.title ?? "Untitled")")
             
-            // Update the current scene reference
+            // Update the current scene reference AND add to watch history
             await MainActor.run {
                 currentScene = randomScene
                 appModel.currentScene = randomScene
+                
+                // IMPORTANT: Add to watch history (avoid duplicates of consecutive same scene)
+                if appModel.watchHistory.last?.id != randomScene.id {
+                    appModel.watchHistory.append(randomScene)
+                    // Keep history to reasonable size (last 20 scenes)
+                    if appModel.watchHistory.count > 20 {
+                        appModel.watchHistory = Array(appModel.watchHistory.suffix(20))
+                    }
+                    print("🔄 FALLBACK SHUFFLE: Added to watch history: \(randomScene.title ?? "Untitled") (history count: \(appModel.watchHistory.count))")
+                }
                 
                 // When shuffling to a new scene, update the original performer
                 if let newPerformer = randomScene.performers.first {
@@ -1596,6 +1849,22 @@ extension VideoPlayerView {
     private func playPerformerRandomVideo() {
         print("🎯 PERFORMER BUTTON: Starting performer random video function")
         
+        // Prevent rapid-fire calls
+        guard !isPerformerShuffleInProgress else {
+            print("🎯 PERFORMER BUTTON: Already in progress, ignoring duplicate call")
+            return
+        }
+        
+        isPerformerShuffleInProgress = true
+        
+        // Add timeout to prevent getting stuck in shuffle state
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
+            if self.isPerformerShuffleInProgress {
+                print("⚠️ PERFORMER BUTTON: Timeout reached, resetting shuffle flag")
+                self.isPerformerShuffleInProgress = false
+            }
+        }
+        
         // Clear shuffle context when doing performer random jumps to prevent empty queue issues
         if appModel.isMarkerShuffleMode {
             print("🎯 PERFORMER BUTTON: Clearing shuffle context to prevent empty queue issues")
@@ -1611,37 +1880,66 @@ extension VideoPlayerView {
         print("📊 CONTEXT DEBUG - playPerformerRandomVideo:")
         print("📊   Current performer: \(appModel.currentPerformer?.name ?? "none")")
         print("📊   Original performer: \(originalPerformer?.name ?? "none")")
+        print("📊   PerformerDetailView performer: \(appModel.performerDetailViewPerformer?.name ?? "none")")
         print("📊   Context scenes count: \(appModel.api.scenes.count)")
 
         print("🎯 PERFORMER BUTTON: Current scene: \(currentScene.title ?? "Untitled") (ID: \(currentScene.id))")
         
+        // PERFORMER DETAIL VIEW OVERRIDE: If we have a performerDetailViewPerformer, use it exclusively
+        if let performerDetailPerformer = appModel.performerDetailViewPerformer {
+            print("🎯 PERFORMER DETAIL OVERRIDE: Using PerformerDetailView performer: \(performerDetailPerformer.name)")
+            print("🎯 RESETTING: Clearing originalPerformer and using detail view performer")
+            originalPerformer = performerDetailPerformer
+        } else {
+            // CONTEXT CONFLICT DETECTION: Check if we have a currentPerformer context that differs from originalPerformer
+            if let currentPerformer = appModel.currentPerformer,
+               let originalPerf = originalPerformer,
+               currentPerformer.id != originalPerf.id {
+                print("🎯 CONTEXT CONFLICT DETECTED:")
+                print("📊   Original performer: \(originalPerf.name) (ID: \(originalPerf.id))")
+                print("📊   Current performer context: \(currentPerformer.name) (ID: \(currentPerformer.id))")
+                print("🎯 RESOLUTION: Using current performer context and updating originalPerformer")
+                
+                // Reset originalPerformer to match current context
+                originalPerformer = currentPerformer
+            }
+        }
+        
         // Determine which performer to use
         var selectedPerformer: StashScene.Performer?
         
-        // FIXED: Always prioritize appModel.currentPerformer if set (from PerformerDetailView)
-        // This ensures that when we're on a specific performer's page, we always use that performer
-        if let currentPerformer = appModel.currentPerformer {
-            print("🎯 PERFORMER BUTTON: Using current performer from detail view: \(currentPerformer.name) (gender: \(currentPerformer.gender ?? "unknown"))")
-            selectedPerformer = currentPerformer
+        // First try to use the original performer if available
+        if let originalPerf = originalPerformer {
+            print("🎯 PERFORMER BUTTON: Original performer is: \(originalPerf.name) (ID: \(originalPerf.id))")
             
-            // Update originalPerformer to maintain consistency
-            originalPerformer = currentPerformer
-        } else if let originalPerformer = originalPerformer {
-            // Fall back to original performer if no current performer context
-            print("🎯 PERFORMER BUTTON: Using original performer: \(originalPerformer.name)")
-            selectedPerformer = originalPerformer
+            // Check if the original performer is in the current scene
+            if currentScene.performers.contains(where: { $0.id == originalPerf.id }) {
+                // If yes, use the original performer
+                selectedPerformer = originalPerf
+                print("🎯 PERFORMER BUTTON: Using original performer (found in current scene)")
+            } else {
+                // If original performer isn't in current scene, use the first performer from current scene
+                selectedPerformer = currentScene.performers.first
+                print("🎯 PERFORMER BUTTON: Original performer not in current scene, using first performer from current scene")
+                
+                // Update the originalPerformer to match this new performer
+                originalPerformer = selectedPerformer
+            }
         } else {
-            // Final fallback - use female performer from current scene
-            print("🎯 PERFORMER BUTTON: No performer context - defaulting to female from current scene")
-            selectedPerformer = currentScene.performers.first(where: { $0.gender == "FEMALE" }) ?? currentScene.performers.first
+            // If no original performer is set, use the first performer from the current scene
+            selectedPerformer = currentScene.performers.first
+            print("🎯 PERFORMER BUTTON: No original performer stored, using first performer from current scene")
             
-            // Update originalPerformer to track our selection
+            // Set this as the original performer
             originalPerformer = selectedPerformer
         }
 
         // Make sure we have a performer to work with
         guard let selectedPerformer = selectedPerformer else {
             print("⚠️ PERFORMER BUTTON: No performers in the current scene, cannot shuffle")
+            
+            // Reset performer shuffle flag
+            isPerformerShuffleInProgress = false
             
             // Just play a random position in current scene instead
             playNextScene()
@@ -1721,11 +2019,21 @@ extension VideoPlayerView {
                 if let randomScene = otherScenes.randomElement() ?? (performerScenes.count > 0 ? performerScenes[0] : nil) {
                     print("🎯 PERFORMER BUTTON: Selected scene: \(randomScene.title ?? "Untitled") (ID: \(randomScene.id))")
 
-                    // Update the current scene reference
+                    // Update the current scene reference AND add to watch history
                     await MainActor.run {
-                        print("🎯 PERFORMER BUTTON: Updating current scene reference")
+                        print("🎯 PERFORMER BUTTON: Updating current scene reference and adding to watch history")
                         currentScene = randomScene
                         appModel.currentScene = randomScene
+                        
+                        // IMPORTANT: Add to watch history (avoid duplicates of consecutive same scene)
+                        if appModel.watchHistory.last?.id != randomScene.id {
+                            appModel.watchHistory.append(randomScene)
+                            // Keep history to reasonable size (last 20 scenes)
+                            if appModel.watchHistory.count > 20 {
+                                appModel.watchHistory = Array(appModel.watchHistory.suffix(20))
+                            }
+                            print("🎯 PERFORMER BUTTON: Added to watch history: \(randomScene.title ?? "Untitled") (history count: \(appModel.watchHistory.count))")
+                        }
                     }
 
                     // Get the player from the current view controller
@@ -1825,9 +2133,15 @@ extension VideoPlayerView {
                             Task {
                                 await scheduleControlsHide()
                             }
+                            // Reset performer shuffle flag
+                            isPerformerShuffleInProgress = false
                         }
                     } else {
                         print("⚠️ PERFORMER BUTTON: Failed to get player reference")
+                        // Reset performer shuffle flag on error
+                        await MainActor.run {
+                            isPerformerShuffleInProgress = false
+                        }
                     }
                 } else {
                     print("⚠️ PERFORMER BUTTON: No other scenes found with performer \(selectedPerformer.name), trying broader search for the same performer")
@@ -1881,11 +2195,21 @@ extension VideoPlayerView {
                         if let randomScene = otherPerformerScenes.randomElement() {
                             print("🎯 PERFORMER BUTTON: Selected scene with same performer: \(randomScene.title ?? "Untitled") (ID: \(randomScene.id))")
                             
-                            // Update the current scene reference
+                            // Update the current scene reference AND add to watch history
                             await MainActor.run {
-                                print("🎯 PERFORMER BUTTON: Updating current scene reference")
+                                print("🎯 PERFORMER BUTTON: Updating current scene reference and adding to watch history")
                                 currentScene = randomScene
                                 appModel.currentScene = randomScene
+                                
+                                // IMPORTANT: Add to watch history (avoid duplicates of consecutive same scene)
+                                if appModel.watchHistory.last?.id != randomScene.id {
+                                    appModel.watchHistory.append(randomScene)
+                                    // Keep history to reasonable size (last 20 scenes)
+                                    if appModel.watchHistory.count > 20 {
+                                        appModel.watchHistory = Array(appModel.watchHistory.suffix(20))
+                                    }
+                                    print("🎯 PERFORMER BUTTON (FALLBACK): Added to watch history: \(randomScene.title ?? "Untitled") (history count: \(appModel.watchHistory.count))")
+                                }
                                 
                                 // IMPORTANT: Keep the original performer reference unchanged
                                 print("🎯 PERFORMER BUTTON (FALLBACK): Keeping original performer: \(selectedPerformer.name)")
@@ -1915,11 +2239,18 @@ extension VideoPlayerView {
                                     Task {
                                         await scheduleControlsHide()
                                     }
+                                    // Reset performer shuffle flag
+                                    isPerformerShuffleInProgress = false
                                 }
                             }
                         } else {
                             // If no other scenes with this performer exist at all, just keep playing current scene
                             print("⚠️ PERFORMER BUTTON: No scenes at all found with performer \(selectedPerformer.name), staying with current scene")
+                            
+                            // Reset performer shuffle flag
+                            await MainActor.run {
+                                isPerformerShuffleInProgress = false
+                            }
                             
                             // Jump to a random position in the current scene instead
                             playNextScene()
@@ -1930,6 +2261,11 @@ extension VideoPlayerView {
                         }
                     } catch {
                         print("⚠️ PERFORMER BUTTON: Error fetching scenes: \(error.localizedDescription)")
+                        
+                        // Reset performer shuffle flag on error
+                        await MainActor.run {
+                            isPerformerShuffleInProgress = false
+                        }
                         
                         // Jump to a random position in the current scene instead
                         playNextScene()
@@ -1960,10 +2296,20 @@ extension VideoPlayerView {
                 print("🎯 PERFORMER BUTTON: Found \(otherScenes.count) scenes with performer using fallback method")
 
                 if let randomScene = otherScenes.randomElement() ?? appModel.api.scenes.first {
-                    // Update scene and play it (same implementation as above)
+                    // Update scene and play it (same implementation as above) AND add to watch history
                     await MainActor.run {
                         currentScene = randomScene
                         appModel.currentScene = randomScene
+                        
+                        // IMPORTANT: Add to watch history (avoid duplicates of consecutive same scene)
+                        if appModel.watchHistory.last?.id != randomScene.id {
+                            appModel.watchHistory.append(randomScene)
+                            // Keep history to reasonable size (last 20 scenes)
+                            if appModel.watchHistory.count > 20 {
+                                appModel.watchHistory = Array(appModel.watchHistory.suffix(20))
+                            }
+                            print("🎯 PERFORMER BUTTON (API FALLBACK): Added to watch history: \(randomScene.title ?? "Untitled") (history count: \(appModel.watchHistory.count))")
+                        }
                     }
 
                     if let player = getCurrentPlayer() {
@@ -2377,6 +2723,12 @@ extension VideoPlayerView {
             restartFromBeginning()
             return .handled
             
+        case "a":
+            // Toggle aspect ratio correction
+            print("🎹 Keyboard shortcut: A - Toggle aspect ratio correction")
+            toggleAspectRatioFromVideoPlayer()
+            return .handled
+            
         default:
             break
         }
@@ -2432,6 +2784,10 @@ extension VideoPlayerView {
         case .keyboardR:
             print("🎹 Menu shortcut: R - Restart from beginning")
             restartFromBeginning()
+            
+        case .keyboardA:
+            print("🎹 Menu shortcut: A - Toggle aspect ratio correction")
+            toggleAspectRatioFromVideoPlayer()
             
         case .keyboardLeftArrow:
             print("🎹 Menu shortcut: ← - Seek backward 30 seconds")
@@ -2492,6 +2848,32 @@ extension VideoPlayerView {
         // Provide haptic feedback
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
+    }
+    
+    /// Toggle aspect ratio correction from VideoPlayerView
+    private func toggleAspectRatioFromVideoPlayer() {
+        // Get the current CustomPlayerViewController from the registry
+        if let customVC = VideoPlayerRegistry.shared.playerViewController?.parent as? CustomPlayerViewController {
+            print("🎥 Found CustomPlayerViewController, toggling aspect ratio")
+            customVC.toggleAspectRatio()
+        } else {
+            print("⚠️ Could not find CustomPlayerViewController for aspect ratio toggle")
+        }
+    }
+    
+    /// Add scene to watch history when video starts playing
+    private func addToWatchHistory() {
+        // Add current scene to watch history (avoid duplicates)
+        if appModel.watchHistory.last?.id != currentScene.id {
+            appModel.watchHistory.append(currentScene)
+            // Keep history to reasonable size (last 20 scenes)
+            if appModel.watchHistory.count > 20 {
+                appModel.watchHistory = Array(appModel.watchHistory.suffix(20))
+            }
+            print("🎯 HISTORY - Added to watch history from VideoPlayerView: \(currentScene.title ?? "Untitled") (history count: \(appModel.watchHistory.count))")
+        } else {
+            print("🎯 HISTORY - Skipping duplicate scene in VideoPlayerView: \(currentScene.title ?? "Untitled")")
+        }
     }
     
 }
@@ -2635,8 +3017,9 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
         playerVC.allowsPictureInPicturePlayback = true
         playerVC.showsPlaybackControls = true
         
-        // Create our custom wrapper
-        let customVC = CustomPlayerViewController(playerVC: playerVC)
+        // Create our custom wrapper with scene information for aspect ratio correction
+        let currentScene = scenes.indices.contains(currentIndex) ? scenes[currentIndex] : nil
+        let customVC = CustomPlayerViewController(playerVC: playerVC, scene: currentScene)
         
         // CRITICAL: Force playback to start immediately
         print("▶️ Attempting to force immediate playback")

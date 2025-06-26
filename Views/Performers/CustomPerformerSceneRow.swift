@@ -4,6 +4,7 @@ import SwiftUI
 /// with direct performer navigation
 struct CustomPerformerSceneRow: View {
     let scene: StashScene
+    let performer: StashScene.Performer // Add performer context
     @EnvironmentObject private var appModel: AppModel
     
     var body: some View {
@@ -19,6 +20,9 @@ struct CustomPerformerSceneRow: View {
                         .fill(Color.gray.opacity(0.2))
                 }
                 .onTapGesture {
+                    // Set performer context before navigation
+                    appModel.currentPerformer = performer
+                    print("🎯 PERFORMER CONTEXT: Set currentPerformer to \(performer.name) before navigation")
                     appModel.navigateToScene(scene)
                 }
             }
@@ -29,6 +33,9 @@ struct CustomPerformerSceneRow: View {
             VStack(alignment: .leading, spacing: 8) {
                 // Title
                 Button(action: {
+                    // Set performer context before navigation
+                    appModel.currentPerformer = performer
+                    print("🎯 PERFORMER CONTEXT: Set currentPerformer to \(performer.name) before navigation")
                     appModel.navigateToScene(scene)
                 }) {
                     Text(scene.title ?? "Untitled")

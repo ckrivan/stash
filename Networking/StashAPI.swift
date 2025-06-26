@@ -1055,6 +1055,13 @@ class StashAPI: ObservableObject {
         }
     }
     
+    // MARK: - VR Exclusion Method
+    func fetchScenesExcludingVR(page: Int = 1, sort: String = "created_at", direction: String = "DESC", appendResults: Bool = false) async {
+        print("🔄 StashAPI.fetchScenesExcludingVR called - page: \(page), sort: \(sort), direction: \(direction)")
+        // Just call the regular fetchScenes method - it already filters out VR content
+        await fetchScenes(page: page, sort: sort, direction: direction, appendResults: appendResults)
+    }
+    
     // MARK: - Execute GraphQL Query Methods
 
     // Add the missing executeGraphQLQuery method with generic type and completion handler
