@@ -163,12 +163,9 @@ struct PerformerDetailView: View {
                         print("💫 Not reloading scenes as we already have \(performerScenes.count) scenes")
                     }
                 } else {
-                    // Markers tab selected
-                    if appModel.api.markers.isEmpty {
-                        await loadMarkers()
-                    } else {
-                        print("💫 Not reloading markers as we already have \(appModel.api.markers.count) markers")
-                    }
+                    // Markers tab selected - always reload to ensure correct performer
+                    print("💫 Markers tab selected - loading markers for performer: \(performer.name)")
+                    await loadMarkers()
                 }
             }
         }
@@ -298,7 +295,7 @@ struct PerformerDetailView: View {
         ScrollView {
             VStack(spacing: 0) {
                 // Add debug Text to show actual markers count
-                Text("Debug: \(appModel.api.markers.count) markers, \(markerCount) total")
+                Text("Debug: \(appModel.api.markers.count) markers, \(markerCount) total, Loading: \(isLoadingMarkers)")
                     .font(.caption)
                     .foregroundColor(.gray)
                     .padding(.top, 4)
@@ -531,11 +528,8 @@ struct PerformerDetailView: View {
             return
         }
 
-        // Check if we already have markers loaded
-        if !appModel.api.markers.isEmpty {
-            print("✅ LOADMARKERS - Already have \(appModel.api.markers.count) markers, skipping load")
-            return
-        }
+        // Always load markers for the current performer to ensure we have the right ones
+        print("🔄 LOADMARKERS - Loading markers for current performer (clearing any existing)")
 
         // Set loading flag and clear existing markers
         await MainActor.run {
@@ -546,16 +540,27 @@ struct PerformerDetailView: View {
 
         print("🔄 LOADMARKERS - Calling fetchPerformerMarkers for performer \(performer.id)")
         await appModel.api.fetchPerformerMarkers(performerId: performer.id, page: 1, appendResults: false)
-        print("✅ LOADMARKERS - Loaded \(appModel.api.markers.count) markers for performer: \(performer.name)")
         
-        // Reset loading flag
         await MainActor.run {
+            print("✅ LOADMARKERS - Loaded \(appModel.api.markers.count) markers for performer: \(performer.name)")
+            
+            // Verify these are the correct performer's markers
+            if let firstMarker = appModel.api.markers.first {
+                print("✅ LOADMARKERS - First marker belongs to scene: \(firstMarker.scene.title)")
+                if let performers = firstMarker.scene.performers,
+                   let markerPerformer = performers.first(where: { $0.id == performer.id }) {
+                    print("✅ LOADMARKERS - Confirmed: Markers belong to performer \(markerPerformer.name)")
+                } else {
+                    print("⚠️ LOADMARKERS - WARNING: First marker doesn't belong to current performer!")
+                }
+            }
+            
             isLoadingMarkers = false
         }
     }
     
     private func shuffleAndPlayScene() {
-        print("🎲 Shuffle scenes for performer: \(performer.name)")
+        print("🎲 Gender-aware shuffle for performer: \(performer.name) (gender: \(performer.gender ?? "unknown"))")
         
         // SHUFFLE RESET: Clear any previous shuffle context before starting new shuffle
         print("🎯 SHUFFLE RESET: Clearing all shuffle context before performer shuffle")
@@ -584,61 +589,13 @@ struct PerformerDetailView: View {
             return
         }
         
-        // Get a random scene from available scenes
-        guard let randomScene = availableScenes.randomElement() else {
-            print("⚠️ Could not get random scene")
-            return
-        }
-        
-        print("🎲 Selected random scene: \(randomScene.title ?? "Untitled") from \(availableScenes.count) available scenes")
-        
-        // FIXED: Ensure currentPerformer is set before navigation to maintain context
+        // GENDER-AWARE SHUFFLE: Set performer context before shuffle
         appModel.currentPerformer = performer
         appModel.performerDetailViewPerformer = performer
-        print("🎯 SHUFFLE - Set currentPerformer and performerDetailViewPerformer to: \(performer.name)")
+        print("🎯 SHUFFLE - Set performer context: \(performer.name) (gender: \(performer.gender ?? "unknown"))")
         
-        // Navigate to the scene first
-        appModel.navigateToScene(randomScene)
-        
-        // Then jump to a random position after the player is initialized
-        // This matches the behavior in SceneRow
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-            // Look for the player from the registry
-            if let player = VideoPlayerRegistry.shared.currentPlayer {
-                print("🎲 Got player from registry, attempting to jump to random position")
-                
-                // Check if the player is ready
-                if let currentItem = player.currentItem, currentItem.status == .readyToPlay {
-                    print("🎲 Player is ready, jumping to random position")
-                    VideoPlayerUtility.jumpToRandomPosition(in: player)
-                } else {
-                    print("🎲 Player not ready yet, will retry in 1.5 seconds")
-                    
-                    // Retry after another delay
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                        if let player = VideoPlayerRegistry.shared.currentPlayer,
-                           let currentItem = player.currentItem,
-                           currentItem.status == .readyToPlay {
-                            print("🎲 Player is now ready (retry), jumping to random position")
-                            VideoPlayerUtility.jumpToRandomPosition(in: player)
-                        } else {
-                            print("🎲 Player still not ready after retry")
-                            
-                            // One final attempt with a longer delay
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                                if let player = VideoPlayerRegistry.shared.currentPlayer {
-                                    print("🎲 Final attempt to jump to random position")
-                                    // Force the jump even if not fully ready
-                                    VideoPlayerUtility.jumpToRandomPosition(in: player)
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                print("⚠️ Failed to get player from registry")
-            }
-        }
+        // Use the new gender-aware shuffle method
+        appModel.shufflePerformerScenes(fromScenes: availableScenes, currentPerformer: performer)
     }
     
     private func getMarkerCount() async -> Int {

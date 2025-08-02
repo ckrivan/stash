@@ -3058,6 +3058,62 @@ class StashAPI: ObservableObject {
         print("🔍 Found \(markerResponse.data.findSceneMarkers.count) markers with tag '\(tag.name)'")
         return markerResponse.data.findSceneMarkers.scene_markers
     }
+    
+    /// Search for markers by tag suffix pattern (e.g., find all tags ending with "_ai")
+    func searchMarkersBySuffix(suffix: String) async {
+        print("🔍 Searching for markers with tags ending in '_\(suffix)'")
+        
+        do {
+            // First, get all tags that end with the suffix
+            let allTags = try await searchTags(query: suffix)
+            let matchingTags = allTags.filter { $0.name.lowercased().hasSuffix("_\(suffix.lowercased())") }
+            
+            print("🏷️ Found \(matchingTags.count) tags ending with '_\(suffix)': \(matchingTags.map { $0.name })")
+            
+            if matchingTags.isEmpty {
+                await MainActor.run {
+                    self.markers = []
+                    self.totalMarkerCount = 0
+                    self.isLoading = false
+                }
+                print("⚠️ No tags found ending with '_\(suffix)'")
+                return
+            }
+            
+            // Collect all markers from all matching tags
+            var allSuffixMarkers: [SceneMarker] = []
+            
+            for tag in matchingTags {
+                print("🔄 Fetching markers for tag: \(tag.name)")
+                
+                // Use the existing exact tag search method
+                let tagMarkers = try await searchMarkersByExactTag(tagName: tag.name)
+                
+                // Add unique markers to avoid duplicates
+                let uniqueMarkers = tagMarkers.filter { newMarker in
+                    !allSuffixMarkers.contains { $0.id == newMarker.id }
+                }
+                allSuffixMarkers.append(contentsOf: uniqueMarkers)
+                
+                print("📊 Tag '\(tag.name)': Found \(tagMarkers.count) markers, \(uniqueMarkers.count) unique (Total: \(allSuffixMarkers.count))")
+            }
+            
+            await MainActor.run {
+                self.markers = allSuffixMarkers
+                self.totalMarkerCount = allSuffixMarkers.count
+                self.isLoading = false
+                print("✅ Suffix search complete: Found \(allSuffixMarkers.count) total markers for pattern '_\(suffix)'")
+            }
+            
+        } catch {
+            await MainActor.run {
+                print("❌ Error searching markers by suffix: \(error)")
+                self.markers = []
+                self.error = error
+                self.isLoading = false
+            }
+        }
+    }
 
     /// Helper method that updates the internal markers array with search results
     /// - Parameter query: Search term

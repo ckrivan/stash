@@ -6,6 +6,20 @@ struct MarkersSearchResultsView: View {
     let onMarkerAppear: ((SceneMarker) -> Void)?
     @EnvironmentObject private var appModel: AppModel
     
+    @State private var selectedTagIds: Set<String> = []
+    @State private var selectedTagNames: Set<String> = []
+    @State private var selectedSearchTerms: Set<String> = []
+    @State private var pendingTagSelections: Set<String> = []
+    @State private var isMultiTagMode: Bool = false
+    @State private var showingTagSelector = false
+    @State private var availableTags: [SceneMarker.Tag] = []
+    @State private var markerSearchText: String = ""
+    @State private var combinedMarkers: [SceneMarker] = []
+    @State private var isLoadingCombined = false
+    @State private var searchResults: [SceneMarker] = []
+    @State private var isSearching = false
+    @State private var combinedTotalCount: Int = 0
+    
     init(markers: [SceneMarker], totalCount: Int? = nil, onMarkerAppear: ((SceneMarker) -> Void)? = nil) {
         self.markers = markers
         self.totalCount = totalCount
@@ -46,18 +60,213 @@ struct MarkersSearchResultsView: View {
         }
     }
     
+    // Multi-tag helper functions
+    private func extractAvailableTags() {
+        // Just get tags from current search results
+        let currentTags = Set(markers.flatMap { marker in
+            [marker.primary_tag] + marker.tags
+        })
+        
+        availableTags = Array(currentTags).sorted { $0.name.lowercased() < $1.name.lowercased() }
+        print("🏷️ Available tags from current results: \(availableTags.count)")
+    }
+    
+    
+    private func searchForTags(_ query: String) async {
+        guard !query.isEmpty else { return }
+        
+        isSearching = true
+        print("🔍 Searching for tags matching: '\(query)'")
+        
+        // Use a separate API call that doesn't interfere with current markers
+        do {
+            let searchedMarkers = try await appModel.api.searchMarkers(query: query, page: 1, perPage: 100)
+            
+            await MainActor.run {
+                // Get unique tags from the search results (preserve original case)
+                let uniqueTags = Set(searchedMarkers.map { $0.primary_tag.name })
+                
+                // Filter to tags that contain our search query and aren't already selected
+                let matchingTags = uniqueTags.filter { tagName in
+                    tagName.lowercased().contains(query.lowercased()) && !selectedSearchTerms.contains(tagName)
+                }
+                
+                // Create results using real markers that have matching tags
+                searchResults = Array(matchingTags.prefix(10).compactMap { tagName in
+                    // Find a real marker with this tag to use
+                    searchedMarkers.first(where: { $0.primary_tag.name == tagName })
+                })
+                
+                isSearching = false
+                print("🔍 Found \(matchingTags.count) unique tags matching '\(query)': \(matchingTags.sorted())")
+            }
+        } catch {
+            await MainActor.run {
+                print("🔍 Error searching for tags: \(error)")
+                searchResults = []
+                isSearching = false
+            }
+        }
+    }
+    
+    private func loadCombinedMarkers() async {
+        guard !selectedSearchTerms.isEmpty else {
+            await MainActor.run {
+                combinedMarkers = markers
+                isLoadingCombined = false
+            }
+            return
+        }
+        
+        print("🔄 Loading combined markers for current search + selected search terms")
+        await MainActor.run {
+            isLoadingCombined = true
+        }
+        
+        var allCombinedMarkers = Set<SceneMarker>()
+        var totalEstimatedCount = 0
+        
+        // Start with current search results
+        for marker in markers {
+            allCombinedMarkers.insert(marker)
+        }
+        print("🔄 Added \(markers.count) markers from current search")
+        
+        // Get the actual total count for each tag from the server
+        // We'll show the count but only load first page for UI responsiveness
+        for searchTerm in selectedSearchTerms {
+            print("🔄 Getting total count for search term: '\(searchTerm)'")
+            
+            do {
+                // First get the total count by fetching just 1 marker
+                let countQuery = """
+                {
+                    "operationName": "FindSceneMarkers",
+                    "variables": {
+                        "filter": {
+                            "q": "\(searchTerm)",
+                            "page": 1,
+                            "per_page": 1,
+                            "sort": "title",
+                            "direction": "ASC"
+                        }
+                    },
+                    "query": "query FindSceneMarkers($filter: FindFilterType) { findSceneMarkers(filter: $filter) { count } }"
+                }
+                """
+                
+                let countData = try await appModel.api.executeGraphQLQuery(countQuery)
+                
+                struct CountResponse: Decodable {
+                    struct Data: Decodable {
+                        struct FindSceneMarkers: Decodable {
+                            let count: Int
+                        }
+                        let findSceneMarkers: FindSceneMarkers
+                    }
+                    let data: Data
+                }
+                
+                let response = try JSONDecoder().decode(CountResponse.self, from: countData)
+                let tagCount = response.data.findSceneMarkers.count
+                totalEstimatedCount += tagCount
+                print("🔄 Tag '\(searchTerm)' has \(tagCount) total markers")
+                
+                // Now load first page of actual markers for UI display
+                let searchMarkers = try await appModel.api.searchMarkers(query: searchTerm, page: 1, perPage: 100)
+                
+                // Filter to exact matches only
+                let exactMatches = searchMarkers.filter { marker in
+                    marker.primary_tag.name.lowercased() == searchTerm.lowercased()
+                }
+                
+                for marker in exactMatches {
+                    allCombinedMarkers.insert(marker)
+                }
+                print("🔄 Added \(exactMatches.count) exact match markers for display")
+            } catch {
+                print("❌ Error loading markers for '\(searchTerm)': \(error)")
+            }
+        }
+        
+        // Add current search count if available
+        if let currentTotalCount = totalCount {
+            totalEstimatedCount += currentTotalCount
+        }
+        
+        await MainActor.run {
+            combinedMarkers = Array(allCombinedMarkers)
+            combinedTotalCount = totalEstimatedCount
+            isLoadingCombined = false
+            
+            // Store the estimated total for display
+            // Note: This is the TRUE total from server, not just what we loaded
+            print("✅ Combined estimated total: \(totalEstimatedCount) markers from \(1 + selectedSearchTerms.count) searches")
+            print("✅ Loaded \(combinedMarkers.count) unique markers for UI display")
+        }
+    }
+    
+    private func toggleTagSelection(_ tag: SceneMarker.Tag) {
+        if selectedTagIds.contains(tag.id) {
+            selectedTagIds.remove(tag.id)
+        } else {
+            selectedTagIds.insert(tag.id)
+        }
+        print("🏷️ Selected tags: \(selectedTagIds.count)")
+    }
+
     private var prominentShuffleButton: some View {
         VStack(spacing: 8) {
-            // Big prominent shuffle button
-            Button(action: {
+            // Button row with Shuffle All and Add Tags
+            HStack(spacing: 12) {
+                // Big prominent shuffle button
+                Button(action: {
                 print("🎲 PROMINENT SHUFFLE BUTTON TAPPED - LOADING ALL MARKERS FROM API")
                 print("🎲 Current displayed markers: \(markers.count)")
                 
-                // Always treat marker search results as text-based searches to get ALL matching markers
-                // This ensures we fetch all markers from the server, not just the displayed ones
-                if !markers.isEmpty {
-                    // Check if we can extract the search query from the markers
-                    // For text searches like "cumshot", we want ALL markers containing that term
+                // Check if we're in multi-search mode
+                if isMultiTagMode && !selectedSearchTerms.isEmpty {
+                    print("🎲 Multi-search shuffle mode: \(selectedSearchTerms.count) searches selected: \(Array(selectedSearchTerms))")
+                    print("🎲 Using \(combinedMarkers.count) combined markers")
+                    
+                    // Create combined search terms for display
+                    var allSearchTerms: [String] = []
+                    
+                    // Extract actual tag names from the current markers (preserve original case)
+                    let currentTags = Set(markers.map { $0.primary_tag.name })
+                    allSearchTerms.append(contentsOf: currentTags)
+                    print("🎲 DEBUG - Current tags from markers: \(currentTags)")
+                    
+                    // Add selected search terms
+                    allSearchTerms.append(contentsOf: selectedSearchTerms)
+                    
+                    let searchTermsArray = Array(Set(allSearchTerms)) // Remove duplicates
+                    print("🎲 Combining tags for shuffle: \(searchTermsArray.joined(separator: " + "))")
+                    print("🎲 DEBUG - All search terms before deduplication: \(allSearchTerms)")
+                    print("🎲 DEBUG - Deduplicated search terms: \(searchTermsArray)")
+                    
+                    // Use the multi-tag shuffle function with combined markers
+                    print("🎲 Starting shuffle with \(combinedMarkers.count) combined markers")
+                    
+                    // Ensure we have markers to shuffle
+                    let markersToShuffle = !combinedMarkers.isEmpty ? combinedMarkers : markers
+                    
+                    if !markersToShuffle.isEmpty {
+                        print("🎲 Shuffling \(markersToShuffle.count) markers for tags: \(searchTermsArray.joined(separator: ", "))")
+                        
+                        // Debug: Print first few markers to verify they belong to the expected tags
+                        for (index, marker) in markersToShuffle.prefix(3).enumerated() {
+                            print("🎲 DEBUG - Sample marker \(index + 1): '\(marker.title)' - Tag: '\(marker.primary_tag.name)'")
+                        }
+                        
+                        // Start the multi-tag shuffle
+                        print("🎲 Calling startMarkerShuffle with tags: \(searchTermsArray)")
+                        appModel.startMarkerShuffle(forMultipleTags: [], tagNames: searchTermsArray, displayedMarkers: markersToShuffle)
+                    } else {
+                        print("❌ No markers available to shuffle!")
+                    }
+                } else if !markers.isEmpty {
+                    // Original single-tag/search logic
                     print("🎲 Marker search results detected - treating as text search")
                     
                     // Try to get search query from app model first
@@ -93,17 +302,48 @@ struct MarkersSearchResultsView: View {
                         .font(.system(size: 24, weight: .bold))
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Shuffle All")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        if let totalCount = totalCount {
-                            Text("Load ALL \(totalCount) matching markers from server")
+                        if isMultiTagMode && !selectedSearchTerms.isEmpty {
+                            Text("Shuffle Combined")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            
+                            // Show original search + selected search terms
+                            let displayTerms = {
+                                var terms: [String] = []
+                                if !appModel.searchQuery.isEmpty {
+                                    terms.append(appModel.searchQuery)
+                                }
+                                terms.append(contentsOf: selectedSearchTerms)
+                                return terms
+                            }()
+                            
+                            Text(displayTerms.joined(separator: " + "))
                                 .font(.caption)
                                 .opacity(0.9)
+                                .lineLimit(2)
+                            
+                            if isLoadingCombined {
+                                Text("Loading combined results...")
+                                    .font(.caption2)
+                                    .foregroundColor(.orange)
+                            } else if combinedTotalCount > 0 {
+                                Text("\(combinedTotalCount) total markers")
+                                    .font(.caption2)
+                                    .foregroundColor(.green)
+                            }
                         } else {
-                            Text("Load ALL matching markers from server")
-                                .font(.caption)
-                                .opacity(0.9)
+                            Text("Shuffle All")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            if let totalCount = totalCount {
+                                Text("Load ALL \(totalCount) matching markers from server")
+                                    .font(.caption)
+                                    .opacity(0.9)
+                            } else {
+                                Text("Load ALL matching markers from server")
+                                    .font(.caption)
+                                    .opacity(0.9)
+                            }
                         }
                     }
                     
@@ -124,9 +364,32 @@ struct MarkersSearchResultsView: View {
                 )
                 .cornerRadius(16)
                 .shadow(color: .purple.opacity(0.4), radius: 8, x: 0, y: 4)
+                }
+                .scaleEffect(appModel.isMarkerShuffleMode ? 0.95 : 1.0)
+                .animation(.spring(response: 0.3), value: appModel.isMarkerShuffleMode)
+                
+                // Add Tags button  
+                Button(action: {
+                    print("🏷️ Add Tags button tapped!")
+                    extractAvailableTags()
+                    showingTagSelector = true
+                    isMultiTagMode = true
+                }) {
+                    VStack(spacing: 4) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 24, weight: .bold))
+                        Text(selectedSearchTerms.isEmpty ? "Add More" : "Added (\(selectedSearchTerms.count))")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 16)
+                    .background(selectedSearchTerms.isEmpty ? Color.green : Color.blue)
+                    .cornerRadius(16)
+                    .shadow(color: .green.opacity(0.4), radius: 8, x: 0, y: 4)
+                }
             }
-            .scaleEffect(appModel.isMarkerShuffleMode ? 0.95 : 1.0)
-            .animation(.spring(response: 0.3), value: appModel.isMarkerShuffleMode)
             
             // Active shuffle status
             if appModel.isMarkerShuffleMode {
@@ -159,6 +422,175 @@ struct MarkersSearchResultsView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color(.systemBackground))
+        .onAppear {
+            extractAvailableTags()
+        }
+        .sheet(isPresented: $showingTagSelector) {
+            tagSelectorView
+        }
+    }
+    
+    private var tagSelectorView: some View {
+        NavigationView {
+            VStack(spacing: 20) {
+                // Search section
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Search for tags to add:")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                    
+                    TextField("Type tag name (e.g., missionary)", text: $markerSearchText)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .font(.body)
+                        .onChange(of: markerSearchText) { _, newValue in
+                            if !newValue.isEmpty && newValue.count > 1 {
+                                Task {
+                                    await searchForTags(newValue)
+                                }
+                            } else {
+                                searchResults = []
+                            }
+                        }
+                }
+                .padding(.horizontal)
+                
+                // Search results or loading
+                if isSearching {
+                    VStack(spacing: 12) {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                            .scaleEffect(1.2)
+                        Text("Searching...")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 40)
+                } else if !searchResults.isEmpty && !markerSearchText.isEmpty {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Tap tags to select (\(pendingTagSelections.count) selected):")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal)
+                        
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 12) {
+                            ForEach(searchResults.prefix(20), id: \.id) { marker in
+                                let tagName = marker.primary_tag.name
+                                let isSelected = pendingTagSelections.contains(tagName)
+                                
+                                Button(action: {
+                                    if isSelected {
+                                        pendingTagSelections.remove(tagName)
+                                    } else {
+                                        pendingTagSelections.insert(tagName)
+                                    }
+                                }) {
+                                    Text(tagName)
+                                        .font(.subheadline)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(isSelected ? .white : .primary)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 12)
+                                        .frame(minWidth: 100)
+                                        .background(isSelected ? Color.blue : Color(.systemGray5))
+                                        .cornerRadius(10)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+                                        )
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                } else if !markerSearchText.isEmpty {
+                    Text("No tags found matching '\(markerSearchText)'")
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                        .padding(.vertical, 40)
+                }
+                
+                Spacer()
+                
+                // Add Selected button
+                if !pendingTagSelections.isEmpty {
+                    Button("Add Selected (\(pendingTagSelections.count))") {
+                        // Move pending selections to selected search terms
+                        for tagName in pendingTagSelections {
+                            selectedSearchTerms.insert(tagName)
+                        }
+                        print("🎲 Added \(pendingTagSelections.count) tags. Total selected: \(selectedSearchTerms)")
+                        pendingTagSelections.removeAll()
+                        
+                        // Set multi-tag mode and load combined markers
+                        isMultiTagMode = true
+                        Task {
+                            await loadCombinedMarkers()
+                        }
+                        
+                        // Clear search and results
+                        markerSearchText = ""
+                        searchResults = []
+                        showingTagSelector = false
+                    }
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.blue)
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                }
+                
+                // Show currently added tags
+                if !selectedSearchTerms.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Currently added (\(selectedSearchTerms.count)):")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .padding(.horizontal)
+                        
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 8) {
+                            ForEach(Array(selectedSearchTerms), id: \.self) { searchTerm in
+                                HStack(spacing: 4) {
+                                    Text(searchTerm)
+                                        .font(.caption)
+                                        .fontWeight(.medium)
+                                    
+                                    Button(action: {
+                                        selectedSearchTerms.remove(searchTerm)
+                                        Task {
+                                            await loadCombinedMarkers()
+                                        }
+                                    }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .font(.caption2)
+                                            .foregroundColor(.red)
+                                    }
+                                }
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.green)
+                                .cornerRadius(6)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+            }
+            .navigationTitle("Add More Markers (\(selectedSearchTerms.count) added)")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(
+                trailing: Button("Done") {
+                    showingTagSelector = false
+                }
+                .foregroundColor(.blue)
+                .font(.body)
+                .fontWeight(.semibold)
+            )
+        }
     }
     
     private var universalShuffleButton: some View {

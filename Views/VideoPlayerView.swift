@@ -670,10 +670,11 @@ struct VideoPlayerView: View {
                 // Control overlay - only show when showControls is true
                 if showControls {
                     VStack {
-                        // Close button at top
+                        // Top control buttons - only show close button
                         HStack {
                             Spacer()
 
+                            // Close button
                             Button(action: {
                                 print("🔄 Close button tapped")
                                 dismiss()
@@ -687,6 +688,7 @@ struct VideoPlayerView: View {
                             }
                         }
                         .padding(.top, 50)
+                        .padding(.horizontal)
 
                         Spacer()
 
@@ -1489,6 +1491,7 @@ extension VideoPlayerView {
             // If we have a shuffle queue, use it
             if !appModel.markerShuffleQueue.isEmpty {
                 print("🎲 ✅ Using AppModel shuffle queue - going to next marker")
+                // Just use the normal shuffle for both cases
                 appModel.shuffleToNextMarker()
                 return
             } else {
@@ -2557,6 +2560,18 @@ extension VideoPlayerView {
     
     // MARK: - Helper Functions for Next Scene Navigation
     
+    /// Load next marker directly in the player without navigation
+    private func loadNextMarkerDirectly() async {
+        print("🎲 Loading next marker directly in player")
+        
+        // Get the next marker from server
+        await appModel.playNextServerSideMarker()
+        
+        // The notification from playNextServerSideMarker will update the player
+        // We don't need to do anything else here
+        print("🎲 Waiting for player update via notification")
+    }
+    
     private func findNextMarkerInSameTag() async -> Bool {
         print("🔍 Finding next marker with same tag")
         guard let currentMarker = appModel.currentMarker else {
@@ -3048,19 +3063,24 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
         
         // FORCE INITIAL SEEK if we have an explicit start time
         if let timeToSeek = explicitStartTime, timeToSeek > 0 {
-            print("⏱ CRITICAL: Performing immediate seek to \(timeToSeek) seconds")
-            let cmTime = CMTime(seconds: timeToSeek, preferredTimescale: 1000)
-            player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero)
+            // Start playback first
+            print("▶️ Starting playback before seek")
+            player.play()
             
-            // Also register a delayed seek in case the initial one doesn't work
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            // Then perform seek with a small delay to let video buffer
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 print("⏱ CRITICAL: Performing delayed seek to \(timeToSeek) seconds")
                 let cmTime = CMTime(seconds: timeToSeek, preferredTimescale: 1000)
                 player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { success in
-                    print("⏱ Delayed seek completed with result: \(success)")
+                    print("⏱ Seek completed with result: \(success)")
+                    // Ensure playback continues after seek
                     player.play()
                 }
             }
+        } else {
+            // No seek needed, just start playing
+            print("▶️ Starting playback immediately (no seek required)")
+            player.play()
         }
         
         // Add observer for readyToPlay status

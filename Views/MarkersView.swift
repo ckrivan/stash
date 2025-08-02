@@ -22,6 +22,10 @@ struct MarkersView: View {
 
     // State for filtering and UI
     @State private var selectedTagId: String? = nil
+    @State private var selectedTagIds: Set<String> = []
+    @State private var isMultiTagMode: Bool = false
+    @State private var showingTagSelector = false
+    @State private var availableTags: [SceneMarker.Tag] = []
     @State private var showingCreateMarker = false
     @State private var availableWidth: CGFloat = 1200 // Default width estimate
     @State private var visibleMarkers: Set<String> = []
@@ -38,6 +42,14 @@ struct MarkersView: View {
         marker.tags.contains(where: { $0.id == tagId })
     }
     
+    private func shouldIncludeMarkerMultiTag(_ marker: SceneMarker, tagIds: Set<String>) -> Bool {
+        guard !tagIds.isEmpty else { return true }
+        
+        // Check if marker has ANY of the selected tags
+        return tagIds.contains(marker.primary_tag.id) ||
+               marker.tags.contains(where: { tagIds.contains($0.id) })
+    }
+    
     // Debug function to show count of markers
     private func logMarkerCounts(source: String) {
         print("🏷️ \(source) - Total markers: \(allMarkers.count), Displayed: \(displayedMarkers.count)")
@@ -48,8 +60,14 @@ struct MarkersView: View {
     }
 
     private func updateDisplayedMarkers() {
-        if let tagId = selectedTagId {
-            // Filter markers by selected tag
+        if isMultiTagMode && !selectedTagIds.isEmpty {
+            // Filter markers by multiple selected tags
+            displayedMarkers = allMarkers.filter { marker in
+                shouldIncludeMarkerMultiTag(marker, tagIds: selectedTagIds)
+            }
+            print("🔍 Multi-tag filter: \(selectedTagIds.count) tags selected, \(displayedMarkers.count) markers shown")
+        } else if let tagId = selectedTagId {
+            // Filter markers by single selected tag
             displayedMarkers = allMarkers.filter { marker in
                 shouldIncludeMarker(marker, tagId: tagId)
             }
@@ -59,16 +77,84 @@ struct MarkersView: View {
         }
         
         // Enhanced logging for debugging
-        print("🔍 updateDisplayedMarkers: allMarkers=\(allMarkers.count), displayedMarkers=\(displayedMarkers.count), selectedTagId=\(selectedTagId ?? "nil")")
+        print("🔍 updateDisplayedMarkers: allMarkers=\(allMarkers.count), displayedMarkers=\(displayedMarkers.count), selectedTagId=\(selectedTagId ?? "nil"), multiTagMode=\(isMultiTagMode)")
         logMarkerCounts(source: "updateDisplayedMarkers")
     }
 
     private func clearFilter() {
         selectedTagId = nil
+        selectedTagIds.removeAll()
+        isMultiTagMode = false
         Task {
             currentPage = 1
             await initialLoad()
         }
+    }
+    
+    // Multi-tag helper functions
+    private func toggleMultiTagMode() {
+        isMultiTagMode.toggle()
+        if isMultiTagMode {
+            selectedTagId = nil // Clear single tag selection
+            extractAvailableTags()
+        } else {
+            selectedTagIds.removeAll() // Clear multi-tag selection
+        }
+        updateDisplayedMarkers()
+    }
+    
+    private func toggleTagSelection(_ tag: SceneMarker.Tag) {
+        if selectedTagIds.contains(tag.id) {
+            selectedTagIds.remove(tag.id)
+        } else {
+            selectedTagIds.insert(tag.id)
+        }
+        
+        // When tags are selected, load markers for those tags
+        if !selectedTagIds.isEmpty {
+            Task {
+                await loadMarkersForMultipleTags()
+            }
+        } else {
+            updateDisplayedMarkers()
+        }
+    }
+    
+    // Load markers for multiple selected tags
+    private func loadMarkersForMultipleTags() async {
+        print("🏷️ Loading markers for \(selectedTagIds.count) selected tags")
+        isLoading = true
+        
+        var combinedMarkers: [SceneMarker] = []
+        
+        // Load markers for each selected tag
+        for tagId in selectedTagIds {
+            await appModel.api.fetchMarkersByTag(tagId: tagId, page: 1, appendResults: false, perPage: 200)
+            let tagMarkers = appModel.api.markers
+            
+            // Add unique markers (avoid duplicates)
+            let uniqueMarkers = tagMarkers.filter { newMarker in
+                !combinedMarkers.contains { $0.id == newMarker.id }
+            }
+            combinedMarkers.append(contentsOf: uniqueMarkers)
+            
+            print("🏷️ Loaded \(tagMarkers.count) markers for tag \(tagId), \(uniqueMarkers.count) unique")
+        }
+        
+        await MainActor.run {
+            allMarkers = combinedMarkers
+            updateDisplayedMarkers()
+            isLoading = false
+            print("🏷️ Combined \(allMarkers.count) total markers from \(selectedTagIds.count) tags")
+        }
+    }
+    
+    private func extractAvailableTags() {
+        let allTags = Set(allMarkers.flatMap { marker in
+            [marker.primary_tag] + marker.tags
+        })
+        availableTags = Array(allTags).sorted { $0.name.lowercased() < $1.name.lowercased() }
+        print("🏷️ Found \(availableTags.count) unique tags")
     }
 
     private func handleTagSelection(_ tag: SceneMarker.Tag) {
@@ -82,7 +168,58 @@ struct MarkersView: View {
 
     private var filterHeader: some View {
         Group {
-            if let selectedTagId = selectedTagId,
+            if isMultiTagMode && !selectedTagIds.isEmpty {
+                // Multi-tag filter header
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("Multi-tag filter (\(selectedTagIds.count) tags):")
+                            .foregroundColor(.secondary)
+                            .fontWeight(.medium)
+                        
+                        Spacer()
+                        
+                        Button("Clear All") {
+                            clearFilter()
+                        }
+                        .font(.subheadline)
+                        .foregroundColor(.red)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.red.opacity(0.1))
+                        .cornerRadius(6)
+                    }
+                    
+                    // Show selected tags
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 8) {
+                        ForEach(availableTags.filter { selectedTagIds.contains($0.id) }, id: \.id) { tag in
+                            HStack(spacing: 4) {
+                                Text(tag.name)
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                
+                                Button(action: {
+                                    toggleTagSelection(tag)
+                                }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .font(.caption2)
+                                        .foregroundColor(.red)
+                                }
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.blue)
+                            .cornerRadius(8)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 10)
+                .background(Color.secondary.opacity(0.1))
+                .cornerRadius(8)
+                .padding(.horizontal)
+                .padding(.top)
+            } else if let selectedTagId = selectedTagId,
                let marker = displayedMarkers.first(where: {
                    $0.primary_tag.id == selectedTagId ||
                    $0.tags.contains(where: { $0.id == selectedTagId })
@@ -90,6 +227,7 @@ struct MarkersView: View {
                let tagName = (marker.primary_tag.id == selectedTagId ?
                             marker.primary_tag.name :
                             marker.tags.first(where: { $0.id == selectedTagId })?.name) {
+                // Single tag filter header
                 HStack {
                     Text("Filtered by tag: ")
                         .foregroundColor(.secondary)
@@ -214,11 +352,94 @@ struct MarkersView: View {
         .padding(.vertical, 8)
     }
     
+    private var tagSelectorView: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Select Tags (\(selectedTagIds.count) selected)")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                Spacer()
+                
+                Button("Done") {
+                    showingTagSelector = false
+                }
+                .font(.subheadline)
+                .foregroundColor(.blue)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color.blue.opacity(0.1))
+                .cornerRadius(8)
+            }
+            
+            ScrollView {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 8) {
+                    ForEach(availableTags, id: \.id) { tag in
+                        Button(action: {
+                            toggleTagSelection(tag)
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: selectedTagIds.contains(tag.id) ? "checkmark.circle.fill" : "circle")
+                                    .foregroundColor(selectedTagIds.contains(tag.id) ? .white : .secondary)
+                                
+                                Text(tag.name)
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(selectedTagIds.contains(tag.id) ? .white : .primary)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(selectedTagIds.contains(tag.id) ? Color.blue : Color.secondary.opacity(0.1))
+                            .cornerRadius(8)
+                        }
+                    }
+                }
+            }
+            .frame(maxHeight: 300)
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(radius: 8)
+        .padding()
+    }
+
     private var universalShuffleButton: some View {
         Group {
-            // Only show shuffle button when there are filtered results
-            if (!appModel.searchQuery.isEmpty && !displayedMarkers.isEmpty) || 
-               (selectedTagId != nil && !displayedMarkers.isEmpty) {
+            // Always show the controls section for debugging
+            VStack(spacing: 8) {
+                // Debug info
+                Text("Debug: allMarkers=\(allMarkers.count), displayedMarkers=\(displayedMarkers.count), searchQuery='\(appModel.searchQuery)'")
+                    .font(.caption2)
+                    .foregroundColor(.red)
+                
+                // Always show Add Tags button for testing
+                HStack {
+                    Button(action: {
+                        print("🏷️ DEBUG: Add tags button tapped!")
+                        extractAvailableTags()
+                        showingTagSelector = true
+                        isMultiTagMode = true
+                    }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "plus.circle")
+                            Text("Add Tags (DEBUG)")
+                                .font(.caption)
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Color.red)
+                        .cornerRadius(8)
+                    }
+                    
+                    Spacer()
+                }
+                .padding(.horizontal)
+            }
+            
+            // Original shuffle section  
+            if !displayedMarkers.isEmpty {
                 
                 VStack(spacing: 12) {
                     HStack {
@@ -226,6 +447,11 @@ struct MarkersView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             if !appModel.searchQuery.isEmpty {
                                 Text("Search: \(appModel.searchQuery)")
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
+                            } else if isMultiTagMode && !selectedTagIds.isEmpty {
+                                Text("Multi-tag (\(selectedTagIds.count) tags)")
                                     .font(.headline)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.primary)
@@ -260,6 +486,11 @@ struct MarkersView: View {
                                         .font(.caption2)
                                         .foregroundColor(.orange)
                                         .fontWeight(.medium)
+                                } else if isMultiTagMode && !selectedTagIds.isEmpty {
+                                    Text("Shuffle loads ALL markers from selected tags (may be slow)")
+                                        .font(.caption2)
+                                        .foregroundColor(.orange)
+                                        .fontWeight(.medium)
                                 } else if selectedTagId != nil {
                                     Text("Shuffle loads ALL tag markers (may be slow)")
                                         .font(.caption2)
@@ -271,6 +502,28 @@ struct MarkersView: View {
                         
                         Spacer()
                         
+                        // Add more tags button (always show when we have markers)
+                        Button(action: {
+                            print("🏷️ Add tags button tapped! selectedTagIds: \(selectedTagIds.count), availableTags: \(availableTags.count)")
+                            extractAvailableTags() // Make sure we have all available tags
+                            print("🏷️ Available tags after extraction: \(availableTags.count)")
+                            showingTagSelector = true
+                            isMultiTagMode = true // Enable multi-tag mode when adding tags
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "plus.circle")
+                                    .font(.caption)
+                                Text(selectedTagIds.isEmpty ? "Add Tags" : "Tags (\(selectedTagIds.count))")
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 10)  
+                            .padding(.vertical, 6)
+                            .background(selectedTagIds.isEmpty ? Color.green : Color.blue)
+                            .cornerRadius(8)
+                        }
+                        
                         // Shuffle button
                         Button(action: {
                             print("🎲 UNIVERSAL SHUFFLE BUTTON TAPPED")
@@ -278,6 +531,10 @@ struct MarkersView: View {
                             if !appModel.searchQuery.isEmpty {
                                 print("🎲 Starting shuffle for search: \(appModel.searchQuery) with \(displayedMarkers.count) markers")
                                 appModel.startMarkerShuffle(forSearchQuery: appModel.searchQuery, displayedMarkers: displayedMarkers)
+                            } else if isMultiTagMode && !selectedTagIds.isEmpty {
+                                print("🎲 Starting multi-tag shuffle with \(selectedTagIds.count) tags, \(displayedMarkers.count) markers")
+                                let selectedTagNames = availableTags.filter { selectedTagIds.contains($0.id) }.map { $0.name }
+                                appModel.startMarkerShuffle(forMultipleTags: Array(selectedTagIds), tagNames: selectedTagNames, displayedMarkers: displayedMarkers)
                             } else if let tagId = selectedTagId,
                                       let marker = displayedMarkers.first(where: {
                                           $0.primary_tag.id == tagId ||
@@ -293,9 +550,20 @@ struct MarkersView: View {
                             HStack(spacing: 8) {
                                 Image(systemName: "shuffle")
                                     .font(.title2)
-                                Text("Shuffle Play")
-                                    .font(.headline)
-                                    .fontWeight(.semibold)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Shuffle Play")
+                                        .font(.headline)
+                                        .fontWeight(.semibold)
+                                    
+                                    // Show selected tags in shuffle button
+                                    if isMultiTagMode && !selectedTagIds.isEmpty {
+                                        let selectedTagNames = availableTags.filter { selectedTagIds.contains($0.id) }.map { $0.name }
+                                        Text(selectedTagNames.joined(separator: " + "))
+                                            .font(.caption)
+                                            .fontWeight(.medium)
+                                            .lineLimit(2)
+                                    }
+                                }
                             }
                             .foregroundColor(.white)
                             .padding(.horizontal, 20)
@@ -479,6 +747,20 @@ struct MarkersView: View {
                     .cornerRadius(10)
             }
         }
+        .overlay(
+            // Tag selector overlay
+            Group {
+                if showingTagSelector {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            showingTagSelector = false
+                        }
+                    
+                    tagSelectorView
+                }
+            }
+        )
         .navigationTitle("Markers")
         .searchable(text: $appModel.searchQuery, prompt: "Search markers...")
         .onChange(of: appModel.searchQuery) { _, newValue in
@@ -501,7 +783,31 @@ struct MarkersView: View {
                 .environmentObject(appModel)
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarLeading) {
+                Button(action: {
+                    print("🏷️ Multi-tag button tapped! isMultiTagMode: \(isMultiTagMode), availableTags: \(availableTags.count)")
+                    if isMultiTagMode {
+                        if !availableTags.isEmpty {
+                            showingTagSelector = true
+                            print("🏷️ Opening tag selector")
+                        } else {
+                            print("🏷️ No available tags yet")
+                        }
+                    } else {
+                        toggleMultiTagMode()
+                        print("🏷️ Toggled to multi-tag mode")
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: isMultiTagMode ? "checkmark.circle" : "tag.circle")
+                        Text(isMultiTagMode ? "Select Tags" : "Multi-Tag")
+                            .font(.caption)
+                    }
+                }
+                .foregroundColor(isMultiTagMode ? .blue : .primary)
+            }
+            
+            ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
                     showingCreateMarker = true
                 }) {
@@ -515,11 +821,13 @@ struct MarkersView: View {
                 print("🔍 Initial load of markers - No existing markers, fetching")
                 await initialLoad()
                 updateDisplayedMarkers() // Update after loading
+                extractAvailableTags() // Extract tags for multi-tag mode
             }
         }
         .refreshable {
             await initialLoad()
             updateDisplayedMarkers() // Update after refreshing
+            extractAvailableTags() // Extract tags for multi-tag mode
         }
     }
 
@@ -531,16 +839,24 @@ struct MarkersView: View {
         currentPage = 1
         hasMorePages = true
         selectedTagId = nil  // Clear tag filter when searching
+        // Don't clear multi-tag selections during search
 
-        // Determine if this is a tag search or general text search
-        // Use tag search for queries that look like tag names (no spaces, short words)
-        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        let isLikelyTagSearch = !trimmedQuery.contains(" ") && trimmedQuery.count <= 20 && trimmedQuery.count > 2
+        // Determine search type
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         
-        if isLikelyTagSearch {
+        // Check for suffix pattern searches like "_ai", "_anal"
+        if trimmedQuery.hasPrefix("_") && trimmedQuery.count > 1 {
+            let suffix = String(trimmedQuery.dropFirst()) // Remove the "_"
+            print("🔍 Pattern search for suffix: '\(suffix)' (will find all tags ending with '_\(suffix)')")
+            await appModel.api.searchMarkersBySuffix(suffix: suffix)
+        }
+        // Check for regular tag search
+        else if !trimmedQuery.contains(" ") && trimmedQuery.count <= 20 && trimmedQuery.count > 2 {
             print("🏷️ Using tag-based search for query: '\(trimmedQuery)'")
             await appModel.api.searchMarkersByTagName(tagName: trimmedQuery)
-        } else {
+        } 
+        // General text search
+        else {
             print("🔍 Using general text search for query: '\(trimmedQuery)'")
             await appModel.api.updateMarkersFromSearch(query: trimmedQuery, page: 1, appendResults: false)
         }
@@ -556,10 +872,10 @@ struct MarkersView: View {
         }
         
         // Set hasMorePages based on search type and results
-        if isLikelyTagSearch {
-            // Tag searches load all results at once, so no more pages
+        if trimmedQuery.hasPrefix("_") || (!trimmedQuery.contains(" ") && trimmedQuery.count <= 20 && trimmedQuery.count > 2) {
+            // Pattern searches and tag searches load all results at once, so no more pages
             hasMorePages = false
-            print("🏷️ Tag search complete: found \(allMarkers.count) markers")
+            print("🏷️ Tag/Pattern search complete: found \(allMarkers.count) markers")
         } else {
             // Text searches are paginated (search API functions still use 500 per page)
             hasMorePages = allMarkers.count >= 500  
@@ -571,6 +887,9 @@ struct MarkersView: View {
         // Debug: Force UI update and ensure displayedMarkers gets updated
         print("🔍 DEBUG: About to call updateDisplayedMarkers() with allMarkers.count=\(allMarkers.count)")
         updateDisplayedMarkers()
+        
+        // Extract tags from search results for multi-tag mode
+        extractAvailableTags()
     }
 
     private func loadMoreSearchResults() async {
@@ -579,12 +898,12 @@ struct MarkersView: View {
             return
         }
 
-        // Check if this is a tag search - if so, skip pagination since tag searches load all results
-        let trimmedQuery = appModel.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
-        let isLikelyTagSearch = !trimmedQuery.contains(" ") && trimmedQuery.count <= 20 && trimmedQuery.count > 2
+        // Check if this is a pattern or tag search - if so, skip pagination since they load all results
+        let trimmedQuery = appModel.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let isPatternOrTagSearch = trimmedQuery.hasPrefix("_") || (!trimmedQuery.contains(" ") && trimmedQuery.count <= 20 && trimmedQuery.count > 2)
         
-        if isLikelyTagSearch {
-            print("🏷️ Skipping pagination for tag search - all results already loaded")
+        if isPatternOrTagSearch {
+            print("🏷️ Skipping pagination for pattern/tag search - all results already loaded")
             hasMorePages = false
             isLoadingMore = false
             return

@@ -115,8 +115,8 @@ struct ContentView: View {
                     }
                 }
                 
-                // Settings button overlay - hide when in video player and on iOS
-                if appModel.currentScene == nil && UIDevice.current.userInterfaceIdiom == .pad {
+                // Settings button overlay - show for iPad only when not in video player
+                if UIDevice.current.userInterfaceIdiom == .pad && appModel.navigationPath.isEmpty {
                     VStack {
                         HStack {
                             Spacer()

@@ -19,6 +19,7 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
     private var randomJumpButton: UIButton!
     private var performerJumpButton: UIButton!
     private var shuffleButton: UIButton!
+    private var reshuffleButton: UIButton!
     
     // MARK: - Initialization
     init(scenes: [StashScene], currentIndex: Int, sceneID: String, appModel: AppModel) {
@@ -52,13 +53,19 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
         shuffleButton.tintColor = .white
         shuffleButton.addTarget(self, action: #selector(handleShuffleButtonTapped), for: .touchUpInside)
         
+        reshuffleButton = UIButton(type: .system)
+        reshuffleButton.setImage(UIImage(systemName: "shuffle.circle.fill"), for: .normal)
+        reshuffleButton.tintColor = .systemBlue
+        reshuffleButton.addTarget(self, action: #selector(handleReshuffleButtonTapped), for: .touchUpInside)
+        reshuffleButton.isHidden = true // Hidden by default, only shown in marker shuffle mode
+        
         // Buttons will be added in viewDidAppear
     }
     
     /// Update button icons based on current shuffle mode
     private func updateButtonsForShuffleMode() {
-        if appModel.isMarkerShuffleMode {
-            // In marker shuffle mode: Previous | Random Jump | Next
+        if appModel.isMarkerShuffleMode && appModel.markerShuffleQueue.count > 1 {
+            // In marker shuffle mode: Previous | Random Jump | Next | Reshuffle
             performerJumpButton.setImage(UIImage(systemName: "backward.fill"), for: .normal)
             shuffleButton.setImage(UIImage(systemName: "forward.fill"), for: .normal)
             
@@ -66,6 +73,10 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
             performerJumpButton.tintColor = .systemOrange
             shuffleButton.tintColor = .systemOrange
             randomJumpButton.tintColor = .white
+            
+            // Show reshuffle button only in marker shuffle mode with multiple markers
+            reshuffleButton.isHidden = false
+            print("🔀 Reshuffle button now visible - marker shuffle mode with \(appModel.markerShuffleQueue.count) markers")
         } else {
             // Normal mode: Performer Jump | Random Jump | Scene Shuffle
             performerJumpButton.setImage(UIImage(systemName: "person.crop.circle"), for: .normal)
@@ -75,6 +86,10 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
             performerJumpButton.tintColor = .white
             shuffleButton.tintColor = .white
             randomJumpButton.tintColor = .white
+            
+            // Hide reshuffle button in normal mode
+            reshuffleButton.isHidden = true
+            print("🔀 Reshuffle button now hidden - not in marker shuffle mode")
         }
     }
     
@@ -91,6 +106,9 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
             configureButton(performerJumpButton, inView: contentOverlayView, position: .center)
             configureButton(shuffleButton, inView: contentOverlayView, position: .right)
             
+            // Configure reshuffle button above center button
+            configureReshuffleButton(reshuffleButton, inView: contentOverlayView)
+            
             // Update button icons based on shuffle mode
             print("🎲 VideoPlayer viewDidAppear - checking shuffle mode...")
             print("🎲 isMarkerShuffleMode: \(appModel.isMarkerShuffleMode)")
@@ -101,6 +119,7 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
             randomJumpButton.alpha = 1.0
             performerJumpButton.alpha = 1.0
             shuffleButton.alpha = 1.0
+            reshuffleButton.alpha = 1.0
 
             // Hide buttons on video start with a 5-second delay
             player?.addObserver(self, forKeyPath: "timeControlStatus", options: [.new], context: nil)
@@ -196,7 +215,7 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
             // If this is a button or control that might be a settings button
             if let button = subview as? UIButton {
                 // Skip our custom buttons
-                if button === randomJumpButton || button === performerJumpButton || button === shuffleButton {
+                if button === randomJumpButton || button === performerJumpButton || button === shuffleButton || button === reshuffleButton {
                     continue
                 }
                 // Check for settings buttons based on various attributes
@@ -430,6 +449,25 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
     
     private enum ButtonPosition {
         case left, center, right
+    }
+    
+    private func configureReshuffleButton(_ button: UIButton, inView contentView: UIView) {
+        // Configure button appearance
+        button.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(button)
+        
+        // Position button - adjust size for iPads
+        let isIpad = UIDevice.current.userInterfaceIdiom == .pad
+        let size: CGFloat = isIpad ? 50 : 38 // Slightly smaller than main buttons
+        // Position above the random jump button (center)
+        let yOffset: CGFloat = isIpad ? 280 : 200 // Higher up than main buttons
+        
+        NSLayoutConstraint.activate([
+            button.widthAnchor.constraint(equalToConstant: size),
+            button.heightAnchor.constraint(equalToConstant: size),
+            button.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            button.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -yOffset)
+        ])
     }
     
     private func configureButton(_ button: UIButton, inView contentView: UIView, position: ButtonPosition) {
@@ -813,6 +851,27 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
                 }
             }
         }
+    }
+    
+    @objc private func handleReshuffleButtonTapped() {
+        print("🔀 RESHUFFLE BUTTON TAPPED")
+        
+        // Only work in marker shuffle mode
+        guard appModel.isMarkerShuffleMode && !appModel.markerShuffleQueue.isEmpty else {
+            print("⚠️ Not in marker shuffle mode or queue is empty")
+            return
+        }
+        
+        print("🔀 Re-shuffling marker queue with \(appModel.markerShuffleQueue.count) markers")
+        
+        // Call the reshuffle function in AppModel
+        appModel.reshuffleMarkerQueue()
+        
+        // Provide haptic feedback
+        let generator = UIImpactFeedbackGenerator(style: .heavy)
+        generator.impactOccurred()
+        
+        print("🔀 Queue re-shuffled successfully")
     }
     
     // MARK: - Aspect Ratio Correction

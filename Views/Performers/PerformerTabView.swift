@@ -18,7 +18,7 @@ struct PerformerTabView: View {
     // MARK: - Shuffle Function
     
     private func shuffleAndPlayScene() {
-        print("🎲 Shuffle scenes for performer: \(performer.name)")
+        print("🎲 Gender-aware shuffle for performer: \(performer.name) (gender: \(performer.gender ?? "unknown"))")
         
         // Ensure we have scenes loaded
         guard !appModel.api.scenes.isEmpty else {
@@ -26,56 +26,12 @@ struct PerformerTabView: View {
             return
         }
         
-        // Get a random scene
-        guard let randomScene = appModel.api.scenes.randomElement() else {
-            print("⚠️ Could not get random scene")
-            return
-        }
+        // Set performer context for gender-aware filtering
+        appModel.currentPerformer = performer
+        print("🎯 Set performer context: \(performer.name) (gender: \(performer.gender ?? "unknown"))")
         
-        print("🎲 Selected random scene: \(randomScene.title ?? "Untitled")")
-        
-        // Navigate to the scene first
-        appModel.navigateToScene(randomScene)
-        
-        // Then jump to a random position after the player is initialized
-        // This matches the behavior in SceneRow
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-            // Look for the player from the registry
-            if let player = VideoPlayerRegistry.shared.currentPlayer {
-                print("🎲 Got player from registry, attempting to jump to random position")
-                
-                // Check if the player is ready
-                if let currentItem = player.currentItem, currentItem.status == .readyToPlay {
-                    print("🎲 Player is ready, jumping to random position")
-                    VideoPlayerUtility.jumpToRandomPosition(in: player)
-                } else {
-                    print("🎲 Player not ready yet, will retry in 1.5 seconds")
-                    
-                    // Retry after another delay
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                        if let player = VideoPlayerRegistry.shared.currentPlayer,
-                           let currentItem = player.currentItem,
-                           currentItem.status == .readyToPlay {
-                            print("🎲 Player is now ready (retry), jumping to random position")
-                            VideoPlayerUtility.jumpToRandomPosition(in: player)
-                        } else {
-                            print("🎲 Player still not ready after retry")
-                            
-                            // One final attempt with a longer delay
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                                if let player = VideoPlayerRegistry.shared.currentPlayer {
-                                    print("🎲 Final attempt to jump to random position")
-                                    // Force the jump even if not fully ready
-                                    VideoPlayerUtility.jumpToRandomPosition(in: player)
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                print("⚠️ Failed to get player from registry")
-            }
-        }
+        // Use the new gender-aware shuffle method
+        appModel.shufflePerformerScenes(fromScenes: appModel.api.scenes, currentPerformer: performer)
     }
     
     // MARK: - Response Types
