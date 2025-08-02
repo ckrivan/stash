@@ -890,6 +890,7 @@ struct VideoPlayerView: View {
             .navigationBarHidden(true) // Hide the navigation bar completely
             .statusBarHidden(true)     // Hide the status bar for full immersion
             .ignoresSafeArea(.all)     // Ignore all safe areas for true full screen
+            .id(scene.id)              // Force view recreation when scene changes
             .onKeyPress(phases: .down) { keyPress in
                 return handleKeyPress(keyPress)
             }
@@ -898,6 +899,9 @@ struct VideoPlayerView: View {
                 print("📱 DEBUG - Scene: \(scene.title ?? "Untitled") ID: \(scene.id)")
                 print("📱 DEBUG - Is marker navigation: \(UserDefaults.standard.bool(forKey: "scene_\(scene.id)_isMarkerNavigation"))")
                 print("📱 DEBUG - showControls: \(showControls)")
+                
+                // IMPORTANT: Update currentScene to the correct scene being played
+                currentScene = scene
                 appModel.currentScene = scene
                 
                 // Add scene to watch history when video player appears
@@ -1204,23 +1208,29 @@ struct VideoPlayerView: View {
     private func getStreamURL() -> URL {
         let sceneId = currentScene.id
         
-        // First check if we have a saved direct HLS URL format
+        // First check if we have a saved direct HLS URL format FOR THIS SPECIFIC SCENE
         if let savedHlsUrlString = UserDefaults.standard.string(forKey: "scene_\(sceneId)_hlsURL"),
            let savedHlsUrl = URL(string: savedHlsUrlString) {
-            print("📱 Using saved HLS URL format: \(savedHlsUrlString)")
-            // Force update effectiveStartTime if it's included in the URL
-            if savedHlsUrlString.contains("t=") {
-                if let tRange = savedHlsUrlString.range(of: "t=\\d+", options: .regularExpression),
-                   let tValue = Int(savedHlsUrlString[tRange].replacingOccurrences(of: "t=", with: "")) {
-                    print("📱 Extracted timestamp from URL: \(tValue)")
-                    // Only update if not already set
-                    if effectiveStartTime == nil {
-                        effectiveStartTime = Double(tValue)
-                        print("📱 Updated effectiveStartTime to \(tValue) from URL")
+            // Verify the saved URL is actually for this scene
+            if savedHlsUrlString.contains("/scene/\(sceneId)/") {
+                print("📱 Using saved HLS URL format for scene \(sceneId): \(savedHlsUrlString)")
+                // Force update effectiveStartTime if it's included in the URL
+                if savedHlsUrlString.contains("t=") {
+                    if let tRange = savedHlsUrlString.range(of: "t=\\d+", options: .regularExpression),
+                       let tValue = Int(savedHlsUrlString[tRange].replacingOccurrences(of: "t=", with: "")) {
+                        print("📱 Extracted timestamp from URL: \(tValue)")
+                        // Only update if not already set
+                        if effectiveStartTime == nil {
+                            effectiveStartTime = Double(tValue)
+                            print("📱 Updated effectiveStartTime to \(tValue) from URL")
+                        }
                     }
                 }
+                return savedHlsUrl
+            } else {
+                print("⚠️ Saved HLS URL is for wrong scene (found scene ID in URL doesn't match \(sceneId)), clearing it")
+                UserDefaults.standard.removeObject(forKey: "scene_\(sceneId)_hlsURL")
             }
-            return savedHlsUrl
         }
         
         // If no saved URL and we have a start time, construct a proper HLS URL
