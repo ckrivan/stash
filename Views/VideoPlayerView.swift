@@ -622,6 +622,8 @@ struct VideoPlayerView: View {
                     .onTapGesture { location in
                         print("👆 Tap detected at location: \(location) - toggling controls")
                         print("👆 Current showControls: \(showControls)")
+                        print("👆 DEBUG - Is marker context: \(currentMarker != nil)")
+                        print("👆 DEBUG - Is marker shuffle: \(appModel.isMarkerShuffleMode)")
                         withAnimation(.easeInOut(duration: 0.3)) {
                             showControls.toggle()
                         }
@@ -888,6 +890,9 @@ struct VideoPlayerView: View {
             }
             .onAppear {
                 print("📱 VideoPlayerView appeared")
+                print("📱 DEBUG - Scene: \(scene.title ?? "Untitled") ID: \(scene.id)")
+                print("📱 DEBUG - Is marker navigation: \(UserDefaults.standard.bool(forKey: "scene_\(scene.id)_isMarkerNavigation"))")
+                print("📱 DEBUG - showControls: \(showControls)")
                 appModel.currentScene = scene
                 
                 // Add scene to watch history when video player appears

@@ -416,12 +416,18 @@ class AppModel: ObservableObject {
         // Check if we're in a marker shuffle context (avoid navigation stack changes)
         let isMarkerShuffle = UserDefaults.standard.bool(forKey: "isMarkerShuffleContext")
         
-        // IMPORTANT: Only kill audio if NOT in marker shuffle mode to prevent stopping the active player
+        // IMPORTANT: For marker navigation, we need to clean up audio differently
+        // During shuffle, we should pause current player instead of killing all audio
         if !isMarkerShuffle {
             print("🔇 Killing audio for regular navigation")
             killAllAudio()
         } else {
-            print("🎲 Skipping audio kill - in marker shuffle mode")
+            print("🎲 Marker shuffle mode - pausing current player instead of killing audio")
+            // Just pause the current player to prevent audio stacking
+            if let player = VideoPlayerRegistry.shared.currentPlayer {
+                player.pause()
+                print("⏸️ Paused current player to prevent audio stacking")
+            }
         }
         
         print("🔍 navigateToMarker: Starting more explicit marker navigation")
