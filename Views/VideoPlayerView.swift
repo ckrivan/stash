@@ -614,24 +614,23 @@ struct VideoPlayerView: View {
                         print("⏱ FullScreenVideoPlayer will seek to \(startTime) seconds")
                     }
                 }
-                .onTapGesture { location in
-                    print("👆 Tap detected on video player at location: \(location) - toggling controls")
-                    print("👆 Current showControls: \(showControls)")
-                    print("👆 DEBUG - Is marker context: \(currentMarker != nil)")
-                    print("👆 DEBUG - Is marker shuffle: \(appModel.isMarkerShuffleMode)")
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        showControls.toggle()
-                    }
-                    print("👆 New showControls: \(showControls)")
-
-                    // Schedule auto-hide when controls are shown
-                    if showControls {
-                        Task {
-                            await scheduleControlsHide()
+                
+                // Transparent overlay for capturing taps - only when controls are hidden
+                if !showControls {
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            print("👆 Tap detected - showing controls")
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showControls = true
+                            }
+                            
+                            // Schedule auto-hide when controls are shown
+                            Task {
+                                await scheduleControlsHide()
+                            }
                         }
-                    }
-                }
-                .gesture(
+                    .gesture(
                     DragGesture(minimumDistance: 20, coordinateSpace: .local)
                         .onEnded { value in
                             let horizontalAmount = value.translation.width
@@ -669,6 +668,16 @@ struct VideoPlayerView: View {
 
                 // Control overlay - only show when showControls is true
                 if showControls {
+                    // Background tap to hide controls
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            print("👆 Tap on control area - hiding controls")
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showControls = false
+                            }
+                        }
+                    
                     VStack {
                         // Top control buttons - only show close button
                         HStack {

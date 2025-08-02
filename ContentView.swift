@@ -29,6 +29,13 @@ struct ContentView: View {
                                       systemImage: AppModel.Tab.performers.icon)
                             }
                             .tag(AppModel.Tab.performers)
+                        
+                        HistoryView()
+                            .tabItem {
+                                Label(AppModel.Tab.history.rawValue,
+                                      systemImage: AppModel.Tab.history.icon)
+                            }
+                            .tag(AppModel.Tab.history)
 
                     }
                     // Removed title as requested

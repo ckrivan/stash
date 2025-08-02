@@ -1035,7 +1035,7 @@ class AppModel: ObservableObject {
         }
     }
     
-    /// Start marker shuffle for multiple tags - uses server-side random selection
+    /// Start marker shuffle for multiple tags - uses client-side shuffle with loaded markers
     func startMarkerShuffle(forMultipleTags tagIds: [String], tagNames: [String], displayedMarkers: [SceneMarker]) {
         print("🎲 Starting multi-tag shuffle with \(tagNames.count) tags: \(tagNames.joined(separator: ", "))")
         print("🎲 DEBUG - Tag IDs: \(tagIds)")
@@ -1044,11 +1044,17 @@ class AppModel: ObservableObject {
         
         // Set shuffle context
         isMarkerShuffleMode = true
-        isServerSideShuffle = true
+        isServerSideShuffle = false  // Use client-side shuffle with the combined markers
         shuffleTagNames = tagNames
         shuffleTagFilters = tagIds
         shuffleTagFilter = nil
         shuffleSearchQuery = nil
+        
+        // Create shuffled queue from all displayed markers
+        markerShuffleQueue = displayedMarkers.shuffled()
+        currentShuffleIndex = 0
+        
+        print("✅ Created shuffle queue with \(markerShuffleQueue.count) combined markers")
         
         // Reset the tag rotation tracking
         currentShuffleTag = ""
@@ -1057,14 +1063,12 @@ class AppModel: ObservableObject {
         UserDefaults.standard.set(true, forKey: "isMarkerShuffleMode")
         
         // Play first marker immediately if available
-        if let firstMarker = displayedMarkers.randomElement() {
-            print("🎯 Starting with random marker from displayed: \(firstMarker.title)")
+        if let firstMarker = markerShuffleQueue.first {
+            print("🎯 Starting with first marker from shuffled queue: \(firstMarker.title)")
             navigateToMarker(firstMarker)
         } else {
-            // No displayed markers, fetch one from server
-            Task {
-                await playNextServerSideMarker()
-            }
+            print("❌ No markers available to shuffle")
+            stopMarkerShuffle()
         }
     }
     
@@ -2058,11 +2062,13 @@ extension AppModel {
     enum Tab: String, CaseIterable {
         case scenes = "Scenes"
         case performers = "Performers"
+        case history = "History"
         
         var icon: String {
             switch self {
             case .scenes: return "film"
             case .performers: return "person.2"
+            case .history: return "clock.arrow.circlepath"
             }
         }
     }
