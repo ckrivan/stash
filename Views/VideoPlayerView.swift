@@ -614,63 +614,58 @@ struct VideoPlayerView: View {
                         print("⏱ FullScreenVideoPlayer will seek to \(startTime) seconds")
                     }
                 }
+                .onTapGesture { location in
+                    print("👆 Tap detected on video player at location: \(location) - toggling controls")
+                    print("👆 Current showControls: \(showControls)")
+                    print("👆 DEBUG - Is marker context: \(currentMarker != nil)")
+                    print("👆 DEBUG - Is marker shuffle: \(appModel.isMarkerShuffleMode)")
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        showControls.toggle()
+                    }
+                    print("👆 New showControls: \(showControls)")
 
-                // This transparent layer captures taps and swipes across the entire view
-                Color.clear
-                    .contentShape(Rectangle())
-                    .allowsHitTesting(showControls ? false : true) // Don't capture hits when controls are showing
-                    .onTapGesture { location in
-                        print("👆 Tap detected at location: \(location) - toggling controls")
-                        print("👆 Current showControls: \(showControls)")
-                        print("👆 DEBUG - Is marker context: \(currentMarker != nil)")
-                        print("👆 DEBUG - Is marker shuffle: \(appModel.isMarkerShuffleMode)")
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            showControls.toggle()
-                        }
-                        print("👆 New showControls: \(showControls)")
-
-                        // Schedule auto-hide when controls are shown
-                        if showControls {
-                            Task {
-                                await scheduleControlsHide()
-                            }
+                    // Schedule auto-hide when controls are shown
+                    if showControls {
+                        Task {
+                            await scheduleControlsHide()
                         }
                     }
-                    .gesture(
-                        DragGesture(minimumDistance: 20, coordinateSpace: .local)
-                            .onEnded { value in
-                                let horizontalAmount = value.translation.width
-                                let verticalAmount = value.translation.height
-                                
-                                print("👆 DragGesture ended - horizontal: \(horizontalAmount), vertical: \(verticalAmount)")
-                                
-                                // Check if this is primarily a horizontal swipe (more horizontal than vertical movement)
-                                if abs(horizontalAmount) > abs(verticalAmount) && abs(horizontalAmount) > 30 {
-                                    if horizontalAmount > 0 {
-                                        // Swipe right - seek forward 10 seconds
-                                        print("👆 ✅ SWIPE RIGHT DETECTED - seeking forward 10 seconds")
-                                        VideoPlayerRegistry.shared.seek(by: 10)
-                                        
-                                        // Haptic feedback
-                                        let generator = UIImpactFeedbackGenerator(style: .light)
-                                        generator.impactOccurred()
-                                    } else {
-                                        // Swipe left - seek backward 10 seconds
-                                        print("👆 ✅ SWIPE LEFT DETECTED - seeking back 10 seconds")
-                                        VideoPlayerRegistry.shared.seek(by: -10)
-                                        
-                                        // Haptic feedback
-                                        let generator = UIImpactFeedbackGenerator(style: .light)
-                                        generator.impactOccurred()
-                                    }
+                }
+                .gesture(
+                    DragGesture(minimumDistance: 20, coordinateSpace: .local)
+                        .onEnded { value in
+                            let horizontalAmount = value.translation.width
+                            let verticalAmount = value.translation.height
+                            
+                            print("👆 DragGesture ended - horizontal: \(horizontalAmount), vertical: \(verticalAmount)")
+                            
+                            // Check if this is primarily a horizontal swipe (more horizontal than vertical movement)
+                            if abs(horizontalAmount) > abs(verticalAmount) && abs(horizontalAmount) > 30 {
+                                if horizontalAmount > 0 {
+                                    // Swipe right - seek forward 10 seconds
+                                    print("👆 ✅ SWIPE RIGHT DETECTED - seeking forward 10 seconds")
+                                    VideoPlayerRegistry.shared.seek(by: 10)
+                                    
+                                    // Haptic feedback
+                                    let generator = UIImpactFeedbackGenerator(style: .light)
+                                    generator.impactOccurred()
                                 } else {
-                                    print("👆 ❌ DragGesture didn't qualify as horizontal swipe:")
-                                    print("   horizontal: \(abs(horizontalAmount)) (min: 30)")
-                                    print("   vertical: \(abs(verticalAmount))")
-                                    print("   isHorizontal: \(abs(horizontalAmount) > abs(verticalAmount))")
+                                    // Swipe left - seek backward 10 seconds
+                                    print("👆 ✅ SWIPE LEFT DETECTED - seeking back 10 seconds")
+                                    VideoPlayerRegistry.shared.seek(by: -10)
+                                    
+                                    // Haptic feedback
+                                    let generator = UIImpactFeedbackGenerator(style: .light)
+                                    generator.impactOccurred()
                                 }
+                            } else {
+                                print("👆 ❌ DragGesture didn't qualify as horizontal swipe:")
+                                print("   horizontal: \(abs(horizontalAmount)) (min: 30)")
+                                print("   vertical: \(abs(verticalAmount))")
+                                print("   isHorizontal: \(abs(horizontalAmount) > abs(verticalAmount))")
                             }
-                    )
+                        }
+                )
 
                 // Control overlay - only show when showControls is true
                 if showControls {
