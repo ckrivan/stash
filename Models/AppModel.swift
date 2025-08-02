@@ -416,6 +416,12 @@ class AppModel: ObservableObject {
         print("🔇 Killing all audio for marker navigation (shuffle mode: \(isMarkerShuffle))")
         killAllAudio()
         
+        // Emergency cleanup: Clear navigation stack if too many views are stacked
+        if navigationPath.count > 3 {
+            print("🚨 EMERGENCY: Too many navigation items (\(navigationPath.count)), clearing stack")
+            navigationPath.removeLast(navigationPath.count - 1)
+        }
+        
         print("🔍 navigateToMarker: Starting more explicit marker navigation")
         
         // Only save navigation state if not in shuffle context

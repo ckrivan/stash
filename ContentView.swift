@@ -51,7 +51,7 @@ struct ContentView: View {
                     .navigationDestination(for: StashScene.self) { scene in
                         VideoPlayerView(scene: scene)
                             .environmentObject(appModel)
-                            .id("scene_\(scene.id)_\(UUID().uuidString)")
+                            .id("scene_\(scene.id)")
                             .onAppear {
                                 print("🎬 ContentView: StashScene navigation destination appeared for scene \(scene.id)")
                                 
@@ -91,7 +91,7 @@ struct ContentView: View {
                             o_counter: nil
                         ), startTime: Double(marker.seconds))
                         .environmentObject(appModel)
-                        .id("marker_\(marker.scene.id)_\(UUID().uuidString)")
+                        .id("marker_\(marker.scene.id)")
                         .onAppear {
                             print("🎬 ContentView: SceneMarker navigation destination appeared for marker \(marker.id) -> scene \(marker.scene.id)")
                             
