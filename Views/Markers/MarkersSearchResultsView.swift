@@ -229,21 +229,37 @@ struct MarkersSearchResultsView: View {
                     print("🎲 Multi-search shuffle mode: \(selectedSearchTerms.count) searches selected: \(Array(selectedSearchTerms))")
                     print("🎲 Using \(combinedMarkers.count) combined markers")
                     
-                    // Create combined search terms for display
+                    // Create combined search terms and tag IDs for shuffle
                     var allSearchTerms: [String] = []
+                    var allTagIds: [String] = []
                     
-                    // Extract actual tag names from the current markers (preserve original case)
-                    let currentTags = Set(markers.map { $0.primary_tag.name })
-                    allSearchTerms.append(contentsOf: currentTags)
-                    print("🎲 DEBUG - Current tags from markers: \(currentTags)")
+                    // Extract actual tag names and IDs from the current markers (preserve original case)
+                    let currentTags = Set(markers.map { $0.primary_tag })
+                    let currentTagNames = currentTags.map { $0.name }
+                    let currentTagIds = currentTags.map { $0.id }
                     
-                    // Add selected search terms
+                    allSearchTerms.append(contentsOf: currentTagNames)
+                    allTagIds.append(contentsOf: currentTagIds)
+                    print("🎲 DEBUG - Current tags from markers: \(currentTagNames) with IDs: \(currentTagIds)")
+                    
+                    // Add selected search terms (these are tag names from user selection)
                     allSearchTerms.append(contentsOf: selectedSearchTerms)
                     
+                    // For selected search terms, we need to find their corresponding tag IDs from the combined markers
+                    for searchTerm in selectedSearchTerms {
+                        if let matchingMarker = combinedMarkers.first(where: { $0.primary_tag.name.lowercased() == searchTerm.lowercased() }) {
+                            allTagIds.append(matchingMarker.primary_tag.id)
+                            print("🎲 DEBUG - Found tag ID '\(matchingMarker.primary_tag.id)' for search term '\(searchTerm)'")
+                        } else {
+                            print("⚠️ Could not find tag ID for search term '\(searchTerm)'")
+                        }
+                    }
+                    
                     let searchTermsArray = Array(Set(allSearchTerms)) // Remove duplicates
+                    let tagIdsArray = Array(Set(allTagIds)) // Remove duplicates
                     print("🎲 Combining tags for shuffle: \(searchTermsArray.joined(separator: " + "))")
-                    print("🎲 DEBUG - All search terms before deduplication: \(allSearchTerms)")
-                    print("🎲 DEBUG - Deduplicated search terms: \(searchTermsArray)")
+                    print("🎲 DEBUG - Final tag names: \(searchTermsArray)")
+                    print("🎲 DEBUG - Final tag IDs: \(tagIdsArray)")
                     
                     // Use the multi-tag shuffle function with combined markers
                     print("🎲 Starting shuffle with \(combinedMarkers.count) combined markers")
@@ -256,12 +272,12 @@ struct MarkersSearchResultsView: View {
                         
                         // Debug: Print first few markers to verify they belong to the expected tags
                         for (index, marker) in markersToShuffle.prefix(3).enumerated() {
-                            print("🎲 DEBUG - Sample marker \(index + 1): '\(marker.title)' - Tag: '\(marker.primary_tag.name)'")
+                            print("🎲 DEBUG - Sample marker \(index + 1): '\(marker.title)' - Tag: '\(marker.primary_tag.name)' (ID: \(marker.primary_tag.id))")
                         }
                         
-                        // Start the multi-tag shuffle
-                        print("🎲 Calling startMarkerShuffle with tags: \(searchTermsArray)")
-                        appModel.startMarkerShuffle(forMultipleTags: [], tagNames: searchTermsArray, displayedMarkers: markersToShuffle)
+                        // Start the multi-tag shuffle with proper tag IDs and names
+                        print("🎲 Calling startMarkerShuffle with tagIds: \(tagIdsArray) and tagNames: \(searchTermsArray)")
+                        appModel.startMarkerShuffle(forMultipleTags: tagIdsArray, tagNames: searchTermsArray, displayedMarkers: markersToShuffle)
                     } else {
                         print("❌ No markers available to shuffle!")
                     }

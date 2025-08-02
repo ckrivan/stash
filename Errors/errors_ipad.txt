@@ -1,1159 +1,194 @@
-
-Visual isTranslatable: NO; reason: observation failure: noObservations
-📱 SCENE ROW: Rendering scene: 4959, title: 
-📱 SCENE ROW: Rendering scene: 4950, title: 
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4949, title: Amy Ried Fuck and Facial
-📱 SCENE ROW: Rendering scene: 4946, title: 
-📱 SCENEROW: Random Jump button tapped for scene: 4947, title: 
-🎲 SCENEROW: Playing scene from random position
-🎲 SCENEROW: Enabled random jump mode for future navigation
-🚀 NAVIGATION - Navigating to scene:  with startSeconds: nil, endSeconds: nil
+Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+▶️ Forcing play after ready status
+⏱ CRITICAL: Seeking to explicit time 1186.0 seconds after ready status
+✅ Player status: PLAYING
+⏱ Seek to 1186.0 completed with result: true
+✅ Player status: PLAYING
+▶️ CRITICAL: Playback forced after seeking
+⏱ Current playback position: 1186.0 seconds
+⏱ Current playback position: 1186.0 seconds
+⏱ Current playback position: 1192.000050547 seconds
+⏱ Current playback position: 1203.000054881 seconds
+⏱ Current playback position: 1203.000042794 seconds
+📱 Using saved HLS URL format for scene 5122: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+📱 Extracted timestamp from URL: 1186
+⏱ Current playback position: 1187.000044312 seconds
+⏱ Current playback position: 1193.000056505 seconds
+⏱ Current playback position: 1204.000048358 seconds
+⏱ Current playback position: 1204.000044226 seconds
+👆 Tap detected - showing controls
+📱 Using saved HLS URL format for scene 5122: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+📱 Extracted timestamp from URL: 1186
+⏱ Current playback position: 1188.000043987 seconds
+⏱ Current playback position: 1194.000016977 seconds
+⏱ Current playback position: 1205.000055293 seconds
+⏱ Current playback position: 1205.00004576 seconds
+🎬 Next Scene button tapped
+🎬 DEBUG - Button action triggered
+🎬 DEBUG - showControls: true
+🎬 DEBUG - appModel.isMarkerShuffleMode: true
+▶️ Starting next scene navigation - Modes:  MARKER SHUFFLE 
+📊 Current context: MARKER
+🎲 In marker shuffle mode - using NEW queue system
+🎲 Queue size: 144
+🎲 Current index: 2
+🎲 appModel.isMarkerShuffleMode: true
+🎲 ✅ Using AppModel shuffle queue - going to next marker
+🎲 shuffleToNextMarker called - current state:
+🎲 isMarkerShuffleMode: true
+🎲 isServerSideShuffle: false
+🎲 markerShuffleQueue.count: 144
+🎲 currentShuffleIndex: 2
+🎲 Next marker in shuffle: G Missionary_AI (index 3 of 144)
+🎲 Shuffling to next marker: G Missionary_AI
+🎲 Debug: Tag: G Missionary_AI, Search Query: none
+🚀 NAVIGATION - Navigating to marker: G Missionary_AI at 1422.0 seconds in scene 4645
+🎲 Skipping audio kill - in shuffle mode (marker: true, tag: false)
+🔍 navigateToMarker: Starting more explicit marker navigation
+🔐 Configuring auth:
+   API Key: [eyJhbGciOi...] (140 chars)
+   Server: http://192.168.86.100:9999
+📱 Using saved HLS URL format for scene 5122: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+📱 Extracted timestamp from URL: 1186
+🎯 scenesContent - filter: search, scope: markers, markers: 50, scenes: 0
+📍 Showing marker search results: 50 markers (total: 105)
+🎯 iPad Toolbar - currentFilter: search
+📡 GraphQL Response Status: 200
+📥 Response preview: {"data":{"findScene":{"id":"4645","title":"","details":"","url":null,"date":null,"rating100":null,"o...
+✅ Found full scene for marker: G Missionary_AI
+ℹ️ Setting startSeconds parameter to 1422.0 for scene 4645
+🎬 Using exact HLS format: http://192.168.86.100:9999/scene/4645/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1422&_ts=1754173233
+🎬 Starting navigation to scene with marker timestamp - should trigger immediate playback
+🔄 Preserving marker shuffle context in standard navigation
+🚀 NAVIGATION - Navigating to scene:  with startSeconds: Optional(1422.0), endSeconds: nil
 🎯 NAVIGATION - Set flag for temporary video navigation
+🎯 scenesContent - filter: search, scope: markers, markers: 50, scenes: 0
+📍 Showing marker search results: 50 markers (total: 105)
+🎯 iPad Toolbar - currentFilter: search
+📱 VideoPlayerView init - scene: 28, startTime: nil, endTime: nil
 🔇 AppDelegate: Main video started - stopping all preview players
-🎲 Skipping audio kill - in shuffle mode (marker: false, tag: true)
-📱 SCENE ROW: Rendering scene: 4959, title: 
-📱 SCENE ROW: Rendering scene: 4950, title: 
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4949, title: Amy Ried Fuck and Facial
-📱 SCENE ROW: Rendering scene: 4946, title: 
+🎬 GlobalVideoManager: Stopping and cleaning up all 0 active preview players
+🎲 Skipping audio kill - in shuffle mode (marker: true, tag: false)
+🎯 scenesContent - filter: search, scope: markers, markers: 50, scenes: 0
+📍 Showing marker search results: 50 markers (total: 105)
+🎯 iPad Toolbar - currentFilter: search
+📱 VideoPlayerView init - scene: 28, startTime: nil, endTime: nil
+🎯 scenesContent - filter: search, scope: markers, markers: 50, scenes: 0
+📍 Showing marker search results: 50 markers (total: 105)
+🎯 iPad Toolbar - currentFilter: search
+⏱ Current playback position: 1189.003236409 seconds
+⏱ Current playback position: 1195.001933344 seconds
+📱 Using saved HLS URL format for scene 5122: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+📱 Extracted timestamp from URL: 1186
+🎯 scenesContent - filter: search, scope: markers, markers: 50, scenes: 0
+📍 Showing marker search results: 50 markers (total: 105)
+🎯 iPad Toolbar - currentFilter: search
+📱 VideoPlayerView init - scene: 28, startTime: nil, endTime: nil
+🎯 scenesContent - filter: search, scope: markers, markers: 50, scenes: 0
+📍 Showing marker search results: 50 markers (total: 105)
+🎯 iPad Toolbar - currentFilter: search
+⏱ Current playback position: 1206.002524465 seconds
+⏱ Current playback position: 1206.002663631 seconds
+📱 Using saved HLS URL format for scene 5122: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+📱 Extracted timestamp from URL: 1186
 🎯 HISTORY - Set lastWatchedScene to: 
-🎯 HISTORY - Added to watch history:  (history count: 1)
-🎯 HISTORY - Full history: [""]
-🎯 Set lastNavigatedSceneId to: 4947
-⏱ Adding scene to navigation path
-🔇 Main video started - stopping preview for scene: Can I Have This Dance...And This Job?
-🔥 Stopping preview for scene: Can I Have This Dance...And This Job?
-🔇 Main video started - stopping preview for scene: 
-🔥 Stopping preview for scene: 
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-🔇 Main video started - stopping preview for scene: 
-🔥 Stopping preview for scene: 
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-🔇 Main video started - stopping preview for scene: 
-🔥 Stopping preview for scene: 
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-🔇 Main video started - stopping preview for scene: Amy Ried Fuck and Facial
-🔥 Stopping preview for scene: Amy Ried Fuck and Facial
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-🔇 Main video started - stopping preview for scene: 
-🔥 Stopping preview for scene: 
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-📱 SCENE ROW: Rendering scene: 4959, title: 
-📱 SCENE ROW: Rendering scene: 4950, title: 
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4951, title: Can I Have This Dance...And This Job?
-📱 SCENE ROW: Rendering scene: 4949, title: Amy Ried Fuck and Facial
-📱 SCENE ROW: Rendering scene: 4946, title: 
-📱 SCENE ROW: Rendering scene: 4948, title: 
-📱 SCENE ROW: Rendering scene: 4945, title: 
-📱 SCENE ROW: Rendering scene: 4996, title: 
-📱 SCENE ROW: Rendering scene: 4954, title: 
-📱 SCENE ROW: Rendering scene: 4955, title: 
-📱 SCENE ROW: Rendering scene: 5003, title: 
-📱 SCENE ROW: Rendering scene: 4958, title: Amy Reid - Craving Big Cocks #13
-📱 SCENE ROW: Rendering scene: 4962, title: Super Naturals 4 - Scene 3
-📱 SCENE ROW: Rendering scene: 4963, title: Amy Reid in Cum Stained Casting Couch 6 Scene 1
-📱 SCENE ROW: Rendering scene: 5082, title: 
-📱 SCENE ROW: Rendering scene: 5048, title: 
-📱 SCENE ROW: Rendering scene: 5052, title: 
-📱 SCENE ROW: Rendering scene: 5045, title: 
-📱 SCENE ROW: Rendering scene: 4961, title: Amy Ried Sucks Thick Dick and Gets Boobs Fucked
-📱 SCENE ROW: Rendering scene: 4971, title: 
-📱 SCENE ROW: Rendering scene: 4977, title: Small town girl loves big dick
-📱 SCENE ROW: Rendering scene: 4980, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
-📱 SCENE ROW: Rendering scene: 4978, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
-📱 SCENE ROW: Rendering scene: 4979, title: Raylin Ann in Free Use Step-Daughter (Gamer step-daughter, Step-Daddy Clears My Head, Cum on my face Step-Daddy, Step-mom And Step-daughter Share A Cock)
-📱 SCENE ROW: Rendering scene: 4990, title: 
-📱 SCENE ROW: Rendering scene: 4991, title: 
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENEROW: Visibility changed for scene 4951 to true
-🔥 Starting preview for scene: Can I Have This Dance...And This Job? with URL: http://192.168.86.100:9999/scene/4951/preview
-📱 SCENEROW: Visibility changed for scene 4950 to true
-🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/4950/preview
-📱 SCENEROW: Visibility changed for scene 4949 to true
-🔥 Starting preview for scene: Amy Ried Fuck and Facial with URL: http://192.168.86.100:9999/scene/4949/preview
-📱 SCENEROW: Visibility changed for scene 4946 to true
-🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/4946/preview
-📱 SCENEROW: Visibility changed for scene 4959 to true
-🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/4959/preview
-🔥 Stopping preview for scene: 
-🔥 Stopping preview for scene: Amy Ried Fuck and Facial
-🔥 Stopping preview for scene: 
-🔥 Stopping preview for scene: Can I Have This Dance...And This Job?
-🔥 Stopping preview for scene: 
-📱 VideoPlayerView init - scene: 4947, startTime: nil, endTime: nil
-📱 Initializing original performer to: Amy Reid (ID: 15)
-🎬 Creating video player for URL: http://192.168.86.100:9999/scene/4947/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-📱 Extracted scene ID: 4947
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/4947/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/4947/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976571
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/4947/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976571
-🎬 Final URL being used: http://192.168.86.100:9999/scene/4947/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976571
-⏱ Explicit start time to use: nil
+🎯 scenesContent - filter: search, scope: markers, markers: 50, scenes: 0
+📍 Showing marker search results: 50 markers (total: 105)
+🎯 iPad Toolbar - currentFilter: search
+📱 VideoPlayerView init - scene: 28, startTime: nil, endTime: nil
+🎯 scenesContent - filter: search, scope: markers, markers: 50, scenes: 0
+📍 Showing marker search results: 50 markers (total: 105)
+🎯 iPad Toolbar - currentFilter: search
+📱 Using saved HLS URL format for scene 5122: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+📱 Extracted timestamp from URL: 1186
+🎯 HISTORY - Added to watch history:  (history count: 5)
+🎯 HISTORY - Full history: ["", "Ashlynn Brooke - She Likes It Big #01", "Melody Marks Squeezes In Some Lucky Hang Time", "", ""]
+🎯 Set lastNavigatedSceneId to: 4645
+⏱ Setting current timestamp to: 1422.0 seconds
+⏱ Shuffle mode: Popping current video and navigating to new one
+🎯 scenesContent - filter: search, scope: markers, markers: 50, scenes: 0
+📍 Showing marker search results: 50 markers (total: 105)
+🎯 iPad Toolbar - currentFilter: search
+📱 VideoPlayerView init - scene: 28, startTime: nil, endTime: nil
+🎯 scenesContent - filter: search, scope: markers, markers: 50, scenes: 0
+📍 Showing marker search results: 50 markers (total: 105)
+🎯 iPad Toolbar - currentFilter: search
+📱 Using saved HLS URL format for scene 5122: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+📱 Extracted timestamp from URL: 1186
+🎯 scenesContent - filter: search, scope: markers, markers: 50, scenes: 0
+📍 Showing marker search results: 50 markers (total: 105)
+🎯 iPad Toolbar - currentFilter: search
+📱 Using saved HLS URL format for scene 5122: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+📱 Extracted timestamp from URL: 1186
+🎯 scenesContent - filter: search, scope: markers, markers: 50, scenes: 0
+📍 Showing marker search results: 50 markers (total: 105)
+🎯 iPad Toolbar - currentFilter: search
+📱 VideoPlayerView init - scene: 4645, startTime: nil, endTime: nil
+📱 Initializing original performer to: Alex Blake (ID: 287)
+📱 Using saved HLS URL format for scene 5122: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+📱 Extracted timestamp from URL: 1186
+🎬 Creating video player for URL: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+📱 Extracted scene ID: 5122
+📱 Using saved exact HLS URL format: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+📱 Extracted timestamp from URL: 1186
+🎬 Final URL being used: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+⏱ Explicit start time to use: Optional(1186.0)
 🎬 Creating player item with AVURLAsset
 ▶️ Attempting to force immediate playback
+▶️ Starting playback before seek
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
 👆 Added pan gesture for swipe seeking: left = seek back 10s, right = seek forward 10s
-🎬 ContentView: StashScene navigation destination appeared for scene 4947
-📱 VideoPlayerView appeared
-🎯 HISTORY - Skipping duplicate scene in VideoPlayerView: 
-📱 Setting original performer to: Amy Reid (gender: FEMALE)
-🔇 AppDelegate: Main video started - stopping all preview players
-📱 FullScreenVideoPlayer appeared with startTime: nil
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4947, title: 
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 VideoPlayerView init - scene: 4947, startTime: nil, endTime: nil
-📱 Initializing original performer to: Amy Reid (ID: 15)
-📱 SCENE ROW: Rendering scene: 4959, title: 
-📱 SCENE ROW: Rendering scene: 4951, title: Can I Have This Dance...And This Job?
-📱 SCENE ROW: Rendering scene: 4950, title: 
-📱 SCENE ROW: Rendering scene: 4949, title: Amy Ried Fuck and Facial
-📱 SCENE ROW: Rendering scene: 4946, title: 
-📱 SCENE ROW: Rendering scene: 4948, title: 
-📱 SCENE ROW: Rendering scene: 4945, title: 
-📱 SCENE ROW: Rendering scene: 4996, title: 
-onChange(of: CGFloat) action tried to update multiple times per frame.
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-🎬 GlobalVideoManager: Stopping and cleaning up all 12 active preview players
-<<<< Async >>>> itemasync_SetProperty signalled err=-12785 (kCMBaseObjectError_Invalidated) (invalidated) at FigPlayer_Async.c:3916
-<<<< Async >>>> itemasync_SetProperty signalled err=-12785 (kCMBaseObjectError_Invalidated) (invalidated) at FigPlayer_Async.c:3916
-<<<< Async >>>> itemasync_SetProperty signalled err=-12785 (kCMBaseObjectError_Invalidated) (invalidated) at FigPlayer_Async.c:3916
-<<<< Async >>>> itemasync_SetProperty signalled err=-12785 (kCMBaseObjectError_Invalidated) (invalidated) at FigPlayer_Async.c:3916
-<<<< Async >>>> itemasync_SetProperty signalled err=-12785 (kCMBaseObjectError_Invalidated) (invalidated) at FigPlayer_Async.c:3916
-<<<< Async >>>> itemasync_SetProperty signalled err=-12785 (kCMBaseObjectError_Invalidated) (invalidated) at FigPlayer_Async.c:3916
-<<<< FigPlayerInterstitial >>>> fpic_ServiceCurrentEvent signalled err=-15671 (kFigPlayerInterstitialError_ClientReleased) (no primary) at FigPlayerInterstitialCoordinator.m:10099
-<<<< FigPlayerInterstitial >>>> fpic_ServiceCurrentEvent signalled err=-15671 (kFigPlayerInterstitialError_ClientReleased) (no primary) at FigPlayerInterstitialCoordinator.m:10099
-Class CKBrowserSwitcherViewController overrides the -traitCollection getter, which is not supported. If you're trying to override traits, you must use the appropriate API.
-<<<< FigPlayerInterstitial >>>> fpic_ServiceCurrentEvent signalled err=-15671 (kFigPlayerInterstitialError_ClientReleased) (no primary) at FigPlayerInterstitialCoordinator.m:10099
-🎬 GlobalVideoManager: Unregistered player, total active: 11
-🎬 GlobalVideoManager: Unregistered player, total active: 10
-🎬 GlobalVideoManager: Unregistered player, total active: 9
-🎲 SCENEROW: Got player from registry, attempting to jump to random position
-🎲 SCENEROW: Player not ready yet, will retry in 1.5 seconds
-🎬 GlobalVideoManager: Unregistered player, total active: 8
-🎬 GlobalVideoManager: Unregistered player, total active: 7
-🎬 GlobalVideoManager: Unregistered player, total active: 6
-AX Safe category class 'CAMFlipAspectRatioButtonAccessibility' was not found!
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-🎬 GlobalVideoManager: Unregistered player, total active: 6
-🎬 GlobalVideoManager: Unregistered player, total active: 6
-🎬 GlobalVideoManager: Unregistered player, total active: 6
-🎬 GlobalVideoManager: Unregistered player, total active: 6
-🎬 GlobalVideoManager: Unregistered player, total active: 6
-[MADService] Client XPC connection invalidated
-🎬 GlobalVideoManager: Stopping and cleaning up all 6 active preview players
+📱 FullScreenVideoPlayer appeared with startTime: Optional(1186.0)
+⏱ FullScreenVideoPlayer will seek to 1186.0 seconds
 🎬 CustomPlayerViewController viewDidAppear - setting up additional gestures
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
+⏱ Current playback position: 1190.084561348 seconds
+⏱ Current playback position: 1196.068527437 seconds
 ⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-🎲 SCENEROW: Player still not ready after retry
+⏱ Current playback position: 1207.000057172 seconds
+⏱ Current playback position: 1207.000049283 seconds
+⏱ CRITICAL: Performing delayed seek to 1186.0 seconds
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
 🎬 Setting up additional gestures with delay...
 👆 Added pan gesture to contentOverlayView
 👆 Added additional pan gestures to player views
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
+⏱ Current playback position: 1191.00005676 seconds
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+⏱ Current playback position: 1197.000547639 seconds
+⏱ Current playback position: 1208.000060085 seconds
+⏱ Current playback position: 1208.000042091 seconds
+⏱ Current playback position: 1192.00006793 seconds
+⏱ Current playback position: 1198.000040622 seconds
+⏱ Current playback position: 1209.000028143 seconds
+⏱ Current playback position: 1209.000047071 seconds
+⏱ Current playback position: 1193.000002964 seconds
+📱 Using saved HLS URL format for scene 5122: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+📱 Extracted timestamp from URL: 1186
+⏱ Current playback position: 1199.000028959 seconds
+⏱ Current playback position: 1210.000067427 seconds
+⏱ Current playback position: 1210.000047164 seconds
+⏱ Seek completed with result: true
+⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
 🎬 Player item status changed to: 1
 🎬 Player item is ready to play
 ⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
 ▶️ Forcing play after ready status
+⏱ CRITICAL: Seeking to explicit time 1186.0 seconds after ready status
 ✅ Player status: PLAYING
-⏱ Current playback position: 0.0 seconds
-⏱ Current playback position: 0.0 seconds
-⏱ Current playback position: 1.000176599 seconds
-🎲 SCENEROW: Final attempt to jump to random position
-🎲 Current video duration: 1574.07 seconds
-🎲 Current position: 1.144859611 seconds
-🎲 Jumping to random position: 710.9896917027376 seconds (11:50)
-🎲 Seeking to new position...
-⏱ Current playback position: 1.148207555 seconds
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-⏱ Current playback position: 710.489 seconds
-✅ Successfully jumped to 11:50
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
+⏱ Seek to 1186.0 completed with result: true
 ✅ Player status: PLAYING
-⏱ Current playback position: 710.489 seconds
-⏱ Current playback position: 710.489 seconds
-⏱ Current playback position: 711.000130914 seconds
-⏱ Current playback position: 712.0001589 seconds
-⏱ Current playback position: 713.000152117 seconds
-🎹 Menu keyboard shortcut received: 16
-🎹 Menu shortcut: M - Performer random scene
-🎯 PERFORMER BUTTON: Starting performer random video function
-📊 CONTEXT DEBUG - playPerformerRandomVideo:
-📊   Current performer: none
-📊   Original performer: Amy Reid
-📊   Context scenes count: 500
-🎯 PERFORMER BUTTON: Current scene:  (ID: 4947)
-🎯 PERFORMER BUTTON: Original performer is: Amy Reid (ID: 15)
-🎯 PERFORMER BUTTON: Using original performer (found in current scene)
-🎯 PERFORMER BUTTON: Selected performer: Amy Reid (ID: 15, gender: FEMALE)
-🎯 PERFORMER BUTTON: Current scene ID: 4947, title: 
-🎯 PERFORMER BUTTON: Fetching scenes with performer ID: 15
-🎯 PERFORMER BUTTON: Executing GraphQL query for performer scenes
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📥 HTTP response: 200
-📥 Response preview: {"data":{"findScenes":{"count":55,"scenes":[{"id":"4956","title":"Amy Ried Award Winning Busty Natur...
-🎯 PERFORMER BUTTON: Found 55 scenes with performer Amy Reid
-🎯 PERFORMER BUTTON: Current scene and VR filtering: 1 scenes excluded
-🎯 PERFORMER BUTTON: After filtering current scene, found 54 other scenes
-🎯 PERFORMER BUTTON: Selected scene: Amy Ried Takes the Big Cock of a Hung Stud on the Couch (ID: 4915)
-🎯 PERFORMER BUTTON: Updating current scene reference and adding to watch history
-🎯 PERFORMER BUTTON: Added to watch history: Amy Ried Takes the Big Cock of a Hung Stud on the Couch (history count: 2)
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Got player reference, preparing to play new content
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/4915/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/4915/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976579
-🎯 PERFORMER BUTTON: Created HLS URL: http://192.168.86.100:9999/scene/4915/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976579
-🎯 PERFORMER BUTTON: Creating new player item with URL: http://192.168.86.100:9999/scene/4915/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976579
-✅ Player status: PLAYING
-✅ Player status: PLAYING
-🎯 PERFORMER BUTTON: Started playing random scene with performer: Amy Reid
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENEROW: Visibility changed for scene 4947 to true
-🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/4947/preview
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENEROW: Visibility changed for scene 4915 to true
-🔥 Starting preview for scene: Amy Ried Takes the Big Cock of a Hung Stud on the Couch with URL: http://192.168.86.100:9999/scene/4915/preview
-📱 VideoPlayerView init - scene: 4947, startTime: nil, endTime: nil
-📱 Initializing original performer to: Amy Reid (ID: 15)
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-⏱ Current playback position: 0.0 seconds
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-🎬 GlobalVideoManager: Registered player, total active: 7
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-🎯 PERFORMER BUTTON: First delayed seek timer fired
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Current item status: 1
-🎯 PERFORMER BUTTON: Player ready with duration: 1811.85 seconds
-🎲 Current video duration: 1811.85 seconds
-🎲 Current position: 0.0 seconds
-🎲 Jumping to random position: 1404.8682106899405 seconds (23:24)
-🎲 Seeking to new position...
-✅ PERFORMER BUTTON: Successfully jumped to random position using utility
-✅ Player status: PLAYING
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-⏱ Current playback position: 1404.368 seconds
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-✅ Successfully jumped to 23:24
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-✅ Player status: PLAYING
-⏱ Current playback position: 1404.368 seconds
-⏱ Current playback position: 1404.368 seconds
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-⏱ Current playback position: 1405.00144811 seconds
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-🎹 Menu keyboard shortcut received: 16
-🎹 Menu shortcut: M - Performer random scene
-🎯 PERFORMER BUTTON: Starting performer random video function
-📊 CONTEXT DEBUG - playPerformerRandomVideo:
-📊   Current performer: none
-📊   Original performer: Amy Reid
-📊   Context scenes count: 500
-🎯 PERFORMER BUTTON: Current scene: Amy Ried Takes the Big Cock of a Hung Stud on the Couch (ID: 4915)
-🎯 PERFORMER BUTTON: Original performer is: Amy Reid (ID: 15)
-🎯 PERFORMER BUTTON: Using original performer (found in current scene)
-🎯 PERFORMER BUTTON: Selected performer: Amy Reid (ID: 15, gender: FEMALE)
-🎯 PERFORMER BUTTON: Current scene ID: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-🎯 PERFORMER BUTTON: Fetching scenes with performer ID: 15
-🎯 PERFORMER BUTTON: Executing GraphQL query for performer scenes
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📥 HTTP response: 200
-📥 Response preview: {"data":{"findScenes":{"count":55,"scenes":[{"id":"4956","title":"Amy Ried Award Winning Busty Natur...
-🎯 PERFORMER BUTTON: Found 55 scenes with performer Amy Reid
-🎯 PERFORMER BUTTON: Current scene and VR filtering: 1 scenes excluded
-🎯 PERFORMER BUTTON: After filtering current scene, found 54 other scenes
-🎯 PERFORMER BUTTON: Selected scene:  (ID: 112)
-🎯 PERFORMER BUTTON: Updating current scene reference and adding to watch history
-🎯 PERFORMER BUTTON: Added to watch history:  (history count: 3)
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Got player reference, preparing to play new content
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/112/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/112/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976586
-🎯 PERFORMER BUTTON: Created HLS URL: http://192.168.86.100:9999/scene/112/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976586
-🎯 PERFORMER BUTTON: Creating new player item with URL: http://192.168.86.100:9999/scene/112/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976586
-✅ Player status: PLAYING
-✅ Player status: PLAYING
-🎯 PERFORMER BUTTON: Started playing random scene with performer: Amy Reid
-⏱ Current playback position: 0.0 seconds
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENEROW: Visibility changed for scene 112 to true
-🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/112/preview
-📱 VideoPlayerView init - scene: 4947, startTime: nil, endTime: nil
-📱 Initializing original performer to: Amy Reid (ID: 15)
-📱 SCENE ROW: Rendering scene: 112, title: 
-🎬 GlobalVideoManager: Registered player, total active: 8
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-✅ Player status: PLAYING
-⏱ Current playback position: 0.0 seconds
-🎯 PERFORMER BUTTON: First delayed seek timer fired
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Current item status: 1
-🎯 PERFORMER BUTTON: Player ready with duration: 2961.78 seconds
-🎲 Current video duration: 2961.78 seconds
-🎲 Current position: 0.0 seconds
-🎲 Jumping to random position: 1929.5375203791593 seconds (32:09)
-🎲 Seeking to new position...
-✅ PERFORMER BUTTON: Successfully jumped to random position using utility
-⏱ Current playback position: 0.0 seconds
-⏱ Current playback position: 0.0 seconds
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 112, title: 
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-⏱ Current playback position: 1930.0 seconds
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-✅ Successfully jumped to 32:09
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-✅ Player status: PLAYING
-⏱ Current playback position: 1930.0 seconds
-⏱ Current playback position: 1930.0 seconds
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 112, title: 
-🎹 Menu keyboard shortcut received: 54
-🎹 Menu shortcut: , - Library random shuffle
-🔄 Starting random video selection with female performer preference
-🔄 Executing GraphQL query for female performer scenes
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📥 HTTP response: 422
-📥 Response preview: {"errors":[{"message":"unknown field","path":["variable","scene_filter","performer_gender"],"extensi...
-❌ Error status: 422
-⚠️ Error fetching female performer scenes: Server Error (422)
-🔄 Falling back to fetch any scene
-🔄 StashAPI.fetchScenes called - page: 1, sort: random, direction: DESC, appendResults: false
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Fetching scenes page 1 (sort: random, direction: DESC)
-📥 HTTP response: 200
-📥 Response data length: 845315 bytes
-📥 First 500 characters of response: {"data":{"findScenes":{"count":4638,"scenes":[{"id":"3411","title":"Early Desire","details":"Nataliastarr got a ride home from her older brothers friend, Ryan. She hinted that no one was home and she wanted him to come in, but he did not get it. So, she straight up asked him to come inside to fuck her. He explained that she was his brothers younger sister and he could not do it. She unbuttoned her shirt and slowly pulled out her big beautiful tits. He could not resist to touch and squeeze those 
-✅ Loaded 500 scenes (filtered from 500 total)
-✅ Selected fallback random scene: Big Titty Moms
-🔄 FALLBACK SHUFFLE: Added to watch history: Big Titty Moms (history count: 4)
-🔄 Updating original performer to: Austin Kincaid
-▶️ Retrieved player from registry
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/553/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/553/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976591
-✅ Player status: PLAYING
-✅ Player status: PLAYING
-📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/553/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=627&_ts=1750972349
-📱 Extracted timestamp from URL: 627
-Modifying state during view update, this will cause undefined behavior.
-📱 Updated effectiveStartTime to 627 from URL
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENEROW: Visibility changed for scene 553 to true
-🔥 Starting preview for scene: Big Titty Moms with URL: http://192.168.86.100:9999/scene/553/preview
-📱 VideoPlayerView init - scene: 4947, startTime: nil, endTime: nil
-📱 Initializing original performer to: Amy Reid (ID: 15)
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-⏱ Current playback position: 0.0 seconds
-🎬 GlobalVideoManager: Registered player, total active: 9
-📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/553/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=627&_ts=1750972349
-📱 Extracted timestamp from URL: 627
-Modifying state during view update, this will cause undefined behavior.
-📱 Updated effectiveStartTime to 627 from URL
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 112, title: 
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-✅ Player status: PLAYING
-⏱ Current playback position: 0.0 seconds
-⏱ Current playback position: 0.0 seconds
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 112, title: 
-⏱ Current playback position: 1.000072511 seconds
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 112, title: 
-⏱ Current playback position: 2.000146589 seconds
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 112, title: 
-⏱ Current playback position: 3.000159657 seconds
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/553/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=627&_ts=1750972349
-📱 Extracted timestamp from URL: 627
-Modifying state during view update, this will cause undefined behavior.
-📱 Updated effectiveStartTime to 627 from URL
-⏱ Current playback position: 4.001036523 seconds
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 112, title: 
-🎹 Menu keyboard shortcut received: 16
-🎹 Menu shortcut: M - Performer random scene
-🎯 PERFORMER BUTTON: Starting performer random video function
-📊 CONTEXT DEBUG - playPerformerRandomVideo:
-📊   Current performer: none
-📊   Original performer: Austin Kincaid
-📊   Context scenes count: 500
-🎯 PERFORMER BUTTON: Current scene: Big Titty Moms (ID: 553)
-🎯 PERFORMER BUTTON: Original performer is: Austin Kincaid (ID: 35)
-🎯 PERFORMER BUTTON: Using original performer (found in current scene)
-🎯 PERFORMER BUTTON: Selected performer: Austin Kincaid (ID: 35, gender: FEMALE)
-🎯 PERFORMER BUTTON: Current scene ID: 553, title: Big Titty Moms
-🎯 PERFORMER BUTTON: Fetching scenes with performer ID: 35
-🎯 PERFORMER BUTTON: Executing GraphQL query for performer scenes
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📥 HTTP response: 200
-📥 Response preview: {"data":{"findScenes":{"count":170,"scenes":[{"id":"553","title":"Big Titty Moms","details":"","path...
-🎯 PERFORMER BUTTON: Found 100 scenes with performer Austin Kincaid
-🎯 PERFORMER BUTTON: Current scene and VR filtering: 1 scenes excluded
-🎯 PERFORMER BUTTON: After filtering current scene, found 99 other scenes
-🎯 PERFORMER BUTTON: Selected scene: Tough Guys (ID: 3939)
-🎯 PERFORMER BUTTON: Updating current scene reference and adding to watch history
-🎯 PERFORMER BUTTON: Added to watch history: Tough Guys (history count: 5)
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Got player reference, preparing to play new content
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/3939/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/3939/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976597
-🎯 PERFORMER BUTTON: Created HLS URL: http://192.168.86.100:9999/scene/3939/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976597
-🎯 PERFORMER BUTTON: Creating new player item with URL: http://192.168.86.100:9999/scene/3939/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976597
-✅ Player status: PLAYING
-✅ Player status: PLAYING
-🎯 PERFORMER BUTTON: Started playing random scene with performer: Austin Kincaid
-⏱ Current playback position: 0.0 seconds
-📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/3939/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1486&_ts=1748810164
-📱 Extracted timestamp from URL: 1486
-Modifying state during view update, this will cause undefined behavior.
-📱 Updated effectiveStartTime to 1486 from URL
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENEROW: Visibility changed for scene 3939 to true
-🔥 Starting preview for scene: Tough Guys with URL: http://192.168.86.100:9999/scene/3939/preview
-nw_connection_copy_protocol_metadata_internal_block_invoke [C10] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
-nw_connection_copy_protocol_metadata_internal_block_invoke [C10] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
-nw_connection_copy_connected_local_endpoint_block_invoke [C10] Client called nw_connection_copy_connected_local_endpoint on unconnected nw_connection
-nw_connection_copy_connected_remote_endpoint_block_invoke [C10] Client called nw_connection_copy_connected_remote_endpoint on unconnected nw_connection
-📱 VideoPlayerView init - scene: 4947, startTime: nil, endTime: nil
-📱 Initializing original performer to: Amy Reid (ID: 15)
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-🎬 GlobalVideoManager: Registered player, total active: 10
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-✅ Player status: PLAYING
-⏱ Current playback position: 0.0 seconds
-⏱ Current playback position: 0.0 seconds
-🎯 PERFORMER BUTTON: First delayed seek timer fired
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Current item status: 1
-🎯 PERFORMER BUTTON: Player ready with duration: 1801.17 seconds
-🎲 Current video duration: 1801.17 seconds
-🎲 Current position: 0.057059253 seconds
-🎲 Jumping to random position: 1319.8374635664884 seconds (21:59)
-🎲 Seeking to new position...
-✅ PERFORMER BUTTON: Successfully jumped to random position using utility
-⏱ Current playback position: 0.060591511 seconds
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-⏱ Current playback position: 1320.0 seconds
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-✅ Successfully jumped to 21:59
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-✅ Player status: PLAYING
-⏱ Current playback position: 1320.0 seconds
-⏱ Current playback position: 1320.0 seconds
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-🎹 Menu keyboard shortcut received: 54
-🎹 Menu shortcut: , - Library random shuffle
-📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/3939/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1486&_ts=1748810164
-📱 Extracted timestamp from URL: 1486
-Modifying state during view update, this will cause undefined behavior.
-📱 Updated effectiveStartTime to 1486 from URL
-🔄 Starting random video selection with female performer preference
-🔄 Executing GraphQL query for female performer scenes
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📥 HTTP response: 422
-📥 Response preview: {"errors":[{"message":"unknown field","path":["variable","scene_filter","performer_gender"],"extensi...
-❌ Error status: 422
-⚠️ Error fetching female performer scenes: Server Error (422)
-🔄 Falling back to fetch any scene
-🔄 StashAPI.fetchScenes called - page: 1, sort: random, direction: DESC, appendResults: false
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Fetching scenes page 1 (sort: random, direction: DESC)
-📥 HTTP response: 200
-📥 Response data length: 874446 bytes
-📥 First 500 characters of response: {"data":{"findScenes":{"count":4638,"scenes":[{"id":"2260","title":"May 2021 Flavor Of The Month Lacy Lennon - S1:E9","details":"Lacy Lennon is sick of her stepbrother Will Pounder leaving a mess everywhere! She walks through the house and all she sees is Will's crap. When she goes to Will's room, she sees that it's a wreck, too. Lacy tries to get Will to clean up, but he isn't interested. Lacy has a thought about how to get her stepbro to start carrying his weight. Dipping out of the room, she 
-✅ Loaded 500 scenes (filtered from 500 total)
-✅ Selected fallback random scene: Teen & Mom School Slut Stories Part One
-🔄 FALLBACK SHUFFLE: Added to watch history: Teen & Mom School Slut Stories Part One (history count: 6)
-🔄 Updating original performer to: Brick Danger
-▶️ Retrieved player from registry
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/2495/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/2495/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976602
-✅ Player status: PLAYING
-✅ Player status: PLAYING
-⏱ Current playback position: 0.0 seconds
-📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/2495/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1663&_ts=1748878560
-📱 Extracted timestamp from URL: 1663
-Modifying state during view update, this will cause undefined behavior.
-📱 Updated effectiveStartTime to 1663 from URL
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENEROW: Visibility changed for scene 2495 to true
-🔥 Starting preview for scene: Teen & Mom School Slut Stories Part One with URL: http://192.168.86.100:9999/scene/2495/preview
-📱 VideoPlayerView init - scene: 4947, startTime: nil, endTime: nil
-📱 Initializing original performer to: Amy Reid (ID: 15)
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-🎬 GlobalVideoManager: Registered player, total active: 11
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-✅ Player status: PLAYING
-⏱ Current playback position: 0.0 seconds
-⏱ Current playback position: 0.0 seconds
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-⏱ Current playback position: 1.000146521 seconds
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-🎹 Menu keyboard shortcut received: 17
-🎹 Menu shortcut: N - Random position jump
-▶️ Retrieved player from registry
-🎲 Current video duration: 1971.21 seconds
-🎲 Current position: 1.82307659 seconds
-🎲 Jumping to random position: 1490.5075376307896 seconds (24:50)
-🎲 Seeking to new position...
-📱 Using saved HLS URL format: http://192.168.86.100:9999/scene/2495/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1663&_ts=1748878560
-📱 Extracted timestamp from URL: 1663
-Modifying state during view update, this will cause undefined behavior.
-📱 Updated effectiveStartTime to 1663 from URL
-⏱ Current playback position: 1.826587201 seconds
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-⏱ Current playback position: 1490.007 seconds
-✅ Successfully jumped to 24:50
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-✅ Player status: PLAYING
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-⏱ Current playback position: 1490.007 seconds
-⏱ Current playback position: 1490.007 seconds
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-🎹 Menu keyboard shortcut received: 16
-🎹 Menu shortcut: M - Performer random scene
-🎯 PERFORMER BUTTON: Starting performer random video function
-📊 CONTEXT DEBUG - playPerformerRandomVideo:
-📊   Current performer: none
-📊   Original performer: Brick Danger
-📊   Context scenes count: 500
-🎯 PERFORMER BUTTON: Current scene: Teen & Mom School Slut Stories Part One (ID: 2495)
-🎯 PERFORMER BUTTON: Original performer is: Brick Danger (ID: 206)
-🎯 PERFORMER BUTTON: Using original performer (found in current scene)
-🎯 PERFORMER BUTTON: Selected performer: Brick Danger (ID: 206, gender: MALE)
-🎯 PERFORMER BUTTON: Current scene ID: 2495, title: Teen & Mom School Slut Stories Part One
-🎯 PERFORMER BUTTON: Fetching scenes with performer ID: 206
-🎯 PERFORMER BUTTON: Executing GraphQL query for performer scenes
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📥 HTTP response: 200
-📥 Response preview: {"data":{"findScenes":{"count":10,"scenes":[{"id":"2765","title":"Prankster Penis For Stepsis","deta...
-🎯 PERFORMER BUTTON: Found 10 scenes with performer Brick Danger
-🎯 PERFORMER BUTTON: Current scene and VR filtering: 1 scenes excluded
-🎯 PERFORMER BUTTON: After filtering current scene, found 9 other scenes
-🎯 PERFORMER BUTTON: Selected scene: Lots On Top (ID: 2365)
-🎯 PERFORMER BUTTON: Updating current scene reference and adding to watch history
-🎯 PERFORMER BUTTON: Added to watch history: Lots On Top (history count: 7)
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Got player reference, preparing to play new content
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/2365/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/2365/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976608
-🎯 PERFORMER BUTTON: Created HLS URL: http://192.168.86.100:9999/scene/2365/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976608
-🎯 PERFORMER BUTTON: Creating new player item with URL: http://192.168.86.100:9999/scene/2365/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976608
-✅ Player status: PLAYING
-✅ Player status: PLAYING
-🎯 PERFORMER BUTTON: Started playing random scene with performer: Brick Danger
-⏱ Current playback position: 0.0 seconds
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 VideoPlayerView init - scene: 4947, startTime: nil, endTime: nil
-📱 Initializing original performer to: Amy Reid (ID: 15)
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-✅ Player status: PLAYING
-🎯 PERFORMER BUTTON: First delayed seek timer fired
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Current item status: 1
-🎯 PERFORMER BUTTON: Player ready with duration: 2170.04 seconds
-🎲 Current video duration: 2170.04 seconds
-🎲 Current position: 0.0 seconds
-🎲 Jumping to random position: 999.1669885637925 seconds (16:39)
-🎲 Seeking to new position...
-✅ PERFORMER BUTTON: Successfully jumped to random position using utility
-⏱ Current playback position: 0.0 seconds
-⏱ Current playback position: 0.0 seconds
-⏱ Current playback position: 0.0 seconds
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-⏱ Current playback position: 998.666 seconds
-✅ Successfully jumped to 16:39
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-✅ Player status: PLAYING
-⏱ Current playback position: 998.666 seconds
-⏱ Current playback position: 998.666 seconds
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-⏱ Current playback position: 999.000230193 seconds
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-[MADService] Client XPC connection invalidated
-⏱ Current playback position: 1000.002664858 seconds
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-🎹 Menu keyboard shortcut received: 17
-🎹 Menu shortcut: N - Random position jump
-▶️ Retrieved player from registry
-🎲 Current video duration: 2170.04 seconds
-🎲 Current position: 1000.391405621 seconds
-🎲 Jumping to random position: 1466.1978400225796 seconds (24:26)
-🎲 Seeking to new position...
-⏱ Current playback position: 1000.39495043 seconds
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-⏱ Current playback position: 1466.0 seconds
-✅ Successfully jumped to 24:26
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-✅ Player status: PLAYING
-⏱ Current playback position: 1466.0 seconds
-⏱ Current playback position: 1466.0 seconds
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-🎹 Menu keyboard shortcut received: 16
-🎹 Menu shortcut: M - Performer random scene
-🎯 PERFORMER BUTTON: Starting performer random video function
-📊 CONTEXT DEBUG - playPerformerRandomVideo:
-📊   Current performer: none
-📊   Original performer: Brick Danger
-📊   Context scenes count: 500
-🎯 PERFORMER BUTTON: Current scene: Lots On Top (ID: 2365)
-🎯 PERFORMER BUTTON: Original performer is: Brick Danger (ID: 206)
-🎯 PERFORMER BUTTON: Using original performer (found in current scene)
-🎯 PERFORMER BUTTON: Selected performer: Brick Danger (ID: 206, gender: MALE)
-🎯 PERFORMER BUTTON: Current scene ID: 2365, title: Lots On Top
-🎯 PERFORMER BUTTON: Fetching scenes with performer ID: 206
-🎯 PERFORMER BUTTON: Executing GraphQL query for performer scenes
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📥 HTTP response: 200
-📥 Response preview: {"data":{"findScenes":{"count":10,"scenes":[{"id":"2765","title":"Prankster Penis For Stepsis","deta...
-🎯 PERFORMER BUTTON: Found 10 scenes with performer Brick Danger
-🎯 PERFORMER BUTTON: Current scene and VR filtering: 1 scenes excluded
-🎯 PERFORMER BUTTON: After filtering current scene, found 9 other scenes
-🎯 PERFORMER BUTTON: Selected scene: Pussy Lessons With A Milf! (ID: 3515)
-🎯 PERFORMER BUTTON: Updating current scene reference and adding to watch history
-🎯 PERFORMER BUTTON: Added to watch history: Pussy Lessons With A Milf! (history count: 8)
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Got player reference, preparing to play new content
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/3515/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/3515/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976617
-🎯 PERFORMER BUTTON: Created HLS URL: http://192.168.86.100:9999/scene/3515/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976617
-🎯 PERFORMER BUTTON: Creating new player item with URL: http://192.168.86.100:9999/scene/3515/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976617
-✅ Player status: PLAYING
-✅ Player status: PLAYING
-🎯 PERFORMER BUTTON: Started playing random scene with performer: Brick Danger
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 VideoPlayerView init - scene: 4947, startTime: nil, endTime: nil
-📱 Initializing original performer to: Amy Reid (ID: 15)
-⏱ Current playback position: 0.0 seconds
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-✅ Player status: PLAYING
-⏱ Current playback position: 0.0 seconds
-⏱ Current playback position: 0.0 seconds
-🎯 PERFORMER BUTTON: First delayed seek timer fired
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Current item status: 1
-🎯 PERFORMER BUTTON: Player ready with duration: 2498.86 seconds
-🎲 Current video duration: 2498.86 seconds
-🎲 Current position: 0.202438242 seconds
-🎲 Jumping to random position: 1874.5427174693161 seconds (31:14)
-🎲 Seeking to new position...
-✅ PERFORMER BUTTON: Successfully jumped to random position using utility
-⏱ Current playback position: 0.206453154 seconds
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-⏱ Current playback position: 1874.042 seconds
-✅ Successfully jumped to 31:14
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-✅ Player status: PLAYING
-⏱ Current playback position: 1874.042 seconds
-⏱ Current playback position: 1874.042 seconds
-⏱ Current playback position: 1875.003282774 seconds
-🎹 Menu keyboard shortcut received: 54
-🎹 Menu shortcut: , - Library random shuffle
-🔄 Starting random video selection with female performer preference
-🔄 Executing GraphQL query for female performer scenes
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📥 HTTP response: 422
-📥 Response preview: {"errors":[{"message":"unknown field","path":["variable","scene_filter","performer_gender"],"extensi...
-❌ Error status: 422
-⚠️ Error fetching female performer scenes: Server Error (422)
-🔄 Falling back to fetch any scene
-🔄 StashAPI.fetchScenes called - page: 1, sort: random, direction: DESC, appendResults: false
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Fetching scenes page 1 (sort: random, direction: DESC)
-📥 HTTP response: 200
-📥 Response data length: 861750 bytes
-📥 First 500 characters of response: {"data":{"findScenes":{"count":4638,"scenes":[{"id":"1953","title":"","details":"","url":null,"date":null,"rating100":null,"organized":false,"o_counter":0,"paths":{"screenshot":"http://192.168.86.100:9999/scene/1953/screenshot?t=1723838094","preview":"http://192.168.86.100:9999/scene/1953/preview","stream":"http://192.168.86.100:9999/scene/1953/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zX
-✅ Loaded 500 scenes (filtered from 500 total)
-✅ Selected fallback random scene: 
-🔄 FALLBACK SHUFFLE: Added to watch history:  (history count: 9)
-🔄 Updating original performer to: Maxi Booty
-▶️ Retrieved player from registry
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/3338/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/3338/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976623
-✅ Player status: PLAYING
-✅ Player status: PLAYING
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 VideoPlayerView init - scene: 4947, startTime: nil, endTime: nil
-📱 Initializing original performer to: Amy Reid (ID: 15)
-⏱ Current playback position: 0.0 seconds
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-⏱ Current playback position: 0.06977777777777777 seconds
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-✅ Player status: PLAYING
-⏱ Current playback position: 0.069777778 seconds
-⏱ Current playback position: 0.069777778 seconds
-⏱ Current playback position: 1.000127467 seconds
-🎹 Menu keyboard shortcut received: 54
-🎹 Menu shortcut: , - Library random shuffle
-🔄 Starting random video selection with female performer preference
-🔄 Executing GraphQL query for female performer scenes
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📥 HTTP response: 422
-📥 Response preview: {"errors":[{"message":"unknown field","path":["variable","scene_filter","performer_gender"],"extensi...
-❌ Error status: 422
-⚠️ Error fetching female performer scenes: Server Error (422)
-🔄 Falling back to fetch any scene
-🔄 StashAPI.fetchScenes called - page: 1, sort: random, direction: DESC, appendResults: false
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Fetching scenes page 1 (sort: random, direction: DESC)
-📥 HTTP response: 200
-📥 Response data length: 876911 bytes
-📥 First 500 characters of response: {"data":{"findScenes":{"count":4638,"scenes":[{"id":"4783","title":"","details":"","url":null,"date":null,"rating100":null,"organized":false,"o_counter":0,"paths":{"screenshot":"http://192.168.86.100:9999/scene/4783/screenshot?t=1744820693","preview":"http://192.168.86.100:9999/scene/4783/preview","stream":"http://192.168.86.100:9999/scene/4783/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zX
-✅ Loaded 500 scenes (filtered from 500 total)
-✅ Selected fallback random scene: 
-🔄 FALLBACK SHUFFLE: Added to watch history:  (history count: 10)
-🔄 Updating original performer to: Kagney Linn Karter
-▶️ Retrieved player from registry
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/2013/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/2013/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976625
-✅ Player status: PLAYING
-✅ Player status: PLAYING
-⏱ Current playback position: 0.0 seconds
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 VideoPlayerView init - scene: 4947, startTime: nil, endTime: nil
-📱 Initializing original performer to: Amy Reid (ID: 15)
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-✅ Player status: PLAYING
-⏱ Current playback position: 0.0 seconds
-⏱ Current playback position: 0.0 seconds
-⏱ Current playback position: 1.00018804 seconds
-🎹 Menu keyboard shortcut received: 16
-🎹 Menu shortcut: M - Performer random scene
-🎯 PERFORMER BUTTON: Starting performer random video function
-📊 CONTEXT DEBUG - playPerformerRandomVideo:
-📊   Current performer: none
-📊   Original performer: Kagney Linn Karter
-📊   Context scenes count: 500
-🎯 PERFORMER BUTTON: Current scene:  (ID: 2013)
-🎯 PERFORMER BUTTON: Original performer is: Kagney Linn Karter (ID: 156)
-🎯 PERFORMER BUTTON: Using original performer (found in current scene)
-🎯 PERFORMER BUTTON: Selected performer: Kagney Linn Karter (ID: 156, gender: FEMALE)
-🎯 PERFORMER BUTTON: Current scene ID: 2013, title: 
-🎯 PERFORMER BUTTON: Fetching scenes with performer ID: 156
-🎯 PERFORMER BUTTON: Executing GraphQL query for performer scenes
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📥 HTTP response: 200
-📥 Response preview: {"data":{"findScenes":{"count":38,"scenes":[{"id":"3309","title":"Kagney Gets Ready For Cock","detai...
-🎯 PERFORMER BUTTON: Found 38 scenes with performer Kagney Linn Karter
-🎯 PERFORMER BUTTON: Current scene and VR filtering: 1 scenes excluded
-🎯 PERFORMER BUTTON: After filtering current scene, found 37 other scenes
-🎯 PERFORMER BUTTON: Selected scene:  (ID: 2002)
-🎯 PERFORMER BUTTON: Updating current scene reference and adding to watch history
-🎯 PERFORMER BUTTON: Added to watch history:  (history count: 11)
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Got player reference, preparing to play new content
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/2002/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/2002/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976629
-🎯 PERFORMER BUTTON: Created HLS URL: http://192.168.86.100:9999/scene/2002/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976629
-🎯 PERFORMER BUTTON: Creating new player item with URL: http://192.168.86.100:9999/scene/2002/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976629
-✅ Player status: PLAYING
-✅ Player status: PLAYING
-🎯 PERFORMER BUTTON: Started playing random scene with performer: Kagney Linn Karter
-⏱ Current playback position: 0.0 seconds
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 VideoPlayerView init - scene: 4947, startTime: nil, endTime: nil
-📱 Initializing original performer to: Amy Reid (ID: 15)
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-✅ Player status: PLAYING
-⏱ Current playback position: 0.0 seconds
-⏱ Current playback position: 0.0 seconds
-🎯 PERFORMER BUTTON: First delayed seek timer fired
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Current item status: 1
-🎯 PERFORMER BUTTON: Player ready with duration: 1030.03 seconds
-🎲 Current video duration: 1030.03 seconds
-🎲 Current position: 0.070107056 seconds
-🎲 Jumping to random position: 448.6890069280319 seconds (7:28)
-🎲 Seeking to new position...
-✅ PERFORMER BUTTON: Successfully jumped to random position using utility
-⏱ Current playback position: 0.073260394 seconds
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-⏱ Current playback position: 448.189 seconds
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-✅ Successfully jumped to 7:28
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-✅ Player status: PLAYING
-⏱ Current playback position: 448.189 seconds
-⏱ Current playback position: 448.189 seconds
-⏱ Current playback position: 449.000164914 seconds
-🎹 Menu keyboard shortcut received: 17
-🎹 Menu shortcut: N - Random position jump
-▶️ Retrieved player from registry
-🎲 Current video duration: 1030.03 seconds
-🎲 Current position: 449.674120819 seconds
-🎲 Jumping to random position: 573.9141445260498 seconds (9:33)
-🎲 Seeking to new position...
-⏱ Current playback position: 449.676520497 seconds
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-⏱ Current playback position: 574.0 seconds
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-✅ Successfully jumped to 9:33
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-✅ Player status: PLAYING
-⏱ Current playback position: 574.0 seconds
-⏱ Current playback position: 574.0 seconds
-⏱ Current playback position: 575.00434666 seconds
-⏱ Current playback position: 576.00007413 seconds
-👆 Tap detected - toggling controls
-⏱ Current playback position: 577.000060381 seconds
-⏱ Current playback position: 578.00014723 seconds
+▶️ CRITICAL: Playback forced after seeking
+⏱ Current playback position: 1186.0 seconds
+⏱ Current playback position: 1186.0 seconds
+⏱ Current playback position: 1194.000049262 seconds
+⏱ Current playback position: 1200.000050065 seconds
+⏱ Current playback position: 1211.000051385 seconds
+⏱ Current playback position: 1211.000054643 seconds
+👆 Tap detected - showing controls
+📱 Using saved HLS URL format for scene 5122: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+📱 Extracted timestamp from URL: 1186
+⏱ Current playback position: 1187.000055613 seconds
+⏱ Current playback position: 1195.00006335 seconds
+⏱ Current playback position: 1201.000957136 seconds
 🔄 Close button tapped
 📱 Force closing video player (manual exit: true)
 🔇 AGGRESSIVE AUDIO CLEANUP: Killing all audio
@@ -1167,919 +202,48 @@ Modifying state during view update, this will cause undefined behavior.
 🎯 NAVIGATION - Cleared temporary video navigation flag
 📱 Removed last navigation item, remaining path count: 0
 🎯 HISTORY - Manual exit to scenes tab, will show watch history
-🎯 HISTORY - Set flag to show watch history (11 scenes)
-🎯 HISTORY - Set scrollToSceneId to first in history: 4947
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-⏱ Current playback position: 578.06271839 seconds
-🎬 GlobalVideoManager: Stopping and cleaning up all 11 active preview players
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-🧹 GlobalVideoManager: Cleaning up all 11 active players
+🎯 HISTORY - Set flag to show watch history (5 scenes)
+🎯 HISTORY - Set scrollToSceneId to first in history: 5122
+📱 Using saved HLS URL format for scene 5122: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+📱 Extracted timestamp from URL: 1186
+🎯 scenesContent - filter: search, scope: markers, markers: 50, scenes: 0
+📍 Showing marker search results: 50 markers (total: 105)
+🎯 iPad Toolbar - currentFilter: search
+🎯 scenesContent - filter: search, scope: markers, markers: 50, scenes: 0
+📍 Showing marker search results: 50 markers (total: 105)
+🎯 iPad Toolbar - currentFilter: search
+📱 Using saved HLS URL format for scene 5122: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+📱 Extracted timestamp from URL: 1186
+🏷️ Available tags from current results: 2
+⏱ Current playback position: 1187.328991321 seconds
+⏱ Current playback position: 1212.272800932 seconds
+🎬 GlobalVideoManager: Stopping and cleaning up all 0 active preview players
 🧹 GlobalVideoManager: Cleaning up all 0 active players
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
+🧹 GlobalVideoManager: Cleaning up all 0 active players
+⏱ Current playback position: 1212.244978419 seconds
+⏱ Current playback position: 1196.00006364 seconds
+⏱ Current playback position: 1202.000038111 seconds
+📱 Using saved HLS URL format for scene 5122: http://192.168.86.100:9999/scene/5122/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&t=1186&_ts=1754173205
+📱 Extracted timestamp from URL: 1186
 📱 VideoPlayerView disappeared - cleaning up video player
 🎲 Skipping video player cleanup - in shuffle mode
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-Visual isTranslatable: NO; reason: observation failure: noObservations
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 500
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 Tab changed to: performers
-📱 PerformersContent onAppear called
-📱 Current performer count: 195
-📱 Is loading: false
-📱 Loading performers for tab
-📡 Fetching performers with query: {
-    "operationName": "FindPerformers",
-    "variables": {
-        "filter": {
-            "q": "",
-            "page": 1,
-            "per_page": 10000,
-            "sort": "name",
-            "direction": "ASC"
-        },
-        "performer_filter": {
-            "gender": {
-                "value": "FEMALE",
-                "modifier": "EQUALS"
-            },
-            "scene_count": {
-                "modifier": "GREATER_THAN",
-                "value": "2"
-            }
-        }
-    },
-    "query": "query FindPerformers($filter: FindFilterType, $performer_filter: PerformerFilterType) { findPerformers(filter: $filter, performer_filter: $performer_filter) { count performers { id name gender image_path scene_count favorite } } }"
-}
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📥 HTTP response: 200
-📥 Response preview: {"data":{"findPerformers":{"count":195,"performers":[{"id":"1","name":"Abbey Rain","gender":"FEMALE"...
-📊 PerformersAPI: Setting performers array with 195 performers
-📊 PerformersAPI: After setting, self.performers has 195 items
-✅ Loaded 195 performers
-🔥 Stopping preview for scene: Teen & Mom School Slut Stories Part One
-🔥 Stopping preview for scene: Tough Guys
-🔥 Stopping preview for scene: Big Titty Moms
-🔥 Stopping preview for scene: 
-🔥 Stopping preview for scene: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-🔥 Stopping preview for scene: 
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-<<<< PlayerRemoteXPC >>>> remoteXPCPlayer_clearVideoLayer signalled err=-12860 (kFigPlayerError_ParamErr) (Not supported when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:5670
-<<<< Async >>>> itemasync_SetProperty signalled err=-12785 (kCMBaseObjectError_Invalidated) (invalidated) at FigPlayer_Async.c:3916
-🚀 NAVIGATION - Navigating to performer: Alex Blake (ID: 287)
-🔍 NAVIGATION - Current stack: NavigationPath(_items: SwiftUI.NavigationPath.(unknown context at $199b1a0d0).Representation.eager([]), subsequentItems: [], iterationIndex: 0)
-🧹 NAVIGATION - Cleared existing data
-🏁 NAVIGATION - Navigation completed to performer: Alex Blake
-🔄 NAVIGATION - Starting scene load for performer
-🔄 NAVIGATION - Using direct GraphQL query for performer scenes
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-🔄 MediaLibraryView .onAppear fallback - loading initial scenes
-📥 HTTP response: 200
-📥 Response preview: {"data":{"findScenes":{"count":43,"scenes":[{"id":"4631","title":"Pigtails of Vengence","details":"I...
-🚀 DETAIL - PerformerDetailView appeared for performer: Alex Blake (ID: 287)
-🎯 DETAIL - Set currentPerformer to: Alex Blake
-🚀 DETAIL - Restoring saved tab: 0
-🔄 MediaLibraryView .task triggered - loading initial scenes
-📱 initialLoad() called - currentFilter: default
-📤 loadScenes called - currentFilter: default, searchScope: scenes, markers count: 0
-🔄 StashAPI.fetchScenes called - page: 1, sort: file_mod_time, direction: DESC, appendResults: false
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Fetching scenes page 1 (sort: file_mod_time, direction: DESC)
-✅ NAVIGATION - Scene load completed with 43 scenes via direct GraphQL
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-📱 initialLoad() called - currentFilter: default
-📤 loadScenes called - currentFilter: default, searchScope: scenes, markers count: 0
-🔄 StashAPI.fetchScenes called - page: 1, sort: file_mod_time, direction: DESC, appendResults: false
-✅ DETAIL - Synced 0 existing scenes
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Fetching scenes page 1 (sort: file_mod_time, direction: DESC)
-📊 Fetching marker count for performer: Alex Blake (ID: 287)
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-📥 HTTP response: 200
-📥 Response preview: {"data":{"findSceneMarkers":{"count":2}}}...
-📊 Marker count raw response: {"data":{"findSceneMarkers":{"count":2}}}...
-✅ Found 2 markers for performer Alex Blake
-📥 HTTP response: 200
-📥 Response data length: 825607 bytes
-📥 First 500 characters of response: {"data":{"findScenes":{"count":4638,"scenes":[{"id":"4991","title":"","details":"","url":null,"date":null,"rating100":null,"organized":false,"o_counter":0,"paths":{"screenshot":"http://192.168.86.100:9999/scene/4991/screenshot?t=1748610076","preview":"http://192.168.86.100:9999/scene/4991/preview","stream":"http://192.168.86.100:9999/scene/4991/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zX
-✅ Loaded 500 scenes (filtered from 500 total)
-🔄 Loaded scenes in MediaLibraryView (onAppear): 500
-📥 HTTP response: 200
-📥 Response data length: 825607 bytes
-📥 First 500 characters of response: {"data":{"findScenes":{"count":4638,"scenes":[{"id":"4991","title":"","details":"","url":null,"date":null,"rating100":null,"organized":false,"o_counter":0,"paths":{"screenshot":"http://192.168.86.100:9999/scene/4991/screenshot?t=1748610076","preview":"http://192.168.86.100:9999/scene/4991/preview","stream":"http://192.168.86.100:9999/scene/4991/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zX
-✅ Loaded 500 scenes (filtered from 500 total)
-🔄 Loaded scenes in MediaLibraryView: 500
-💫 Tab changed to: 1
-💫 Saved tab selection: 1
-🔍 LOADMARKERS - Starting load of markers for performer: Alex Blake (ID: 287)
-🧹 LOADMARKERS - Cleared markers array
-🔄 LOADMARKERS - Calling fetchPerformerMarkers for performer 287
-🔍🔍🔍 DEBUG: Fetching markers for performer ID: 287, page: 1
-🔍 DEBUG: Performer markers GraphQL request:
-📋 FULL GraphQL body: {"operationName":"FindSceneMarkers","query":"query FindSceneMarkers($filter: FindFilterType, $scene_marker_filter: SceneMarkerFilterType) {\n  findSceneMarkers(filter: $filter, scene_marker_filter: $scene_marker_filter) {\n    count\n    scene_markers { \n      id \n      title \n      seconds \n      end_seconds\n      stream\n      preview\n      screenshot\n      scene {\n        id\n        title\n        performers {\n          id\n          name\n          image_path\n        }\n      }\n      primary_tag {\n        id\n        name\n      }\n      tags {\n        id\n        name\n      }\n    }\n  }\n}","variables":{"filter":{"per_page":50,"direction":"ASC","page":1,"sort":"random_827617"},"scene_marker_filter":{"performers":{"value":["287"],"modifier":"INCLUDES_ALL"}}}}
-📋 performerId being used: 287
-📤 FINAL GraphQL request body:
-{"operationName":"FindSceneMarkers","query":"query FindSceneMarkers($filter: FindFilterType, $scene_marker_filter: SceneMarkerFilterType) {\n  findSceneMarkers(filter: $filter, scene_marker_filter: $scene_marker_filter) {\n    count\n    scene_markers { \n      id \n      title \n      seconds \n      end_seconds\n      stream\n      preview\n      screenshot\n      scene {\n        id\n        title\n        performers {\n          id\n          name\n          image_path\n        }\n      }\n      primary_tag {\n        id\n        name\n      }\n      tags {\n        id\n        name\n      }\n    }\n  }\n}","variables":{"filter":{"per_page":50,"direction":"ASC","page":1,"sort":"random_827617"},"scene_marker_filter":{"performers":{"value":["287"],"modifier":"INCLUDES_ALL"}}}}
-✅ Performer ID 287 found in request
-✅ INCLUDES_ALL modifier found in request
-✅ scene_marker_filter found in request
-🔑 Auth headers set with working pattern from executeGraphQLQuery
-📤 Fetching performer markers for ID: 287, page: 1
-📥 HTTP response: 200
-📥 DEBUG: FULL Response for performer 287:
-{"data":{"findSceneMarkers":{"count":2,"scene_markers":[{"id":"6195","title":"","seconds":1388,"end_seconds":null,"stream":"http://192.168.86.100:9999/scene/1568/scene_marker/6195/stream","preview":"http://192.168.86.100:9999/scene/1568/scene_marker/6195/preview","screenshot":"http://192.168.86.100:9999/scene/1568/scene_marker/6195/screenshot","scene":{"id":"1568","title":"My Knockout Step Sister - S6:E2","performers":[{"id":"2","name":"Logan Long","image_path":"http://192.168.86.100:9999/performer/2/image?t=1723836724"},{"id":"119","name":"Gracie Green","image_path":"http://192.168.86.100:9999/performer/119/image?t=1723837161"},{"id":"287","name":"Alex Blake","image_path":"http://192.168.86.100:9999/performer/287/image?t=1723837629"}]},"primary_tag":{"id":"24","name":"Doggy Style"},"tags":[]},{"id":"6194","title":"","seconds":469,"end_seconds":null,"stream":"http://192.168.86.100:9999/scene/1568/scene_marker/6194/stream","preview":"http://192.168.86.100:9999/scene/1568/scene_marker/6194/preview","screenshot":"http://192.168.86.100:9999/scene/1568/scene_marker/6194/screenshot","scene":{"id":"1568","title":"My Knockout Step Sister - S6:E2","performers":[{"id":"2","name":"Logan Long","image_path":"http://192.168.86.100:9999/performer/2/image?t=1723836724"},{"id":"119","name":"Gracie Green","image_path":"http://192.168.86.100:9999/performer/119/image?t=1723837161"},{"id":"287","name":"Alex Blake","image_path":"http://192.168.86.100:9999/performer/287/image?t=1723837629"}]},"primary_tag":{"id":"9","name":"Blowjob"},"tags":[]}]}}}
-✅ Found 2 markers for performer ID: 287
-🎯 Marker 1: ID=6195, Title=, Seconds=1388.0
-🎯 Marker 2: ID=6194, Title=, Seconds=469.0
-✅ LOADMARKERS - Loaded 2 markers for performer: Alex Blake
-🎬🎬🎬 MARKER DEBUG: Marker row appeared
-🎬 MARKER DEBUG: ID: 6195, title: 
-🎬 MARKER DEBUG: Scene ID: 1568
-🎬 MARKER DEBUG: Stream URL: http://192.168.86.100:9999/scene/1568/scene_marker/6195/stream
-🎬 MARKER DEBUG: Preview URL: http://192.168.86.100:9999/scene/1568/scene_marker/6195/preview
-🎬 MARKER DEBUG: Seconds: 1388.0
-🎬🎬🎬 MARKER DEBUG: Marker row appeared
-🎬 MARKER DEBUG: ID: 6194, title: 
-🎬 MARKER DEBUG: Scene ID: 1568
-🎬 MARKER DEBUG: Stream URL: http://192.168.86.100:9999/scene/1568/scene_marker/6194/stream
-🎬 MARKER DEBUG: Preview URL: http://192.168.86.100:9999/scene/1568/scene_marker/6194/preview
-🎬 MARKER DEBUG: Seconds: 469.0
-📱 MarkerRow 6195 - onDisappear called, cleaning up player
-🎬 Stopping preview for marker: 
-📱 MarkerRow 6194 - onDisappear called, cleaning up player
-🎬 Stopping preview for marker: 
-nw_connection_copy_protocol_metadata_internal_block_invoke [C14] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
-nw_connection_copy_protocol_metadata_internal_block_invoke [C14] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
-nw_connection_copy_connected_local_endpoint_block_invoke [C14] Client called nw_connection_copy_connected_local_endpoint on unconnected nw_connection
-nw_connection_copy_connected_remote_endpoint_block_invoke [C14] Client called nw_connection_copy_connected_remote_endpoint on unconnected nw_connection
-🎬 GlobalVideoManager: Registered player, total active: 1
-🎬 GlobalVideoManager: Registered player, total active: 2
-💫 Tab changed to: 0
-💫 Saved tab selection: 0
-🔍 LOADSCENES - Starting load of scenes for performer: Alex Blake (ID: 287)
-🎬 GlobalVideoManager: Unregistered player, total active: 1
-🎬 GlobalVideoManager: Stopping and cleaning up all 1 active preview players
-🎬 GlobalVideoManager: Unregistered player, total active: 0
-🎬 GlobalVideoManager: Stopping and cleaning up all 0 active preview players
-🔍 LOADSCENES - Using direct GraphQL query for reliability
-🧹 LOADSCENES - Clearing scenes array, current count: 500
-🧹 LOADSCENES - Cleared scenes array
-🔄 LOADSCENES - Executing direct GraphQL query
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📥 HTTP response: 200
-📥 Response preview: {"data":{"findScenes":{"count":43,"scenes":[{"id":"4631","title":"Pigtails of Vengence","details":"I...
-✅ LOADSCENES - Successfully loaded 43 scenes via direct query
-🔍 LOADSCENES - Scene 0: Pigtails of Vengence (ID: 4631)
-🔍 LOADSCENES - Scene 1: Sweet Siren (ID: 4622)
-🔍 LOADSCENES - Scene 2: Strumming That Pussy (ID: 4626)
-📱 MarkerRow visibility changed: 6195 -> true
-📱 MarkerRow visibility changed: 6194 -> true
-🎲 Shuffle scenes for performer: Alex Blake
-🎲 Selected random scene:  from 43 available scenes
-🎯 SHUFFLE - Set currentPerformer to: Alex Blake
-🚀 NAVIGATION - Navigating to scene:  with startSeconds: nil, endSeconds: nil
-🎯 NAVIGATION - Set flag for temporary video navigation
-🔇 AppDelegate: Main video started - stopping all preview players
-🎲 Skipping audio kill - in shuffle mode (marker: false, tag: true)
-🎯 HISTORY - Set lastWatchedScene to: 
-🎯 HISTORY - Added to watch history:  (history count: 12)
-🎯 HISTORY - Full history: ["", "Amy Ried Takes the Big Cock of a Hung Stud on the Couch", "", "Big Titty Moms", "Tough Guys", "Teen & Mom School Slut Stories Part One", "Lots On Top", "Pussy Lessons With A Milf!", "", "", "", ""]
-🎯 Set lastNavigatedSceneId to: 4628
-⏱ Adding scene to navigation path
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 43
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 VideoPlayerView init - scene: 4628, startTime: nil, endTime: nil
-📱 Initializing original performer to: Alex Blake (ID: 287)
-🎬 Creating video player for URL: http://192.168.86.100:9999/scene/4628/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-📱 Extracted scene ID: 4628
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/4628/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/4628/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976648
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/4628/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976648
-🎬 Final URL being used: http://192.168.86.100:9999/scene/4628/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976648
-⏱ Explicit start time to use: nil
-🎬 Creating player item with AVURLAsset
-▶️ Attempting to force immediate playback
-👆 Added pan gesture for swipe seeking: left = seek back 10s, right = seek forward 10s
-🎬 ContentView: StashScene navigation destination appeared for scene 4628
-📱 VideoPlayerView appeared
-🎯 HISTORY - Skipping duplicate scene in VideoPlayerView: 
-📱 Initializing original performer from PerformerDetailView context: Alex Blake
-🔇 AppDelegate: Main video started - stopping all preview players
-📱 FullScreenVideoPlayer appeared with startTime: nil
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 43
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENEROW: Visibility changed for scene 2495 to true
-🔥 Starting preview for scene: Teen & Mom School Slut Stories Part One with URL: http://192.168.86.100:9999/scene/2495/preview
-📱 SCENEROW: Visibility changed for scene 4947 to true
-🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/4947/preview
-📱 SCENEROW: Visibility changed for scene 3939 to true
-🔥 Starting preview for scene: Tough Guys with URL: http://192.168.86.100:9999/scene/3939/preview
-📱 SCENEROW: Visibility changed for scene 4915 to true
-🔥 Starting preview for scene: Amy Ried Takes the Big Cock of a Hung Stud on the Couch with URL: http://192.168.86.100:9999/scene/4915/preview
-📱 SCENEROW: Visibility changed for scene 112 to true
-🔥 Starting preview for scene:  with URL: http://192.168.86.100:9999/scene/112/preview
-📱 SCENEROW: Visibility changed for scene 553 to true
-🔥 Starting preview for scene: Big Titty Moms with URL: http://192.168.86.100:9999/scene/553/preview
-📱 VideoPlayerView init - scene: 4628, startTime: nil, endTime: nil
-📱 Initializing original performer to: Alex Blake (ID: 287)
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-🎬 GlobalVideoManager: Stopping and cleaning up all 0 active preview players
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-🎬 GlobalVideoManager: Registered player, total active: 1
-🎬 GlobalVideoManager: Registered player, total active: 2
-🎬 GlobalVideoManager: Registered player, total active: 3
-🎬 GlobalVideoManager: Registered player, total active: 4
-🎬 GlobalVideoManager: Registered player, total active: 5
-🎬 GlobalVideoManager: Registered player, total active: 6
-🎬 GlobalVideoManager: Stopping and cleaning up all 6 active preview players
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-No symbol named '' found in system symbol set
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-🎬 CustomPlayerViewController viewDidAppear - setting up additional gestures
-📱 PerformerDetailView disappeared
-📱 Temporarily navigating to video - preserving performer context
-🎬 Setting up additional gestures with delay...
-👆 Added pan gesture to contentOverlayView
-👆 Added additional pan gestures to player views
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-🎬 Player item status changed to: 1
-🎬 Player item is ready to play
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-▶️ Forcing play after ready status
-✅ Player status: PLAYING
-⏱ Current playback position: 0.0 seconds
-⏱ Current playback position: 0.0 seconds
-🎲 Got player from registry, attempting to jump to random position
-🎲 Player is ready, jumping to random position
-🎲 Current video duration: 1591.07 seconds
-🎲 Current position: 0.546067615 seconds
-🎲 Jumping to random position: 147.15562522115084 seconds (2:27)
-🎲 Seeking to new position...
-⏱ Current playback position: 0.549065205 seconds
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-⏱ Current playback position: 146.655 seconds
-✅ Successfully jumped to 2:27
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-✅ Player status: PLAYING
-⏱ Current playback position: 146.655 seconds
-⏱ Current playback position: 146.655 seconds
-⏱ Current playback position: 147.00011096 seconds
-🎹 Menu keyboard shortcut received: 16
-🎹 Menu shortcut: M - Performer random scene
-🎯 PERFORMER BUTTON: Starting performer random video function
-📊 CONTEXT DEBUG - playPerformerRandomVideo:
-📊   Current performer: Alex Blake
-📊   Original performer: Kagney Linn Karter
-📊   Context scenes count: 43
-🎯 PERFORMER BUTTON: Current scene:  (ID: 2002)
-🎯 PERFORMER BUTTON: Original performer is: Kagney Linn Karter (ID: 156)
-🎯 PERFORMER BUTTON: Using original performer (found in current scene)
-🎯 PERFORMER BUTTON: Selected performer: Kagney Linn Karter (ID: 156, gender: FEMALE)
-🎯 PERFORMER BUTTON: Current scene ID: 2002, title: 
-🎹 Menu keyboard shortcut received: 16
-🎹 Menu shortcut: M - Performer random scene
-🎯 PERFORMER BUTTON: Starting performer random video function
-📊 CONTEXT DEBUG - playPerformerRandomVideo:
-📊   Current performer: Alex Blake
-📊   Original performer: Alex Blake
-📊   Context scenes count: 43
-🎯 PERFORMER BUTTON: Current scene:  (ID: 4628)
-🎯 PERFORMER BUTTON: Original performer is: Alex Blake (ID: 287)
-🎯 PERFORMER BUTTON: Using original performer (found in current scene)
-🎯 PERFORMER BUTTON: Selected performer: Alex Blake (ID: 287, gender: FEMALE)
-🎯 PERFORMER BUTTON: Current scene ID: 4628, title: 
-🎯 PERFORMER BUTTON: Fetching scenes with performer ID: 156
-🎯 PERFORMER BUTTON: Executing GraphQL query for performer scenes
-🎯 PERFORMER BUTTON: Fetching scenes with performer ID: 287
-🎯 PERFORMER BUTTON: Executing GraphQL query for performer scenes
-🔐 Configuring auth:
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-   API Key: [eyJhbGciOi...] (140 chars)
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📥 HTTP response: 200
-📥 Response preview: {"data":{"findScenes":{"count":43,"scenes":[{"id":"4631","title":"Pigtails of Vengence","details":"I...
-📥 HTTP response: 200
-📥 Response preview: {"data":{"findScenes":{"count":38,"scenes":[{"id":"3309","title":"Kagney Gets Ready For Cock","detai...
-🎯 PERFORMER BUTTON: Found 43 scenes with performer Alex Blake
-🎯 PERFORMER BUTTON: Current scene and VR filtering: 1 scenes excluded
-🎯 PERFORMER BUTTON: After filtering current scene, found 42 other scenes
-🎯 PERFORMER BUTTON: Selected scene:  (ID: 4614)
-🎯 PERFORMER BUTTON: Found 38 scenes with performer Kagney Linn Karter
-🎯 PERFORMER BUTTON: Current scene and VR filtering: 1 scenes excluded
-🎯 PERFORMER BUTTON: After filtering current scene, found 37 other scenes
-🎯 PERFORMER BUTTON: Selected scene: Kagney Linn Karter gets fucked by a stranger (ID: 5008)
-🎯 PERFORMER BUTTON: Updating current scene reference and adding to watch history
-🎯 PERFORMER BUTTON: Added to watch history:  (history count: 13)
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Got player reference, preparing to play new content
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/4614/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/4614/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976654
-🎯 PERFORMER BUTTON: Created HLS URL: http://192.168.86.100:9999/scene/4614/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976654
-🎯 PERFORMER BUTTON: Creating new player item with URL: http://192.168.86.100:9999/scene/4614/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976654
-✅ Player status: PLAYING
-✅ Player status: PLAYING
-🎯 PERFORMER BUTTON: Started playing random scene with performer: Alex Blake
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 43
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 VideoPlayerView init - scene: 4628, startTime: nil, endTime: nil
-📱 Initializing original performer to: Alex Blake (ID: 287)
-🎯 PERFORMER BUTTON: Updating current scene reference and adding to watch history
-🎯 PERFORMER BUTTON: Added to watch history: Kagney Linn Karter gets fucked by a stranger (history count: 14)
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Got player reference, preparing to play new content
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/5008/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/5008/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976654
-🎯 PERFORMER BUTTON: Created HLS URL: http://192.168.86.100:9999/scene/5008/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976654
-🎯 PERFORMER BUTTON: Creating new player item with URL: http://192.168.86.100:9999/scene/5008/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976654
-✅ Player status: PLAYING
-✅ Player status: PLAYING
-🎯 PERFORMER BUTTON: Started playing random scene with performer: Kagney Linn Karter
-⏱ Current playback position: 0.0 seconds
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 43
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 43
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 VideoPlayerView init - scene: 4628, startTime: nil, endTime: nil
-📱 Initializing original performer to: Alex Blake (ID: 287)
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-✅ Player status: PLAYING
-🎯 PERFORMER BUTTON: First delayed seek timer fired
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Current item status: 1
-🎯 PERFORMER BUTTON: Player ready with duration: 3133.11 seconds
-🎲 Current video duration: 3133.11 seconds
-🎲 Current position: 0.0 seconds
-🎲 Jumping to random position: 2568.6203664436075 seconds (42:48)
-🎲 Seeking to new position...
-✅ PERFORMER BUTTON: Successfully jumped to random position using utility
-🎯 PERFORMER BUTTON: First delayed seek timer fired
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Current item status: 1
-🎯 PERFORMER BUTTON: Player ready with duration: 3133.11 seconds
-🎲 Current video duration: 3133.11 seconds
-🎲 Current position: 0.0 seconds
-🎲 Jumping to random position: 1099.4864460077245 seconds (18:19)
-🎲 Seeking to new position...
-❌ Seek operation failed, attempting simplified seek
-❌ Seek operation failed, attempting simplified seek
-✅ PERFORMER BUTTON: Successfully jumped to random position using utility
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-⏱ Current playback position: 1098.986 seconds
-✅ Player status: PLAYING
-⏱ Current playback position: 1098.986 seconds
-⏱ Current playback position: 1098.986 seconds
-⏱ Current playback position: 1099.000164839 seconds
-⏱ Current playback position: 1100.001572633 seconds
-⏱ Current playback position: 1101.000129921 seconds
-⏱ Current playback position: 1102.000161901 seconds
-⏱ Current playback position: 1103.000179143 seconds
-⏱ Current playback position: 1104.000122064 seconds
-⏱ Current playback position: 1105.000123083 seconds
-🎹 Menu keyboard shortcut received: 16
-🎹 Menu shortcut: M - Performer random scene
-🎯 PERFORMER BUTTON: Starting performer random video function
-📊 CONTEXT DEBUG - playPerformerRandomVideo:
-📊   Current performer: Alex Blake
-📊   Original performer: Kagney Linn Karter
-📊   Context scenes count: 43
-🎯 PERFORMER BUTTON: Current scene: Kagney Linn Karter gets fucked by a stranger (ID: 5008)
-🎯 PERFORMER BUTTON: Original performer is: Kagney Linn Karter (ID: 156)
-🎯 PERFORMER BUTTON: Using original performer (found in current scene)
-🎯 PERFORMER BUTTON: Selected performer: Kagney Linn Karter (ID: 156, gender: FEMALE)
-🎯 PERFORMER BUTTON: Current scene ID: 5008, title: Kagney Linn Karter gets fucked by a stranger
-🎹 Menu keyboard shortcut received: 16
-🎹 Menu shortcut: M - Performer random scene
-🎯 PERFORMER BUTTON: Starting performer random video function
-📊 CONTEXT DEBUG - playPerformerRandomVideo:
-📊   Current performer: Alex Blake
-📊   Original performer: Alex Blake
-📊   Context scenes count: 43
-🎯 PERFORMER BUTTON: Current scene:  (ID: 4614)
-🎯 PERFORMER BUTTON: Original performer is: Alex Blake (ID: 287)
-🎯 PERFORMER BUTTON: Using original performer (found in current scene)
-🎯 PERFORMER BUTTON: Selected performer: Alex Blake (ID: 287, gender: FEMALE)
-🎯 PERFORMER BUTTON: Current scene ID: 4614, title: 
-🎯 PERFORMER BUTTON: Fetching scenes with performer ID: 156
-🎯 PERFORMER BUTTON: Executing GraphQL query for performer scenes
-🎯 PERFORMER BUTTON: Fetching scenes with performer ID: 287
-🎯 PERFORMER BUTTON: Executing GraphQL query for performer scenes
-🔐 Configuring auth:
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📥 HTTP response: 200
-📥 Response preview: {"data":{"findScenes":{"count":38,"scenes":[{"id":"3309","title":"Kagney Gets Ready For Cock","detai...
-📥 HTTP response: 200
-📥 Response preview: {"data":{"findScenes":{"count":43,"scenes":[{"id":"4631","title":"Pigtails of Vengence","details":"I...
-🎯 PERFORMER BUTTON: Found 38 scenes with performer Kagney Linn Karter
-🎯 PERFORMER BUTTON: Current scene and VR filtering: 1 scenes excluded
-🎯 PERFORMER BUTTON: After filtering current scene, found 37 other scenes
-🎯 PERFORMER BUTTON: Selected scene:  (ID: 2014)
-🎯 PERFORMER BUTTON: Found 43 scenes with performer Alex Blake
-🎯 PERFORMER BUTTON: Current scene and VR filtering: 1 scenes excluded
-🎯 PERFORMER BUTTON: After filtering current scene, found 42 other scenes
-🎯 PERFORMER BUTTON: Selected scene:  (ID: 4645)
-🎯 PERFORMER BUTTON: Updating current scene reference and adding to watch history
-🎯 PERFORMER BUTTON: Added to watch history:  (history count: 15)
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Got player reference, preparing to play new content
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/2014/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/2014/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976665
-🎯 PERFORMER BUTTON: Created HLS URL: http://192.168.86.100:9999/scene/2014/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976665
-🎯 PERFORMER BUTTON: Creating new player item with URL: http://192.168.86.100:9999/scene/2014/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976665
-✅ Player status: PLAYING
-✅ Player status: PLAYING
-🎯 PERFORMER BUTTON: Started playing random scene with performer: Kagney Linn Karter
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 43
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-📱 VideoPlayerView init - scene: 4628, startTime: nil, endTime: nil
-📱 Initializing original performer to: Alex Blake (ID: 287)
-🎯 PERFORMER BUTTON: Updating current scene reference and adding to watch history
-🎯 PERFORMER BUTTON: Added to watch history:  (history count: 16)
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Got player reference, preparing to play new content
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/4645/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/4645/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976665
-🎯 PERFORMER BUTTON: Created HLS URL: http://192.168.86.100:9999/scene/4645/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976665
-🎯 PERFORMER BUTTON: Creating new player item with URL: http://192.168.86.100:9999/scene/4645/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976665
-✅ Player status: PLAYING
-✅ Player status: PLAYING
-🎯 PERFORMER BUTTON: Started playing random scene with performer: Alex Blake
-⏱ Current playback position: 0.0 seconds
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 43
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 43
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 VideoPlayerView init - scene: 4628, startTime: nil, endTime: nil
-📱 Initializing original performer to: Alex Blake (ID: 287)
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-✅ Player status: PLAYING
-🎯 PERFORMER BUTTON: First delayed seek timer fired
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Current item status: 1
-🎯 PERFORMER BUTTON: Player ready with duration: 2392.07 seconds
-🎲 Current video duration: 2392.07 seconds
-🎲 Current position: 0.0 seconds
-🎲 Jumping to random position: 256.80921982034704 seconds (4:16)
-🎲 Seeking to new position...
-✅ PERFORMER BUTTON: Successfully jumped to random position using utility
-🎯 PERFORMER BUTTON: First delayed seek timer fired
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Current item status: 1
-🎯 PERFORMER BUTTON: Player ready with duration: 2392.07 seconds
-🎲 Current video duration: 2392.07 seconds
-🎲 Current position: 0.0 seconds
-🎲 Jumping to random position: 1118.5451093722227 seconds (18:38)
-🎲 Seeking to new position...
-❌ Seek operation failed, attempting simplified seek
-❌ Seek operation failed, attempting simplified seek
-✅ PERFORMER BUTTON: Successfully jumped to random position using utility
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-⏱ Current playback position: 1118.045 seconds
-✅ Player status: PLAYING
-⏱ Current playback position: 1118.045 seconds
-⏱ Current playback position: 1118.045 seconds
-⏱ Current playback position: 1119.000113068 seconds
-⏱ Current playback position: 1120.002125647 seconds
-🎹 Menu keyboard shortcut received: 16
-🎹 Menu shortcut: M - Performer random scene
-🎯 PERFORMER BUTTON: Starting performer random video function
-📊 CONTEXT DEBUG - playPerformerRandomVideo:
-📊   Current performer: Alex Blake
-📊   Original performer: Kagney Linn Karter
-📊   Context scenes count: 43
-🎯 PERFORMER BUTTON: Current scene:  (ID: 2014)
-🎯 PERFORMER BUTTON: Original performer is: Kagney Linn Karter (ID: 156)
-🎯 PERFORMER BUTTON: Using original performer (found in current scene)
-🎯 PERFORMER BUTTON: Selected performer: Kagney Linn Karter (ID: 156, gender: FEMALE)
-🎯 PERFORMER BUTTON: Current scene ID: 2014, title: 
-🎹 Menu keyboard shortcut received: 16
-🎹 Menu shortcut: M - Performer random scene
-🎯 PERFORMER BUTTON: Starting performer random video function
-📊 CONTEXT DEBUG - playPerformerRandomVideo:
-📊   Current performer: Alex Blake
-📊   Original performer: Alex Blake
-📊   Context scenes count: 43
-🎯 PERFORMER BUTTON: Current scene:  (ID: 4645)
-🎯 PERFORMER BUTTON: Original performer is: Alex Blake (ID: 287)
-🎯 PERFORMER BUTTON: Using original performer (found in current scene)
-🎯 PERFORMER BUTTON: Selected performer: Alex Blake (ID: 287, gender: FEMALE)
-🎯 PERFORMER BUTTON: Current scene ID: 4645, title: 
-🎯 PERFORMER BUTTON: Fetching scenes with performer ID: 156
-🎯 PERFORMER BUTTON: Executing GraphQL query for performer scenes
-🎯 PERFORMER BUTTON: Fetching scenes with performer ID: 287
-🎯 PERFORMER BUTTON: Executing GraphQL query for performer scenes
-🔐 Configuring auth:
-🔐 Configuring auth:
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-   API Key: [eyJhbGciOi...] (140 chars)
-   Server: http://192.168.86.100:9999
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📤 Executing GraphQL query with BOTH ApiKey and Bearer auth headers
-📥 HTTP response: 200
-📥 Response preview: {"data":{"findScenes":{"count":43,"scenes":[{"id":"4631","title":"Pigtails of Vengence","details":"I...
-📥 HTTP response: 200
-📥 Response preview: {"data":{"findScenes":{"count":38,"scenes":[{"id":"3309","title":"Kagney Gets Ready For Cock","detai...
-🎯 PERFORMER BUTTON: Found 43 scenes with performer Alex Blake
-🎯 PERFORMER BUTTON: Current scene and VR filtering: 1 scenes excluded
-🎯 PERFORMER BUTTON: After filtering current scene, found 42 other scenes
-🎯 PERFORMER BUTTON: Selected scene: Ooh Blake (ID: 4644)
-🎯 PERFORMER BUTTON: Found 38 scenes with performer Kagney Linn Karter
-🎯 PERFORMER BUTTON: Current scene and VR filtering: 1 scenes excluded
-🎯 PERFORMER BUTTON: After filtering current scene, found 37 other scenes
-🎯 PERFORMER BUTTON: Selected scene: Rack Her And Pack Her (ID: 1994)
-🎯 PERFORMER BUTTON: Updating current scene reference and adding to watch history
-🎯 PERFORMER BUTTON: Added to watch history: Ooh Blake (history count: 17)
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Got player reference, preparing to play new content
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/4644/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/4644/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976671
-🎯 PERFORMER BUTTON: Created HLS URL: http://192.168.86.100:9999/scene/4644/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976671
-🎯 PERFORMER BUTTON: Creating new player item with URL: http://192.168.86.100:9999/scene/4644/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976671
-✅ Player status: PLAYING
-✅ Player status: PLAYING
-🎯 PERFORMER BUTTON: Started playing random scene with performer: Alex Blake
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 43
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 VideoPlayerView init - scene: 4628, startTime: nil, endTime: nil
-📱 Initializing original performer to: Alex Blake (ID: 287)
-🎯 PERFORMER BUTTON: Updating current scene reference and adding to watch history
-🎯 PERFORMER BUTTON: Added to watch history: Rack Her And Pack Her (history count: 18)
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Got player reference, preparing to play new content
-🔍 Converting direct URL to HLS: http://192.168.86.100:9999/scene/1994/stream?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo
-🔄 Converted to HLS URL: http://192.168.86.100:9999/scene/1994/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976672
-🎯 PERFORMER BUTTON: Created HLS URL: http://192.168.86.100:9999/scene/1994/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976672
-🎯 PERFORMER BUTTON: Creating new player item with URL: http://192.168.86.100:9999/scene/1994/stream.m3u8?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJjayIsInN1YiI6IkFQSUtleSIsImlhdCI6MTczMTgwOTM2Mn0.7AOyZqTzyDsSnuDx__RBhuIIkoPg2btebToAlpK1zXo&resolution=ORIGINAL&_ts=1750976672
-✅ Player status: PLAYING
-✅ Player status: PLAYING
-🎯 PERFORMER BUTTON: Started playing random scene with performer: Kagney Linn Karter
-⏱ Current playback position: 0.0 seconds
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 43
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-🎯 scenesContent - filter: default, scope: scenes, markers: 0, scenes: 43
-🎯 iPad Toolbar - currentFilter: default
-📱 SCENE ROW: Rendering scene: 4947, title: 
-📱 SCENE ROW: Rendering scene: 4915, title: Amy Ried Takes the Big Cock of a Hung Stud on the Couch
-📱 SCENE ROW: Rendering scene: 112, title: 
-📱 SCENE ROW: Rendering scene: 553, title: Big Titty Moms
-📱 SCENE ROW: Rendering scene: 3939, title: Tough Guys
-📱 SCENE ROW: Rendering scene: 2495, title: Teen & Mom School Slut Stories Part One
-📱 VideoPlayerView init - scene: 4628, startTime: nil, endTime: nil
-📱 Initializing original performer to: Alex Blake (ID: 287)
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWithNoItemToPlayReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-✅ Player status: PLAYING
-⏱ Current playback position: 0.0 seconds
-⏱ Current playback position: 0.0 seconds
-🎯 PERFORMER BUTTON: First delayed seek timer fired
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Current item status: 1
-🎯 PERFORMER BUTTON: Player ready with duration: 1932.5 seconds
-🎲 Current video duration: 1932.5 seconds
-🎲 Current position: 0.109708526 seconds
-🎲 Jumping to random position: 748.7367688684534 seconds (12:28)
-🎲 Seeking to new position...
-✅ PERFORMER BUTTON: Successfully jumped to random position using utility
-🎯 PERFORMER BUTTON: First delayed seek timer fired
-▶️ Retrieved player from registry
-🎯 PERFORMER BUTTON: Current item status: 1
-🎯 PERFORMER BUTTON: Player ready with duration: 1932.5 seconds
-🎲 Current video duration: 1932.5 seconds
-🎲 Current position: 0.11017224 seconds
-🎲 Jumping to random position: 1248.9388644225703 seconds (20:48)
-🎲 Seeking to new position...
-❌ Seek operation failed, attempting simplified seek
-❌ Seek operation failed, attempting simplified seek
-✅ PERFORMER BUTTON: Successfully jumped to random position using utility
-⏱ Current playback position: 0.113315801 seconds
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-⏱ Current playback position: 1248.438 seconds
-✅ Player status: PLAYING
-⏱ Current playback position: 1248.438 seconds
-⏱ Current playback position: 1248.438 seconds
-⏱ Current playback position: 1249.000125211 seconds
-⏱ Current playback position: 1250.004624341 seconds
-🎹 Menu keyboard shortcut received: 17
-🎹 Menu shortcut: N - Random position jump
-▶️ Retrieved player from registry
-🎲 Current video duration: 1932.5 seconds
-🎲 Current position: 1250.582787869 seconds
-🎲 Jumping to random position: 1345.7042238593726 seconds (22:25)
-🎲 Seeking to new position...
-🎹 Menu keyboard shortcut received: 17
-🎹 Menu shortcut: N - Random position jump
-▶️ Retrieved player from registry
-🎲 Current video duration: 1932.5 seconds
-🎲 Current position: 1250.583104581 seconds
-🎲 Jumping to random position: 792.1911458597394 seconds (13:12)
-🎲 Seeking to new position...
-❌ Seek operation failed
-⏱ Current playback position: 1250.585400105 seconds
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-⏱ Current playback position: 792.0 seconds
-<<<< PlayerRemoteXPC >>>> remoteXPCItem_handleFirstFrameNotificationLatch signalled err=-12860 (kFigPlayerError_ParamErr) (VideoLatch events should not be needed when FigUseVideoReceiverForCALayer) at FigPlayer_RemoteXPC.m:1513
-✅ Successfully jumped to 13:12
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingToMinimizeStallsReason
-✅ Player status: PLAYING
-⏱ Current playback position: 792.0 seconds
-⏱ Current playback position: 792.0 seconds
-⏱ Current playback position: 793.000161477 seconds
-🎹 Menu keyboard shortcut received: 44
-🎹 Menu shortcut: Space - Toggle play/pause
-▶️ Retrieved player from registry
-⚠️ Player status: PAUSED
-⏸️ Paused playback
-🎹 Menu keyboard shortcut received: 44
-🎹 Menu shortcut: Space - Toggle play/pause
-▶️ Retrieved player from registry
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-▶️ Resumed playback
-⏱ Current playback position: 793.184026494 seconds
-⚠️ Player status: PAUSED
-⏱ Current playback position: 793.192549088 seconds
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-⏱ Current playback position: 793.196067957 seconds
-✅ Player status: PLAYING
-🎹 Menu keyboard shortcut received: 44
-🎹 Menu shortcut: Space - Toggle play/pause
-▶️ Retrieved player from registry
-⚠️ Player status: PAUSED
-⏸️ Paused playback
-🎹 Menu keyboard shortcut received: 44
-🎹 Menu shortcut: Space - Toggle play/pause
-▶️ Retrieved player from registry
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-▶️ Resumed playback
-⏱ Current playback position: 793.575528338 seconds
-⚠️ Player status: PAUSED
-⏱ Current playback position: 793.596957179 seconds
-⏱ Current playback position: 793.598796865 seconds
-✅ Player status: PLAYING
-⏱ Current playback position: 794.00015277 seconds
-🎹 Menu keyboard shortcut received: 44
-🎹 Menu shortcut: Space - Toggle play/pause
-▶️ Retrieved player from registry
-⚠️ Player status: PAUSED
-⏸️ Paused playback
-🎹 Menu keyboard shortcut received: 44
-🎹 Menu shortcut: Space - Toggle play/pause
-▶️ Retrieved player from registry
-⏳ Player status: WAITING TO PLAY - AVPlayerWaitingWhileEvaluatingBufferingRateReason
-▶️ Resumed playback
-⏱ Current playback position: 794.26136492 seconds
-⚠️ Player status: PAUSED
-⏱ Current playback position: 794.275299645 seconds
-⏱ Current playback position: 794.276745951 seconds
-✅ Player status: PLAYING
-⏱ Current playback position: 795.001521364 seconds
-⏱ Current playback position: 796.000166453 seconds
-⏱ Current playback position: 797.000149977 seconds
+🎯 scenesContent - filter: search, scope: markers, markers: 50, scenes: 0
+📍 Showing marker search results: 50 markers (total: 105)
+🎯 iPad Toolbar - currentFilter: search
+🎯 scenesContent - filter: search, scope: markers, markers: 50, scenes: 0
+📍 Showing marker search results: 50 markers (total: 105)
+🎯 iPad Toolbar - currentFilter: search
+⏱ Current playback position: 1213.000042601 seconds
+⏱ Current playback position: 1213.000046296 seconds
+⏱ Current playback position: 1197.000056161 seconds
+⏱ Current playback position: 1203.000037951 seconds
+⏱ Current playback position: 1214.000037701 seconds
+⏱ Current playback position: 1214.000036489 seconds
+⏱ Current playback position: 1198.000060603 seconds
+⏱ Current playback position: 1204.000046271 seconds
+⏱ Current playback position: 1215.000048998 seconds
+⏱ Current playback position: 1215.00005304 seconds
+⏱ Current playback position: 1199.000036656 seconds
+⏱ Current playback position: 1205.000061304 seconds
+⏱ Current playback position: 1216.000045901 seconds
+⏱ Current playback position: 1216.00006543 seconds

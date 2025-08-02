@@ -416,19 +416,9 @@ class AppModel: ObservableObject {
         // Check if we're in a marker shuffle context (avoid navigation stack changes)
         let isMarkerShuffle = UserDefaults.standard.bool(forKey: "isMarkerShuffleContext")
         
-        // IMPORTANT: For marker navigation, we need to clean up audio differently
-        // During shuffle, we should pause current player instead of killing all audio
-        if !isMarkerShuffle {
-            print("🔇 Killing audio for regular navigation")
-            killAllAudio()
-        } else {
-            print("🎲 Marker shuffle mode - pausing current player instead of killing audio")
-            // Just pause the current player to prevent audio stacking
-            if let player = VideoPlayerRegistry.shared.currentPlayer {
-                player.pause()
-                print("⏸️ Paused current player to prevent audio stacking")
-            }
-        }
+        // ALWAYS kill audio to prevent stacking - marker navigation requires clean audio state
+        print("🔇 Killing all audio for marker navigation (shuffle mode: \(isMarkerShuffle))")
+        killAllAudio()
         
         print("🔍 navigateToMarker: Starting more explicit marker navigation")
         
@@ -496,6 +486,18 @@ class AppModel: ObservableObject {
                 // Format: http://192.168.86.100:9999/scene/3174/stream.m3u8?apikey=KEY&resolution=ORIGINAL&t=2132&_ts=1747330385
                 let hlsStreamURL = "\(baseServerURL)/scene/\(sceneId)/stream.m3u8?apikey=\(apiKey)&resolution=ORIGINAL&t=\(markerSeconds)&_ts=\(currentTimestamp)"
                 print("🎬 Using exact HLS format: \(hlsStreamURL)")
+                
+                // Clear all cached HLS URLs first to prevent using wrong scene's URL
+                if isMarkerShuffle {
+                    print("🧹 Clearing all cached HLS URLs for marker shuffle")
+                    let defaults = UserDefaults.standard
+                    let keys = defaults.dictionaryRepresentation().keys
+                    for key in keys {
+                        if key.contains("_hlsURL") {
+                            defaults.removeObject(forKey: key)
+                        }
+                    }
+                }
                 
                 // Save HLS format URL and preferences for VideoPlayerView to use
                 UserDefaults.standard.set(hlsStreamURL, forKey: "scene_\(fullScene.id)_hlsURL")
