@@ -266,6 +266,10 @@ extension ContentView {
                             print("❌ Error loading performers: \(error)")
                         }
                     }
+                
+                case .history:
+                    print("📱 History tab selected - no loading needed")
+                    // History is already in appModel.watchHistory, no need to load anything
                 }
             } catch {
                 print("❌ Error loading content for tab \(appModel.activeTab): \(error)")

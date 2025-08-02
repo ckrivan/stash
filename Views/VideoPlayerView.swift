@@ -630,41 +630,42 @@ struct VideoPlayerView: View {
                                 await scheduleControlsHide()
                             }
                         }
-                    .gesture(
-                    DragGesture(minimumDistance: 20, coordinateSpace: .local)
-                        .onEnded { value in
-                            let horizontalAmount = value.translation.width
-                            let verticalAmount = value.translation.height
-                            
-                            print("👆 DragGesture ended - horizontal: \(horizontalAmount), vertical: \(verticalAmount)")
-                            
-                            // Check if this is primarily a horizontal swipe (more horizontal than vertical movement)
-                            if abs(horizontalAmount) > abs(verticalAmount) && abs(horizontalAmount) > 30 {
-                                if horizontalAmount > 0 {
-                                    // Swipe right - seek forward 10 seconds
-                                    print("👆 ✅ SWIPE RIGHT DETECTED - seeking forward 10 seconds")
-                                    VideoPlayerRegistry.shared.seek(by: 10)
+                        .gesture(
+                            DragGesture(minimumDistance: 20, coordinateSpace: .local)
+                                .onEnded { value in
+                                    let horizontalAmount = value.translation.width
+                                    let verticalAmount = value.translation.height
                                     
-                                    // Haptic feedback
-                                    let generator = UIImpactFeedbackGenerator(style: .light)
-                                    generator.impactOccurred()
-                                } else {
-                                    // Swipe left - seek backward 10 seconds
-                                    print("👆 ✅ SWIPE LEFT DETECTED - seeking back 10 seconds")
-                                    VideoPlayerRegistry.shared.seek(by: -10)
+                                    print("👆 DragGesture ended - horizontal: \(horizontalAmount), vertical: \(verticalAmount)")
                                     
-                                    // Haptic feedback
-                                    let generator = UIImpactFeedbackGenerator(style: .light)
-                                    generator.impactOccurred()
+                                    // Check if this is primarily a horizontal swipe (more horizontal than vertical movement)
+                                    if abs(horizontalAmount) > abs(verticalAmount) && abs(horizontalAmount) > 30 {
+                                        if horizontalAmount > 0 {
+                                            // Swipe right - seek forward 10 seconds
+                                            print("👆 ✅ SWIPE RIGHT DETECTED - seeking forward 10 seconds")
+                                            VideoPlayerRegistry.shared.seek(by: 10)
+                                            
+                                            // Haptic feedback
+                                            let generator = UIImpactFeedbackGenerator(style: .light)
+                                            generator.impactOccurred()
+                                        } else {
+                                            // Swipe left - seek backward 10 seconds
+                                            print("👆 ✅ SWIPE LEFT DETECTED - seeking back 10 seconds")
+                                            VideoPlayerRegistry.shared.seek(by: -10)
+                                            
+                                            // Haptic feedback
+                                            let generator = UIImpactFeedbackGenerator(style: .light)
+                                            generator.impactOccurred()
+                                        }
+                                    } else {
+                                        print("👆 ❌ DragGesture didn't qualify as horizontal swipe:")
+                                        print("   horizontal: \(abs(horizontalAmount)) (min: 30)")
+                                        print("   vertical: \(abs(verticalAmount))")
+                                        print("   isHorizontal: \(abs(horizontalAmount) > abs(verticalAmount))")
+                                    }
                                 }
-                            } else {
-                                print("👆 ❌ DragGesture didn't qualify as horizontal swipe:")
-                                print("   horizontal: \(abs(horizontalAmount)) (min: 30)")
-                                print("   vertical: \(abs(verticalAmount))")
-                                print("   isHorizontal: \(abs(horizontalAmount) > abs(verticalAmount))")
-                            }
-                        }
-                )
+                        )
+                }
 
                 // Control overlay - only show when showControls is true
                 if showControls {
