@@ -225,13 +225,9 @@ class AppModel: ObservableObject {
         let isMarkerShuffle = UserDefaults.standard.bool(forKey: "isMarkerShuffleContext")
         let isTagShuffle = UserDefaults.standard.bool(forKey: "isTagSceneShuffleContext")
         
-        // IMPORTANT: Only kill audio if NOT in any shuffle mode to prevent stopping the active player
-        if !isMarkerShuffle && !isTagShuffle {
-            print("🔇 Killing audio for regular navigation")
-            killAllAudio()
-        } else {
-            print("🎲 Skipping audio kill - in shuffle mode (marker: \(isMarkerShuffle), tag: \(isTagShuffle))")
-        }
+        // ALWAYS kill audio to prevent stacking during navigation
+        print("🔇 Killing audio for navigation (marker: \(isMarkerShuffle), tag: \(isTagShuffle))")
+        killAllAudio()
         
         // Store both scene and timestamp in properties
         currentScene = scene

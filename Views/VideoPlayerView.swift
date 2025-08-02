@@ -1208,6 +1208,20 @@ struct VideoPlayerView: View {
     private func getStreamURL() -> URL {
         let sceneId = currentScene.id
         
+        // Check if we're in marker shuffle mode and need to clear all cached URLs
+        let isMarkerShuffle = UserDefaults.standard.bool(forKey: "isMarkerShuffleContext")
+        if isMarkerShuffle {
+            print("🧹 VideoPlayerView: Clearing all cached HLS URLs due to marker shuffle")
+            let defaults = UserDefaults.standard
+            let keys = defaults.dictionaryRepresentation().keys
+            for key in keys {
+                if key.contains("_hlsURL") {
+                    defaults.removeObject(forKey: key)
+                    print("🧹 Removed cached URL key: \(key)")
+                }
+            }
+        }
+        
         // First check if we have a saved direct HLS URL format FOR THIS SPECIFIC SCENE
         if let savedHlsUrlString = UserDefaults.standard.string(forKey: "scene_\(sceneId)_hlsURL"),
            let savedHlsUrl = URL(string: savedHlsUrlString) {
