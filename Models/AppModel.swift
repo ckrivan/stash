@@ -420,6 +420,23 @@ class AppModel: ObservableObject {
         if navigationPath.count > 3 {
             print("🚨 EMERGENCY: Too many navigation items (\(navigationPath.count)), clearing stack")
             navigationPath.removeLast(navigationPath.count - 1)
+            
+            // Nuclear option: Kill all audio and clear all cached data
+            print("🚨 NUCLEAR CLEANUP: Clearing all cached URLs and killing all audio")
+            killAllAudio()
+            
+            // Clear all UserDefaults related to video playback
+            let defaults = UserDefaults.standard
+            let keys = defaults.dictionaryRepresentation().keys
+            for key in keys {
+                if key.contains("scene_") && (key.contains("_hlsURL") || key.contains("_startTime") || key.contains("_endTime") || key.contains("_forcePlay") || key.contains("_preferHLS") || key.contains("_isMarkerNavigation")) {
+                    defaults.removeObject(forKey: key)
+                }
+            }
+            
+            // Clear shuffle contexts
+            defaults.removeObject(forKey: "isMarkerShuffleContext")
+            defaults.removeObject(forKey: "isTagSceneShuffleContext")
         }
         
         print("🔍 navigateToMarker: Starting more explicit marker navigation")
@@ -834,6 +851,44 @@ class AppModel: ObservableObject {
         // Final cleanup
         print("🔇 Final cleanup")
         GlobalVideoManager.shared.cleanupAllPlayers()
+    }
+    
+    // Nuclear reset function for when app gets completely stuck
+    func emergencyReset() {
+        print("🚨🚨🚨 EMERGENCY RESET TRIGGERED 🚨🚨🚨")
+        
+        // 1. Clear navigation completely
+        DispatchQueue.main.async {
+            self.navigationPath = NavigationPath()
+            self.currentScene = nil
+            self.currentMarker = nil
+        }
+        
+        // 2. Kill all audio aggressively
+        killAllAudio()
+        
+        // 3. Clear all video-related UserDefaults
+        let defaults = UserDefaults.standard
+        let keys = defaults.dictionaryRepresentation().keys
+        for key in keys {
+            if key.contains("scene_") || key.contains("Shuffle") || key.contains("marker") {
+                defaults.removeObject(forKey: key)
+            }
+        }
+        
+        // 4. Reset all shuffle modes
+        isMarkerShuffleMode = false
+        markerShuffleQueue = []
+        currentShuffleIndex = 0
+        tagSceneShuffleQueue = []
+        currentTagShuffleIndex = 0
+        
+        // 5. Force UI refresh
+        DispatchQueue.main.async {
+            self.activeTab = .scenes
+        }
+        
+        print("🚨 Emergency reset complete - app should be clean now")
     }
     
     // Helper to find all AVPlayers that might be playing in the app
