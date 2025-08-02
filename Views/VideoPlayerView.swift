@@ -618,11 +618,14 @@ struct VideoPlayerView: View {
                 // This transparent layer captures taps and swipes across the entire view
                 Color.clear
                     .contentShape(Rectangle())
-                    .onTapGesture {
-                        print("👆 Tap detected - toggling controls")
+                    .allowsHitTesting(showControls ? false : true) // Don't capture hits when controls are showing
+                    .onTapGesture { location in
+                        print("👆 Tap detected at location: \(location) - toggling controls")
+                        print("👆 Current showControls: \(showControls)")
                         withAnimation(.easeInOut(duration: 0.3)) {
                             showControls.toggle()
                         }
+                        print("👆 New showControls: \(showControls)")
 
                         // Schedule auto-hide when controls are shown
                         if showControls {
@@ -699,6 +702,9 @@ struct VideoPlayerView: View {
                             // Next Scene button - Skip to next scene in the queue
                             Button {
                                 print("🎬 Next Scene button tapped")
+                                print("🎬 DEBUG - Button action triggered")
+                                print("🎬 DEBUG - showControls: \(showControls)")
+                                print("🎬 DEBUG - appModel.isMarkerShuffleMode: \(appModel.isMarkerShuffleMode)")
                                 navigateToNextScene()
                             } label: {
                                 ZStack {
