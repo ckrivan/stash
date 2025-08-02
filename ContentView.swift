@@ -145,20 +145,6 @@ struct ContentView: View {
                                 .padding(.horizontal, 4)
                             }
 
-                            // Emergency reset button (only show if app is stuck)
-                            if appModel.navigationPath.count > 2 {
-                                Button(action: {
-                                    appModel.emergencyReset()
-                                }) {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .font(.title2)
-                                        .foregroundColor(.white)
-                                        .padding(12)
-                                        .background(Circle().fill(Color.red.opacity(0.8)))
-                                        .shadow(radius: 3)
-                                }
-                                .padding(.horizontal, 4)
-                            }
                             
                             // Settings button
                             NavigationLink(destination: SettingsView().environmentObject(appModel)) {

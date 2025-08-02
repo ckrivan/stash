@@ -543,6 +543,13 @@ extension VideoPlayerUtility {
         // Create player and view controller
         let playerViewController = AVPlayerViewController()
         let player = AVPlayer(url: finalURL)
+        
+        // Optimize player for faster startup and reduced buffering delays
+        player.automaticallyWaitsToMinimizeStalling = false  // Reduce waiting time
+        if let currentItem = player.currentItem {
+            currentItem.preferredForwardBufferDuration = 2.0  // Buffer only 2 seconds ahead
+        }
+        
         playerViewController.player = player
 
         // Configure player options

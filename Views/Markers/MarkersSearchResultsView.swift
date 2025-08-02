@@ -221,96 +221,38 @@ struct MarkersSearchResultsView: View {
             HStack(spacing: 12) {
                 // Big prominent shuffle button
                 Button(action: {
-                print("🎲 PROMINENT SHUFFLE BUTTON TAPPED - LOADING ALL MARKERS FROM API")
-                print("🎲 Current displayed markers: \(markers.count)")
+                print("🎲 SHUFFLE BUTTON TAPPED")
                 
-                // Check if we're in multi-search mode
+                // Simple approach: Set up server-side shuffle queue and navigate to first marker
                 if isMultiTagMode && !selectedSearchTerms.isEmpty {
-                    print("🎲 Multi-search shuffle mode: \(selectedSearchTerms.count) searches selected: \(Array(selectedSearchTerms))")
-                    print("🎲 Using \(combinedMarkers.count) combined markers")
+                    // Multi-tag shuffle: collect all tag names
+                    var allTagNames: [String] = []
                     
-                    // Create combined search terms and tag IDs for shuffle
-                    var allSearchTerms: [String] = []
-                    var allTagIds: [String] = []
+                    // Add current tag names from displayed markers
+                    let currentTagNames = Set(markers.map { $0.primary_tag.name })
+                    allTagNames.append(contentsOf: currentTagNames)
                     
-                    // Extract actual tag names and IDs from the current markers (preserve original case)
-                    let currentTags = Set(markers.map { $0.primary_tag })
-                    let currentTagNames = currentTags.map { $0.name }
-                    let currentTagIds = currentTags.map { $0.id }
+                    // Add selected search terms
+                    allTagNames.append(contentsOf: selectedSearchTerms)
                     
-                    allSearchTerms.append(contentsOf: currentTagNames)
-                    allTagIds.append(contentsOf: currentTagIds)
-                    print("🎲 DEBUG - Current tags from markers: \(currentTagNames) with IDs: \(currentTagIds)")
+                    let uniqueTagNames = Array(Set(allTagNames))
+                    print("🎲 Starting multi-tag shuffle for: \(uniqueTagNames.joined(separator: ", "))")
                     
-                    // Add selected search terms (these are tag names from user selection)
-                    allSearchTerms.append(contentsOf: selectedSearchTerms)
-                    
-                    // For selected search terms, we need to find their corresponding tag IDs from the combined markers
-                    for searchTerm in selectedSearchTerms {
-                        if let matchingMarker = combinedMarkers.first(where: { $0.primary_tag.name.lowercased() == searchTerm.lowercased() }) {
-                            allTagIds.append(matchingMarker.primary_tag.id)
-                            print("🎲 DEBUG - Found tag ID '\(matchingMarker.primary_tag.id)' for search term '\(searchTerm)'")
-                        } else {
-                            print("⚠️ Could not find tag ID for search term '\(searchTerm)'")
-                        }
-                    }
-                    
-                    let searchTermsArray = Array(Set(allSearchTerms)) // Remove duplicates
-                    let tagIdsArray = Array(Set(allTagIds)) // Remove duplicates
-                    print("🎲 Combining tags for shuffle: \(searchTermsArray.joined(separator: " + "))")
-                    print("🎲 DEBUG - Final tag names: \(searchTermsArray)")
-                    print("🎲 DEBUG - Final tag IDs: \(tagIdsArray)")
-                    
-                    // Use the multi-tag shuffle function with combined markers
-                    print("🎲 Starting shuffle with \(combinedMarkers.count) combined markers")
-                    
-                    // Ensure we have markers to shuffle
-                    let markersToShuffle = !combinedMarkers.isEmpty ? combinedMarkers : markers
-                    
-                    if !markersToShuffle.isEmpty {
-                        print("🎲 Shuffling \(markersToShuffle.count) markers for tags: \(searchTermsArray.joined(separator: ", "))")
-                        
-                        // Debug: Print first few markers to verify they belong to the expected tags
-                        for (index, marker) in markersToShuffle.prefix(3).enumerated() {
-                            print("🎲 DEBUG - Sample marker \(index + 1): '\(marker.title)' - Tag: '\(marker.primary_tag.name)' (ID: \(marker.primary_tag.id))")
-                        }
-                        
-                        // Start the multi-tag shuffle with proper tag IDs and names
-                        print("🎲 Calling startMarkerShuffle with tagIds: \(tagIdsArray) and tagNames: \(searchTermsArray)")
-                        appModel.startMarkerShuffle(forMultipleTags: tagIdsArray, tagNames: searchTermsArray, displayedMarkers: markersToShuffle)
-                    } else {
-                        print("❌ No markers available to shuffle!")
-                    }
+                    // Start server-side shuffle with these tag names
+                    appModel.startSimpleMarkerShuffle(tagNames: uniqueTagNames)
                 } else if !markers.isEmpty {
-                    // Original single-tag/search logic
-                    print("🎲 Marker search results detected - treating as text search")
-                    
-                    // Try to get search query from app model first
+                    // Single tag/search shuffle
                     if !appModel.searchQuery.isEmpty {
-                        print("🎲 Using appModel.searchQuery: '\(appModel.searchQuery)'")
-                        appModel.startMarkerShuffle(forSearchQuery: appModel.searchQuery, displayedMarkers: markers)
-                    } else if let currentShuffleQuery = appModel.shuffleSearchQuery {
-                        print("🎲 Using existing shuffleSearchQuery: '\(currentShuffleQuery)'")
-                        appModel.startMarkerShuffle(forSearchQuery: currentShuffleQuery, displayedMarkers: markers)
+                        print("🎲 Starting search-based shuffle for: '\(appModel.searchQuery)'")
+                        appModel.startSimpleMarkerShuffle(searchQuery: appModel.searchQuery)
                     } else {
-                        // If no search query in app model, check if all markers share the same primary tag
-                        let firstTag = markers[0].primary_tag
-                        let allSameTag = markers.allSatisfy { $0.primary_tag.id == firstTag.id }
-                        
-                        if allSameTag {
-                            // All markers have same tag - treat as tag search
-                            print("🎲 All markers share tag '\(firstTag.name)' - using tag-based shuffle")
-                            appModel.startMarkerShuffle(forTag: firstTag.id, tagName: firstTag.name, displayedMarkers: markers)
-                        } else {
-                            // Mixed tags - try to infer search term from marker titles/tags
-                            print("🎲 Mixed marker results - using displayed markers only as fallback")
-                            appModel.startMarkerShuffle(withMarkers: markers)
-                        }
+                        // Use the primary tag from the first marker
+                        let tagName = markers[0].primary_tag.name
+                        print("🎲 Starting tag-based shuffle for: '\(tagName)'")
+                        appModel.startSimpleMarkerShuffle(tagNames: [tagName])
                     }
                 } else {
-                    // Fallback to simple shuffle if no markers
                     print("🎲 No markers available - cannot start shuffle")
-                    appModel.startMarkerShuffle(withMarkers: markers)
                 }
             }) {
                 HStack(spacing: 12) {

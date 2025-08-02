@@ -1006,6 +1006,102 @@ struct VideoPlayerView: View {
                     }
                 }
                 
+                // Listen for new marker shuffle updates (simplified approach)
+                NotificationCenter.default.addObserver(
+                    forName: NSNotification.Name("UpdateVideoPlayerWithMarker"),
+                    object: nil,
+                    queue: .main
+                ) { notification in
+                    print("🎲 Received UpdateVideoPlayerWithMarker notification")
+                    if let userInfo = notification.userInfo,
+                       let marker = userInfo["marker"] as? SceneMarker,
+                       let newScene = userInfo["scene"] as? StashScene {
+                        
+                        // Extract startTime - it might be Int, Float, or Double
+                        let startTime: Double
+                        if let intTime = userInfo["startTime"] as? Int {
+                            startTime = Double(intTime)
+                        } else if let floatTime = userInfo["startTime"] as? Float {
+                            startTime = Double(floatTime)
+                        } else if let doubleTime = userInfo["startTime"] as? Double {
+                            startTime = doubleTime
+                        } else {
+                            print("❌ Invalid startTime type in notification")
+                            return
+                        }
+                        
+                        print("🎲 Updating VideoPlayerView with marker: \(marker.title) at \(startTime)s")
+                        
+                        // Update the current scene and marker
+                        currentScene = newScene
+                        currentMarker = marker
+                        effectiveStartTime = startTime
+                        effectiveEndTime = nil // Reset end time for markers
+                        
+                        // Update the current player with new content
+                        if let player = getCurrentPlayer() {
+                            print("🎲 Updating player with marker content")
+                            
+                            // Pause current playback to prevent audio stacking
+                            player.pause()
+                            
+                            // Construct high-quality stream URL like PerformerView does
+                            let sceneId = marker.scene.id
+                            let markerSeconds = Int(startTime)
+                            let currentTimestamp = Int(Date().timeIntervalSince1970)
+                            
+                            // Get server URL and API key from appModel (not StashAPI.shared)
+                            let serverURL = appModel.serverAddress.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+                            let apiKey = appModel.apiKey
+                            
+                            // Construct high-quality URL with ORIGINAL resolution but WITHOUT timestamp (we'll use seek instead)
+                            let hlsStreamURL = "\(serverURL)/scene/\(sceneId)/stream.m3u8?apikey=\(apiKey)&resolution=ORIGINAL&_ts=\(currentTimestamp)"
+                            print("🎲 Constructed high-quality HLS URL: \(hlsStreamURL)")
+                            
+                            if let directURL = URL(string: hlsStreamURL) {
+                                
+                                // Convert to HLS format for better quality (same as existing video player logic)
+                                let hlsURL = VideoPlayerUtility.getHLSStreamURL(from: directURL) ?? directURL
+                                print("🎲 Using HLS URL for marker: \(hlsURL.absoluteString)")
+                                
+                                // Create headers for authentication (simplified, following existing pattern)
+                                let headers = ["User-Agent": "StashApp/iOS"]
+                                
+                                let asset = AVURLAsset(url: hlsURL, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
+                                let playerItem = AVPlayerItem(asset: asset)
+                                
+                                // Optimize for faster switching between videos
+                                playerItem.preferredForwardBufferDuration = 2.0  // Buffer only 2 seconds ahead
+                                player.automaticallyWaitsToMinimizeStalling = false  // Reduce waiting time
+                                
+                                // Replace current item
+                                player.replaceCurrentItem(with: playerItem)
+                                
+                                // Wait longer for player item to be ready, then seek to marker start time
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                    let cmTime = CMTime(seconds: startTime, preferredTimescale: 1000)
+                                    print("🎲 Seeking to marker time: \(startTime)s (CMTime: \(cmTime))")
+                                    
+                                    player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { completed in
+                                        if completed {
+                                            print("🎲 ✅ Successfully seeked to marker time \(startTime)s, starting playback")
+                                            player.play()
+                                        } else {
+                                            print("⚠️ ❌ Failed to seek to marker time \(startTime)s")
+                                            // Try to play anyway
+                                            player.play()
+                                        }
+                                    }
+                                }
+                            } else {
+                                print("❌ Failed to construct stream URL for marker")
+                            }
+                        } else {
+                            print("❌ No current player found for marker update")
+                        }
+                    }
+                }
+                
                 // Listen for keyboard shortcuts from menu commands (Mac Catalyst)
                 NotificationCenter.default.addObserver(
                     forName: NSNotification.Name("VideoPlayerKeyboardShortcut"),
@@ -1266,7 +1362,23 @@ struct VideoPlayerView: View {
             }
         }
         
-        // Otherwise use the default URL
+        // Always construct high-quality URL even without start time
+        let apiKey = appModel.apiKey
+        let baseServerURL = appModel.serverAddress.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        let currentTimestamp = Int(Date().timeIntervalSince1970)
+        
+        // Construct high-quality URL without timestamp (will seek manually if needed)
+        let hlsStreamURL = "\(baseServerURL)/scene/\(sceneId)/stream.m3u8?apikey=\(apiKey)&resolution=ORIGINAL&_ts=\(currentTimestamp)"
+        print("🎬 Constructing high-quality URL without start time: \(hlsStreamURL)")
+        
+        // Save for future use
+        UserDefaults.standard.set(hlsStreamURL, forKey: "scene_\(sceneId)_hlsURL")
+        
+        if let url = URL(string: hlsStreamURL) {
+            return url
+        }
+        
+        // Absolute fallback to default URL (should rarely happen)
         return URL(string: currentScene.paths.stream)!
     }
 }
