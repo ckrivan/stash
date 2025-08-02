@@ -60,7 +60,27 @@ struct HistoryView: View {
                     // History grid
                     LazyVGrid(columns: columns, spacing: 20) {
                         ForEach(appModel.watchHistory.reversed()) { scene in
-                            SceneRow(scene: scene, serverAddress: appModel.serverAddress)
+                            SceneRow(
+                                scene: scene,
+                                onTagSelected: { tag in
+                                    // Navigate to tag view
+                                    appModel.navigationPath.append(tag)
+                                },
+                                onPerformerSelected: { performer in
+                                    // Navigate to performer view
+                                    appModel.navigationPath.append(performer)
+                                },
+                                onSceneUpdated: { updatedScene in
+                                    // Update the scene in history if needed
+                                    if let index = appModel.watchHistory.firstIndex(where: { $0.id == updatedScene.id }) {
+                                        appModel.watchHistory[index] = updatedScene
+                                    }
+                                },
+                                onSceneSelected: { selectedScene in
+                                    // Navigate to video player
+                                    appModel.navigationPath.append(selectedScene)
+                                }
+                            )
                         }
                     }
                     .padding(.horizontal)

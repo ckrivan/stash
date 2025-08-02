@@ -70,6 +70,7 @@
 		920D41F02DE5575500085284 /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41AF2DE5566000085284 /* VideoPlayerView.swift */; };
 		920D41F12DE5575500085284 /* Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41B12DE5566000085284 /* Views.swift */; };
 		920D41F22DE559FF00085284 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 920D41352DE5566000085284 /* Assets.xcassets */; };
+		92933D1D2E3EC0E000CCE3F5 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92933D1C2E3EC0E000CCE3F5 /* HistoryView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -180,6 +181,7 @@
 		920D41AF2DE5566000085284 /* VideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		920D41B12DE5566000085284 /* Views.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views.swift; sourceTree = "<group>"; };
 		928C09CA2CE6641A00C7B4B1 /* stash.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = stash.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		92933D1C2E3EC0E000CCE3F5 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -404,6 +406,7 @@
 		920D41B02DE5566000085284 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				92933D1C2E3EC0E000CCE3F5 /* HistoryView.swift */,
 				920D41812DE5566000085284 /* Connection */,
 				920D41872DE5566000085284 /* Filters */,
 				920D41902DE5566000085284 /* Markers */,
@@ -564,6 +567,7 @@
 				920D41B82DE5575500085284 /* UserDefaultsExtensions.swift in Sources */,
 				920D41B92DE5575500085284 /* AppImports.swift in Sources */,
 				920D41BA2DE5575500085284 /* AppModel.swift in Sources */,
+				92933D1D2E3EC0E000CCE3F5 /* HistoryView.swift in Sources */,
 				920D41BB2DE5575500085284 /* FilterOptions.swift in Sources */,
 				920D41BC2DE5575500085284 /* FilterPreset.swift in Sources */,
 				920D41BD2DE5575500085284 /* SceneFilterType.swift in Sources */,
