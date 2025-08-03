@@ -47,10 +47,13 @@ struct MarkersSearchResultsView: View {
                         
                         Button(action: {
                             print("🏷️🏷️🏷️ Add More button tapped in empty markers view!")
+                            print("🏷️ Current state before action - showingTagSelector: \(showingTagSelector), isMultiTagMode: \(isMultiTagMode)")
                             extractAvailableTags()
                             DispatchQueue.main.async {
+                                print("🏷️ Setting showingTagSelector = true in main queue")
                                 showingTagSelector = true
                                 isMultiTagMode = true
+                                print("🏷️ After setting - showingTagSelector: \(showingTagSelector), isMultiTagMode: \(isMultiTagMode)")
                             }
                         }) {
                             VStack(spacing: 4) {
@@ -131,6 +134,8 @@ struct MarkersSearchResultsView: View {
             await MainActor.run {
                 availableTags = Array(allTags).sorted { $0.name.lowercased() < $1.name.lowercased() }
                 print("🏷️ Fetched \(availableTags.count) popular tags for combination")
+                print("🏷️ Current showingTagSelector state: \(showingTagSelector)")
+                print("🏷️ Available tags: \(availableTags.map { $0.name })")
             }
         } catch {
             print("❌ Failed to fetch popular tags: \(error)")
@@ -514,6 +519,11 @@ struct MarkersSearchResultsView: View {
         .sheet(isPresented: $showingTagSelector) {
             tagSelectorView
         }
+        .overlay(
+            // Debug overlay to test if state is changing
+            showingTagSelector ? Text("🔍 TAG SELECTOR STATE IS TRUE!").background(Color.red).foregroundColor(.white) : nil,
+            alignment: .top
+        )
     }
     
     private var tagSelectorView: some View {

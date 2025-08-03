@@ -39,6 +39,7 @@ struct MediaLibraryView: View {
     @State private var totalMarkerCount: Int = 0
     @State private var searchedTag: (id: String, name: String)? = nil
     @State private var viewRefreshId = UUID()  // Add view refresh trigger
+    @State private var showingMarkerTagSelector = false  // Control tag selector from parent
     
     // Show watch history when we have watched scenes and the flag is set (returning from video)
     private var shouldShowWatchHistory: Bool {
@@ -261,14 +262,22 @@ struct MediaLibraryView: View {
                 }
                 .environmentObject(appModel)
             } else if searchScope == .markers && currentFilter != "search" {
-                // Show empty markers interface when markers scope is selected but no search has happened
-                let _ = print("📍 Showing empty marker interface for initial markers selection")
+                // Show markers interface with default popular markers
+                let _ = print("📍 Showing markers interface for tag combination")
                 VStack {
-                    MarkersSearchResultsView(markers: [], totalCount: 0) { marker in
+                    MarkersSearchResultsView(markers: searchedMarkers, totalCount: totalMarkerCount) { marker in
                         // Empty callback for initial state
                     }
                 }
                 .environmentObject(appModel)
+                .onAppear {
+                    // Load some default popular markers when first appearing
+                    if searchedMarkers.isEmpty {
+                        Task {
+                            await performSearch(query: "blowjob", scope: .markers)
+                        }
+                    }
+                }
             } else if searchedTag != nil && searchScope == .tags && currentFilter == "search" && !appModel.api.scenes.isEmpty {
                 // Show tag search results
                 let _ = print("🏷️ Showing tag search results: \(appModel.api.scenes.count) scenes for tag: \(searchedTag!.name)")
