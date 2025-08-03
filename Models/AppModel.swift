@@ -276,11 +276,15 @@ class AppModel: ObservableObject {
         // Check if we're in shuffle mode and need to replace current video
         if (isMarkerShuffleMode || isServerSideShuffle) && !navigationPath.isEmpty {
             print("⏱ Shuffle mode: Popping current video and navigating to new one")
-            // Pop the current video
-            _ = navigationPath.removeLast()
-            // Small delay to let the pop complete
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                self.navigationPath.append(scene)
+            // FIXED: Pop and append on main thread to prevent background publishing errors
+            DispatchQueue.main.async {
+                if !self.navigationPath.isEmpty {
+                    _ = self.navigationPath.removeLast()
+                }
+                // Small delay to let the pop complete
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    self.navigationPath.append(scene)
+                }
             }
         } else {
             // Regular navigation - just append to path - ensure main thread for @Published
@@ -317,9 +321,11 @@ class AppModel: ObservableObject {
         api.isLoading = true
 
         // Step 6: Actually perform the navigation action
-        // We do this last to ensure all state is reset
-        navigationPath.append(performer)
-        print("🏁 NAVIGATION - Navigation completed to performer: \(performer.name)")
+        // We do this last to ensure all state is reset - ensure main thread for @Published
+        DispatchQueue.main.async {
+            self.navigationPath.append(performer)
+            print("🏁 NAVIGATION - Navigation completed to performer: \(performer.name)")
+        }
         
         // Immediately start loading scenes to ensure they're ready
         Task(priority: .userInitiated) {
@@ -408,7 +414,9 @@ class AppModel: ObservableObject {
             return
         }
         
-        isNavigatingToMarker = true
+        DispatchQueue.main.async {
+            self.isNavigatingToMarker = true
+        }
         
         // Reset flag after a delay to allow navigation to complete
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -425,7 +433,9 @@ class AppModel: ObservableObject {
         // Emergency cleanup: Clear navigation stack if too many views are stacked
         if navigationPath.count > 6 {
             print("🚨 EMERGENCY: Too many navigation items (\(navigationPath.count)), clearing stack")
-            navigationPath.removeLast(navigationPath.count - 1)
+            DispatchQueue.main.async {
+                self.navigationPath.removeLast(self.navigationPath.count - 1)
+            }
             
             // Gentle cleanup: Only kill audio, preserve shuffle contexts
             print("🔧 CLEANUP: Killing audio but preserving shuffle state")
@@ -451,7 +461,9 @@ class AppModel: ObservableObject {
             savePreviousNavigationState()
         }
         
-        currentMarker = marker
+        DispatchQueue.main.async {
+            self.currentMarker = marker
+        }
         
         // Auto-start marker shuffle if navigating from search (not already in shuffle mode)
         // Do this AFTER navigation to avoid blocking video playback
@@ -677,12 +689,16 @@ class AppModel: ObservableObject {
                     UserDefaults.standard.set(true, forKey: "forceScenesTab")
                 }
                 
-                navigationPath.removeLast()
+                DispatchQueue.main.async {
+                    self.navigationPath.removeLast()
+                }
             }
         } else {
             // For other cases, just pop back once
             if !navigationPath.isEmpty {
-                navigationPath.removeLast()
+                DispatchQueue.main.async {
+                    self.navigationPath.removeLast()
+                }
             }
         }
         
@@ -697,9 +713,11 @@ class AppModel: ObservableObject {
         api.scenes = []
         print("🧹 NAVIGATION - Cleared existing scenes for tag view")
 
-        // Navigate to the tag
-        navigationPath.append(tag)
-        print("🏁 NAVIGATION - Navigation completed to tag: \(tag.name)")
+        // Navigate to the tag - ensure main thread for @Published
+        DispatchQueue.main.async {
+            self.navigationPath.append(tag)
+            print("🏁 NAVIGATION - Navigation completed to tag: \(tag.name)")
+        }
 
         // Let the TaggedScenesView handle loading scenes through its onAppear method
     }
@@ -735,13 +753,17 @@ class AppModel: ObservableObject {
     }
     
     func popNavigation() {
-        if !navigationPath.isEmpty {
-            navigationPath.removeLast()
+        DispatchQueue.main.async {
+            if !self.navigationPath.isEmpty {
+                self.navigationPath.removeLast()
+            }
         }
     }
     
     func clearNavigation() {
-        navigationPath = NavigationPath()
+        DispatchQueue.main.async {
+            self.navigationPath = NavigationPath()
+        }
     }
     
     // Force close the current video and clean up resources
@@ -767,7 +789,9 @@ class AppModel: ObservableObject {
         let currentSceneId = currentScene?.id
         
         // Clear current scene reference
-        currentScene = nil
+        DispatchQueue.main.async {
+            self.currentScene = nil
+        }
         
         // Clear any video-related UserDefaults if needed
         if let sceneId = currentSceneId {
@@ -781,8 +805,10 @@ class AppModel: ObservableObject {
         
         // If we have a navigation path and the last item is likely a video, remove it
         if !navigationPath.isEmpty {
-            navigationPath.removeLast()
-            print("📱 Removed last navigation item, remaining path count: \(navigationPath.count)")
+            DispatchQueue.main.async {
+                self.navigationPath.removeLast()
+                print("📱 Removed last navigation item, remaining path count: \(self.navigationPath.count)")
+            }
         }
         
         // FIXED: Navigate back to last watched scene in scenes view if we're returning to scenes tab
@@ -884,9 +910,11 @@ class AppModel: ObservableObject {
         }
         
         // 4. Reset all shuffle modes
-        isMarkerShuffleMode = false
-        markerShuffleQueue = []
-        currentShuffleIndex = 0
+        DispatchQueue.main.async {
+            self.isMarkerShuffleMode = false
+            self.markerShuffleQueue = []
+            self.currentShuffleIndex = 0
+        }
         tagSceneShuffleQueue = []
         currentTagShuffleIndex = 0
         
@@ -1006,9 +1034,11 @@ class AppModel: ObservableObject {
         print("🎲 Starting SERVER-SIDE marker shuffle for tag: \(tagName)")
         
         // Set shuffle context immediately for UI responsiveness
-        isMarkerShuffleMode = true
-        isServerSideShuffle = true
-        shuffleTagNames = [tagName]
+        DispatchQueue.main.async {
+            self.isMarkerShuffleMode = true
+            self.isServerSideShuffle = true
+            self.shuffleTagNames = [tagName]
+        }
         shuffleTagFilter = tagId
         shuffleTagFilters = [] // Clear multi-tag filters
         shuffleSearchQuery = nil
@@ -1154,9 +1184,11 @@ class AppModel: ObservableObject {
         print("🎲 DEBUG - Displayed Markers Count: \(displayedMarkers.count)")
         
         // Set shuffle context
-        isMarkerShuffleMode = true
-        isServerSideShuffle = false  // Use client-side shuffle with the combined markers
-        shuffleTagNames = tagNames
+        DispatchQueue.main.async {
+            self.isMarkerShuffleMode = true
+            self.isServerSideShuffle = false  // Use client-side shuffle with the combined markers
+            self.shuffleTagNames = tagNames
+        }
         shuffleTagFilters = tagIds
         shuffleTagFilter = nil
         shuffleSearchQuery = nil
@@ -1181,7 +1213,9 @@ class AppModel: ObservableObject {
         
         // Still keep the combined queue for backwards compatibility, but use balanced selection
         markerShuffleQueue = displayedMarkers.shuffled()
-        currentShuffleIndex = 0
+        DispatchQueue.main.async {
+            self.currentShuffleIndex = 0
+        }
         
         print("✅ Created balanced tag rotation with \(markersByTag.count) tags, total \(displayedMarkers.count) markers")
         
@@ -1209,7 +1243,9 @@ class AppModel: ObservableObject {
         print("🎲 Starting marker shuffle for search: \(query) - loading ALL markers from API")
         
         // Set shuffle context
-        isMarkerShuffleMode = true
+        DispatchQueue.main.async {
+            self.isMarkerShuffleMode = true
+        }
         shuffleSearchQuery = query
         shuffleTagFilter = nil
         shuffleTagFilters = []
@@ -1421,7 +1457,9 @@ class AppModel: ObservableObject {
                 // Check if we're already in a video player context
                 if !self.navigationPath.isEmpty {
                     print("🔄 Already in navigation context - using direct marker update instead of navigation")
-                    self.currentMarker = firstMarker
+                    DispatchQueue.main.async {
+                        self.currentMarker = firstMarker
+                    }
                     
                     // Set marker context flags
                     UserDefaults.standard.set(true, forKey: "scene_\(firstMarker.scene.id)_isMarkerNavigation")
@@ -1518,7 +1556,9 @@ class AppModel: ObservableObject {
                 // Check if we're already in a video player context
                 if !self.navigationPath.isEmpty {
                     print("🔄 Already in navigation context - using direct marker update instead of navigation")
-                    self.currentMarker = firstMarker
+                    DispatchQueue.main.async {
+                        self.currentMarker = firstMarker
+                    }
                     
                     // Set marker context flags
                     UserDefaults.standard.set(true, forKey: "scene_\(firstMarker.scene.id)_isMarkerNavigation")
@@ -1692,14 +1732,18 @@ class AppModel: ObservableObject {
         print("🎲 Starting simple marker shuffle with \(markers.count) markers")
         
         // Set shuffle context
-        isMarkerShuffleMode = true
+        DispatchQueue.main.async {
+            self.isMarkerShuffleMode = true
+        }
         shuffleTagFilter = nil
         shuffleSearchQuery = "direct_markers"
         UserDefaults.standard.set(true, forKey: "isMarkerShuffleContext")
         
         // Create shuffled queue immediately
         markerShuffleQueue = markers.shuffled()
-        currentShuffleIndex = 0
+        DispatchQueue.main.async {
+            self.currentShuffleIndex = 0
+        }
         
         print("✅ Created shuffle queue with \(markerShuffleQueue.count) markers")
         
@@ -1711,7 +1755,9 @@ class AppModel: ObservableObject {
             // Check if we're already in a video player context
             if !navigationPath.isEmpty {
                 print("🔄 Already in navigation context - using direct marker update instead of navigation")
-                currentMarker = firstMarker
+                DispatchQueue.main.async {
+                    self.currentMarker = firstMarker
+                }
                 
                 // Set marker context flags
                 UserDefaults.standard.set(true, forKey: "scene_\(firstMarker.scene.id)_isMarkerNavigation")
@@ -1733,9 +1779,15 @@ class AppModel: ObservableObject {
     /// Stop marker shuffle mode
     func stopMarkerShuffle() {
         print("🛑 Stopping marker shuffle mode")
-        isMarkerShuffleMode = false
-        markerShuffleQueue.removeAll()
-        currentShuffleIndex = 0
+        DispatchQueue.main.async {
+            self.isMarkerShuffleMode = false
+        }
+        DispatchQueue.main.async {
+            self.markerShuffleQueue.removeAll()
+        }
+        DispatchQueue.main.async {
+            self.currentShuffleIndex = 0
+        }
         shuffleTagFilter = nil
         shuffleSearchQuery = nil
         
@@ -1832,7 +1884,9 @@ class AppModel: ObservableObject {
         
         print("🔀 Re-shuffling marker queue")
         markerShuffleQueue = markerShuffleQueue.shuffled()
-        currentShuffleIndex = 0
+        DispatchQueue.main.async {
+            self.currentShuffleIndex = 0
+        }
         
         // Start playing the first marker from the newly shuffled queue 
         if let firstMarker = markerShuffleQueue.first {

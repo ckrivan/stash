@@ -4,6 +4,7 @@ struct MarkersSearchResultsView: View {
     let markers: [SceneMarker]
     let totalCount: Int?
     let onMarkerAppear: ((SceneMarker) -> Void)?
+    let onOpenTagSelector: (([SceneMarker.Tag]) -> Void)?  // Callback to parent
     @EnvironmentObject private var appModel: AppModel
     
     @State private var selectedTagIds: Set<String> = []
@@ -20,10 +21,11 @@ struct MarkersSearchResultsView: View {
     @State private var isSearching = false
     @State private var combinedTotalCount: Int = 0
     
-    init(markers: [SceneMarker], totalCount: Int? = nil, onMarkerAppear: ((SceneMarker) -> Void)? = nil) {
+    init(markers: [SceneMarker], totalCount: Int? = nil, onMarkerAppear: ((SceneMarker) -> Void)? = nil, onOpenTagSelector: (([SceneMarker.Tag]) -> Void)? = nil) {
         self.markers = markers
         self.totalCount = totalCount
         self.onMarkerAppear = onMarkerAppear
+        self.onOpenTagSelector = onOpenTagSelector
     }
     
     private var columns: [GridItem] {
@@ -47,13 +49,23 @@ struct MarkersSearchResultsView: View {
                         
                         Button(action: {
                             print("🏷️🏷️🏷️ Add More button tapped in empty markers view!")
-                            print("🏷️ Current state before action - showingTagSelector: \(showingTagSelector), isMultiTagMode: \(isMultiTagMode)")
-                            extractAvailableTags()
-                            DispatchQueue.main.async {
-                                print("🏷️ Setting showingTagSelector = true in main queue")
-                                showingTagSelector = true
-                                isMultiTagMode = true
-                                print("🏷️ After setting - showingTagSelector: \(showingTagSelector), isMultiTagMode: \(isMultiTagMode)")
+                            print("🏷️ Current markers count: \(markers.count)")
+                            print("🏷️ Current availableTags count before extraction: \(availableTags.count)")
+                            
+                            Task {
+                                await extractAvailableTagsAsync()
+                                print("🏷️ Available tags after async extraction: \(availableTags.count)")
+                                if let callback = onOpenTagSelector {
+                                    print("🏷️ Calling parent callback with \(availableTags.count) tags")
+                                    callback(availableTags)
+                                } else {
+                                    print("🏷️ No callback, using fallback behavior")
+                                    // Fallback to old behavior
+                                    DispatchQueue.main.async {
+                                        showingTagSelector = true
+                                        isMultiTagMode = true
+                                    }
+                                }
                             }
                         }) {
                             VStack(spacing: 4) {
@@ -114,6 +126,25 @@ struct MarkersSearchResultsView: View {
             Task {
                 await fetchPopularTags()
             }
+        }
+    }
+    
+    private func extractAvailableTagsAsync() async {
+        print("🏷️ extractAvailableTagsAsync called - markers.count: \(markers.count)")
+        if !markers.isEmpty {
+            // Get tags from current search results
+            let currentTags = Set(markers.flatMap { marker in
+                [marker.primary_tag] + marker.tags
+            })
+            
+            await MainActor.run {
+                availableTags = Array(currentTags).sorted { $0.name.lowercased() < $1.name.lowercased() }
+                print("🏷️ Available tags from current results: \(availableTags.count)")
+            }
+        } else {
+            // If no markers loaded, fetch popular tags to start with
+            print("🏷️ No markers available, fetching popular tags to start combination")
+            await fetchPopularTags()
         }
     }
     
@@ -460,10 +491,23 @@ struct MarkersSearchResultsView: View {
                 // Add Tags button  
                 Button(action: {
                     print("🏷️🏷️🏷️ Add More button tapped in prominent shuffle section!")
-                    extractAvailableTags()
-                    DispatchQueue.main.async {
-                        showingTagSelector = true
-                        isMultiTagMode = true
+                    print("🏷️ Current markers count: \(markers.count)")
+                    print("🏷️ Current availableTags count before extraction: \(availableTags.count)")
+                    
+                    Task {
+                        await extractAvailableTagsAsync()
+                        print("🏷️ Available tags after async extraction: \(availableTags.count)")
+                        if let callback = onOpenTagSelector {
+                            print("🏷️ Calling parent callback with \(availableTags.count) tags")
+                            callback(availableTags)
+                        } else {
+                            print("🏷️ No callback, using fallback behavior")
+                            // Fallback to old behavior
+                            DispatchQueue.main.async {
+                                showingTagSelector = true
+                                isMultiTagMode = true
+                            }
+                        }
                     }
                 }) {
                     VStack(spacing: 4) {

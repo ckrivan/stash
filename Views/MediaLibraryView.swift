@@ -40,6 +40,7 @@ struct MediaLibraryView: View {
     @State private var searchedTag: (id: String, name: String)? = nil
     @State private var viewRefreshId = UUID()  // Add view refresh trigger
     @State private var showingMarkerTagSelector = false  // Control tag selector from parent
+    @State private var markerTagSelectorTags: [SceneMarker.Tag] = []  // Tags for selector
     
     // Show watch history when we have watched scenes and the flag is set (returning from video)
     private var shouldShowWatchHistory: Bool {
@@ -179,6 +180,42 @@ struct MediaLibraryView: View {
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ShowAdvancedFilters"))) { _ in
             showingFilters = true
         }
+        .sheet(isPresented: $showingMarkerTagSelector) {
+            NavigationView {
+                VStack(spacing: 20) {
+                    Text("🎯 PARENT SHEET IS WORKING!")
+                        .font(.title)
+                        .foregroundColor(.green)
+                    
+                    Text("Available Tags: \(markerTagSelectorTags.count)")
+                        .font(.headline)
+                    
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 12) {
+                        ForEach(markerTagSelectorTags.prefix(10), id: \.id) { tag in
+                            Button(tag.name) {
+                                print("🏷️ Tag selected: \(tag.name)")
+                            }
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                        }
+                    }
+                    .padding()
+                    
+                    Spacer()
+                }
+                .navigationTitle("Test Tag Selector")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Close") {
+                            showingMarkerTagSelector = false
+                        }
+                    }
+                }
+            }
+        }
     }
     
     private var scenesContent: some View {
@@ -190,10 +227,16 @@ struct MediaLibraryView: View {
                 // Show marker search results
                 let _ = print("📍 Showing marker search results: \(searchedMarkers.count) markers (total: \(totalMarkerCount))")
                 VStack {
-                    MarkersSearchResultsView(markers: searchedMarkers, totalCount: totalMarkerCount) { marker in
+                    MarkersSearchResultsView(markers: searchedMarkers, totalCount: totalMarkerCount, onMarkerAppear: { marker in
                         // Automatic pagination is disabled - users can manually load more with the button
                         // This prevents performance issues from loading too many markers automatically
-                    }
+                    }, onOpenTagSelector: { tags in
+                        print("🏷️ PARENT: Received callback with \(tags.count) tags")
+                        print("🏷️ PARENT: Tag names: \(tags.map { $0.name })")
+                        markerTagSelectorTags = tags
+                        showingMarkerTagSelector = true
+                        print("🏷️ PARENT: Set showingMarkerTagSelector = true")
+                    })
                     
                     // Show load more button if we have more markers available
                     if searchedMarkers.count >= 50 {
@@ -265,9 +308,15 @@ struct MediaLibraryView: View {
                 // Show markers interface with default popular markers
                 let _ = print("📍 Showing markers interface for tag combination")
                 VStack {
-                    MarkersSearchResultsView(markers: searchedMarkers, totalCount: totalMarkerCount) { marker in
+                    MarkersSearchResultsView(markers: searchedMarkers, totalCount: totalMarkerCount, onMarkerAppear: { marker in
                         // Empty callback for initial state
-                    }
+                    }, onOpenTagSelector: { tags in
+                        print("🏷️ PARENT: Received callback with \(tags.count) tags")
+                        print("🏷️ PARENT: Tag names: \(tags.map { $0.name })")
+                        markerTagSelectorTags = tags
+                        showingMarkerTagSelector = true
+                        print("🏷️ PARENT: Set showingMarkerTagSelector = true")
+                    })
                 }
                 .environmentObject(appModel)
                 .onAppear {
