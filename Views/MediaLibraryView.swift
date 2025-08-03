@@ -260,6 +260,15 @@ struct MediaLibraryView: View {
                     }
                 }
                 .environmentObject(appModel)
+            } else if searchScope == .markers && currentFilter != "search" {
+                // Show empty markers interface when markers scope is selected but no search has happened
+                let _ = print("📍 Showing empty marker interface for initial markers selection")
+                VStack {
+                    MarkersSearchResultsView(markers: [], totalCount: 0) { marker in
+                        // Empty callback for initial state
+                    }
+                }
+                .environmentObject(appModel)
             } else if searchedTag != nil && searchScope == .tags && currentFilter == "search" && !appModel.api.scenes.isEmpty {
                 // Show tag search results
                 let _ = print("🏷️ Showing tag search results: \(appModel.api.scenes.count) scenes for tag: \(searchedTag!.name)")
@@ -810,9 +819,10 @@ struct MediaLibraryView: View {
                 
             case .markers:
                 // Search markers with pagination support and total count
-                print("🔍 Searching markers with query: '\(query)' (page 1)")
-                let (markers, totalCount) = try await appModel.api.searchMarkersWithCount(query: query, page: 1, perPage: 50)
-                print("📊 Found \(markers.count) markers matching '\(query)' on page 1 (total: \(totalCount))")
+                let searchQuery = query.isEmpty ? "blowjob" : query // Default to popular search if empty
+                print("🔍 Searching markers with query: '\(searchQuery)' (page 1) [original: '\(query)']")
+                let (markers, totalCount) = try await appModel.api.searchMarkersWithCount(query: searchQuery, page: 1, perPage: 50)
+                print("📊 Found \(markers.count) markers matching '\(searchQuery)' on page 1 (total: \(totalCount))")
                 
                 // Debug - print first few marker titles
                 for (index, marker) in markers.prefix(5).enumerated() {
@@ -828,8 +838,8 @@ struct MediaLibraryView: View {
                     searchScope = .markers    // Ensure scope is set to markers
                     
                     // IMPORTANT: Store the search query in app model for shuffle functionality
-                    appModel.searchQuery = query
-                    print("📝 Stored search query in appModel: '\(query)'")
+                    appModel.searchQuery = query.isEmpty ? "" : query // Store original query, not the default
+                    print("📝 Stored search query in appModel: '\(appModel.searchQuery)'")
                     
                     // Enable pagination if we got a full page of results
                     hasMorePages = markers.count >= 50

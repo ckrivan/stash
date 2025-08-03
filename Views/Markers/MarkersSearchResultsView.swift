@@ -36,9 +36,43 @@ struct MarkersSearchResultsView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // ALWAYS show shuffle button when there are markers (regardless of search query state)
+            // ALWAYS show shuffle button when there are markers, but show Add More button always
             if !markers.isEmpty {
                 prominentShuffleButton
+            } else {
+                // Show just the Add More button when no markers are loaded
+                VStack(spacing: 16) {
+                    HStack {
+                        Spacer()
+                        
+                        Button(action: {
+                            print("🏷️🏷️🏷️ Add More button tapped in empty markers view!")
+                            extractAvailableTags()
+                            DispatchQueue.main.async {
+                                showingTagSelector = true
+                                isMultiTagMode = true
+                            }
+                        }) {
+                            VStack(spacing: 4) {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.system(size: 24, weight: .bold))
+                                Text("Add More")
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 16)
+                            .background(Color.green)
+                            .cornerRadius(16)
+                            .shadow(color: .green.opacity(0.4), radius: 8, x: 0, y: 4)
+                        }
+                        
+                        Spacer()
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 16)
             }
             
             ScrollView {
@@ -62,13 +96,45 @@ struct MarkersSearchResultsView: View {
     
     // Multi-tag helper functions
     private func extractAvailableTags() {
-        // Just get tags from current search results
-        let currentTags = Set(markers.flatMap { marker in
-            [marker.primary_tag] + marker.tags
-        })
-        
-        availableTags = Array(currentTags).sorted { $0.name.lowercased() < $1.name.lowercased() }
-        print("🏷️ Available tags from current results: \(availableTags.count)")
+        print("🏷️ extractAvailableTags called - markers.count: \(markers.count)")
+        if !markers.isEmpty {
+            // Get tags from current search results
+            let currentTags = Set(markers.flatMap { marker in
+                [marker.primary_tag] + marker.tags
+            })
+            
+            availableTags = Array(currentTags).sorted { $0.name.lowercased() < $1.name.lowercased() }
+            print("🏷️ Available tags from current results: \(availableTags.count)")
+        } else {
+            // If no markers loaded, fetch popular tags to start with
+            print("🏷️ No markers available, fetching popular tags to start combination")
+            Task {
+                await fetchPopularTags()
+            }
+        }
+    }
+    
+    private func fetchPopularTags() async {
+        do {
+            // Search for a few popular markers to get their tags
+            let popularQueries = ["blowjob", "anal", "creampie", "deepthroat", "missionary"]
+            var allTags = Set<SceneMarker.Tag>()
+            
+            for query in popularQueries {
+                let searchMarkers = try await appModel.api.searchMarkers(query: query, page: 1, perPage: 10)
+                let tags: Set<SceneMarker.Tag> = Set(searchMarkers.flatMap { marker in
+                    [marker.primary_tag] + marker.tags
+                })
+                allTags.formUnion(tags)
+            }
+            
+            await MainActor.run {
+                availableTags = Array(allTags).sorted { $0.name.lowercased() < $1.name.lowercased() }
+                print("🏷️ Fetched \(availableTags.count) popular tags for combination")
+            }
+        } catch {
+            print("❌ Failed to fetch popular tags: \(error)")
+        }
     }
     
     
@@ -110,7 +176,8 @@ struct MarkersSearchResultsView: View {
     }
     
     private func loadCombinedMarkers() async {
-        guard !selectedSearchTerms.isEmpty else {
+        // Always allow combination - if no additional terms selected, just use current markers
+        if selectedSearchTerms.isEmpty {
             await MainActor.run {
                 combinedMarkers = markers
                 isLoadingCombined = false
@@ -225,8 +292,8 @@ struct MarkersSearchResultsView: View {
                 print("🎲 Current displayed markers: \(markers.count)")
                 
                 // Check if we're in multi-search mode
-                if isMultiTagMode && !selectedSearchTerms.isEmpty {
-                    print("🎲 Multi-search shuffle mode: \(selectedSearchTerms.count) searches selected: \(Array(selectedSearchTerms))")
+                if isMultiTagMode {
+                    print("🎲 Multi-search shuffle mode: \(selectedSearchTerms.count) additional searches selected: \(Array(selectedSearchTerms))")
                     print("🎲 Using \(combinedMarkers.count) combined markers")
                     
                     // Create combined search terms and tag IDs for shuffle
@@ -318,7 +385,7 @@ struct MarkersSearchResultsView: View {
                         .font(.system(size: 24, weight: .bold))
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        if isMultiTagMode && !selectedSearchTerms.isEmpty {
+                        if isMultiTagMode {
                             Text("Shuffle Combined")
                                 .font(.title2)
                                 .fontWeight(.bold)
@@ -333,7 +400,8 @@ struct MarkersSearchResultsView: View {
                                 return terms
                             }()
                             
-                            Text(displayTerms.joined(separator: " + "))
+                            let displayText = displayTerms.isEmpty ? "Current Tag" : displayTerms.joined(separator: " + ")
+                            Text(displayText)
                                 .font(.caption)
                                 .opacity(0.9)
                                 .lineLimit(2)
@@ -386,10 +454,12 @@ struct MarkersSearchResultsView: View {
                 
                 // Add Tags button  
                 Button(action: {
-                    print("🏷️ Add Tags button tapped!")
+                    print("🏷️🏷️🏷️ Add More button tapped in prominent shuffle section!")
                     extractAvailableTags()
-                    showingTagSelector = true
-                    isMultiTagMode = true
+                    DispatchQueue.main.async {
+                        showingTagSelector = true
+                        isMultiTagMode = true
+                    }
                 }) {
                     VStack(spacing: 4) {
                         Image(systemName: "plus.circle.fill")
@@ -524,6 +594,56 @@ struct MarkersSearchResultsView: View {
                         .font(.body)
                         .foregroundColor(.secondary)
                         .padding(.vertical, 40)
+                } else if !availableTags.isEmpty {
+                    // Show popular tags when sheet first opens
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Popular tags to combine (\(pendingTagSelections.count) selected):")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal)
+                        
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 12) {
+                            ForEach(availableTags.prefix(20), id: \.id) { tag in
+                                let tagName = tag.name
+                                let isSelected = pendingTagSelections.contains(tagName)
+                                
+                                Button(action: {
+                                    if isSelected {
+                                        pendingTagSelections.remove(tagName)
+                                    } else {
+                                        pendingTagSelections.insert(tagName)
+                                    }
+                                }) {
+                                    Text(tagName)
+                                        .font(.subheadline)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(isSelected ? .white : .primary)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 12)
+                                        .frame(minWidth: 100)
+                                        .background(isSelected ? Color.blue : Color(.systemGray5))
+                                        .cornerRadius(10)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+                                        )
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                } else {
+                    // Show while fetching initial tags
+                    VStack(spacing: 12) {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .green))
+                            .scaleEffect(1.2)
+                        Text("Loading popular tags...")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 40)
                 }
                 
                 Spacer()

@@ -413,24 +413,29 @@ struct MarkersView: View {
                     .font(.caption2)
                     .foregroundColor(.red)
                 
-                // Always show Add Tags button for testing
+                // Add More button - always visible for combining markers
                 HStack {
+                    Spacer()
+                    
                     Button(action: {
-                        print("🏷️ DEBUG: Add tags button tapped!")
+                        print("🏷️ Add More button tapped!")
                         extractAvailableTags()
                         showingTagSelector = true
                         isMultiTagMode = true
                     }) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "plus.circle")
-                            Text("Add Tags (DEBUG)")
+                        VStack(spacing: 4) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: 24, weight: .bold))
+                            Text("Add More")
                                 .font(.caption)
+                                .fontWeight(.medium)
                         }
                         .foregroundColor(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(Color.red)
-                        .cornerRadius(8)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 16)
+                        .background(Color.green)
+                        .cornerRadius(16)
+                        .shadow(color: .green.opacity(0.4), radius: 8, x: 0, y: 4)
                     }
                     
                     Spacer()

@@ -229,24 +229,28 @@ class AppModel: ObservableObject {
         print("🔇 Killing audio for navigation (marker: \(isMarkerShuffle), tag: \(isTagShuffle))")
         killAllAudio()
         
-        // Store both scene and timestamp in properties
-        currentScene = scene
-        
-        // FIXED: Track this as the last watched scene for return navigation
-        lastWatchedScene = scene
+        // Store both scene and timestamp in properties - ensure main thread for @Published
+        DispatchQueue.main.async {
+            self.currentScene = scene
+            
+            // FIXED: Track this as the last watched scene for return navigation
+            self.lastWatchedScene = scene
+        }
         print("🎯 HISTORY - Set lastWatchedScene to: \(scene.title ?? "Untitled")")
         
-        // Add to watch history (avoid duplicates of consecutive same scene)
-        if watchHistory.last?.id != scene.id {
-            watchHistory.append(scene)
-            // Keep history to reasonable size (last 20 scenes)
-            if watchHistory.count > 20 {
-                watchHistory = Array(watchHistory.suffix(20))
+        // Add to watch history (avoid duplicates of consecutive same scene) - ensure main thread for @Published
+        DispatchQueue.main.async {
+            if self.watchHistory.last?.id != scene.id {
+                self.watchHistory.append(scene)
+                // Keep history to reasonable size (last 20 scenes)
+                if self.watchHistory.count > 20 {
+                    self.watchHistory = Array(self.watchHistory.suffix(20))
+                }
+                print("🎯 HISTORY - Added to watch history: \(scene.title ?? "Untitled") (history count: \(self.watchHistory.count))")
+                print("🎯 HISTORY - Full history: \(self.watchHistory.map { $0.title ?? "Untitled" })")
+            } else {
+                print("🎯 HISTORY - Skipping duplicate scene: \(scene.title ?? "Untitled") (last in history: \(self.watchHistory.last?.title ?? "None"))")
             }
-            print("🎯 HISTORY - Added to watch history: \(scene.title ?? "Untitled") (history count: \(watchHistory.count))")
-            print("🎯 HISTORY - Full history: \(watchHistory.map { $0.title ?? "Untitled" })")
-        } else {
-            print("🎯 HISTORY - Skipping duplicate scene: \(scene.title ?? "Untitled") (last in history: \(watchHistory.last?.title ?? "None"))")
         }
         
         // Critical: Clear any stale scene data before setting new scene
@@ -275,13 +279,15 @@ class AppModel: ObservableObject {
             // Pop the current video
             _ = navigationPath.removeLast()
             // Small delay to let the pop complete
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                 self.navigationPath.append(scene)
             }
         } else {
-            // Regular navigation - just append to path
+            // Regular navigation - just append to path - ensure main thread for @Published
             print("⏱ Adding scene to navigation path")
-            navigationPath.append(scene)
+            DispatchQueue.main.async {
+                self.navigationPath.append(scene)
+            }
         }
     }
     
@@ -405,7 +411,7 @@ class AppModel: ObservableObject {
         isNavigatingToMarker = true
         
         // Reset flag after a delay to allow navigation to complete
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.isNavigatingToMarker = false
         }
         
@@ -417,26 +423,25 @@ class AppModel: ObservableObject {
         killAllAudio()
         
         // Emergency cleanup: Clear navigation stack if too many views are stacked
-        if navigationPath.count > 3 {
+        if navigationPath.count > 6 {
             print("🚨 EMERGENCY: Too many navigation items (\(navigationPath.count)), clearing stack")
             navigationPath.removeLast(navigationPath.count - 1)
             
-            // Nuclear option: Kill all audio and clear all cached data
-            print("🚨 NUCLEAR CLEANUP: Clearing all cached URLs and killing all audio")
+            // Gentle cleanup: Only kill audio, preserve shuffle contexts
+            print("🔧 CLEANUP: Killing audio but preserving shuffle state")
             killAllAudio()
             
-            // Clear all UserDefaults related to video playback
+            // Only clear problematic cached URLs, not shuffle contexts
             let defaults = UserDefaults.standard
             let keys = defaults.dictionaryRepresentation().keys
             for key in keys {
-                if key.contains("scene_") && (key.contains("_hlsURL") || key.contains("_startTime") || key.contains("_endTime") || key.contains("_forcePlay") || key.contains("_preferHLS") || key.contains("_isMarkerNavigation")) {
+                if key.contains("scene_") && (key.contains("_hlsURL") || key.contains("_startTime") || key.contains("_endTime") || key.contains("_forcePlay") || key.contains("_preferHLS")) {
                     defaults.removeObject(forKey: key)
                 }
             }
             
-            // Clear shuffle contexts
-            defaults.removeObject(forKey: "isMarkerShuffleContext")
-            defaults.removeObject(forKey: "isTagSceneShuffleContext")
+            // Preserve shuffle contexts during emergency cleanup
+            // Note: NOT clearing isMarkerShuffleContext or isTagSceneShuffleContext
         }
         
         print("🔍 navigateToMarker: Starting more explicit marker navigation")
@@ -482,16 +487,18 @@ class AppModel: ObservableObject {
                     print("ℹ️ Setting endSeconds parameter to \(endSeconds!) for scene \(fullScene.id)")
                 }
                 
-                // Make sure the VideoPlayerViewModel is set up with the end time
+                // Make sure the VideoPlayerViewModel is set up with the end time - ensure main thread for @Published
                 if let endSeconds = endSeconds {
-                    if let playerViewModel = self.playerViewModel as? VideoPlayerViewModel {
-                        print("⏱ Setting endSeconds in existing playerViewModel")
-                        playerViewModel.endSeconds = endSeconds
-                    } else {
-                        print("⏱ Creating new playerViewModel with endSeconds")
-                        let viewModel = VideoPlayerViewModel()
-                        viewModel.endSeconds = endSeconds
-                        self.playerViewModel = viewModel
+                    DispatchQueue.main.async {
+                        if let playerViewModel = self.playerViewModel as? VideoPlayerViewModel {
+                            print("⏱ Setting endSeconds in existing playerViewModel")
+                            playerViewModel.endSeconds = endSeconds
+                        } else {
+                            print("⏱ Creating new playerViewModel with endSeconds")
+                            let viewModel = VideoPlayerViewModel()
+                            viewModel.endSeconds = endSeconds
+                            self.playerViewModel = viewModel
+                        }
                     }
                 }
                 
@@ -585,7 +592,7 @@ class AppModel: ObservableObject {
                     navigateToScene(fullScene, startSeconds: startSeconds, endSeconds: endSeconds)
                     
                     // Re-set the context after navigation to ensure it persists
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         UserDefaults.standard.set(true, forKey: "isMarkerShuffleContext")
                     }
                 } else {
@@ -895,10 +902,19 @@ class AppModel: ObservableObject {
     private func getAllPreviewPlayers() -> [AVPlayer] {
         var players: [AVPlayer] = []
         
-        // This is a hack to find preview players that might be playing
-        // Look through all windows and view controllers for AVPlayers
-        for window in UIApplication.shared.windows {
-            players.append(contentsOf: findPlayers(in: window.rootViewController))
+        // ALL UI operations must happen on main thread to avoid Main Thread Checker warnings
+        let getPlayersOnMainThread = {
+            for window in UIApplication.shared.windows {
+                players.append(contentsOf: self.findPlayers(in: window.rootViewController))
+            }
+        }
+        
+        if Thread.isMainThread {
+            getPlayersOnMainThread()
+        } else {
+            DispatchQueue.main.sync {
+                getPlayersOnMainThread()
+            }
         }
         
         return players
@@ -1542,40 +1558,66 @@ class AppModel: ObservableObject {
     private func nextMarkerWithBalancedTagRotation() -> SceneMarker? {
         guard !markersByTag.isEmpty else { return nil }
         
-        // Pick a random tag
-        let availableTags = Array(markersByTag.keys)
-        let randomTag = availableTags.randomElement()!
+        // Weight tags by their marker count to prevent small tags from dominating
+        // Larger tags get higher probability of being selected
+        let tagWeights = markersByTag.mapValues { markers in
+            max(1, Int(sqrt(Double(markers.count)))) // Square root weighting
+        }
         
-        guard let tagMarkers = markersByTag[randomTag], !tagMarkers.isEmpty else {
+        let totalWeight = tagWeights.values.reduce(0, +)
+        let randomValue = Int.random(in: 0..<totalWeight)
+        
+        var currentWeight = 0
+        var selectedTag: String = ""
+        for (tag, weight) in tagWeights {
+            currentWeight += weight
+            if randomValue < currentWeight {
+                selectedTag = tag
+                break
+            }
+        }
+        
+        // Fallback to random if weighting fails
+        if selectedTag.isEmpty {
+            selectedTag = Array(markersByTag.keys).randomElement()!
+        }
+        
+        guard let tagMarkers = markersByTag[selectedTag], !tagMarkers.isEmpty else {
             return nil
         }
         
         // Get recent markers for this tag to avoid immediate repeats
-        let recentMarkerIds = recentMarkersByTag[randomTag] ?? []
-        let maxRecentCount = min(tagMarkers.count / 3, 10) // Remember last 1/3 or max 10 markers
+        let recentMarkerIds = recentMarkersByTag[selectedTag] ?? []
+        let maxRecentCount = min(tagMarkers.count / 2, 15) // Remember last 1/2 or max 15 markers
         
         // Try to find a marker that wasn't recently played
         var availableMarkers = tagMarkers.filter { !recentMarkerIds.contains($0.id) }
         
-        // If all markers were recently played, allow any marker (reset recent list)
-        if availableMarkers.isEmpty {
+        // For small tag pools (≤5 markers), only reset when ALL markers have been played
+        // For larger tag pools, reset when 90% have been played
+        let resetThreshold = tagMarkers.count <= 5 ? 0 : max(1, tagMarkers.count / 10)
+        
+        if availableMarkers.count <= resetThreshold {
             availableMarkers = tagMarkers
-            recentMarkersByTag[randomTag] = []
-            print("🎲 Reset recent markers for tag '\(randomTag)' - all markers available again")
+            recentMarkersByTag[selectedTag] = []
+            let resetReason = tagMarkers.count <= 5 ? "all played" : "90% played"
+            print("🎲 Reset recent markers for tag '\(selectedTag)' - \(resetReason), all available again")
         }
         
         // Pick a random marker from available ones
         let selectedMarker = availableMarkers.randomElement()!
         
         // Update recent markers list
-        var updatedRecent = recentMarkersByTag[randomTag] ?? []
+        var updatedRecent = recentMarkersByTag[selectedTag] ?? []
         updatedRecent.append(selectedMarker.id)
         if updatedRecent.count > maxRecentCount {
             updatedRecent.removeFirst()
         }
-        recentMarkersByTag[randomTag] = updatedRecent
+        recentMarkersByTag[selectedTag] = updatedRecent
         
-        print("🎲 BALANCED ROTATION: Selected '\(selectedMarker.title)' from tag '\(randomTag)' (\(tagMarkers.count) total, \(availableMarkers.count) available)")
+        // Add weight info to the debug log
+        let weight = tagWeights[selectedTag] ?? 1
+        print("🎲 BALANCED ROTATION: Selected '\(selectedMarker.title)' from tag '\(selectedTag)' (\(tagMarkers.count) total, \(availableMarkers.count) available, weight: \(weight))")
         
         return selectedMarker
     }

@@ -561,6 +561,9 @@ struct VideoPlayerView: View {
     @State private var isMarkerShuffleMode: Bool = false
     // Prevent rapid-fire performer shuffle calls
     @State private var isPerformerShuffleInProgress: Bool = false
+    // Video loading timeout timer
+    @State private var videoLoadingTimer: Timer?
+    @State private var isVideoLoading: Bool = false
     
     init(scene: StashScene, startTime: Double? = nil, endTime: Double? = nil) {
         self.scene = scene
@@ -904,6 +907,9 @@ struct VideoPlayerView: View {
                 currentScene = scene
                 appModel.currentScene = scene
                 
+                // Start video loading timeout
+                startVideoLoadingTimeout()
+                
                 // Add scene to watch history when video player appears
                 addToWatchHistory()
 
@@ -1000,6 +1006,7 @@ struct VideoPlayerView: View {
                                 let cmTime = CMTime(seconds: startSeconds, preferredTimescale: 1000)
                                 player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { _ in
                                     player.play()
+                                    self.cancelVideoLoadingTimeout()
                                 }
                             }
                         }
@@ -1114,6 +1121,26 @@ struct VideoPlayerView: View {
                     }
                 }
                 
+                // Listen for video loading timeout
+                NotificationCenter.default.addObserver(
+                    forName: NSNotification.Name("VideoLoadingTimeout"),
+                    object: nil,
+                    queue: .main
+                ) { _ in
+                    print("🎲 Video loading timeout notification received")
+                    appModel.shuffleToNextMarker()
+                }
+                
+                // Listen for video loading success (to cancel timeout)
+                NotificationCenter.default.addObserver(
+                    forName: NSNotification.Name("VideoLoadingSuccess"),
+                    object: nil,
+                    queue: .main
+                ) { _ in
+                    print("✅ Video loading success notification received")
+                    self.cancelVideoLoadingTimeout()
+                }
+                
                 // Listen for tag shuffle updates
                 NotificationCenter.default.addObserver(
                     forName: NSNotification.Name("UpdateVideoPlayerForTagShuffle"),
@@ -1199,6 +1226,11 @@ struct VideoPlayerView: View {
                 appModel.currentScene = nil
                 // Cancel any pending hide task when view disappears
                 hideControlsTask?.cancel()
+                
+                // Cancel video loading timeout timer
+                videoLoadingTimer?.invalidate()
+                videoLoadingTimer = nil
+                isVideoLoading = false
                 
                 // Check if we're in shuffle mode - if so, let navigation handle cleanup
                 let isMarkerShuffle = UserDefaults.standard.bool(forKey: "isMarkerShuffleContext")
@@ -1380,6 +1412,36 @@ struct VideoPlayerView: View {
         
         // Absolute fallback to default URL (should rarely happen)
         return URL(string: currentScene.paths.stream)!
+    }
+    
+    // Video loading timeout functions
+    private func startVideoLoadingTimeout() {
+        isVideoLoading = true
+        videoLoadingTimer?.invalidate()
+        
+        videoLoadingTimer = Timer.scheduledTimer(withTimeInterval: 15.0, repeats: false) { _ in
+            
+            print("⚠️ VIDEO LOADING TIMEOUT: Video failed to load within 15 seconds")
+            
+            // Check if we're in shuffle mode and can advance to next
+            let isMarkerShuffle = UserDefaults.standard.bool(forKey: "isMarkerShuffleContext")
+            
+            if isMarkerShuffle {
+                print("🎲 Auto-advancing to next marker due to loading timeout")
+                DispatchQueue.main.async {
+                    // Access appModel through @EnvironmentObject - this will work in timer context
+                    NotificationCenter.default.post(name: NSNotification.Name("VideoLoadingTimeout"), object: nil)
+                }
+            } else {
+                print("⚠️ Video timeout in non-shuffle mode - staying on current video")
+            }
+        }
+    }
+    
+    private func cancelVideoLoadingTimeout() {
+        videoLoadingTimer?.invalidate()
+        videoLoadingTimer = nil
+        isVideoLoading = false
     }
 }
 
@@ -3220,7 +3282,7 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
             player.play()
             
             // Then perform seek with a small delay to let video buffer
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 print("⏱ CRITICAL: Performing delayed seek to \(timeToSeek) seconds")
                 let cmTime = CMTime(seconds: timeToSeek, preferredTimescale: 1000)
                 player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { success in
@@ -3328,9 +3390,12 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
                     player.replaceCurrentItem(with: AVPlayerItem(url: directURL))
                     player.play()
                     
+                    // Cancel loading timeout since video started playing
+                    NotificationCenter.default.post(name: NSNotification.Name("VideoLoadingSuccess"), object: nil)
+                    
                     // If we have an explicit start time, seek to it
                     if let timeToSeek = explicitStartTime, timeToSeek > 0 {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                             print("⏱ CRITICAL: Performing recovery seek to \(timeToSeek) seconds")
                             let cmTime = CMTime(seconds: timeToSeek, preferredTimescale: 1000)
                             player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { success in
