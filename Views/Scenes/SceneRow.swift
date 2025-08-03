@@ -283,7 +283,9 @@ struct SceneRow: View {
                 if !scene.performers.isEmpty {
                     HStack {
                         ForEach(scene.performers) { performer in
-                            NavigationLink(destination: PerformerDetailView(performer: performer)) {
+                            Button(action: {
+                                onPerformerSelected(performer)
+                            }) {
                                 Text(performer.name)
                                     .font(.subheadline)
                                     .foregroundColor(.blue)

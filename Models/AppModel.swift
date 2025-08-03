@@ -424,6 +424,10 @@ class AppModel: ObservableObject {
         // Store marker info for the video player
         currentMarker = marker
         
+        // Set marker navigation flag so VideoPlayerView knows to use stored timestamp
+        UserDefaults.standard.set(true, forKey: "scene_\(marker.scene.id)_isMarkerNavigation")
+        print("📱 Set marker navigation flag for scene \(marker.scene.id)")
+        
         // Navigate exactly like a scene, but with the marker's timestamp
         navigateToScene(markerScene, startSeconds: Double(marker.seconds))
     }
@@ -719,6 +723,12 @@ class AppModel: ObservableObject {
     private var currentShuffleTag: String = "" // Track current tag being played
     private var currentTagPlayCount: Int = 0 // Track how many times current tag has played
     
+    // MARK: - Balanced Tag Rotation Variables
+    private var tagMarkerGroups: [String: [SceneMarker]] = [:] // Groups markers by tag name
+    private var recentMarkerIds: Set<String> = [] // Track recently played markers for repeat prevention
+    private var tagRotationOrder: [String] = [] // Ordered list of tags for round-robin rotation
+    private var currentTagIndex: Int = 0 // Current position in tag rotation
+    
     /// Start marker shuffle for a specific tag - uses server-side random selection
     func startMarkerShuffle(forTag tagId: String, tagName: String, displayedMarkers: [SceneMarker]) {
         print("🎲 Starting SERVER-SIDE marker shuffle for tag: \(tagName)")
@@ -732,6 +742,9 @@ class AppModel: ObservableObject {
         shuffleSearchQuery = nil
         UserDefaults.standard.set(true, forKey: "isMarkerShuffleContext")
         UserDefaults.standard.set(true, forKey: "isMarkerShuffleMode")
+        
+        // Reset balanced tag rotation tracking
+        resetBalancedTagRotation()
         
         // Play first marker immediately if available
         if let firstMarker = displayedMarkers.randomElement() {
@@ -863,20 +876,26 @@ class AppModel: ObservableObject {
     
     /// Start marker shuffle for multiple tags - uses client-side shuffle with loaded markers
     func startMarkerShuffle(forMultipleTags tagIds: [String], tagNames: [String], displayedMarkers: [SceneMarker]) {
-        print("🎲 Starting multi-tag shuffle with \(tagNames.count) tags: \(tagNames.joined(separator: ", "))")
+        print("🎲 Starting LARGE POOL multi-tag shuffle with \(tagNames.count) tags: \(tagNames.joined(separator: ", "))")
         print("🎲 DEBUG - Tag IDs: \(tagIds)")
         print("🎲 DEBUG - Tag Names: \(tagNames)")
         print("🎲 DEBUG - Displayed Markers Count: \(displayedMarkers.count)")
         
         // Set shuffle context
         isMarkerShuffleMode = true
-        isServerSideShuffle = false  // Use client-side shuffle with the combined markers
+        isServerSideShuffle = false  // Use client-side shuffle with the large combined pool
         shuffleTagNames = tagNames
         shuffleTagFilters = tagIds
         shuffleTagFilter = nil
         shuffleSearchQuery = nil
         
-        // Create shuffled queue from all displayed markers
+        // Reset balanced tag rotation tracking
+        resetBalancedTagRotation()
+        
+        // Set loading state
+        api.isLoading = true
+        
+        // Temporary fallback to old method while debugging compilation issues
         markerShuffleQueue = displayedMarkers.shuffled()
         currentShuffleIndex = 0
         
@@ -898,6 +917,93 @@ class AppModel: ObservableObject {
         }
     }
     
+    /*
+    /// Load large marker pool by querying each tag separately from database
+    @MainActor
+    private func loadLargeMarkerPoolForTags(tagNames: [String]) async {
+        print("🎲 LARGE POOL: Loading markers for each tag separately...")
+        
+        var allCombinedMarkers = Set<SceneMarker>()
+        var tagCounts: [String: Int] = [:]
+        
+        do {
+            for tagName in tagNames {
+                print("🎲 LARGE POOL: Querying tag '\(tagName)'...")
+                
+                // First get the total count for this tag to determine how many to fetch
+                let totalCount = try await api.getMarkerCountForTag(tagName: tagName)
+                print("🎲 LARGE POOL: Tag '\(tagName)' has \(totalCount) total markers")
+                
+                // Determine how many markers to fetch based on tag size
+                let markersToFetch: Int
+                if totalCount <= 10 {
+                    // Small tags: get all markers
+                    markersToFetch = totalCount
+                    print("🎲 LARGE POOL: Small tag - fetching all \(markersToFetch) markers")
+                } else if totalCount <= 100 {
+                    // Medium tags: get most markers
+                    markersToFetch = min(80, totalCount)
+                    print("🎲 LARGE POOL: Medium tag - fetching \(markersToFetch) markers")
+                } else {
+                    // Large tags: get substantial sample
+                    markersToFetch = min(250, totalCount)
+                    print("🎲 LARGE POOL: Large tag - fetching \(markersToFetch) markers")
+                }
+                
+                // Fetch markers for this tag with random sort
+                let tagMarkers = try await api.searchMarkers(query: "#\(tagName)", page: 1, perPage: markersToFetch, sort: "random")
+                
+                // Filter to only exact matches for this tag
+                let exactMatches = tagMarkers.filter { marker in
+                    marker.primary_tag.name.lowercased() == tagName.lowercased() ||
+                    marker.tags.contains { $0.name.lowercased() == tagName.lowercased() }
+                }
+                
+                print("🎲 LARGE POOL: Tag '\(tagName)' - fetched \(tagMarkers.count), exact matches: \(exactMatches.count)")
+                tagCounts[tagName] = exactMatches.count
+                
+                // Add to combined set (Set automatically handles duplicates)
+                for marker in exactMatches {
+                    allCombinedMarkers.insert(marker)
+                }
+            }
+            
+            // Convert to array and shuffle
+            markerShuffleQueue = Array(allCombinedMarkers).shuffled()
+            currentShuffleIndex = 0
+            
+            print("🎲 LARGE POOL: Final combined pool:")
+            for (tagName, count) in tagCounts {
+                print("🎲   - \(tagName): \(count) markers")
+            }
+            print("🎲 LARGE POOL: Total unique markers: \(markerShuffleQueue.count)")
+            
+            // Reset the tag rotation tracking
+            currentShuffleTag = ""
+            currentTagPlayCount = 0
+            UserDefaults.standard.set(true, forKey: "isMarkerShuffleContext")
+            UserDefaults.standard.set(true, forKey: "isMarkerShuffleMode")
+            
+            // Clear loading state
+            api.isLoading = false
+            
+            // Play first marker immediately if available
+            if let firstMarker = markerShuffleQueue.first {
+                print("🎯 LARGE POOL: Starting with first marker from pool: \(firstMarker.title) [tag: \(firstMarker.primary_tag.name)]")
+                navigateToMarker(firstMarker)
+            } else {
+                print("❌ LARGE POOL: No markers available to shuffle")
+                stopMarkerShuffle()
+            }
+            
+        } catch {
+            print("❌ LARGE POOL: Error loading markers: \(error)")
+            api.isLoading = false
+            stopMarkerShuffle()
+        }
+    }
+    */
+
     /// Start marker shuffle for search results - loads ALL markers from API for comprehensive shuffle
     func startMarkerShuffle(forSearchQuery query: String, displayedMarkers: [SceneMarker]) {
         print("🎲 Starting marker shuffle for search: \(query) - loading ALL markers from API")
@@ -908,6 +1014,9 @@ class AppModel: ObservableObject {
         shuffleTagFilter = nil
         shuffleTagFilters = []
         UserDefaults.standard.set(true, forKey: "isMarkerShuffleContext")
+        
+        // Reset balanced tag rotation tracking
+        resetBalancedTagRotation()
         
         // Set loading state
         api.isLoading = true
@@ -1229,18 +1338,170 @@ class AppModel: ObservableObject {
         }
     }
     
-    /// Get next marker in shuffle queue
+    /// Get next marker in shuffle queue with balanced tag rotation
     func nextMarkerInShuffle() -> SceneMarker? {
+        print("🎲 DEBUG: nextMarkerInShuffle() called")
+        print("🎲 DEBUG: isMarkerShuffleMode = \(isMarkerShuffleMode)")
+        print("🎲 DEBUG: markerShuffleQueue.count = \(markerShuffleQueue.count)")
+        
         guard isMarkerShuffleMode && !markerShuffleQueue.isEmpty else {
+            print("🎲 DEBUG: Guard failed - returning nil")
             return nil
         }
         
-        // TRUE RANDOM: Pick a completely random marker each time (with possible repeats)
-        let randomIndex = Int.random(in: 0..<markerShuffleQueue.count)
-        let nextMarker = markerShuffleQueue[randomIndex]
+        // Group markers by tag if not already done
+        if tagMarkerGroups.isEmpty {
+            print("🎲 DEBUG: tagMarkerGroups is empty, calling groupMarkersByTag()")
+            groupMarkersByTag()
+        } else {
+            print("🎲 DEBUG: tagMarkerGroups already has \(tagMarkerGroups.count) tag groups")
+        }
         
-        print("🎲 Next marker in TRUE RANDOM shuffle: \(nextMarker.title) (random index \(randomIndex) of \(markerShuffleQueue.count))")
+        // If we only have one tag or no tag groups, fall back to true random
+        if tagMarkerGroups.count <= 1 {
+            print("🎲 DEBUG: Only \(tagMarkerGroups.count) tag group(s) - using true random")
+            let randomIndex = Int.random(in: 0..<markerShuffleQueue.count)
+            let nextMarker = markerShuffleQueue[randomIndex]
+            print("🎲 Single tag shuffle - random marker: \(nextMarker.title)")
+            updateRecentMarkers(nextMarker)
+            return nextMarker
+        }
+        
+        // BALANCED TAG ROTATION: Use round-robin to ensure fair tag distribution
+        if tagRotationOrder.isEmpty {
+            // Initialize rotation order (sorted for consistency)
+            tagRotationOrder = Array(tagMarkerGroups.keys).sorted()
+            currentTagIndex = 0
+            print("🎲 Initialized tag rotation order: \(tagRotationOrder.joined(separator: " -> "))")
+        }
+        
+        let selectedTag = tagRotationOrder[currentTagIndex]
+        let markersForTag = tagMarkerGroups[selectedTag]!
+        
+        // Advance to next tag for next time (round-robin)
+        currentTagIndex = (currentTagIndex + 1) % tagRotationOrder.count
+        print("🎲 Selected tag '\(selectedTag)' (round-robin index: \(currentTagIndex - 1)), next will be '\(tagRotationOrder[currentTagIndex])'")
+        
+        // Determine repeat prevention based on tag size - enhanced for large pools
+        let tagSize = markersForTag.count
+        let maxRecentMarkers: Int
+        if tagSize <= 10 {
+            // Small tags: allow repeats after 2-3 selections
+            maxRecentMarkers = max(2, tagSize / 2)
+        } else if tagSize <= 50 {
+            // Medium tags: avoid repeats for 10-15 selections  
+            maxRecentMarkers = min(15, tagSize / 3)
+        } else if tagSize <= 150 {
+            // Large tags: avoid repeats for 25-30 selections
+            maxRecentMarkers = min(30, tagSize / 5)
+        } else {
+            // Very large tags: avoid repeats for 40-50 selections
+            maxRecentMarkers = min(50, tagSize / 8)
+        }
+        
+        print("🎲 Tag '\(selectedTag)' (size: \(tagSize)) using maxRecentMarkers: \(maxRecentMarkers)")
+        
+        // Filter out recently played markers for this tag based on the calculated limit
+        let availableMarkers = markersForTag.filter { marker in
+            !recentMarkerIds.contains(marker.id)
+        }
+        
+        print("🎲 Tag '\(selectedTag)': \(markersForTag.count) total, \(availableMarkers.count) available, \(recentMarkerIds.count) recent")
+        
+        let nextMarker: SceneMarker
+        
+        if availableMarkers.isEmpty {
+            // All markers have been played recently, pick any marker from the tag
+            nextMarker = markersForTag.randomElement()!
+            print("🎲 All markers recently played for tag '\(selectedTag)' (size: \(tagSize)) - selecting any: \(nextMarker.title)")
+            // Reset recent markers for this tag to start fresh
+            let tagMarkerIds = Set(markersForTag.map { $0.id })
+            recentMarkerIds = recentMarkerIds.subtracting(tagMarkerIds)
+        } else {
+            // Pick from available (non-recent) markers
+            nextMarker = availableMarkers.randomElement()!
+            print("🎲 Balanced tag '\(selectedTag)' (size: \(tagSize), available: \(availableMarkers.count)): \(nextMarker.title) [tag: \(nextMarker.primary_tag.name)]")
+        }
+        
+        // Update recent markers tracking
+        updateRecentMarkers(nextMarker)
+        
         return nextMarker
+    }
+    
+    /// Group markers in shuffle queue by their primary tag
+    private func groupMarkersByTag() {
+        tagMarkerGroups.removeAll()
+        
+        for marker in markerShuffleQueue {
+            let tagName = marker.primary_tag.name
+            if tagMarkerGroups[tagName] == nil {
+                tagMarkerGroups[tagName] = []
+            }
+            tagMarkerGroups[tagName]?.append(marker)
+        }
+        
+        print("🎲 Grouped \(markerShuffleQueue.count) markers into \(tagMarkerGroups.count) tags:")
+        for (tagName, markers) in tagMarkerGroups.sorted(by: { $0.value.count > $1.value.count }) {
+            print("  - \(tagName): \(markers.count) markers")
+        }
+    }
+    
+    /// Update recent markers tracking with smart cleanup
+    private func updateRecentMarkers(_ marker: SceneMarker) {
+        recentMarkerIds.insert(marker.id)
+        
+        // Determine the tag size for this marker's tag using the same smart logic as nextMarkerInShuffle
+        let tagName = marker.primary_tag.name
+        let tagSize = tagMarkerGroups[tagName]?.count ?? 1
+        let maxRecentMarkers: Int
+        if tagSize <= 10 {
+            maxRecentMarkers = max(2, tagSize / 2)
+        } else if tagSize <= 50 {
+            maxRecentMarkers = min(15, tagSize / 3)
+        } else if tagSize <= 150 {
+            maxRecentMarkers = min(30, tagSize / 5)
+        } else {
+            maxRecentMarkers = min(50, tagSize / 8)
+        }
+        
+        // Calculate total allowed recent markers across all tags
+        let totalMaxRecent = tagMarkerGroups.values.reduce(0) { total, markers in
+            let tagSize = markers.count
+            let tagMaxRecent: Int
+            if tagSize <= 10 {
+                tagMaxRecent = max(2, tagSize / 2)
+            } else if tagSize <= 50 {
+                tagMaxRecent = min(15, tagSize / 3)
+            } else if tagSize <= 150 {
+                tagMaxRecent = min(30, tagSize / 5)
+            } else {
+                tagMaxRecent = min(50, tagSize / 8)
+            }
+            return total + tagMaxRecent
+        }
+        
+        // If we have too many recent markers, remove the oldest ones
+        if recentMarkerIds.count > totalMaxRecent {
+            // Remove roughly 1/3 of the recent markers to free up space
+            let removeCount = recentMarkerIds.count / 3
+            let markersToRemove = Array(recentMarkerIds.prefix(removeCount))
+            for markerId in markersToRemove {
+                recentMarkerIds.remove(markerId)
+            }
+            print("🎲 Cleaned up recent markers - removed \(removeCount), now tracking \(recentMarkerIds.count) (max: \(totalMaxRecent))")
+        }
+        
+        print("🎲 Added marker '\(marker.title)' to recent list (tag: \(tagName), size: \(tagSize), maxRecent: \(maxRecentMarkers))")
+    }
+    
+    /// Reset balanced tag rotation tracking for new shuffle
+    private func resetBalancedTagRotation() {
+        tagMarkerGroups.removeAll()
+        recentMarkerIds.removeAll()
+        tagRotationOrder.removeAll()
+        currentTagIndex = 0
+        print("🎲 Reset balanced tag rotation tracking")
     }
     
     /// Get previous marker in shuffle queue
@@ -1316,6 +1577,9 @@ class AppModel: ObservableObject {
         shuffleSearchQuery = "direct_markers"
         UserDefaults.standard.set(true, forKey: "isMarkerShuffleContext")
         
+        // Reset balanced tag rotation tracking
+        resetBalancedTagRotation()
+        
         // Create shuffled queue immediately
         markerShuffleQueue = markers.shuffled()
         currentShuffleIndex = 0
@@ -1361,6 +1625,9 @@ class AppModel: ObservableObject {
         UserDefaults.standard.set(false, forKey: "isMarkerShuffleMode")
         UserDefaults.standard.removeObject(forKey: "currentShuffleTagNames")
         UserDefaults.standard.removeObject(forKey: "currentShuffleSearchQuery")
+        
+        // Reset balanced tag rotation tracking
+        resetBalancedTagRotation()
     }
     
     /// Simple marker shuffle that relies on server-side GraphQL calls
@@ -1371,6 +1638,9 @@ class AppModel: ObservableObject {
         isMarkerShuffleMode = true
         currentShuffleIndex = 0
         markerShuffleQueue.removeAll()
+        
+        // Reset balanced tag rotation tracking
+        resetBalancedTagRotation()
         
         // Store the shuffle context for server-side calls
         if let tagNames = tagNames {
