@@ -284,6 +284,8 @@ struct SceneRow: View {
                     HStack {
                         ForEach(scene.performers) { performer in
                             Button(action: {
+                                // Use the proper performer tap handler instead of NavigationLink
+                                print("📱 SceneRow: Performer tap detected for: \(performer.name)")
                                 onPerformerSelected(performer)
                             }) {
                                 Text(performer.name)
@@ -295,6 +297,7 @@ struct SceneRow: View {
                                     .cornerRadius(6)
                                     .contentShape(Rectangle())
                             }
+                            .buttonStyle(PlainButtonStyle())
                             
                             if performer != scene.performers.last {
                                 Text("·")

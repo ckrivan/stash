@@ -49,7 +49,11 @@ struct ContentView: View {
                         .presentationDetents([.medium, .large])
                     }
                     .navigationDestination(for: StashScene.self) { scene in
-                        VideoPlayerView(scene: scene)
+                        VideoPlayerView(
+                            scene: scene,
+                            startTime: UserDefaults.standard.object(forKey: "scene_\(scene.id)_startTime") as? Double,
+                            endTime: UserDefaults.standard.object(forKey: "scene_\(scene.id)_endTime") as? Double
+                        )
                             .environmentObject(appModel)
                             .id("scene_\(scene.id)")
                             .onAppear {

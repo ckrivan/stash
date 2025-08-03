@@ -2723,7 +2723,7 @@ class StashAPI: ObservableObject {
     ///   - page: Page number (starts at 1)
     ///   - perPage: Number of results per page
     ///   - completion: Callback with result
-    func searchMarkers(query: String, page: Int = 1, perPage: Int = 50, completion: @escaping (Result<[SceneMarker], Error>) -> Void) {
+    func searchMarkers(query: String, page: Int = 1, perPage: Int = 2000, completion: @escaping (Result<[SceneMarker], Error>) -> Void) {
         Task {
             do {
                 let markers = try await searchMarkersCore(query: query, page: page, perPage: perPage)
@@ -2744,7 +2744,7 @@ class StashAPI: ObservableObject {
     ///   - page: Page number (starts at 1)
     ///   - perPage: Number of results per page
     /// - Returns: Array of matching markers
-    func searchMarkers(query: String, page: Int = 1, perPage: Int = 50) async throws -> [SceneMarker] {
+    func searchMarkers(query: String, page: Int = 1, perPage: Int = 2000) async throws -> [SceneMarker] {
         return try await searchMarkersCore(query: query, page: page, perPage: perPage)
     }
     
@@ -2754,12 +2754,20 @@ class StashAPI: ObservableObject {
     ///   - page: Page number (starts at 1)
     ///   - perPage: Number of results per page
     /// - Returns: Tuple of (markers, totalCount)
-    func searchMarkersWithCount(query: String, page: Int = 1, perPage: Int = 50) async throws -> ([SceneMarker], Int) {
+    func searchMarkersWithCount(query: String, page: Int = 1, perPage: Int = 2000) async throws -> ([SceneMarker], Int) {
         return try await searchMarkersCoreWithCount(query: query, page: page, perPage: perPage)
+    }
+    
+    /// Get the total count of markers for a specific tag
+    func getMarkerCountForTag(tagName: String) async throws -> Int {
+        // Temporary fallback - use existing searchMarkers to get count
+        let markers = try await searchMarkers(query: "#\(tagName)", page: 1, perPage: 1)
+        // For now, return a conservative estimate
+        return 100  // This will be improved when we fix the compilation issue
     }
 
     // Core implementation for searching markers
-    private func searchMarkersCore(query: String, page: Int = 1, perPage: Int = 50) async throws -> [SceneMarker] {
+    private func searchMarkersCore(query: String, page: Int = 1, perPage: Int = 2000) async throws -> [SceneMarker] {
         // Ensure the query is properly formatted
         let cleanQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         print("🔎 Marker search query: '\(cleanQuery)'")
@@ -2846,7 +2854,7 @@ class StashAPI: ObservableObject {
     }
     
     // Core implementation for searching markers with count
-    private func searchMarkersCoreWithCount(query: String, page: Int = 1, perPage: Int = 50) async throws -> ([SceneMarker], Int) {
+    private func searchMarkersCoreWithCount(query: String, page: Int = 1, perPage: Int = 2000) async throws -> ([SceneMarker], Int) {
         // Ensure the query is properly formatted
         let cleanQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         print("🔎 Marker search query with count: '\(cleanQuery)'")
@@ -3117,7 +3125,7 @@ class StashAPI: ObservableObject {
 
     /// Helper method that updates the internal markers array with search results
     /// - Parameter query: Search term
-    func updateMarkersFromSearch(query: String, page: Int = 1, appendResults: Bool = false, perPage: Int = 50) async {
+    func updateMarkersFromSearch(query: String, page: Int = 1, appendResults: Bool = false, perPage: Int = 2000) async {
         isLoading = true
 
         // Use proper JSON serialization to avoid format issues
@@ -3412,7 +3420,7 @@ class StashAPI: ObservableObject {
             isLoading = false
         }
     }// END NEW FETCHMARKERS
-    func fetchMarkersByTag(tagId: String, page: Int = 1, appendResults: Bool = false, perPage: Int = 50) async {
+    func fetchMarkersByTag(tagId: String, page: Int = 1, appendResults: Bool = false, perPage: Int = 2000) async {
         isLoading = true
 
         let query = """

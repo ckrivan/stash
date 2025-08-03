@@ -1077,30 +1077,21 @@ struct VideoPlayerView: View {
                                 // Replace current item
                                 player.replaceCurrentItem(with: playerItem)
                                 
-                                // Wait for player item to be ready, then seek to marker start time
-                                let statusObserver = playerItem.observe(\.status, options: [.new]) { item, change in
-                                    if item.status == .readyToPlay {
-                                        DispatchQueue.main.async {
-                                            let cmTime = CMTime(seconds: startTime, preferredTimescale: 1000)
-                                            print("🎲 Player item ready - seeking to marker time: \(startTime)s (CMTime: \(cmTime))")
-                                            
-                                            player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { completed in
-                                                if completed {
-                                                    print("🎲 ✅ Successfully seeked to marker time \(startTime)s, starting playback")
-                                                    player.play()
-                                                } else {
-                                                    print("⚠️ ❌ Failed to seek to marker time \(startTime)s")
-                                                    // Try to play anyway
-                                                    player.play()
-                                                }
-                                            }
+                                // Wait longer for player item to be ready, then seek to marker start time
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                    let cmTime = CMTime(seconds: startTime, preferredTimescale: 1000)
+                                    print("🎲 Seeking to marker time: \(startTime)s (CMTime: \(cmTime))")
+                                    
+                                    player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { completed in
+                                        if completed {
+                                            print("🎲 ✅ Successfully seeked to marker time \(startTime)s, starting playback")
+                                            player.play()
+                                        } else {
+                                            print("⚠️ ❌ Failed to seek to marker time \(startTime)s")
+                                            // Try to play anyway
+                                            player.play()
                                         }
                                     }
-                                }
-                                
-                                // Store observer to clean up later (though it will be cleaned up when item is replaced)
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
-                                    statusObserver.invalidate()
                                 }
                             } else {
                                 print("❌ Failed to construct stream URL for marker")
@@ -3115,7 +3106,7 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
             finalUrl = savedHlsUrl
             
             // Extract timestamp from URL if present
-            if let tRange = savedHlsUrlString.range(of: "t=(\\d+)", options: .regularExpression),
+            if let tRange = savedHlsUrlString.range(of: "t=\\d+", options: .regularExpression),
                let tValue = Int(savedHlsUrlString[tRange].replacingOccurrences(of: "t=", with: "")) {
                 print("📱 Extracted timestamp from URL: \(tValue)")
                 
@@ -3178,7 +3169,6 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
         
         print("🎬 Final URL being used: \(finalUrl.absoluteString)")
         print("⏱ Explicit start time to use: \(String(describing: explicitStartTime))")
-        print("⏱ Original startTime parameter: \(String(describing: startTime))")
         
         // Create asset with HTTP headers if needed (helps with authorization issues)
         let headers = ["User-Agent": "StashApp/iOS"]
@@ -3223,33 +3213,25 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
             playerViewModel.endSeconds = endTime
         }
         
-        // FORCE INITIAL SEEK if we have ANY start time (explicit or original)
-        let timeToSeek = explicitStartTime ?? startTime
-        
-        if let seekTime = timeToSeek, seekTime > 0 {
-            print("⏱ CRITICAL: Will seek to \(seekTime) seconds (explicit: \(String(describing: explicitStartTime)), original: \(String(describing: startTime)))")
-            
+        // FORCE INITIAL SEEK if we have an explicit start time
+        if let timeToSeek = explicitStartTime, timeToSeek > 0 {
             // Start playback first
             print("▶️ Starting playback before seek")
             player.play()
             
             // Then perform seek with a small delay to let video buffer
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                print("⏱ CRITICAL: Performing delayed seek to \(seekTime) seconds")
-                let cmTime = CMTime(seconds: seekTime, preferredTimescale: 1000)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                print("⏱ CRITICAL: Performing delayed seek to \(timeToSeek) seconds")
+                let cmTime = CMTime(seconds: timeToSeek, preferredTimescale: 1000)
                 player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { success in
-                    if success {
-                        print("⏱ ✅ MARKER SEEK: Successfully seeked to \(seekTime) seconds")
-                    } else {
-                        print("⏱ ❌ MARKER SEEK: Failed to seek to \(seekTime) seconds")
-                    }
+                    print("⏱ Seek completed with result: \(success)")
                     // Ensure playback continues after seek
                     player.play()
                 }
             }
         } else {
             // No seek needed, just start playing
-            print("▶️ Starting playback immediately (no seek required, timeToSeek: \(String(describing: timeToSeek)))")
+            print("▶️ Starting playback immediately (no seek required)")
             player.play()
         }
         
