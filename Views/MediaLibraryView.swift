@@ -876,36 +876,75 @@ struct MediaLibraryView: View {
                 }
                 
             case .markers:
-                // Search markers with pagination support and total count
+                // Parse combined tag search (e.g., "blowjob +anal +creampie")
                 let searchQuery = query.isEmpty ? "blowjob" : query // Default to popular search if empty
-                print("🔍 Searching markers with query: '\(searchQuery)' (page 1) [original: '\(query)']")
-                let (markers, totalCount) = try await appModel.api.searchMarkersWithCount(query: searchQuery, page: 1, perPage: 50)
-                print("📊 Found \(markers.count) markers matching '\(searchQuery)' on page 1 (total: \(totalCount))")
-                
-                // Debug - print first few marker titles
-                for (index, marker) in markers.prefix(5).enumerated() {
-                    print("  Marker \(index): '\(marker.title)' (ID: \(marker.id))")
+                let searchTerms = searchQuery.split(separator: " ").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                let mainTerm = searchTerms.first?.replacingOccurrences(of: "+", with: "") ?? "blowjob"
+                let additionalTerms = searchTerms.dropFirst().compactMap { term in
+                    term.hasPrefix("+") ? String(term.dropFirst()) : nil
                 }
                 
-                await MainActor.run {
-                    searchedMarkers = markers
-                    totalMarkerCount = totalCount
-                    appModel.api.scenes = []  // Clear scenes since we're showing markers
-                    appModel.api.totalSceneCount = 0
-                    currentFilter = "search"  // Ensure we stay in search mode
-                    searchScope = .markers    // Ensure scope is set to markers
+                print("🔍 Parsing marker search: '\(searchQuery)'")
+                print("🔍 Main term: '\(mainTerm)', Additional terms: \(additionalTerms)")
+                
+                if additionalTerms.isEmpty {
+                    // Simple single-tag search
+                    print("🔍 Single tag search for: '\(mainTerm)'")
+                    let (markers, totalCount) = try await appModel.api.searchMarkersWithCount(query: mainTerm, page: 1, perPage: 50)
+                    print("📊 Found \(markers.count) markers matching '\(mainTerm)' (total: \(totalCount))")
                     
-                    // IMPORTANT: Store the search query in app model for shuffle functionality
-                    appModel.searchQuery = query.isEmpty ? "" : query // Store original query, not the default
-                    print("📝 Stored search query in appModel: '\(appModel.searchQuery)'")
+                    await MainActor.run {
+                        searchedMarkers = markers
+                        totalMarkerCount = totalCount
+                        appModel.searchQuery = query.isEmpty ? "" : query
+                        updateMarkerResults(markers, totalCount)
+                    }
+                } else {
+                    // Multi-tag combination search
+                    print("🔍 Multi-tag search: '\(mainTerm)' + \(additionalTerms.joined(separator: ", "))")
                     
-                    // Enable pagination if we got a full page of results
-                    hasMorePages = markers.count >= 50
+                    var allMarkers = Set<SceneMarker>()
+                    var combinedTotalCount = 0
                     
-                    viewRefreshId = UUID()   // Force view refresh
-                    print("✅ Stored \(markers.count) marker results (total: \(totalCount)) - filter: \(currentFilter), scope: \(searchScope), hasMorePages: \(hasMorePages)")
-                    // Explicitly trigger UI update
-                    appModel.objectWillChange.send()
+                    // Search for main term
+                    let (mainMarkers, mainCount) = try await appModel.api.searchMarkersWithCount(query: mainTerm, page: 1, perPage: 200)
+                    print("📊 Main term '\(mainTerm)': \(mainMarkers.count) markers (total: \(mainCount))")
+                    
+                    // Filter main markers that also contain additional terms
+                    let filteredMainMarkers = mainMarkers.filter { marker in
+                        let markerTags = Set([marker.primary_tag.name] + marker.tags.map { $0.name })
+                        return additionalTerms.allSatisfy { additionalTerm in
+                            markerTags.contains { $0.lowercased().contains(additionalTerm.lowercased()) }
+                        }
+                    }
+                    
+                    allMarkers.formUnion(filteredMainMarkers)
+                    combinedTotalCount += filteredMainMarkers.count
+                    print("📊 Found \(filteredMainMarkers.count) markers with '\(mainTerm)' + additional terms")
+                    
+                    // Also search for each additional term and cross-filter
+                    for additionalTerm in additionalTerms {
+                        let (additionalMarkers, _) = try await appModel.api.searchMarkersWithCount(query: additionalTerm, page: 1, perPage: 200)
+                        let crossFiltered = additionalMarkers.filter { marker in
+                            let markerTags = Set([marker.primary_tag.name] + marker.tags.map { $0.name })
+                            return markerTags.contains { $0.lowercased().contains(mainTerm.lowercased()) } &&
+                                   additionalTerms.allSatisfy { term in
+                                       markerTags.contains { $0.lowercased().contains(term.lowercased()) }
+                                   }
+                        }
+                        allMarkers.formUnion(crossFiltered)
+                        print("📊 Cross-filtered '\(additionalTerm)': \(crossFiltered.count) additional markers")
+                    }
+                    
+                    let finalMarkers = Array(allMarkers).sorted { $0.title < $1.title }
+                    print("📊 Final combined results: \(finalMarkers.count) unique markers")
+                    
+                    await MainActor.run {
+                        searchedMarkers = finalMarkers
+                        totalMarkerCount = finalMarkers.count // Use actual count for combined searches
+                        appModel.searchQuery = query.isEmpty ? "" : query
+                        updateMarkerResults(finalMarkers, finalMarkers.count)
+                    }
                 }
             }
         } catch {
@@ -915,5 +954,20 @@ struct MediaLibraryView: View {
                 appModel.api.totalSceneCount = 0
             }
         }
+    }
+    
+    private func updateMarkerResults(_ markers: [SceneMarker], _ count: Int) {
+        appModel.api.scenes = []  // Clear scenes since we're showing markers
+        appModel.api.totalSceneCount = 0
+        currentFilter = "search"  // Ensure we stay in search mode
+        searchScope = .markers    // Ensure scope is set to markers
+        
+        // Enable pagination if we got a full page of results
+        hasMorePages = markers.count >= 50
+        
+        viewRefreshId = UUID()   // Force view refresh
+        print("✅ Stored \(markers.count) marker results (total: \(count)) - filter: \(currentFilter), scope: \(searchScope), hasMorePages: \(hasMorePages)")
+        // Explicitly trigger UI update
+        appModel.objectWillChange.send()
     }
 } 

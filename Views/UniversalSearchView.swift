@@ -45,7 +45,7 @@ struct UniversalSearchView: View {
                         .foregroundColor(.purple)
                         .font(.system(size: 16, weight: .medium))
                     
-                    TextField("Search \(searchScope.rawValue.lowercased())...", text: $searchText)
+                    TextField(searchScope == .markers ? "Search markers (e.g., blowjob +anal)..." : "Search \(searchScope.rawValue.lowercased())...", text: $searchText)
                         .focused($isSearchFieldFocused)
                         .textFieldStyle(PlainTextFieldStyle())
                         .font(.system(size: 16))

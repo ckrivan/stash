@@ -38,56 +38,34 @@ struct MarkersSearchResultsView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // ALWAYS show shuffle button when there are markers, but show Add More button always
+            // Show helpful text for empty state or shuffle button for loaded markers
             if !markers.isEmpty {
                 prominentShuffleButton
             } else {
-                // Show just the Add More button when no markers are loaded
+                // Show helpful text about the new search syntax
                 VStack(spacing: 16) {
-                    HStack {
-                        Spacer()
-                        
-                        Button(action: {
-                            print("🏷️🏷️🏷️ Add More button tapped in empty markers view!")
-                            print("🏷️ Current markers count: \(markers.count)")
-                            print("🏷️ Current availableTags count before extraction: \(availableTags.count)")
-                            
-                            Task {
-                                await extractAvailableTagsAsync()
-                                print("🏷️ Available tags after async extraction: \(availableTags.count)")
-                                if let callback = onOpenTagSelector {
-                                    print("🏷️ Calling parent callback with \(availableTags.count) tags")
-                                    callback(availableTags)
-                                } else {
-                                    print("🏷️ No callback, using fallback behavior")
-                                    // Fallback to old behavior
-                                    DispatchQueue.main.async {
-                                        showingTagSelector = true
-                                        isMultiTagMode = true
-                                    }
-                                }
-                            }
-                        }) {
-                            VStack(spacing: 4) {
-                                Image(systemName: "plus.circle.fill")
-                                    .font(.system(size: 24, weight: .bold))
-                                Text("Add More")
-                                    .font(.caption)
-                                    .fontWeight(.medium)
-                            }
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 16)
-                            .background(Color.green)
-                            .cornerRadius(16)
-                            .shadow(color: .green.opacity(0.4), radius: 8, x: 0, y: 4)
-                        }
-                        
-                        Spacer()
-                    }
+                    Text("🏷️ Combine Tags with Search")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                    
+                    Text("Search for multiple tags using + syntax:")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    Text("blowjob +anal +creampie")
+                        .font(.system(.body, design: .monospaced))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                    
+                    Text("This will find markers that contain ALL specified tags")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
                 }
                 .padding(.horizontal)
-                .padding(.vertical, 16)
+                .padding(.vertical, 24)
             }
             
             ScrollView {
@@ -320,8 +298,8 @@ struct MarkersSearchResultsView: View {
 
     private var prominentShuffleButton: some View {
         VStack(spacing: 8) {
-            // Button row with Shuffle All and Add Tags
-            HStack(spacing: 12) {
+            // Just the shuffle button - tag combination handled via search
+            VStack(spacing: 8) {
                 // Big prominent shuffle button
                 Button(action: {
                 print("🎲 PROMINENT SHUFFLE BUTTON TAPPED - LOADING ALL MARKERS FROM API")
@@ -487,44 +465,6 @@ struct MarkersSearchResultsView: View {
                 }
                 .scaleEffect(appModel.isMarkerShuffleMode ? 0.95 : 1.0)
                 .animation(.spring(response: 0.3), value: appModel.isMarkerShuffleMode)
-                
-                // Add Tags button  
-                Button(action: {
-                    print("🏷️🏷️🏷️ Add More button tapped in prominent shuffle section!")
-                    print("🏷️ Current markers count: \(markers.count)")
-                    print("🏷️ Current availableTags count before extraction: \(availableTags.count)")
-                    
-                    Task {
-                        await extractAvailableTagsAsync()
-                        print("🏷️ Available tags after async extraction: \(availableTags.count)")
-                        if let callback = onOpenTagSelector {
-                            print("🏷️ Calling parent callback with \(availableTags.count) tags")
-                            callback(availableTags)
-                        } else {
-                            print("🏷️ No callback, using fallback behavior")
-                            // Fallback to old behavior
-                            DispatchQueue.main.async {
-                                showingTagSelector = true
-                                isMultiTagMode = true
-                            }
-                        }
-                    }
-                }) {
-                    VStack(spacing: 4) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 24, weight: .bold))
-                        Text(selectedSearchTerms.isEmpty ? "Add More" : "Added (\(selectedSearchTerms.count))")
-                            .font(.caption)
-                            .fontWeight(.medium)
-                    }
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 16)
-                    .background(selectedSearchTerms.isEmpty ? Color.green : Color.blue)
-                    .cornerRadius(16)
-                    .shadow(color: .green.opacity(0.4), radius: 8, x: 0, y: 4)
-                }
-            }
             
             // Active shuffle status
             if appModel.isMarkerShuffleMode {
