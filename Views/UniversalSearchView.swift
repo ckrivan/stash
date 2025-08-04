@@ -220,7 +220,12 @@ struct UniversalSearchView: View {
             }
         }
         .onChange(of: searchText) { _, newValue in
-            // Debounce search
+            // Skip auto-search for markers scope to prevent auto-locking on every keystroke
+            if searchScope == .markers {
+                return // Only search markers on explicit submit (enter key)
+            }
+            
+            // Debounce search for other scopes
             Task {
                 try? await Task.sleep(for: .milliseconds(300))
                 if !Task.isCancelled {

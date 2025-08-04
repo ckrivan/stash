@@ -42,6 +42,17 @@ struct MediaLibraryView: View {
     @State private var showingMarkerTagSelector = false  // Control tag selector from parent
     @State private var markerTagSelectorTags: [SceneMarker.Tag] = []  // Tags for selector
     
+    // Locked tags system for progressive tag search
+    @State private var lockedTags: [(name: String, count: Int)] = []  // Tags that are locked in
+    @State private var isValidatingTag = false  // Loading state for tag validation
+    @State private var lastValidatedTag: String? = nil  // Track which tag was just validated
+    
+    // Tag suggestion system for disambiguation  
+    @State private var suggestedTags: [StashScene.Tag] = []
+    @State private var showingTagSuggestions = false
+    @State private var originalSearchQuery = ""
+    
+    
     // Show watch history when we have watched scenes and the flag is set (returning from video)
     private var shouldShowWatchHistory: Bool {
         return !appModel.watchHistory.isEmpty && 
@@ -66,156 +77,387 @@ struct MediaLibraryView: View {
         }
     }
     
-    var body: some View {
-        VStack(spacing: 0) {
-            // Universal search bar
-            UniversalSearchView(
-                searchText: $searchText,
-                isSearching: $isSearching,
-                searchScope: $searchScope,
-                onSearch: { query, scope in
-                    Task {
-                        await performSearch(query: query, scope: scope)
-                    }
-                },
-                // Pass filter actions for iOS inline button
-                currentFilter: $currentFilter,
-                onDefaultSelected: {
-                    print("📱 iPhone: Default filter selected")
-                    Task {
-                        await filterAction(filter: "default", sort: "file_mod_time", direction: "DESC")
-                    }
-                },
-                onNewestSelected: {
-                    print("📱 iPhone: Newest filter selected")
-                    Task {
-                        await filterAction(filter: "newest", sort: "date", direction: "DESC")
-                    }
-                },
-                onOCounterSelected: {
-                    print("📱 iPhone: Most Played filter selected")
-                    Task {
-                        await filterAction(filter: "o_counter", sort: "o_counter", direction: "DESC")
-                    }
-                },
-                onRandomSelected: {
-                    print("📱 iPhone: Random filter selected")
-                    Task {
-                        await filterAction(filter: "random", sort: "random", direction: "DESC")
-                    }
-                },
-                onAdvancedFilters: {
-                    showingFilters = true
-                },
-                onReload: {
-                    Task {
-                        await resetAndReload()
-                    }
-                },
-                onShuffleMostPlayed: {
-                    print("🎯 iPhone: Shuffle Most Played tapped")
-                    shuffleMostPlayedScenes()
-                }
-            )
-            .padding(.vertical, 10)
-            
-            Group {
-                if appModel.api.isLoading && currentPage == 1 {
-                    VStack {
-                        ProgressView("Loading media...")
-                            .scaleEffect(1.2)
-
-                        Text("Loading your media library...")
-                            .foregroundColor(.secondary)
-                            .padding(.top)
-                    }
-                } else if let error = appModel.api.error, currentFilter == "search" {
-                    VStack(spacing: 20) {
-                        Image(systemName: "exclamationmark.triangle")
-                            .font(.system(size: 50))
-                            .foregroundColor(.red)
-                            .padding(.top, 40)
-                        
-                        Text("Search Error")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                        
-                        Text(error.localizedDescription)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-                        
-                        Button("Try Again") {
-                            Task {
-                                await performSearch(query: searchText, scope: searchScope)
-                            }
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .padding(.top, 10)
-                    }
-                    .padding(.top, 40)
-                } else {
-                    scenesContent
-                        .id(viewRefreshId)  // Force refresh when search results change
-                }
+    // MARK: - Filter Action Closures
+    private var onDefaultSelected: () -> Void {
+        {
+            print("📱 iPhone: Default filter selected")
+            Task {
+                await filterAction(filter: "default", sort: "file_mod_time", direction: "DESC")
             }
         }
-        .sheet(item: $selectedTag) { tag in
-            NavigationStack {
-                TaggedScenesView(tag: tag)
-                    .environmentObject(appModel)
+    }
+    
+    private var onNewestSelected: () -> Void {
+        {
+            print("📱 iPhone: Newest filter selected")
+            Task {
+                await filterAction(filter: "newest", sort: "date", direction: "DESC")
             }
         }
-        .sheet(isPresented: $showingFilters) {
-            FilterOptionsView(
-                filterOptions: $filterOptions,
-                onApply: {
-                    Task {
-                        currentFilter = "custom"
-                        await appModel.api.fetchScenes(page: 1, filterOptions: filterOptions)
-                    }
-                }
-            )
+    }
+    
+    private var onOCounterSelected: () -> Void {
+        {
+            print("📱 iPhone: Most Played filter selected")
+            Task {
+                await filterAction(filter: "o_counter", sort: "o_counter", direction: "DESC")
+            }
         }
-        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ShowAdvancedFilters"))) { _ in
+    }
+    
+    private var onRandomSelected: () -> Void {
+        {
+            print("📱 iPhone: Random filter selected")
+            Task {
+                await filterAction(filter: "random", sort: "random", direction: "DESC")
+            }
+        }
+    }
+    
+    private var onAdvancedFilters: () -> Void {
+        {
             showingFilters = true
         }
-        .sheet(isPresented: $showingMarkerTagSelector) {
-            NavigationView {
-                VStack(spacing: 20) {
-                    Text("🎯 PARENT SHEET IS WORKING!")
-                        .font(.title)
-                        .foregroundColor(.green)
-                    
-                    Text("Available Tags: \(markerTagSelectorTags.count)")
-                        .font(.headline)
-                    
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 12) {
-                        ForEach(markerTagSelectorTags.prefix(10), id: \.id) { tag in
-                            Button(tag.name) {
-                                print("🏷️ Tag selected: \(tag.name)")
-                            }
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
-                        }
-                    }
-                    .padding()
-                    
-                    Spacer()
+    }
+    
+    private var onReload: () -> Void {
+        {
+            Task {
+                await resetAndReload()
+            }
+        }
+    }
+    
+    private var onShuffleMostPlayed: () -> Void {
+        {
+            print("🎯 iPhone: Shuffle Most Played tapped")
+            shuffleMostPlayedScenes()
+        }
+    }
+    
+    @ViewBuilder
+    private var searchBarView: some View {
+        UniversalSearchView(
+            searchText: $searchText,
+            isSearching: $isSearching,
+            searchScope: $searchScope,
+            onSearch: { query, scope in
+                Task {
+                    await performSearch(query: query, scope: scope)
                 }
-                .navigationTitle("Test Tag Selector")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("Close") {
-                            showingMarkerTagSelector = false
+            },
+            // Pass filter actions for iOS inline button
+            currentFilter: $currentFilter,
+            onDefaultSelected: onDefaultSelected,
+            onNewestSelected: onNewestSelected,
+            onOCounterSelected: onOCounterSelected,
+            onRandomSelected: onRandomSelected,
+            onAdvancedFilters: onAdvancedFilters,
+            onReload: onReload,
+            onShuffleMostPlayed: onShuffleMostPlayed
+        )
+    }
+    
+    var body: some View {
+        mainView
+            .sheet(item: $selectedTag) { tag in
+                taggedScenesSheetContent(tag: tag)
+            }
+            .sheet(isPresented: $showingFilters) {
+                filtersSheetContent
+            }
+            .sheet(isPresented: $showingMarkerTagSelector) {
+                markerTagSelectorSheetContent
+            }
+            .sheet(isPresented: $showingTagSuggestions) {
+                tagSuggestionsSheetContent
+            }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ShowAdvancedFilters"))) { _ in
+                showingFilters = true
+            }
+    }
+    
+    @ViewBuilder
+    private var mainView: some View {
+        VStack(spacing: 0) {
+            // Universal search bar
+            searchBarView
+            .padding(.vertical, 10)
+            
+            // Locked tags UI - only show for marker searches
+            if searchScope == .markers && (!lockedTags.isEmpty || isValidatingTag) {
+                lockedTagsView
+            }
+            
+            mainContentView
+        }
+    }
+    
+    // MARK: - Sheet Content
+    @ViewBuilder
+    private func taggedScenesSheetContent(tag: StashScene.Tag) -> some View {
+        NavigationStack {
+            TaggedScenesView(tag: tag)
+                .environmentObject(appModel)
+        }
+    }
+    
+    @ViewBuilder
+    private var filtersSheetContent: some View {
+        FilterOptionsView(
+            filterOptions: $filterOptions,
+            onApply: {
+                Task {
+                    currentFilter = "custom"
+                    await appModel.api.fetchScenes(page: 1, filterOptions: filterOptions)
+                }
+            }
+        )
+    }
+    
+    @ViewBuilder
+    private var markerTagSelectorSheetContent: some View {
+        NavigationView {
+            VStack(spacing: 20) {
+                Text("🎯 PARENT SHEET IS WORKING!")
+                    .font(.title)
+                    .foregroundColor(.green)
+                
+                Text("Available Tags: \(markerTagSelectorTags.count)")
+                    .font(.headline)
+                
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 12) {
+                    ForEach(markerTagSelectorTags.prefix(10), id: \.id) { tag in
+                        Button(tag.name) {
+                            print("🏷️ Tag selected: \(tag.name)")
                         }
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                    }
+                }
+                .padding()
+                
+                Spacer()
+            }
+            .navigationTitle("Test Tag Selector")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Close") {
+                        showingMarkerTagSelector = false
                     }
                 }
             }
         }
+    }
+    
+    @ViewBuilder
+    private var tagSuggestionsSheetContent: some View {
+        NavigationView {
+            tagSuggestionsList
+                .navigationTitle("Choose Tag")
+                .navigationBarTitleDisplayMode(.inline)
+                .navigationBarBackButtonHidden(true)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Cancel") {
+                            print("🏷️ Tag suggestions cancelled")
+                            showingTagSuggestions = false
+                        }
+                        .foregroundColor(.secondary)
+                    }
+                }
+        }
+    }
+    
+    @ViewBuilder
+    private var tagSuggestionsList: some View {
+        VStack(spacing: 20) {
+            tagSuggestionsHeader
+            tagSuggestionsGrid
+            Spacer()
+        }
+    }
+    
+    @ViewBuilder
+    private var tagSuggestionsHeader: some View {
+        VStack(spacing: 12) {
+            Text("🏷️ Multiple Tags Found")
+                .font(.title2)
+                .fontWeight(.bold)
+            
+            Text("Found \(suggestedTags.count) tags similar to '\(originalSearchQuery)'")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+            
+            Text("Which tag would you like to use?")
+                .font(.headline)
+                .padding(.top, 8)
+        }
+        .padding(.horizontal)
+    }
+    
+    @ViewBuilder
+    private var tagSuggestionsGrid: some View {
+        ScrollView {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 200))], spacing: 16) {
+                ForEach(suggestedTags, id: \.id) { tag in
+                    tagSuggestionButton(tag: tag)
+                }
+            }
+            .padding()
+        }
+    }
+    
+    @ViewBuilder
+    private func tagSuggestionButton(tag: StashScene.Tag) -> some View {
+        Button(action: {
+            print("🏷️ Selected suggested tag: \(tag.name)")
+            showingTagSuggestions = false
+            searchText = tag.name
+            Task {
+                await performSearch(query: tag.name, scope: .markers)
+            }
+        }) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(tag.name)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(2)
+                
+                HStack {
+                    Image(systemName: "bookmark.fill")
+                        .font(.caption)
+                    Text("Tag")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(.systemBackground))
+                    .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.purple, lineWidth: 2)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
+    private var lockedTagsView: some View {
+        VStack(spacing: 12) {
+            // Header
+            HStack {
+                Text("🔒 Locked Tags")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                if isValidatingTag {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                        .padding(.leading, 8)
+                }
+                
+                Spacer()
+                
+                if !lockedTags.isEmpty {
+                    Button("Clear All") {
+                        clearLockedTags()
+                    }
+                    .font(.caption)
+                    .foregroundColor(.red)
+                }
+            }
+            .padding(.horizontal)
+            
+            // Locked tags display
+            if !lockedTags.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(Array(lockedTags.enumerated()), id: \.offset) { index, tag in
+                            HStack(spacing: 6) {
+                                Text(tag.name)
+                                    .font(.system(size: 15, weight: .medium))
+                                Text("(\(tag.count))")
+                                    .font(.system(size: 13))
+                                    .opacity(0.8)
+                                
+                                Button(action: {
+                                    removeLockedTag(at: index)
+                                }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.white.opacity(0.8))
+                                }
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(
+                                LinearGradient(
+                                    colors: [Color.green, Color.blue],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .foregroundColor(.white)
+                            .cornerRadius(20)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                            )
+                        }
+                        
+                        // Combine all button
+                        if lockedTags.count > 1 {
+                            Button(action: {
+                                combineAllLockedTags()
+                            }) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "magnifyingglass")
+                                        .font(.system(size: 14))
+                                    Text("Search All")
+                                        .font(.system(size: 15, weight: .medium))
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(Color.purple)
+                                .foregroundColor(.white)
+                                .cornerRadius(20)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
+            
+            // Instructions
+            if lockedTags.isEmpty && !isValidatingTag {
+                Text("Search for a tag above to lock it in, then search for more to combine them")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+            }
+        }
+        .padding(.vertical, 12)
+        .background(Color(.systemBackground))
+        .overlay(
+            Rectangle()
+                .frame(height: 1)
+                .foregroundColor(Color(.separator))
+                .opacity(0.5),
+            alignment: .bottom
+        )
     }
     
     private var scenesContent: some View {
@@ -726,8 +968,11 @@ struct MediaLibraryView: View {
     private func performSearch(query: String, scope: UniversalSearchView.SearchScope) async {
         if query.isEmpty {
             // Reset to default view
-            currentFilter = "default"
-            searchedMarkers = [] // Clear markers
+            await MainActor.run {
+                currentFilter = "default"
+                searchedMarkers = [] // Clear markers
+                isValidatingTag = false // Clear validation state
+            }
             await resetAndReload()
             return
         }
@@ -876,72 +1121,93 @@ struct MediaLibraryView: View {
                 }
                 
             case .markers:
-                // Parse combined tag search (e.g., "blowjob +anal +creampie")
+                // Parse combined tag search (e.g., "blowjob +anal" or "panties to the side +cowgirl")
                 let searchQuery = query.isEmpty ? "blowjob" : query // Default to popular search if empty
-                let searchTerms = searchQuery.split(separator: " ").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                let mainTerm = searchTerms.first?.replacingOccurrences(of: "+", with: "") ?? "blowjob"
-                let additionalTerms = searchTerms.dropFirst().compactMap { term in
-                    term.hasPrefix("+") ? String(term.dropFirst()) : nil
-                }
+                
+                // Split by + to get separate tag phrases (handles multi-word tags properly)
+                let tagPhrases = searchQuery.components(separatedBy: "+").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+                let mainTerm = tagPhrases.first ?? "blowjob"
+                let additionalTerms = Array(tagPhrases.dropFirst())
                 
                 print("🔍 Parsing marker search: '\(searchQuery)'")
                 print("🔍 Main term: '\(mainTerm)', Additional terms: \(additionalTerms)")
                 
                 if additionalTerms.isEmpty {
-                    // Simple single-tag search
+                    // Simple single-tag search with tag locking
                     print("🔍 Single tag search for: '\(mainTerm)'")
-                    let (markers, totalCount) = try await appModel.api.searchMarkersWithCount(query: mainTerm, page: 1, perPage: 50)
-                    print("📊 Found \(markers.count) markers matching '\(mainTerm)' (total: \(totalCount))")
                     
+                    // Set validation state
                     await MainActor.run {
-                        searchedMarkers = markers
-                        totalMarkerCount = totalCount
-                        appModel.searchQuery = query.isEmpty ? "" : query
-                        updateMarkerResults(markers, totalCount)
+                        isValidatingTag = true
+                    }
+                    
+                    // First validate if this is a real marker tag
+                    let (tagExists, tagCount) = try await appModel.api.validateMarkerTag(tagName: mainTerm)
+                    
+                    if tagExists {
+                        // Use exact tag search for display (keep 20 for performance)
+                        let markers = try await appModel.api.searchMarkers(query: "#\(mainTerm)", page: 1, perPage: 20, randomize: true)
+                        let totalCount = tagCount // Use the count from validation
+                        print("📊 Found \(markers.count) markers using EXACT tag search for '\(mainTerm)' (total estimated: \(totalCount))")
+                        
+                        await MainActor.run {
+                            isValidatingTag = false
+                            
+                            // Lock the validated tag
+                            lockTagIfValid(mainTerm, count: totalCount)
+                            
+                            searchedMarkers = markers
+                            totalMarkerCount = totalCount
+                            appModel.searchQuery = query.isEmpty ? "" : query
+                            updateMarkerResults(markers, totalCount)
+                        }
+                    } else {
+                        print("⚠️ Tag '\(mainTerm)' does not exist in marker system - searching for similar tags")
+                        
+                        // Search for similar tags
+                        await searchForSimilarTags(searchTerm: mainTerm, originalQuery: query)
                     }
                 } else {
-                    // Multi-tag combination search
+                    // Multi-tag combination search - COMBINE separate marker collections
                     print("🔍 Multi-tag search: '\(mainTerm)' + \(additionalTerms.joined(separator: ", "))")
+                    print("🔍 This will combine ALL markers from each tag search (not intersection)")
+                    
+                    // Set validation state for multi-tag search
+                    await MainActor.run {
+                        isValidatingTag = true
+                    }
                     
                     var allMarkers = Set<SceneMarker>()
                     var combinedTotalCount = 0
                     
-                    // Search for main term
-                    let (mainMarkers, mainCount) = try await appModel.api.searchMarkersWithCount(query: mainTerm, page: 1, perPage: 200)
-                    print("📊 Main term '\(mainTerm)': \(mainMarkers.count) markers (total: \(mainCount))")
+                    // Search for main term - display subset only (keep 20 for performance)
+                    let mainMarkers = try await appModel.api.searchMarkers(query: "#\(mainTerm)", page: 1, perPage: 20, randomize: true)
+                    print("📊 Main term '\(mainTerm)' (EXACT): \(mainMarkers.count) markers for display")
+                    allMarkers.formUnion(mainMarkers)
                     
-                    // Filter main markers that also contain additional terms
-                    let filteredMainMarkers = mainMarkers.filter { marker in
-                        let markerTags = Set([marker.primary_tag.name] + marker.tags.map { $0.name })
-                        return additionalTerms.allSatisfy { additionalTerm in
-                            markerTags.contains { $0.lowercased().contains(additionalTerm.lowercased()) }
-                        }
-                    }
+                    // Get actual counts for each tag for total estimation
+                    let (_, mainTagCount) = try await appModel.api.validateMarkerTag(tagName: mainTerm)
+                    combinedTotalCount += mainTagCount
                     
-                    allMarkers.formUnion(filteredMainMarkers)
-                    combinedTotalCount += filteredMainMarkers.count
-                    print("📊 Found \(filteredMainMarkers.count) markers with '\(mainTerm)' + additional terms")
-                    
-                    // Also search for each additional term and cross-filter
+                    // Search for each additional term - display subset only (keep 20 for performance)
                     for additionalTerm in additionalTerms {
-                        let (additionalMarkers, _) = try await appModel.api.searchMarkersWithCount(query: additionalTerm, page: 1, perPage: 200)
-                        let crossFiltered = additionalMarkers.filter { marker in
-                            let markerTags = Set([marker.primary_tag.name] + marker.tags.map { $0.name })
-                            return markerTags.contains { $0.lowercased().contains(mainTerm.lowercased()) } &&
-                                   additionalTerms.allSatisfy { term in
-                                       markerTags.contains { $0.lowercased().contains(term.lowercased()) }
-                                   }
-                        }
-                        allMarkers.formUnion(crossFiltered)
-                        print("📊 Cross-filtered '\(additionalTerm)': \(crossFiltered.count) additional markers")
+                        let additionalMarkers = try await appModel.api.searchMarkers(query: "#\(additionalTerm)", page: 1, perPage: 20, randomize: true)
+                        let (_, additionalTagCount) = try await appModel.api.validateMarkerTag(tagName: additionalTerm)
+                        print("📊 Additional term '\(additionalTerm)' (EXACT): \(additionalMarkers.count) markers for display")
+                        allMarkers.formUnion(additionalMarkers)
+                        combinedTotalCount += additionalTagCount
+                        print("📊 Combined pool now has \(allMarkers.count) unique markers for display")
                     }
                     
-                    let finalMarkers = Array(allMarkers).sorted { $0.title < $1.title }
-                    print("📊 Final combined results: \(finalMarkers.count) unique markers")
+                    let finalMarkers = Array(allMarkers).shuffled() // Randomize the combined results
+                    print("📊 Final combined results: \(finalMarkers.count) unique markers from \(1 + additionalTerms.count) tag searches")
+                    print("📊 Total estimated server count: \(combinedTotalCount) (with duplicates)")
                     
                     await MainActor.run {
+                        isValidatingTag = false
+                        
                         searchedMarkers = finalMarkers
-                        totalMarkerCount = finalMarkers.count // Use actual count for combined searches
+                        totalMarkerCount = finalMarkers.count // Use unique count for display
                         appModel.searchQuery = query.isEmpty ? "" : query
                         updateMarkerResults(finalMarkers, finalMarkers.count)
                     }
@@ -949,6 +1215,9 @@ struct MediaLibraryView: View {
             }
         } catch {
             await MainActor.run {
+                // Clear validation state on error
+                isValidatingTag = false
+                
                 appModel.api.error = error
                 appModel.api.scenes = []
                 appModel.api.totalSceneCount = 0
@@ -969,5 +1238,144 @@ struct MediaLibraryView: View {
         print("✅ Stored \(markers.count) marker results (total: \(count)) - filter: \(currentFilter), scope: \(searchScope), hasMorePages: \(hasMorePages)")
         // Explicitly trigger UI update
         appModel.objectWillChange.send()
+    }
+    
+    // MARK: - Locked Tags Functions
+    
+    private func clearLockedTags() {
+        lockedTags.removeAll()
+        lastValidatedTag = nil
+        print("🔒 Cleared all locked tags")
+    }
+    
+    private func removeLockedTag(at index: Int) {
+        guard index < lockedTags.count else { return }
+        let removedTag = lockedTags.remove(at: index)
+        print("🔒 Removed locked tag: \(removedTag.name)")
+    }
+    
+    private func combineAllLockedTags() {
+        guard !lockedTags.isEmpty else { return }
+        
+        let combinedQuery = lockedTags.map { $0.name }.joined(separator: " +")
+        print("🔒 Combining all locked tags: \(combinedQuery)")
+        
+        // Add randomization by clearing existing results and forcing a fresh search
+        searchedMarkers = []
+        totalMarkerCount = 0
+        
+        // Set the search text and trigger search
+        searchText = combinedQuery
+        Task {
+            await performSearch(query: combinedQuery, scope: .markers)
+        }
+    }
+    
+    private func lockTagIfValid(_ tagName: String, count: Int) {
+        // Check if tag already exists
+        if !lockedTags.contains(where: { $0.name.lowercased() == tagName.lowercased() }) {
+            lockedTags.append((name: tagName, count: count))
+            lastValidatedTag = tagName
+            print("🔒 Locked tag: \(tagName) with \(count) markers")
+        } else {
+            print("🔒 Tag \(tagName) already locked")
+        }
+    }
+    
+    private func searchForSimilarTags(searchTerm: String, originalQuery: String) async {
+        do {
+            // Search for tags containing the search term
+            let allTags = try await appModel.api.searchTags(query: searchTerm)
+            let similarTags = allTags.filter { tag in
+                tag.name.lowercased().contains(searchTerm.lowercased())
+            }
+            
+            await MainActor.run {
+                isValidatingTag = false
+                
+                if similarTags.count > 1 {
+                    // Multiple similar tags found - show suggestions
+                    print("🏷️ Found \(similarTags.count) similar tags: \(similarTags.map { $0.name })")
+                    suggestedTags = similarTags
+                    originalSearchQuery = originalQuery
+                    showingTagSuggestions = true
+                } else if similarTags.count == 1 {
+                    // Single similar tag found - use it automatically
+                    let suggestedTag = similarTags[0]
+                    print("🏷️ Auto-selecting similar tag: \(suggestedTag.name)")
+                    searchText = suggestedTag.name
+                    Task {
+                        await performSearch(query: suggestedTag.name, scope: .markers)
+                    }
+                } else {
+                    // No similar tags found
+                    print("⚠️ No similar tags found for '\(searchTerm)'")
+                    searchedMarkers = []
+                    totalMarkerCount = 0
+                    appModel.searchQuery = originalQuery
+                    updateMarkerResults([], 0)
+                }
+            }
+        } catch {
+            await MainActor.run {
+                isValidatingTag = false
+                searchedMarkers = []
+                totalMarkerCount = 0
+                appModel.searchQuery = originalQuery
+                updateMarkerResults([], 0)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var mainContentView: some View {
+        Group {
+            if appModel.api.isLoading && currentPage == 1 {
+                loadingView
+            } else if let error = appModel.api.error, currentFilter == "search" {
+                errorView(error: error)
+            } else {
+                scenesContent
+                    .id(viewRefreshId)
+            }
+        }
+    }
+    
+    private var loadingView: some View {
+        VStack {
+            ProgressView("Loading media...")
+                .scaleEffect(1.2)
+
+            Text("Loading your media library...")
+                .foregroundColor(.secondary)
+                .padding(.top)
+        }
+    }
+    
+    private func errorView(error: Error) -> some View {
+        VStack(spacing: 20) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 50))
+                .foregroundColor(.red)
+                .padding(.top, 40)
+            
+            Text("Search Error")
+                .font(.title2)
+                .fontWeight(.semibold)
+            
+            Text(error.localizedDescription)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            
+            Button("Try Again") {
+                Task {
+                    await performSearch(query: searchText, scope: searchScope)
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .padding(.top, 10)
+        }
+        .padding(.top, 40)
     }
 } 

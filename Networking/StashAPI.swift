@@ -2723,10 +2723,10 @@ class StashAPI: ObservableObject {
     ///   - page: Page number (starts at 1)
     ///   - perPage: Number of results per page
     ///   - completion: Callback with result
-    func searchMarkers(query: String, page: Int = 1, perPage: Int = 2000, completion: @escaping (Result<[SceneMarker], Error>) -> Void) {
+    func searchMarkers(query: String, page: Int = 1, perPage: Int = 2000, randomize: Bool = false, completion: @escaping (Result<[SceneMarker], Error>) -> Void) {
         Task {
             do {
-                let markers = try await searchMarkersCore(query: query, page: page, perPage: perPage)
+                let markers = try await searchMarkersCore(query: query, page: page, perPage: perPage, randomize: randomize)
                 DispatchQueue.main.async {
                     completion(.success(markers))
                 }
@@ -2744,8 +2744,8 @@ class StashAPI: ObservableObject {
     ///   - page: Page number (starts at 1)
     ///   - perPage: Number of results per page
     /// - Returns: Array of matching markers
-    func searchMarkers(query: String, page: Int = 1, perPage: Int = 2000) async throws -> [SceneMarker] {
-        return try await searchMarkersCore(query: query, page: page, perPage: perPage)
+    func searchMarkers(query: String, page: Int = 1, perPage: Int = 2000, randomize: Bool = false) async throws -> [SceneMarker] {
+        return try await searchMarkersCore(query: query, page: page, perPage: perPage, randomize: randomize)
     }
     
     /// Search markers with pagination support and total count
@@ -2758,6 +2758,21 @@ class StashAPI: ObservableObject {
         return try await searchMarkersCoreWithCount(query: query, page: page, perPage: perPage)
     }
     
+    /// Validate if a tag exists in the marker system and return count using exact tag matching
+    func validateMarkerTag(tagName: String) async throws -> (exists: Bool, count: Int) {
+        do {
+            // Use exact tag search to get accurate count (larger limit for validation)
+            let markers = try await searchMarkers(query: "#\(tagName)", page: 1, perPage: 1000)
+            let exists = !markers.isEmpty
+            let count = markers.count
+            print("🏷️ EXACT tag validation - '\(tagName)': exists=\(exists), count=\(count)")
+            return (exists: exists, count: count)
+        } catch {
+            print("⚠️ Tag validation error for '\(tagName)': \(error)")
+            return (exists: false, count: 0)
+        }
+    }
+    
     /// Get the total count of markers for a specific tag
     func getMarkerCountForTag(tagName: String) async throws -> Int {
         // Temporary fallback - use existing searchMarkers to get count
@@ -2767,7 +2782,7 @@ class StashAPI: ObservableObject {
     }
 
     // Core implementation for searching markers
-    private func searchMarkersCore(query: String, page: Int = 1, perPage: Int = 2000) async throws -> [SceneMarker] {
+    private func searchMarkersCore(query: String, page: Int = 1, perPage: Int = 2000, randomize: Bool = false) async throws -> [SceneMarker] {
         // Ensure the query is properly formatted
         let cleanQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         print("🔎 Marker search query: '\(cleanQuery)'")
@@ -2775,17 +2790,22 @@ class StashAPI: ObservableObject {
         // Check if this is a tag search (starts with #)
         if cleanQuery.hasPrefix("#") {
             let tagName = String(cleanQuery.dropFirst()).trimmingCharacters(in: .whitespacesAndNewlines)
-            print("🏷️ Performing exact tag search for: '\(tagName)'")
-            return try await searchMarkersByExactTag(tagName: tagName)
+            print("🏷️ Performing exact tag search for: '\(tagName)' (randomize: \(randomize))")
+            return try await searchMarkersByExactTag(tagName: tagName, randomize: randomize)
         }
+        
+        // Use random sorting if requested
+        let randomSeed = randomize ? Int.random(in: 0...999999) : 0
+        let sortField = randomize ? "random_\(randomSeed)" : "title"
+        let sortDirection = randomize ? "ASC" : "ASC"
         
         let variables: [String: Any] = [
             "filter": [
                 "q": cleanQuery,
                 "page": page,
                 "per_page": perPage,
-                "sort": "title",
-                "direction": "ASC"
+                "sort": sortField,
+                "direction": sortDirection
             ]
         ]
         
@@ -2946,8 +2966,132 @@ class StashAPI: ObservableObject {
         return try await searchMarkersCore(query: query)
     }
     
-    // Search markers by exact tag name
-    private func searchMarkersByExactTag(tagName: String) async throws -> [SceneMarker] {
+    // Search markers by exact tag name for SHUFFLE SYSTEM ONLY (can load more markers)
+    func searchMarkersByExactTagForShuffle(tagName: String, maxMarkers: Int = 2000) async throws -> [SceneMarker] {
+        // First, find the tag by exact name
+        let tagQuery = """
+        query FindTags($filter: FindFilterType) {
+            findTags(filter: $filter) {
+                tags {
+                    id
+                    name
+                }
+            }
+        }
+        """
+        
+        let tagVariables: [String: Any] = [
+            "filter": [
+                "q": "\"\(tagName)\"",  // Exact match with quotes
+                "page": 1,
+                "per_page": 10,
+                "sort": "name",
+                "direction": "ASC"
+            ]
+        ]
+        
+        struct TagResponse: Decodable {
+            struct Data: Decodable {
+                struct FindTags: Decodable {
+                    let tags: [Tag]
+                }
+                let findTags: FindTags
+            }
+            let data: Data
+        }
+        
+        struct Tag: Decodable {
+            let id: String
+            let name: String
+        }
+        
+        let tagResponse: TagResponse = try await performGraphQLRequest(query: tagQuery, variables: tagVariables)
+        
+        // Find exact match
+        guard let tag = tagResponse.data.findTags.tags.first(where: { $0.name.lowercased() == tagName.lowercased() }) else {
+            print("❌ No tag found with exact name: '\(tagName)'")
+            return []
+        }
+        
+        print("✅ Found tag: \(tag.name) (ID: \(tag.id)) for shuffle - loading up to \(maxMarkers) markers")
+        
+        // Now search for markers with this tag ID using random sorting for shuffle
+        let markerQuery = """
+        query FindSceneMarkers($filter: FindFilterType, $scene_marker_filter: SceneMarkerFilterType) {
+            findSceneMarkers(filter: $filter, scene_marker_filter: $scene_marker_filter) {
+                count
+                scene_markers {
+                    id
+                    title
+                    seconds
+                    stream
+                    preview
+                    screenshot
+                    scene {
+                        id
+                        title
+                        paths {
+                            screenshot
+                            preview
+                            stream
+                        }
+                        performers {
+                            id
+                            name
+                            image_path
+                        }
+                    }
+                    primary_tag {
+                        id
+                        name
+                    }
+                    tags {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+        """
+        
+        // Use random sorting for shuffle system
+        let randomSeed = Int.random(in: 0...999999)
+        
+        let markerVariables: [String: Any] = [
+            "filter": [
+                "page": 1,
+                "per_page": maxMarkers, // Allow larger limits for shuffle
+                "sort": "random_\(randomSeed)",
+                "direction": "ASC"
+            ],
+            "scene_marker_filter": [
+                "tags": [
+                    "value": [tag.id],
+                    "modifier": "INCLUDES"
+                ]
+            ]
+        ]
+        
+        struct MarkerResponse: Decodable {
+            struct Data: Decodable {
+                struct FindSceneMarkers: Decodable {
+                    let count: Int
+                    let scene_markers: [SceneMarker]
+                }
+                let findSceneMarkers: FindSceneMarkers
+            }
+            let data: Data
+        }
+        
+        let markerResponse: MarkerResponse = try await performGraphQLRequest(query: markerQuery, variables: markerVariables)
+        let markers = markerResponse.data.findSceneMarkers.scene_markers
+        
+        print("🎲 Shuffle search found \(markers.count) markers for tag '\(tagName)' (total available: \(markerResponse.data.findSceneMarkers.count))")
+        return markers
+    }
+    
+    // Search markers by exact tag name for DISPLAY (limited for performance)
+    func searchMarkersByExactTag(tagName: String, randomize: Bool = false) async throws -> [SceneMarker] {
         // First, find the tag by exact name
         let tagQuery = """
         query FindTags($filter: FindFilterType) {
@@ -3035,11 +3179,15 @@ class StashAPI: ObservableObject {
         }
         """
         
+        // Use random sorting if requested
+        let randomSeed = randomize ? Int.random(in: 0...999999) : 0
+        let sortField = randomize ? "random_\(randomSeed)" : "title"
+        
         let markerVariables: [String: Any] = [
             "filter": [
                 "page": 1,
-                "per_page": 50,
-                "sort": "title",
+                "per_page": 50, // Keep reasonable limit for display
+                "sort": sortField,
                 "direction": "ASC"
             ],
             "scene_marker_filter": [
@@ -3630,7 +3778,7 @@ class StashAPI: ObservableObject {
             "variables": [
                 "filter": [
                     "page": page, 
-                    "per_page": 50, 
+                    "per_page": 50, // Keep reasonable limit for display
                     "sort": "random_\(randomSeed)", 
                     "direction": "ASC"
                 ],

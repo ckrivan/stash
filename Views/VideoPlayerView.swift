@@ -564,6 +564,7 @@ struct VideoPlayerView: View {
     // Video loading timeout timer
     @State private var videoLoadingTimer: Timer?
     @State private var isVideoLoading: Bool = false
+    @State private var isManualExit: Bool = false
     
     init(scene: StashScene, startTime: Double? = nil, endTime: Double? = nil) {
         self.scene = scene
@@ -690,6 +691,8 @@ struct VideoPlayerView: View {
                             // Close button
                             Button(action: {
                                 print("🔄 Close button tapped")
+                                // Mark as manual exit for cleanup
+                                isManualExit = true
                                 dismiss()
                                 appModel.forceCloseVideo()
                             }) {
@@ -1127,8 +1130,20 @@ struct VideoPlayerView: View {
                     object: nil,
                     queue: .main
                 ) { _ in
-                    print("🎲 Video loading timeout notification received")
-                    appModel.shuffleToNextMarker()
+                    print("🎲 Video loading timeout notification received - cleaning up audio first")
+                    
+                    // CRITICAL: Stop and clean up current player audio before advancing
+                    if let currentPlayer = VideoPlayerRegistry.shared.currentPlayer {
+                        print("🔇 Stopping current player audio due to timeout")
+                        currentPlayer.pause()
+                        currentPlayer.seek(to: .zero)
+                        // Add small delay to ensure audio stops
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            appModel.shuffleToNextMarker()
+                        }
+                    } else {
+                        appModel.shuffleToNextMarker()
+                    }
                 }
                 
                 // Listen for video loading success (to cancel timeout)
@@ -1232,22 +1247,29 @@ struct VideoPlayerView: View {
                 videoLoadingTimer = nil
                 isVideoLoading = false
                 
-                // Check if we're in shuffle mode - if so, let navigation handle cleanup
+                // Check if we're in shuffle mode and if this is a manual exit
                 let isMarkerShuffle = UserDefaults.standard.bool(forKey: "isMarkerShuffleContext")
                 let isTagShuffle = UserDefaults.standard.bool(forKey: "isTagSceneShuffleContext")
                 let isMostPlayedShuffle = UserDefaults.standard.bool(forKey: "isMostPlayedShuffleMode")
                 
-                // Only clean up video player for non-shuffle navigation
-                if !isMarkerShuffle && !isTagShuffle && !isMostPlayedShuffle {
+                // Clean up video player if:
+                // 1. Not in shuffle mode, OR
+                // 2. Manual exit (user pressed close/exit button)
+                if (!isMarkerShuffle && !isTagShuffle && !isMostPlayedShuffle) || isManualExit {
                     if let player = VideoPlayerRegistry.shared.currentPlayer {
-                        print("🔇 Disposing of video player on view disappear (non-shuffle)")
+                        print("🔇 Disposing of video player on view disappear (non-shuffle or manual exit)")
                         player.pause()
                         player.replaceCurrentItem(with: nil)
                     }
                     VideoPlayerRegistry.shared.currentPlayer = nil
                     VideoPlayerRegistry.shared.playerViewController = nil
+                    
+                    if isManualExit {
+                        print("🔇 Manual exit detected - forcing audio cleanup in shuffle mode")
+                        appModel.killAllAudio()
+                    }
                 } else {
-                    print("🎲 Skipping video player cleanup - in shuffle mode")
+                    print("🎲 Skipping video player cleanup - in shuffle mode (automatic navigation)")
                 }
             }
             // Add emergency exit gesture at bottom of screen
@@ -1257,6 +1279,9 @@ struct VideoPlayerView: View {
                         print("👋 Emergency exit gesture detected")
                         let generator = UINotificationFeedbackGenerator()
                         generator.notificationOccurred(.success)
+                        
+                        // Mark as manual exit for cleanup
+                        isManualExit = true
                         
                         // Force dismiss and navigation cleanup
                         dismiss()
@@ -3311,6 +3336,9 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
                 // CRITICAL: Force play again regardless of time parameter
                 player.play()
                 print("▶️ Forcing play after ready status")
+                
+                // Cancel loading timeout since video is ready and playing
+                NotificationCenter.default.post(name: NSNotification.Name("VideoLoadingSuccess"), object: nil)
                 
                 // Only handle seeking if we need to
                 if let t = explicitStartTime, t > 0 {

@@ -275,20 +275,25 @@ class AppModel: ObservableObject {
         
         // Check if we're in shuffle mode and need to replace current video
         if (isMarkerShuffleMode || isServerSideShuffle) && !navigationPath.isEmpty {
-            print("⏱ Shuffle mode: Popping current video and navigating to new one")
-            // FIXED: Pop and append on main thread to prevent background publishing errors
+            print("⏱ Shuffle mode: Replacing current video with new one")
+            // Kill all audio before navigation to prevent stacking
+            killAllAudio()
+            
+            // ATOMIC navigation update to prevent race conditions
             DispatchQueue.main.async {
                 if !self.navigationPath.isEmpty {
                     _ = self.navigationPath.removeLast()
                 }
-                // Small delay to let the pop complete
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                    self.navigationPath.append(scene)
-                }
+                // Immediately append new scene without delay to prevent race conditions
+                self.navigationPath.append(scene)
+                print("⏱ Navigation updated atomically: replaced current video")
             }
         } else {
             // Regular navigation - just append to path - ensure main thread for @Published
             print("⏱ Adding scene to navigation path")
+            // Kill audio before any navigation to prevent stacking
+            killAllAudio()
+            
             DispatchQueue.main.async {
                 self.navigationPath.append(scene)
             }
@@ -306,7 +311,9 @@ class AppModel: ObservableObject {
         impact.impactOccurred()
         
         // Step 2: Set current performer (for context and consistency)
-        currentPerformer = performer
+        DispatchQueue.main.async {
+            self.currentPerformer = performer
+        }
 
         // Step 3: Clear existing scenes to force redraw and prevent stale data
         // NOTE: Don't clear markers here - let PerformerDetailView handle its own marker loading
@@ -322,6 +329,9 @@ class AppModel: ObservableObject {
 
         // Step 6: Actually perform the navigation action
         // We do this last to ensure all state is reset - ensure main thread for @Published
+        // Kill audio before performer navigation
+        killAllAudio()
+        
         DispatchQueue.main.async {
             self.navigationPath.append(performer)
             print("🏁 NAVIGATION - Navigation completed to performer: \(performer.name)")
@@ -434,7 +444,11 @@ class AppModel: ObservableObject {
         if navigationPath.count > 6 {
             print("🚨 EMERGENCY: Too many navigation items (\(navigationPath.count)), clearing stack")
             DispatchQueue.main.async {
-                self.navigationPath.removeLast(self.navigationPath.count - 1)
+                // Only remove items if we have more than 1 item in the path
+                let itemsToRemove = self.navigationPath.count - 1
+                if itemsToRemove > 0 {
+                    self.navigationPath.removeLast(itemsToRemove)
+                }
             }
             
             // Gentle cleanup: Only kill audio, preserve shuffle contexts
@@ -560,7 +574,9 @@ class AppModel: ObservableObject {
                     print("🔄 MARKER SHUFFLE CONTEXT: Using direct player update to avoid screen flicker")
                     
                     // Update the current scene reference without navigation
-                    self.currentScene = fullScene
+                    await MainActor.run {
+                        self.currentScene = fullScene
+                    }
                     
                     // Set up all the UserDefaults that VideoPlayerView needs
                     UserDefaults.standard.set(hlsStreamURL, forKey: "scene_\(fullScene.id)_hlsURL")
@@ -577,7 +593,7 @@ class AppModel: ObservableObject {
                     
                     // Post a notification to update the current VideoPlayerView instead of navigating
                     NotificationCenter.default.post(
-                        name: NSNotification.Name("UpdateVideoPlayerForMarkerShuffle"),
+                        name: Notification.Name("MarkerSwitchRequest"),
                         object: nil,
                         userInfo: [
                             "scene": fullScene,
@@ -662,7 +678,9 @@ class AppModel: ObservableObject {
         // Don't try to navigate if we don't have a previous state
         if previousView.isEmpty || previousView == "main" {
             // If we're at the root view, clear the navigation path
-            navigationPath = NavigationPath()
+            DispatchQueue.main.async {
+                self.navigationPath = NavigationPath()
+            }
             return
         }
         
@@ -690,7 +708,9 @@ class AppModel: ObservableObject {
                 }
                 
                 DispatchQueue.main.async {
-                    self.navigationPath.removeLast()
+                    if !self.navigationPath.isEmpty {
+                        self.navigationPath.removeLast()
+                    }
                 }
             }
         } else {
@@ -714,6 +734,9 @@ class AppModel: ObservableObject {
         print("🧹 NAVIGATION - Cleared existing scenes for tag view")
 
         // Navigate to the tag - ensure main thread for @Published
+        // Kill audio before tag navigation
+        killAllAudio()
+        
         DispatchQueue.main.async {
             self.navigationPath.append(tag)
             print("🏁 NAVIGATION - Navigation completed to tag: \(tag.name)")
@@ -804,8 +827,8 @@ class AppModel: ObservableObject {
         print("🎯 NAVIGATION - Cleared temporary video navigation flag")
         
         // If we have a navigation path and the last item is likely a video, remove it
-        if !navigationPath.isEmpty {
-            DispatchQueue.main.async {
+        DispatchQueue.main.async {
+            if !self.navigationPath.isEmpty {
                 self.navigationPath.removeLast()
                 print("📱 Removed last navigation item, remaining path count: \(self.navigationPath.count)")
             }
@@ -1183,10 +1206,10 @@ class AppModel: ObservableObject {
         print("🎲 DEBUG - Tag Names: \(tagNames)")
         print("🎲 DEBUG - Displayed Markers Count: \(displayedMarkers.count)")
         
-        // Set shuffle context
+        // Set shuffle context  
         DispatchQueue.main.async {
             self.isMarkerShuffleMode = true
-            self.isServerSideShuffle = false  // Use client-side shuffle with the combined markers
+            self.isServerSideShuffle = true  // Use SERVER-side shuffle to get random markers from ALL available
             self.shuffleTagNames = tagNames
         }
         shuffleTagFilters = tagIds
@@ -1240,11 +1263,12 @@ class AppModel: ObservableObject {
     
     /// Start marker shuffle for search results - loads ALL markers from API for comprehensive shuffle
     func startMarkerShuffle(forSearchQuery query: String, displayedMarkers: [SceneMarker]) {
-        print("🎲 Starting marker shuffle for search: \(query) - loading ALL markers from API")
+        print("🎲 Starting marker shuffle for search: \(query) - using server-side random from ALL available markers")
         
         // Set shuffle context
         DispatchQueue.main.async {
             self.isMarkerShuffleMode = true
+            self.isServerSideShuffle = true  // Use SERVER-side shuffle to get random markers from ALL available
         }
         shuffleSearchQuery = query
         shuffleTagFilter = nil
@@ -1264,6 +1288,23 @@ class AppModel: ObservableObject {
     /// Play next marker using server-side random selection
     func playNextServerSideMarker() async {
         print("🎲 Fetching random marker from server for tags: \(shuffleTagNames.joined(separator: ", "))")
+        
+        // Check if we have any tags for server-side shuffle
+        guard !shuffleTagNames.isEmpty else {
+            print("❌ No tags available for server-side shuffle - falling back to client-side shuffle")
+            DispatchQueue.main.async {
+                // Fall back to client-side shuffle using existing queue
+                if let nextMarker = self.nextMarkerInShuffle() {
+                    print("🎲 Fallback: Using client-side shuffle queue")
+                    GlobalVideoManager.shared.stopAllPreviews()
+                    self.setHLSPreferenceForMarker(nextMarker)
+                    self.navigateToMarker(nextMarker)
+                } else {
+                    print("⚠️ No markers available in fallback queue either")
+                }
+            }
+            return
+        }
         
         // For multi-tag shuffle, implement rotation logic (max 5 from same tag)
         if shuffleTagNames.count > 1 {
@@ -1304,66 +1345,33 @@ class AppModel: ObservableObject {
             // Now fetch a random marker from the selected tag
             await fetchRandomMarkerForTag(selectedTag)
         } else {
-            // Single tag shuffle
-            guard let randomTag = shuffleTagNames.first else {
-                print("❌ No tags available for server-side shuffle")
-                return
-            }
-            
+            // Single tag shuffle (we already checked that shuffleTagNames is not empty)
+            let randomTag = shuffleTagNames.first!
             print("🎲 Single tag shuffle - tag: '\(randomTag)'")
             await fetchRandomMarkerForTag(randomTag)
         }
     }
     
-    /// Helper function to fetch a random marker for a specific tag
+    /// Helper function to fetch a random marker for a specific tag using optimized shuffle search
     private func fetchRandomMarkerForTag(_ tagName: String) async {
-        print("🎲 Fetching random marker for tag: '\(tagName)'")
+        print("🎲 Fetching server-side random marker for tag: '\(tagName)' using shuffle-optimized search")
         
         do {
-            // Get a truly random page - estimate ~100 markers per page, pick from first 20 pages
-            let randomPage = Int.random(in: 1...20)
-            print("🎲 Fetching page \(randomPage) for tag '\(tagName)'")
+            // Use the shuffle-optimized search to get a random selection from ALL markers
+            let shuffleMarkers = try await api.searchMarkersByExactTagForShuffle(tagName: tagName, maxMarkers: 100)
             
-            let markers = try await api.searchMarkers(query: tagName, page: randomPage, perPage: 100)
+            print("🎲 Shuffle search returned \(shuffleMarkers.count) random markers for tag '\(tagName)'")
             
-            // Debug: Print first few markers to see what we're getting
-            print("🎲 DEBUG: Retrieved \(markers.count) markers from search")
-            if !markers.isEmpty {
-                for (index, marker) in markers.prefix(3).enumerated() {
-                    print("🎲 DEBUG: Marker \(index + 1) - Tag: '\(marker.primary_tag.name)' vs Search: '\(tagName)'")
-                }
-            }
-            
-            // Filter to exact tag matches (case-insensitive)
-            let matchingMarkers = markers.filter { marker in
-                marker.primary_tag.name.lowercased() == tagName.lowercased()
-            }
-            
-            print("🎲 Found \(matchingMarkers.count) markers on page \(randomPage)")
-            
-            // Pick a random marker from the results
-            if let randomMarker = matchingMarkers.randomElement() {
+            // Pick a random marker from the shuffle results
+            if let randomMarker = shuffleMarkers.randomElement() {
                 print("🎯 Selected random marker: \(randomMarker.title) from tag: \(tagName)")
                 await MainActor.run {
                     navigateToMarker(randomMarker)
                 }
                 return
-            } else if randomPage > 1 {
-                // If no markers on this page, try page 1 as fallback
-                print("⚠️ No markers on page \(randomPage), trying page 1")
-                let fallbackMarkers = try await api.searchMarkers(query: tagName, page: 1, perPage: 100)
-                let fallbackMatching = fallbackMarkers.filter { marker in
-                    marker.primary_tag.name.lowercased() == tagName.lowercased()
-                }
-                
-                if let randomMarker = fallbackMatching.randomElement() {
-                    print("🎯 Fallback: Selected random marker: \(randomMarker.title)")
-                    await MainActor.run {
-                        navigateToMarker(randomMarker)
-                    }
-                    return
-                }
             }
+            
+            print("⚠️ No markers found for tag '\(tagName)'")
         } catch {
             print("❌ Error fetching markers for tag '\(tagName)': \(error)")
         }
@@ -1372,6 +1380,13 @@ class AppModel: ObservableObject {
     /// Load all markers for a search query with pagination
     private func loadAllMarkersForSearch(query: String) async {
         print("🔄 Loading ALL markers for search: '\(query)'")
+        
+        // Check if this is a multi-tag query (contains +)
+        if query.contains(" +") {
+            print("🔄 Multi-tag shuffle query detected, using combination logic")
+            await loadAllMarkersForMultiTagSearch(query: query)
+            return
+        }
         
         var allMarkers: [SceneMarker] = []
         var currentPage = 1
@@ -1476,101 +1491,101 @@ class AppModel: ObservableObject {
         }
     }
     
-    /// Load all markers for a tag with pagination
-    private func loadAllMarkersForTag(tagId: String, tagName: String) async {
-        print("🔄 Loading ALL markers for tag: \(tagName)")
+    /// Load all markers for a multi-tag search query (handles + syntax)
+    private func loadAllMarkersForMultiTagSearch(query: String) async {
+        print("🔄 Loading markers for multi-tag shuffle: '\(query)'")
         
-        var allMarkers: [SceneMarker] = []
-        var currentPage = 1
-        let maxPages = 10 // Reasonable limit to prevent infinite loops
-        
-        while currentPage <= maxPages {
-            print("🔄 Loading page \(currentPage) for tag: \(tagName)")
-            
-            // Use the existing tag API method with larger batch size for shuffle
-            await api.fetchMarkersByTag(tagId: tagId, page: currentPage, appendResults: false, perPage: 500)
-            let newMarkers = api.markers
-            
-            if newMarkers.isEmpty {
-                print("📄 No more markers found on page \(currentPage), stopping")
-                break
-            }
-            
-            // Filter out duplicates and add new markers
-            let uniqueNewMarkers = newMarkers.filter { newMarker in
-                !allMarkers.contains { $0.id == newMarker.id }
-            }
-            
-            allMarkers.append(contentsOf: uniqueNewMarkers)
-            print("🔄 Page \(currentPage): Added \(uniqueNewMarkers.count) unique markers (total: \(allMarkers.count))")
-            
-            // Stop if we're getting API errors (no new unique markers)
-            if uniqueNewMarkers.isEmpty {
-                print("📄 No new unique markers added (API error or end of results), stopping")
-                break
-            }
-            
-            // If we got fewer than 500 markers, we've reached the end
-            if newMarkers.count < 500 {
-                print("📄 Got \(newMarkers.count) markers (less than 500), reached end of results")
-                break
-            }
-            
-            currentPage += 1
+        // Parse the query - same logic as in MediaLibraryView
+        let terms = query.split(separator: " +").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        guard let mainTerm = terms.first, terms.count > 1 else {
+            print("❌ Invalid multi-tag query format")
+            return
         }
         
-        await MainActor.run {
-            self.api.isLoading = false
+        let additionalTerms = Array(terms.dropFirst())
+        print("🔄 Shuffle combining: '\(mainTerm)' + [\(additionalTerms.joined(separator: ", "))]")
+        
+        do {
+            var allMarkers = Set<SceneMarker>()
             
-            if allMarkers.isEmpty {
+            // Load markers for main term
+            let mainMarkers = try await api.searchMarkers(query: "#\(mainTerm)", page: 1, perPage: 500)
+            print("🔄 Shuffle main term '\(mainTerm)': \(mainMarkers.count) markers")
+            allMarkers.formUnion(mainMarkers)
+            
+            // Load markers for each additional term
+            for additionalTerm in additionalTerms {
+                let additionalMarkers = try await api.searchMarkers(query: "#\(additionalTerm)", page: 1, perPage: 500)
+                print("🔄 Shuffle additional term '\(additionalTerm)': \(additionalMarkers.count) markers")
+                allMarkers.formUnion(additionalMarkers)
+            }
+            
+            let finalMarkers = Array(allMarkers)
+            print("🔄 Shuffle combined total: \(finalMarkers.count) unique markers")
+            
+            // Update the shuffle queue with combined markers
+            await MainActor.run {
+                self.markerShuffleQueue = finalMarkers.shuffled()
+                self.api.isLoading = false
+                print("🎲 Shuffle queue populated with \(self.markerShuffleQueue.count) markers")
+                
+                // Start the shuffle by playing the first marker
+                if let firstMarker = self.markerShuffleQueue.first {
+                    print("🎲 Starting shuffle with first marker: \(firstMarker.title)")
+                    self.navigateToMarker(firstMarker)
+                } else {
+                    print("❌ No markers available for shuffle")
+                }
+            }
+            
+        } catch {
+            print("❌ Error loading multi-tag shuffle markers: \(error)")
+            await MainActor.run {
+                self.api.isLoading = false
+            }
+        }
+    }
+    
+    /// Load markers optimized for shuffle system (can access more markers efficiently)
+    private func loadAllMarkersForTag(tagId: String, tagName: String) async {
+        print("🔄 Loading markers for shuffle system - tag: \(tagName)")
+        
+        do {
+            // Use the shuffle-optimized search that can load more markers efficiently
+            let allMarkers = try await api.searchMarkersByExactTagForShuffle(tagName: tagName, maxMarkers: 1000)
+            print("🎲 Loaded \(allMarkers.count) markers for shuffle from tag: \(tagName)")
+            
+            guard !allMarkers.isEmpty else {
                 print("⚠️ No markers found for tag: \(tagName)")
-                self.stopMarkerShuffle()
+                await MainActor.run {
+                    self.api.isLoading = false
+                    self.stopMarkerShuffle()
+                }
                 return
             }
             
-            // Verify markers actually match the expected tag
-            let matchingMarkers = allMarkers.filter { marker in
-                marker.primary_tag.id == tagId || marker.tags.contains { $0.id == tagId }
-            }
-            
-            print("🔍 Total markers retrieved: \(allMarkers.count)")
-            print("🔍 Markers matching tag '\(tagName)': \(matchingMarkers.count)")
-            
-            if matchingMarkers.count != allMarkers.count {
-                print("⚠️ WARNING: API returned markers that don't match the tag filter!")
-                // Use only the matching markers
-                self.markerShuffleQueue = matchingMarkers.shuffled()
-            } else {
-                self.markerShuffleQueue = allMarkers.shuffled()
-            }
-            
-            self.currentShuffleIndex = 0
-            
-            print("✅ Created shuffle queue with \(self.markerShuffleQueue.count) markers for tag: \(tagName)")
-            
-            // Start playing first marker
-            if let firstMarker = self.markerShuffleQueue.first {
-                print("🎬 Starting playback with first shuffled marker: \(firstMarker.title) (tag: \(firstMarker.primary_tag.name))")
-                print("🎬 Current navigation path count: \(self.navigationPath.count)")
+            await MainActor.run {
+                self.api.isLoading = false
                 
-                // Check if we're already in a video player context
-                if !self.navigationPath.isEmpty {
-                    print("🔄 Already in navigation context - using direct marker update instead of navigation")
-                    DispatchQueue.main.async {
-                        self.currentMarker = firstMarker
-                    }
-                    
-                    // Set marker context flags
-                    UserDefaults.standard.set(true, forKey: "scene_\(firstMarker.scene.id)_isMarkerNavigation")
-                    UserDefaults.standard.set(Double(firstMarker.seconds), forKey: "scene_\(firstMarker.scene.id)_startTime")
-                    if let endSeconds = firstMarker.end_seconds {
-                        UserDefaults.standard.set(Double(endSeconds), forKey: "scene_\(firstMarker.scene.id)_endTime")
-                    }
-                    
-                    self.navigateToMarker(firstMarker)
-                } else {
+                // Store markers for shuffle (randomized by the API)
+                self.markerShuffleQueue = allMarkers
+                self.currentShuffleIndex = 0
+                self.isMarkerShuffleMode = true
+                
+                print("🎯 Marker shuffle ready: \(self.markerShuffleQueue.count) markers available")
+                
+                // Navigate to first marker
+                if let firstMarker = allMarkers.first {
+                    print("🎲 Starting with first shuffled marker: \(firstMarker.title)")
+                    self.setHLSPreferenceForMarker(firstMarker)
                     self.navigateToMarker(firstMarker)
                 }
+            }
+        } catch {
+            print("❌ Error loading shuffle markers for tag \(tagName): \(error)")
+            await MainActor.run {
+                self.api.isLoading = false
+                self.stopMarkerShuffle()
             }
         }
     }
