@@ -218,8 +218,11 @@ class AppModel: ObservableObject {
         UserDefaults.standard.set(true, forKey: "isNavigatingToVideo")
         print("🎯 NAVIGATION - Set flag for temporary video navigation")
         
-        // Notify that a main video is starting - this will stop all preview videos
-        NotificationCenter.default.post(name: Notification.Name("MainVideoPlayerStarted"), object: nil)
+        // CRITICAL FIX: Post notification asynchronously to prevent blocking
+        // This prevents the notification from blocking navigation and causing deadlocks
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: Notification.Name("MainVideoPlayerStarted"), object: nil)
+        }
         
         // Check if we're in any shuffle context to handle audio properly
         let isMarkerShuffle = UserDefaults.standard.bool(forKey: "isMarkerShuffleContext")
@@ -855,9 +858,10 @@ class AppModel: ObservableObject {
     func killAllAudio() {
         print("🔇 AGGRESSIVE AUDIO CLEANUP: Killing all audio")
         
-        // Try to find and kill every possible player
+        // PERFORMANCE FIX: Execute cleanup operations concurrently
+        let cleanupGroup = DispatchGroup()
         
-        // Method 1: Check VideoPlayerRegistry
+        // Method 1: Check VideoPlayerRegistry (quick operation, do synchronously)
         if let player = VideoPlayerRegistry.shared.currentPlayer {
             print("🔇 Stopping VideoPlayerRegistry player")
             player.isMuted = true
@@ -867,44 +871,78 @@ class AppModel: ObservableObject {
         VideoPlayerRegistry.shared.currentPlayer = nil
         VideoPlayerRegistry.shared.playerViewController = nil
         
-        // Method 2: Use GlobalVideoManager
-        print("🔇 Stopping all preview players via GlobalVideoManager")
-        GlobalVideoManager.shared.stopAllPreviews()
-        GlobalVideoManager.shared.cleanupAllPlayers()
+        // Method 2: Use GlobalVideoManager (already handles threading internally)
+        cleanupGroup.enter()
+        DispatchQueue.global(qos: .userInteractive).async {
+            print("🔇 Stopping all preview players via GlobalVideoManager")
+            GlobalVideoManager.shared.stopAllPreviews()
+            GlobalVideoManager.shared.cleanupAllPlayers()
+            cleanupGroup.leave()
+        }
         
         // Method 3: Check for AVAudioSession and forcibly pause it
-        print("🔇 Forcibly interrupting AVAudioSession")
-        do {
-            try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-        } catch {
-            print("⚠️ Error deactivating audio session: \(error)")
+        cleanupGroup.enter()
+        DispatchQueue.global(qos: .userInteractive).async {
+            print("🔇 Forcibly interrupting AVAudioSession")
+            do {
+                try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+            } catch {
+                print("⚠️ Error deactivating audio session: \(error)")
+            }
+            cleanupGroup.leave()
         }
         
         // Method 4: Hunt down all possible players in the view hierarchy
-        print("🔇 Finding all AVPlayers in view hierarchy")
-        let allPlayers = getAllPreviewPlayers()
-        for (index, player) in allPlayers.enumerated() {
-            print("🔇 Stopping player \(index+1) of \(allPlayers.count)")
-            player.isMuted = true
-            player.pause()
-            player.replaceCurrentItem(with: nil)
-        }
-        
-        // Method 5: Try with system audio
-        let audioSession = AVAudioSession.sharedInstance()
-        if audioSession.isOtherAudioPlaying {
-            print("🔇 Detected other audio playing, attempting to interrupt")
-            do {
-                try audioSession.setCategory(.ambient, mode: .default, options: [])
-                try audioSession.setActive(false)
-                try audioSession.setActive(true)
-                try audioSession.setActive(false)
-            } catch {
-                print("⚠️ Error manipulating audio session: \(error)")
+        // CRITICAL: Only do this if absolutely necessary to avoid performance hit
+        cleanupGroup.enter()
+        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
+            guard let self = self else {
+                cleanupGroup.leave()
+                return
+            }
+            
+            print("🔇 Finding all AVPlayers in view hierarchy")
+            let allPlayers = self.getAllPreviewPlayers()
+            
+            // Process players on main thread since they're UI objects
+            DispatchQueue.main.async {
+                for (index, player) in allPlayers.enumerated() {
+                    print("🔇 Stopping player \(index+1) of \(allPlayers.count)")
+                    player.isMuted = true
+                    player.pause()
+                    player.replaceCurrentItem(with: nil)
+                }
+                cleanupGroup.leave()
             }
         }
         
-        // Final cleanup
+        // Method 5: Try with system audio
+        cleanupGroup.enter()
+        DispatchQueue.global(qos: .userInteractive).async {
+            let audioSession = AVAudioSession.sharedInstance()
+            if audioSession.isOtherAudioPlaying {
+                print("🔇 Detected other audio playing, attempting to interrupt")
+                do {
+                    try audioSession.setCategory(.ambient, mode: .default, options: [])
+                    try audioSession.setActive(false)
+                    try audioSession.setActive(true)
+                    try audioSession.setActive(false)
+                } catch {
+                    print("⚠️ Error manipulating audio session: \(error)")
+                }
+            }
+            cleanupGroup.leave()
+        }
+        
+        // Wait for all cleanup operations with timeout to prevent hanging
+        let timeout = DispatchTime.now() + .seconds(3)
+        let result = cleanupGroup.wait(timeout: timeout)
+        
+        if result == .timedOut {
+            print("⚠️ Audio cleanup timed out - some operations may not have completed")
+        }
+        
+        // Final cleanup (quick synchronous operation)
         print("🔇 Final cleanup")
         GlobalVideoManager.shared.cleanupAllPlayers()
     }
@@ -963,8 +1001,18 @@ class AppModel: ObservableObject {
         if Thread.isMainThread {
             getPlayersOnMainThread()
         } else {
-            DispatchQueue.main.sync {
+            // CRITICAL FIX: Use async dispatch to prevent deadlock
+            // This prevents the 0x8BADF00D crash when called from background threads
+            let semaphore = DispatchSemaphore(value: 0)
+            DispatchQueue.main.async {
                 getPlayersOnMainThread()
+                semaphore.signal()
+            }
+            // Add timeout to prevent infinite wait
+            let timeout = DispatchTime.now() + .seconds(2)
+            if semaphore.wait(timeout: timeout) == .timedOut {
+                print("⚠️ getAllPreviewPlayers timed out - returning empty array")
+                return []
             }
         }
         
@@ -1137,65 +1185,51 @@ class AppModel: ObservableObject {
         }
     }
     
-    /// Load all markers for multiple tags with optimization to prevent freezing
+    /// Set up server-side shuffle for multiple tags - no preloading needed
     private func loadOptimizedMarkersForMultipleTags(tagIds: [String], tagNames: [String], displayedMarkers: [SceneMarker]) async {
-        print("🔄 Loading ALL markers for combined tags: \(tagNames.joined(separator: ", "))")
+        print("🔄 Setting up server-side shuffle for combined tags: \(tagNames.joined(separator: ", "))")
         
-        var allMarkers = Set<SceneMarker>() // Use Set to avoid duplicates
-        
-        // Add displayed markers first
-        displayedMarkers.forEach { allMarkers.insert($0) }
-        
-        // For combined tags, we want ALL markers, not just search results
-        // Load markers for each tag name using search
-        for tagName in tagNames {
-            print("🏷️ Loading ALL markers for tag: \(tagName)")
-            
-            var currentPage = 1
-            let maxPages = 10 // Load more pages to get ALL markers
-            
-            while currentPage <= maxPages {
-                do {
-                    // Use searchMarkers to avoid interfering with the main API state
-                    let searchedMarkers = try await api.searchMarkers(query: tagName, page: currentPage, perPage: 100)
-                    
-                    if searchedMarkers.isEmpty {
-                        print("📊 No more markers for tag \(tagName) at page \(currentPage)")
-                        break
-                    }
-                    
-                    // Add all markers that match the tag
-                    let matchingMarkers = searchedMarkers.filter { marker in
-                        marker.primary_tag.name.lowercased() == tagName.lowercased()
-                    }
-                    
-                    matchingMarkers.forEach { allMarkers.insert($0) }
-                    
-                    print("📊 Tag \(tagName) page \(currentPage): Found \(searchedMarkers.count) markers, \(matchingMarkers.count) matching")
-                    
-                    if searchedMarkers.count < 100 {
-                        break // No more pages
-                    }
-                    
-                    currentPage += 1
-                    
-                    // Small delay to avoid overwhelming the server
-                    try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 seconds
-                } catch {
-                    print("❌ Error loading markers for tag \(tagName): \(error)")
-                    break
-                }
-            }
-            
-            print("🏷️ Total markers for tag \(tagName): \(allMarkers.count)")
-        }
+        // PERFORMANCE FIX: Don't preload all markers - let server handle combination
+        // Just use the displayed markers as initial queue and fetch more during shuffle
         
         await MainActor.run {
-            // Final update with all markers
-            let shuffledMarkers = Array(allMarkers).shuffled()
-            self.markerShuffleQueue = shuffledMarkers
+            // Start with displayed markers shuffled
+            self.markerShuffleQueue = displayedMarkers.shuffled()
             self.api.isLoading = false
-            print("✅ Multi-tag shuffle queue created with \(shuffledMarkers.count) total unique markers from \(tagNames.count) tags")
+            
+            // Store the combined search query for server-side fetching during shuffle
+            let combinedQuery = tagNames.joined(separator: " +")
+            self.shuffleSearchQuery = combinedQuery
+            
+            print("✅ Server-side shuffle initialized with \(self.markerShuffleQueue.count) initial markers")
+            print("🔍 Combined search query: '\(combinedQuery)' will be used for on-demand loading")
+        }
+    }
+    
+    /// Fetch more markers for shuffle using server-side search - called on-demand
+    private func fetchMoreMarkersForShuffle(searchQuery: String) async {
+        print("🔄 Fetching more markers for shuffle with query: '\(searchQuery)'")
+        
+        do {
+            // Get a random page to add variety
+            let randomPage = Int.random(in: 1...5)
+            let newMarkers = try await api.searchMarkers(query: searchQuery, page: randomPage, perPage: 50, randomize: true)
+            
+            if !newMarkers.isEmpty {
+                await MainActor.run {
+                    // Add new markers to queue, avoiding duplicates
+                    let uniqueMarkers = newMarkers.filter { newMarker in
+                        !self.markerShuffleQueue.contains { $0.id == newMarker.id }
+                    }
+                    
+                    self.markerShuffleQueue.append(contentsOf: uniqueMarkers)
+                    self.markerShuffleQueue.shuffle() // Re-shuffle to mix in new markers
+                    
+                    print("✅ Added \(uniqueMarkers.count) new markers to shuffle queue (total: \(self.markerShuffleQueue.count))")
+                }
+            }
+        } catch {
+            print("❌ Failed to fetch more markers for shuffle: \(error)")
         }
     }
     
@@ -1592,7 +1626,19 @@ class AppModel: ObservableObject {
     
     /// Get next marker in shuffle queue
     func nextMarkerInShuffle() -> SceneMarker? {
-        guard isMarkerShuffleMode && !markerShuffleQueue.isEmpty else {
+        guard isMarkerShuffleMode else {
+            return nil
+        }
+        
+        // SERVER-SIDE APPROACH: If we have a search query but low markers, fetch more from server
+        if let searchQuery = shuffleSearchQuery, markerShuffleQueue.count < 10 {
+            Task {
+                await fetchMoreMarkersForShuffle(searchQuery: searchQuery)
+            }
+        }
+        
+        // If we have no markers at all, return nil
+        guard !markerShuffleQueue.isEmpty else {
             return nil
         }
         
@@ -1605,7 +1651,7 @@ class AppModel: ObservableObject {
         let randomIndex = Int.random(in: 0..<markerShuffleQueue.count)
         let nextMarker = markerShuffleQueue[randomIndex]
         
-        print("🎲 Next marker in TRUE RANDOM shuffle: \(nextMarker.title) (random index \(randomIndex) of \(markerShuffleQueue.count))")
+        print("🎲 Next marker in shuffle: \(nextMarker.title) (random index \(randomIndex) of \(markerShuffleQueue.count))")
         return nextMarker
     }
     
@@ -2355,6 +2401,15 @@ extension AppModel {
             case .performers: return "person.2"
             case .history: return "clock.arrow.circlepath"
             }
+        }
+    }
+}
+
+// MARK: - Array Extension for Chunking
+extension Array {
+    func chunked(into size: Int) -> [[Element]] {
+        return stride(from: 0, to: count, by: size).map {
+            Array(self[$0 ..< Swift.min($0 + size, count)])
         }
     }
 }
