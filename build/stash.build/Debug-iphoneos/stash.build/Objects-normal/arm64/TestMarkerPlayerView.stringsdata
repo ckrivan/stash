@@ -1,0 +1,224 @@
+{
+  "source": "/Users/charleskrivan/Desktop/stash/iPadOS/Views/Markers/TestMarkerPlayerView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Test Marker Player",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 251
+        }
+      },
+      {
+        "comment": "",
+        "key": "Loading test marker...",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "Error: %@",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 36
+        }
+      },
+      {
+        "comment": "",
+        "key": "Retry",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 40
+        }
+      },
+      {
+        "comment": "",
+        "key": "Scene: %@",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "ID: %@",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 67
+        }
+      },
+      {
+        "comment": "",
+        "key": "Marker: %@",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 59
+        }
+      },
+      {
+        "comment": "",
+        "key": "Time: %@ seconds",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 73
+        }
+      },
+      {
+        "comment": "",
+        "key": "End: %@ seconds",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 78
+        }
+      },
+      {
+        "comment": "",
+        "key": "Current position: %@ seconds",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 115
+        }
+      },
+      {
+        "comment": "",
+        "key": "Playing",
+        "location": {
+          "startingColumn": 78,
+          "startingLine": 125
+        }
+      },
+      {
+        "comment": "",
+        "key": "Paused",
+        "location": {
+          "startingColumn": 90,
+          "startingLine": 125
+        }
+      },
+      {
+        "comment": "",
+        "key": "Play Marker",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 140
+        }
+      },
+      {
+        "comment": "",
+        "key": "Pause",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 152
+        }
+      },
+      {
+        "comment": "",
+        "key": "Beginning",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 165
+        }
+      },
+      {
+        "comment": "",
+        "key": "Random Pos",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 177
+        }
+      },
+      {
+        "comment": "",
+        "key": "New Marker",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 191
+        }
+      },
+      {
+        "comment": "",
+        "key": "Debug Information",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 205
+        }
+      },
+      {
+        "comment": "",
+        "key": "Scene ID: %@",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 210
+        }
+      },
+      {
+        "comment": "",
+        "key": "Marker ID: %@",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 211
+        }
+      },
+      {
+        "comment": "",
+        "key": "Stream URL: %@",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 212
+        }
+      },
+      {
+        "comment": "",
+        "key": "Preview URL: %@",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 213
+        }
+      },
+      {
+        "comment": "",
+        "key": "Player Status: %@",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 216
+        }
+      },
+      {
+        "comment": "",
+        "key": "Error: %@",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 217
+        }
+      },
+      {
+        "comment": "",
+        "key": "Duration: %lf seconds",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 218
+        }
+      },
+      {
+        "comment": "",
+        "key": "No marker loaded",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 234
+        }
+      },
+      {
+        "comment": "",
+        "key": "Load Test Marker",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 237
+        }
+      }
+    ]
+  },
+  "version": 1
+}

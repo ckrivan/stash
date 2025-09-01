@@ -1,0 +1,42 @@
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Filters/FilterMenuView.swift":
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuView.swiftconstvalues"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuView.dia"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuView.swiftdeps"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuView.d"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuView.o"
+"/Users/charleskrivan/Desktop/stash/iPadOS/ViewModels.swift":
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/ViewModels.o"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/ViewModels.d"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/ViewModels.dia"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/ViewModels.swiftdeps"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/ViewModels.swiftconstvalues"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Filters/FilterMenuSheet.swift":
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuSheet.swiftconstvalues"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuSheet.o"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuSheet.swiftdeps"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuSheet.d"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuSheet.dia"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Filters/PerformerSelectionListView.swift":
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerSelectionListView.swiftdeps"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerSelectionListView.d"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerSelectionListView.swiftconstvalues"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerSelectionListView.o"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerSelectionListView.dia"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Filters/FilterOptionsView.swift":
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterOptionsView.swiftdeps"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterOptionsView.d"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterOptionsView.dia"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterOptionsView.swiftconstvalues"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterOptionsView.o"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Connection/ConnectionView.swift":
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/ConnectionView.dia"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/ConnectionView.o"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/ConnectionView.swiftconstvalues"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/ConnectionView.d"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/ConnectionView.swiftdeps"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Connection/EnhancedConnectionView.swift":
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/EnhancedConnectionView.o"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/EnhancedConnectionView.dia"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/EnhancedConnectionView.swiftconstvalues"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/EnhancedConnectionView.d"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/EnhancedConnectionView.swiftdeps"

@@ -25,7 +25,12 @@
       "mcp__ide__getDiagnostics",
       "Bash(swift:*)",
       "Bash(git checkout:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(xcrun simctl spawn:*)",
+      "Bash(pkill:*)",
+      "Bash(timeout 30 xcodebuild:*)",
+      "Bash(gtimeout:*)",
+      "mcp__ref-tools__ref_search_documentation"
     ],
     "deny": []
   }

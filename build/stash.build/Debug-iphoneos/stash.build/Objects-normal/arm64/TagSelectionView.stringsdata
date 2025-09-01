@@ -1,0 +1,56 @@
+{
+  "source": "/Users/charleskrivan/Desktop/stash/iPadOS/Views/Tags/TagSelectionView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Select Tag",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 55
+        }
+      },
+      {
+        "comment": "",
+        "key": "Recent Tags",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 18
+        }
+      },
+      {
+        "comment": "",
+        "key": "All Tags",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "Search Results",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "Remove",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 30
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 59
+        }
+      }
+    ]
+  },
+  "version": 1
+}

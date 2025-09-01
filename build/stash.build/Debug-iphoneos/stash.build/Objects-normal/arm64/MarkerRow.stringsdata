@@ -1,0 +1,64 @@
+{
+  "source": "/Users/charleskrivan/Desktop/stash/iPadOS/Views/Markers/MarkerRow.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "ID: %@ (%@)",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 195
+        }
+      },
+      {
+        "comment": "",
+        "key": "Scene: %@",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 208
+        }
+      },
+      {
+        "comment": "",
+        "key": "Female Performers:",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 218
+        }
+      },
+      {
+        "comment": "",
+        "key": "·",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 237
+        }
+      },
+      {
+        "comment": "",
+        "key": "Other Performers:",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 252
+        }
+      },
+      {
+        "comment": "",
+        "key": "Performers:",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 256
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shuffle",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 348
+        }
+      }
+    ]
+  },
+  "version": 1
+}

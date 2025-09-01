@@ -1,0 +1,24 @@
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/UniversalSearchView.swift":
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/UniversalSearchView.dia"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/UniversalSearchView.o"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/UniversalSearchView.swiftdeps"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/UniversalSearchView.d"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/UniversalSearchView.swiftconstvalues"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/SplashScreen.swift":
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/SplashScreen.swiftdeps"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/SplashScreen.dia"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/SplashScreen.o"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/SplashScreen.d"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/SplashScreen.swiftconstvalues"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/TaggedScenesView.swift":
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/TaggedScenesView.swiftconstvalues"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/TaggedScenesView.o"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/TaggedScenesView.swiftdeps"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/TaggedScenesView.dia"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/TaggedScenesView.d"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/VideoPlayerView.swift":
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/VideoPlayerView.d"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/VideoPlayerView.o"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/VideoPlayerView.swiftdeps"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/VideoPlayerView.dia"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/VideoPlayerView.swiftconstvalues"

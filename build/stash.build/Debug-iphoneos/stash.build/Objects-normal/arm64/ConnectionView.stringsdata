@@ -1,0 +1,72 @@
+{
+  "source": "/Users/charleskrivan/Desktop/stash/iPadOS/Views/Connection/ConnectionView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Connection Error",
+        "location": {
+          "startingColumn": 16,
+          "startingLine": 65
+        }
+      },
+      {
+        "comment": "",
+        "key": "Connect to Stash Server",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 18
+        }
+      },
+      {
+        "comment": "",
+        "key": "Server Address",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 24
+        }
+      },
+      {
+        "comment": "",
+        "key": "Example: 192.168.86.100:9999 or localhost:9999",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 31
+        }
+      },
+      {
+        "comment": "",
+        "key": "192.168.86.100:9999",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 26
+        }
+      },
+      {
+        "comment": "",
+        "key": "Connect",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 44
+        }
+      },
+      {
+        "comment": "",
+        "key": "v1.4",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 58
+        }
+      },
+      {
+        "comment": "",
+        "key": "OK",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 66
+        }
+      }
+    ]
+  },
+  "version": 1
+}

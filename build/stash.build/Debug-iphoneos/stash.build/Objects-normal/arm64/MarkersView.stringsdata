@@ -1,0 +1,296 @@
+{
+  "source": "/Users/charleskrivan/Desktop/stash/iPadOS/Views/MarkersView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Multi-tag filter (%lld tags):",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 175
+        }
+      },
+      {
+        "comment": "",
+        "key": "Clear All",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 181
+        }
+      },
+      {
+        "comment": "",
+        "key": "Filtered by tag: ",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 232
+        }
+      },
+      {
+        "comment": "",
+        "key": "Clear Filter",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 248
+        }
+      },
+      {
+        "comment": "",
+        "key": "Play Marker",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 312
+        }
+      },
+      {
+        "comment": "",
+        "key": "Copy Link",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 319
+        }
+      },
+      {
+        "comment": "",
+        "key": "Go to Scene",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 327
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select Tags (%lld selected)",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 358
+        }
+      },
+      {
+        "comment": "",
+        "key": "Done",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 364
+        }
+      },
+      {
+        "comment": "",
+        "key": "Debug: allMarkers=%lld, displayedMarkers=%lld, searchQuery='%@'",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 412
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add More",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 429
+        }
+      },
+      {
+        "comment": "",
+        "key": "Search: %@",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 454
+        }
+      },
+      {
+        "comment": "",
+        "key": "Multi-tag (%lld tags)",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 459
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 471
+        }
+      },
+      {
+        "comment": "",
+        "key": "Displayed: %lld markers",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 478
+        }
+      },
+      {
+        "comment": "",
+        "key": "Total available: %lld markers",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 483
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shuffle loads ALL matching markers (may be slow)",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 490
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shuffle loads ALL markers from selected tags (may be slow)",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 495
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shuffle loads ALL tag markers (may be slow)",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 500
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add Tags",
+        "location": {
+          "startingColumn": 63,
+          "startingLine": 521
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tags (%lld)",
+        "location": {
+          "startingColumn": 76,
+          "startingLine": 521
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shuffle Play",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 559
+        }
+      },
+      {
+        "comment": "",
+        "key": "•",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 602
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld in queue",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 605
+        }
+      },
+      {
+        "comment": "",
+        "key": "Stop Shuffle",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 611
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shuffle Active",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 596
+        }
+      },
+      {
+        "comment": "",
+        "key": "Markers",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 769
+        }
+      },
+      {
+        "comment": "",
+        "key": "Search markers...",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 770
+        }
+      },
+      {
+        "comment": "",
+        "key": "Loading markers... (up to 500)",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 682
+        }
+      },
+      {
+        "comment": "",
+        "key": "Try a different search",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 699
+        }
+      },
+      {
+        "comment": "",
+        "key": "No markers found",
+        "location": {
+          "startingColumn": 61,
+          "startingLine": 694
+        }
+      },
+      {
+        "comment": "",
+        "key": "No results found",
+        "location": {
+          "startingColumn": 82,
+          "startingLine": 694
+        }
+      },
+      {
+        "comment": "",
+        "key": "Refresh",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 707
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select Tags",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 808
+        }
+      },
+      {
+        "comment": "",
+        "key": "Multi-Tag",
+        "location": {
+          "startingColumn": 63,
+          "startingLine": 808
+        }
+      },
+      {
+        "comment": "",
+        "key": "Create Marker",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 819
+        }
+      }
+    ]
+  },
+  "version": 1
+}

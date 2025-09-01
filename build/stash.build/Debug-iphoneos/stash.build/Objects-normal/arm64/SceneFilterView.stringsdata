@@ -1,0 +1,40 @@
+{
+  "source": "/Users/charleskrivan/Desktop/stash/iPadOS/Views/Scenes/SceneFilterView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Sort Media Library",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 12
+        }
+      },
+      {
+        "comment": "",
+        "key": "Filter by Tags",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "Filter by Performers",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 76
+        }
+      },
+      {
+        "comment": "",
+        "key": "Advanced Filters",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 113
+        }
+      }
+    ]
+  },
+  "version": 1
+}

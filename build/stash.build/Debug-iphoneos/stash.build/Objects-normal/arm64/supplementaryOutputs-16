@@ -1,0 +1,30 @@
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Performers/PerformerMarkerRow.swift":
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerMarkerRow.swiftdeps"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerMarkerRow.d"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerMarkerRow.o"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerMarkerRow.dia"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerMarkerRow.swiftconstvalues"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Performers/PerformerButton.swift":
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerButton.swiftconstvalues"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerButton.dia"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerButton.o"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerButton.swiftdeps"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerButton.d"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Performers/PerformerMarkersView.swift":
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerMarkersView.o"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerMarkersView.swiftconstvalues"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerMarkersView.swiftdeps"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerMarkersView.d"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerMarkersView.dia"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Performers/PerformerMarkerDetailView.swift":
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerMarkerDetailView.d"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerMarkerDetailView.o"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerMarkerDetailView.swiftdeps"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerMarkerDetailView.dia"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerMarkerDetailView.swiftconstvalues"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Performers/PerformerDetailView.swift":
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerDetailView.swiftdeps"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerDetailView.dia"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerDetailView.d"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerDetailView.swiftconstvalues"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformerDetailView.o"

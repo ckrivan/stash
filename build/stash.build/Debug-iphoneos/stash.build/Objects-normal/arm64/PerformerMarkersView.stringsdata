@@ -1,0 +1,208 @@
+{
+  "source": "/Users/charleskrivan/Desktop/stash/iPadOS/Views/Performers/PerformerMarkersView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%@'s Markers (%lld)",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 121
+        }
+      },
+      {
+        "comment": "",
+        "key": "Back",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 115
+        }
+      },
+      {
+        "comment": "",
+        "key": "Search markers",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 142
+        }
+      },
+      {
+        "comment": "",
+        "key": "Close",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 339
+        }
+      },
+      {
+        "comment": "",
+        "key": "Loading performers and marker counts...",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 363
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld performers found",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 379
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sort by marker count",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 375
+        }
+      },
+      {
+        "comment": "",
+        "key": "No performers found",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 392
+        }
+      },
+      {
+        "comment": "",
+        "key": "Refresh",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 402
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld markers",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 461
+        }
+      },
+      {
+        "comment": "",
+        "key": "Loading markers for %@...",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 489
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 493
+        }
+      },
+      {
+        "comment": "",
+        "key": "No markers found for %@",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 512
+        }
+      },
+      {
+        "comment": "",
+        "key": "Try clearing your search or filter",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 517
+        }
+      },
+      {
+        "comment": "",
+        "key": "Filter active: %@",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 523
+        }
+      },
+      {
+        "comment": "",
+        "key": "ID: %@",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 538
+        }
+      },
+      {
+        "comment": "",
+        "key": "Error: %@",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 544
+        }
+      },
+      {
+        "comment": "",
+        "key": "Clear Tag Filter",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 527
+        }
+      },
+      {
+        "comment": "",
+        "key": "Retry",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 549
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select Different Performer",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 561
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reload Markers",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 570
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sort By",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 586
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tags",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 603
+        }
+      },
+      {
+        "comment": "",
+        "key": "All Tags",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 613
+        }
+      },
+      {
+        "comment": "",
+        "key": "Refresh Markers",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 646
+        }
+      }
+    ]
+  },
+  "version": 1
+}

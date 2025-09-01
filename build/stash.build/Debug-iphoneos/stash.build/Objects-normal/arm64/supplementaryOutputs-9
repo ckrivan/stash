@@ -1,0 +1,36 @@
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/MarkersView.swift":
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/MarkersView.d"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/MarkersView.o"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/MarkersView.swiftconstvalues"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/MarkersView.swiftdeps"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/MarkersView.dia"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Tags/TagSearchResultsView.swift":
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/TagSearchResultsView.swiftdeps"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/TagSearchResultsView.o"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/TagSearchResultsView.swiftconstvalues"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/TagSearchResultsView.d"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/TagSearchResultsView.dia"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/SearchBarView.swift":
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/SearchBarView.o"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/SearchBarView.swiftdeps"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/SearchBarView.swiftconstvalues"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/SearchBarView.d"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/SearchBarView.dia"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Tags/TagSelectionView.swift":
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/TagSelectionView.swiftconstvalues"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/TagSelectionView.o"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/TagSelectionView.dia"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/TagSelectionView.d"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/TagSelectionView.swiftdeps"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/PerformersView.swift":
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformersView.d"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformersView.o"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformersView.swiftdeps"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformersView.swiftconstvalues"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/PerformersView.dia"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/MediaLibraryView.swift":
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/MediaLibraryView.d"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/MediaLibraryView.swiftdeps"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/MediaLibraryView.swiftconstvalues"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/MediaLibraryView.dia"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/MediaLibraryView.o"

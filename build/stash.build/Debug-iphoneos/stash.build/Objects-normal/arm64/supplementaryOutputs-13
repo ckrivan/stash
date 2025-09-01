@@ -1,0 +1,30 @@
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Filters/FilterMenuView.swift":
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuView.d"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuView.swiftdeps"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuView.dia"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuView.swiftconstvalues"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuView.o"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Filters/FilterMenuSheet.swift":
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuSheet.swiftconstvalues"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuSheet.d"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuSheet.dia"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuSheet.o"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterMenuSheet.swiftdeps"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Connection/EnhancedConnectionView.swift":
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/EnhancedConnectionView.o"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/EnhancedConnectionView.swiftconstvalues"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/EnhancedConnectionView.swiftdeps"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/EnhancedConnectionView.d"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/EnhancedConnectionView.dia"
+"/Users/charleskrivan/Desktop/stash/iPadOS/ViewModels/VideoPlayerViewModel.swift":
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/VideoPlayerViewModel.o"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/VideoPlayerViewModel.d"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/VideoPlayerViewModel.swiftdeps"
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/VideoPlayerViewModel.dia"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/VideoPlayerViewModel.swiftconstvalues"
+"/Users/charleskrivan/Desktop/stash/iPadOS/Views/Filters/FilterOptionsView.swift":
+  diagnostics: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterOptionsView.dia"
+  swift-dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterOptionsView.swiftdeps"
+  object: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterOptionsView.o"
+  const-values: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterOptionsView.swiftconstvalues"
+  dependencies: "/Users/charleskrivan/Desktop/stash/iPadOS/build/stash.build/Debug-iphoneos/stash.build/Objects-normal/arm64/FilterOptionsView.d"

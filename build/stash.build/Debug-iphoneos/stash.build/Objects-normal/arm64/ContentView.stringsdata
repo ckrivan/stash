@@ -1,0 +1,64 @@
+{
+  "source": "/Users/charleskrivan/Desktop/stash/iPadOS/ContentView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Filter Options",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 46
+        }
+      },
+      {
+        "comment": "",
+        "key": "Settings",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 185
+        }
+      },
+      {
+        "comment": "",
+        "key": "Done",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 189
+        }
+      },
+      {
+        "comment": "",
+        "key": "Connection to server failed",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 204
+        }
+      },
+      {
+        "comment": "",
+        "key": "Check your server and try again",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 211
+        }
+      },
+      {
+        "comment": "",
+        "key": "Server error",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 208
+        }
+      },
+      {
+        "comment": "",
+        "key": "Retry Connection",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 215
+        }
+      }
+    ]
+  },
+  "version": 1
+}

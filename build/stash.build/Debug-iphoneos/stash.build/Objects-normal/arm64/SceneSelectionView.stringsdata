@@ -1,0 +1,24 @@
+{
+  "source": "/Users/charleskrivan/Desktop/stash/iPadOS/Views/Markers/SceneSelectionView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Select Scene",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 58
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 62
+        }
+      }
+    ]
+  },
+  "version": 1
+}

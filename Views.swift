@@ -1,4 +1,4 @@
-import SwiftUI
 import AVKit
+import SwiftUI
 
-// Move supporting views here (MarkerRow, SceneRow, etc.) 
+// Move supporting views here (MarkerRow, SceneRow, etc.)

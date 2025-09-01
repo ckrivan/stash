@@ -1,0 +1,40 @@
+{
+  "source": "/Users/charleskrivan/Desktop/stash/iPadOS/Views/Tags/TagSearchResultsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Shuffle All %@",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 86
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld scenes shown • Load ALL from server",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 89
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shuffle Active • %lld in queue",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 120
+        }
+      },
+      {
+        "comment": "",
+        "key": "Stop",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 126
+        }
+      }
+    ]
+  },
+  "version": 1
+}

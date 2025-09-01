@@ -1,0 +1,88 @@
+{
+  "source": "/Users/charleskrivan/Desktop/stash/iPadOS/stashApp.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Video Player",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 48
+        }
+      },
+      {
+        "comment": "",
+        "key": "Next Scene",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "Seek Backward 30s",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 54
+        }
+      },
+      {
+        "comment": "",
+        "key": "Random Position Jump",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 59
+        }
+      },
+      {
+        "comment": "",
+        "key": "Performer Random Scene",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 64
+        }
+      },
+      {
+        "comment": "",
+        "key": "Library Random Shuffle",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 69
+        }
+      },
+      {
+        "comment": "",
+        "key": "Restart from Beginning",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 74
+        }
+      },
+      {
+        "comment": "",
+        "key": "Seek Backward 30s",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 81
+        }
+      },
+      {
+        "comment": "",
+        "key": "Seek Forward 30s",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 86
+        }
+      },
+      {
+        "comment": "",
+        "key": "Toggle Play/Pause",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 91
+        }
+      }
+    ]
+  },
+  "version": 1
+}

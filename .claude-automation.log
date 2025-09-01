@@ -1,0 +1,4 @@
+Mon Sep  1 18:19:54 EDT 2025: Enhanced shuffle functionality implemented - added random positioning to shuffle button
+Mon Sep  1 18:29:17 EDT 2025: Fixed performer hotkey logic - removed global context contamination
+Mon Sep  1 18:36:17 EDT 2025: Fixed PerformerView shuffle contamination - added performer context reset on navigation
+Mon Sep  1 18:42:07 EDT 2025: Implemented aggressive performer context reset - always reset originalPerformer on scene navigation
