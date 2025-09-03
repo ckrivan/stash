@@ -30,6 +30,7 @@ struct PerformerTabView: View {
 
     // Set performer context for gender-aware filtering
     appModel.currentPerformer = performer
+    appModel.performerDetailViewPerformer = performer
     print("🎯 Set performer context: \(performer.name) (gender: \(performer.gender ?? "unknown"))")
 
     // Use the new gender-aware shuffle method

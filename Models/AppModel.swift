@@ -2457,8 +2457,10 @@ class AppModel: ObservableObject {
 
   /// Determine if we should default to female performers based on context
   private func shouldDefaultToFemalePerformers(currentPerformer: StashScene.Performer?) -> Bool {
-    // If we have a current performer context, check their gender
-    if let performer = currentPerformer ?? performerDetailViewPerformer {
+    // Check all possible performer contexts in priority order
+    let performer = currentPerformer ?? performerDetailViewPerformer ?? self.currentPerformer
+    
+    if let performer = performer {
       let performerGender = performer.gender?.uppercased()
       let isMalePerformer = performerGender == "MALE"
 
@@ -2490,8 +2492,17 @@ class AppModel: ObservableObject {
     UserDefaults.standard.set(true, forKey: "isRandomJumpMode")
     print("🎲 Enabled random jump mode for future navigation")
 
+    // Preserve performer context before navigation
+    let preservedPerformer = currentPerformer ?? performerDetailViewPerformer
+    
     // Navigate to the scene
     navigateToScene(randomScene)
+    
+    // Restore performer context after navigation
+    if let preservedPerformer = preservedPerformer {
+      currentPerformer = preservedPerformer
+      print("🎭 Preserved performer context after navigation: \(preservedPerformer.name)")
+    }
 
     // Jump to random position after player initialization
     DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {

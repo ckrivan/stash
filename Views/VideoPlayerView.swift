@@ -2266,31 +2266,55 @@ extension VideoPlayerView {
       "🎯 PERFORMER BUTTON: Current scene: \(currentScene.title ?? "Untitled") (ID: \(currentScene.id))"
     )
 
-    // Simplified performer selection: Always use performers from the current scene only
-    // This prevents contamination from global context variables
+    // Enhanced performer selection with persistent context
     var selectedPerformer: StashScene.Performer?
-
+    
     print("🎯 PERFORMER BUTTON: Current scene performers:")
     for performer in currentScene.performers {
       print(
         "📊   - \(performer.name) (ID: \(performer.id), gender: \(performer.gender ?? "unknown"))")
     }
-
-    // First try to use the original performer if it's in the current scene
-    if let originalPerf = originalPerformer,
+    
+    // Priority 1: Use performerDetailViewPerformer if set (from PerformerDetailView context)
+    if let detailViewPerformer = appModel.performerDetailViewPerformer {
+      // Check if this performer is in the current scene
+      if currentScene.performers.contains(where: { $0.id == detailViewPerformer.id }) {
+        selectedPerformer = detailViewPerformer
+        print("🎯 PERFORMER BUTTON: Using performer from DetailView context: \(detailViewPerformer.name)")
+      } else {
+        // Keep the DetailView performer context but look for same gender in current scene
+        let sameGenderPerformer = currentScene.performers.first { $0.gender == detailViewPerformer.gender }
+        selectedPerformer = sameGenderPerformer ?? currentScene.performers.first
+        print("🎯 PERFORMER BUTTON: DetailView performer not in scene, using same gender: \(selectedPerformer?.name ?? "none")")
+      }
+    }
+    // Priority 2: Use originalPerformer if it's in the current scene
+    else if let originalPerf = originalPerformer,
       currentScene.performers.contains(where: { $0.id == originalPerf.id }) {
       selectedPerformer = originalPerf
       print("🎯 PERFORMER BUTTON: Using original performer from current scene: \(originalPerf.name)")
-    } else {
-      // If original performer isn't in current scene (or not set), use female performer from current scene
+    }
+    // Priority 3: Use appModel.currentPerformer if available
+    else if let currentPerf = appModel.currentPerformer,
+      currentScene.performers.contains(where: { $0.id == currentPerf.id }) {
+      selectedPerformer = currentPerf
+      print("🎯 PERFORMER BUTTON: Using current performer from appModel: \(currentPerf.name)")
+    }
+    // Priority 4: Default to female performer from current scene
+    else {
       let femalePerformer = currentScene.performers.first { isLikelyFemalePerformer($0) }
       selectedPerformer = femalePerformer ?? currentScene.performers.first
       print(
         "🎯 PERFORMER BUTTON: Using female performer from current scene: \(selectedPerformer?.name ?? "none")"
       )
-
+      
       // Update the originalPerformer to match this performer from current scene
       originalPerformer = selectedPerformer
+    }
+    
+    // Always update appModel.currentPerformer to maintain context
+    if let selectedPerformer = selectedPerformer {
+      appModel.currentPerformer = selectedPerformer
     }
 
     // Make sure we have a performer to work with
@@ -2395,8 +2419,20 @@ extension VideoPlayerView {
           await MainActor.run {
             print(
               "🎯 PERFORMER BUTTON: Updating current scene reference and adding to watch history")
+            
+            // Preserve the performer context before navigation
+            let preservedPerformer = selectedPerformer
+            
             currentScene = randomScene
             appModel.currentScene = randomScene
+            
+            // Restore performer context after navigation
+            appModel.currentPerformer = preservedPerformer
+            // If we're in DetailView context, keep that too
+            if appModel.performerDetailViewPerformer?.id == preservedPerformer.id {
+              // Keep the DetailView context intact
+              print("🎯 PERFORMER BUTTON: Preserving DetailView performer context")
+            }
 
             // IMPORTANT: Add to watch history (avoid duplicates of consecutive same scene)
             if appModel.watchHistory.last?.id != randomScene.id {
@@ -2593,8 +2629,20 @@ extension VideoPlayerView {
                 print(
                   "🎯 PERFORMER BUTTON: Updating current scene reference and adding to watch history"
                 )
+                
+                // Preserve the performer context before navigation
+                let preservedPerformer = selectedPerformer
+                
                 currentScene = randomScene
                 appModel.currentScene = randomScene
+                
+                // Restore performer context after navigation
+                appModel.currentPerformer = preservedPerformer
+                // If we're in DetailView context, keep that too
+                if appModel.performerDetailViewPerformer?.id == preservedPerformer.id {
+                  // Keep the DetailView context intact
+                  print("🎯 PERFORMER BUTTON (FALLBACK): Preserving DetailView performer context")
+                }
 
                 // IMPORTANT: Add to watch history (avoid duplicates of consecutive same scene)
                 if appModel.watchHistory.last?.id != randomScene.id {
