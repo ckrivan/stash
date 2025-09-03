@@ -2415,6 +2415,9 @@ class AppModel: ObservableObject {
     fromScenes scenes: [StashScene], currentPerformer: StashScene.Performer? = nil
   ) {
     print("🎭 Starting gender-aware performer shuffle")
+    print("🎭 Method parameter currentPerformer: \(currentPerformer?.name ?? "none")")
+    print("🎭 AppModel.currentPerformer: \(self.currentPerformer?.name ?? "none")")
+    print("🎭 AppModel.performerDetailViewPerformer: \(self.performerDetailViewPerformer?.name ?? "none")")
 
     // Determine if we should default to female performers
     let shouldDefaultToFemale = shouldDefaultToFemalePerformers(currentPerformer: currentPerformer)

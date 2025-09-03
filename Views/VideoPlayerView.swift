@@ -2277,6 +2277,7 @@ extension VideoPlayerView {
     
     // Priority 1: Use performerDetailViewPerformer if set (from PerformerDetailView context)
     if let detailViewPerformer = appModel.performerDetailViewPerformer {
+      print("🎯 PERFORMER BUTTON: DetailView performer available: \(detailViewPerformer.name) (ID: \(detailViewPerformer.id))")
       // Check if this performer is in the current scene
       if currentScene.performers.contains(where: { $0.id == detailViewPerformer.id }) {
         selectedPerformer = detailViewPerformer
@@ -2285,7 +2286,7 @@ extension VideoPlayerView {
         // Keep the DetailView performer context but look for same gender in current scene
         let sameGenderPerformer = currentScene.performers.first { $0.gender == detailViewPerformer.gender }
         selectedPerformer = sameGenderPerformer ?? currentScene.performers.first
-        print("🎯 PERFORMER BUTTON: DetailView performer not in scene, using same gender: \(selectedPerformer?.name ?? "none")")
+        print("🎯 PERFORMER BUTTON: DetailView performer \(detailViewPerformer.name) not in scene, using same gender: \(selectedPerformer?.name ?? "none")")
       }
     }
     // Priority 2: Use originalPerformer if it's in the current scene

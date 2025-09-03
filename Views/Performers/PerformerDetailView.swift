@@ -83,13 +83,21 @@ struct PerformerDetailView: View {
         "🚀 DETAIL - PerformerDetailView appeared for performer: \(performer.name) (ID: \(performer.id))"
       )
 
+      // PERFORMER CONTEXT UPDATE: Always update performer context on appear (handles navigation between performers)
+      let previousPerformer = appModel.performerDetailViewPerformer
+      
       // CRITICAL: Set current performer context for VideoPlayerView
       appModel.currentPerformer = performer
       print("🎯 DETAIL - Set currentPerformer to: \(performer.name)")
 
       // PERFORMER DETAIL CONTEXT: Set dedicated performer for shuffle context
       appModel.performerDetailViewPerformer = performer
-      print("🎯 PERFORMER DETAIL: Set performerDetailViewPerformer to: \(performer.name)")
+      
+      if let previous = previousPerformer, previous.id != performer.id {
+        print("🎯 PERFORMER DETAIL: Switching context from \(previous.name) to \(performer.name)")
+      } else {
+        print("🎯 PERFORMER DETAIL: Set performerDetailViewPerformer to: \(performer.name)")
+      }
 
       // SHUFFLE RESET: Clear any previous shuffle context from SceneRow
       print("🎯 SHUFFLE RESET: Clearing previous shuffle context for clean performer mode")
