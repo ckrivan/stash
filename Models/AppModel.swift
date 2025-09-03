@@ -331,6 +331,9 @@ class AppModel: ObservableObject {
     // Step 2: Set current performer (for context and consistency)
     DispatchQueue.main.async {
       self.currentPerformer = performer
+      // Clear old performer detail context to prevent stale context
+      self.performerDetailViewPerformer = nil
+      print("🎯 NAVIGATION - Cleared old performerDetailViewPerformer context")
     }
 
     // Step 3: Clear existing scenes to force redraw and prevent stale data
