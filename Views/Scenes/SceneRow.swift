@@ -157,6 +157,10 @@ struct SceneRow: View {
         }
         .onTapGesture(count: 2) {
           // Double-tap to select scene
+          // Clear any performer context from PerformerDetailView to prevent stale context
+          appModel.performerDetailViewPerformer = nil
+          appModel.currentPerformer = nil
+          print("🎲 SCENEROW: Double-tap - Cleared performer context for clean scene playback")
           onSceneSelected(scene)
         }
         .onTapGesture {
@@ -179,6 +183,10 @@ struct SceneRow: View {
           // Title in separate stack with PURPLE COLOR and UNDERLINE like MarkerRow
           HStack {
             Button(action: {
+              // Clear any performer context from PerformerDetailView to prevent stale context
+              appModel.performerDetailViewPerformer = nil
+              appModel.currentPerformer = nil
+              print("🎲 SCENEROW: Title button - Cleared performer context for clean scene playback")
               onSceneSelected(scene)
             }) {
               Text(titleValue)
@@ -574,6 +582,11 @@ struct SceneRow: View {
   /// Plays the scene from a random position
   private func playRandomPositionInScene(_ scene: StashScene) {
     print("🎲 SCENEROW: Playing scene from random position")
+
+    // Clear any performer context from PerformerDetailView to prevent stale context
+    appModel.performerDetailViewPerformer = nil
+    appModel.currentPerformer = nil
+    print("🎲 SCENEROW: Cleared performer context for clean scene playback")
 
     // Set random jump mode flag so that subsequent "next" button presses will also perform random jumps
     UserDefaults.standard.set(true, forKey: "isRandomJumpMode")
