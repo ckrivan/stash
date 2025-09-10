@@ -104,11 +104,6 @@ struct PerformersView: View {
       print("📱 Current performer count: \(appModel.api.performers.count)")
       print("📱 Is loading: \(isLoading)")
 
-      // Clear any stale performer detail context when returning to performers list
-      appModel.performerDetailViewPerformer = nil
-      appModel.currentPerformer = nil
-      print("🎯 PERFORMERS VIEW: Cleared stale performer context")
-
       // Immediate loading without task - this is important for first view appearance
       if appModel.api.performers.isEmpty && !isLoading {
         print("📱 Loading performers from content onAppear - DIRECT CALL")
@@ -177,3 +172,4 @@ struct LoadingRow: View {
     .listRowSeparator(.hidden)
   }
 }
+

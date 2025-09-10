@@ -255,9 +255,33 @@ struct PerformerDetailView: View {
             // We have API scenes but haven't synced to local state yet
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 300))], spacing: 16) {
               ForEach(appModel.api.scenes) { scene in
-                // Use our custom scene row with direct navigation
-                CustomPerformerSceneRow(scene: scene, performer: performer)
-                  .id("scene-\(scene.id)")
+                SceneRow(
+                  scene: scene,
+                  onTagSelected: { tag in
+                    // Navigate to a tagged scenes view using navigationPath
+                    appModel.navigationPath.append(tag)
+                  },
+                  onPerformerSelected: { _ in
+                    // Already in performer context; ignore performer taps here
+                  },
+                  onSceneUpdated: { updated in
+                    // Update both local and API arrays if present
+                    if let idx = performerScenes.firstIndex(where: { $0.id == updated.id }) {
+                      performerScenes[idx] = updated
+                    }
+                    if let apiIdx = appModel.api.scenes.firstIndex(where: { $0.id == updated.id }) {
+                      appModel.api.scenes[apiIdx] = updated
+                    }
+                  },
+                  onSceneSelected: { selectedScene in
+                    // Make sure PerformerDetailView preserves its context when opening the player
+                    UserDefaults.standard.set(true, forKey: "isNavigatingToVideo")
+                    UserDefaults.standard.set(true, forKey: "forceScenesTab")
+                    appModel.navigateToScene(selectedScene)
+                  },
+                  preservePerformerContext: true
+                )
+                .id("scene-\(scene.id)")
               }
             }
             .padding()
@@ -287,9 +311,32 @@ struct PerformerDetailView: View {
 
               LazyVGrid(columns: [GridItem(.adaptive(minimum: 300))], spacing: 16) {
                 ForEach(performerScenes) { scene in
-                  // Use our custom scene row with direct navigation
-                  CustomPerformerSceneRow(scene: scene, performer: performer)
-                    .id("scene-\(scene.id)")
+                  SceneRow(
+                    scene: scene,
+                    onTagSelected: { tag in
+                      // Navigate to a tagged scenes view using navigationPath
+                      appModel.navigationPath.append(tag)
+                    },
+                    onPerformerSelected: { _ in
+                      // Ignore performer taps inside performer detail
+                    },
+                    onSceneUpdated: { updated in
+                      if let idx = performerScenes.firstIndex(where: { $0.id == updated.id }) {
+                        performerScenes[idx] = updated
+                      }
+                      if let apiIdx = appModel.api.scenes.firstIndex(where: { $0.id == updated.id }) {
+                        appModel.api.scenes[apiIdx] = updated
+                      }
+                    },
+                    onSceneSelected: { selectedScene in
+                      // Prevent context reset when presenting the video player
+                      UserDefaults.standard.set(true, forKey: "isNavigatingToVideo")
+                      UserDefaults.standard.set(true, forKey: "forceScenesTab")
+                      appModel.navigateToScene(selectedScene)
+                    },
+                    preservePerformerContext: true
+                  )
+                  .id("scene-\(scene.id)")
                 }
               }
               .padding()
@@ -349,6 +396,9 @@ struct PerformerDetailView: View {
                 marker: marker,
                 serverAddress: appModel.serverAddress,
                 onTitleTap: { marker in
+                  // Preserve performer context when navigating to video from a marker
+                  UserDefaults.standard.set(true, forKey: "isNavigatingToVideo")
+                  UserDefaults.standard.set(true, forKey: "forceScenesTab")
                   appModel.navigateToMarker(marker)
                 },
                 onTagTap: { _ in },
@@ -694,3 +744,4 @@ struct PerformerDetailView: View {
     }
   }
 }
+

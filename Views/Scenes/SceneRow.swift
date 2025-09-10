@@ -14,6 +14,7 @@ struct SceneRow: View {
   var onSceneSelected: (StashScene) -> Void
   @EnvironmentObject private var appModel: AppModel
   @State private var isIncrementingOCounter = false
+  var preservePerformerContext: Bool = false
 
   var body: some View {
     // Log scene info for debugging
@@ -119,7 +120,7 @@ struct SceneRow: View {
         .task {
           // Check visibility on task creation
           let frame = geometry.frame(in: .global)
-          let isNowVisible = frame.minY > 0 && frame.maxY < UIScreen.main.bounds.height
+          let isNowVisible = frame.maxY > 0 && frame.minY < UIScreen.main.bounds.height
 
           if isNowVisible && !isVisible {
             print("📱 SCENEROW: Task - Scene \(scene.id) is visible, starting preview")
@@ -131,7 +132,7 @@ struct SceneRow: View {
         }
         .onChange(of: geometry.frame(in: .global).minY) { _, _ in
           let frame = geometry.frame(in: .global)
-          let isNowVisible = frame.minY > 0 && frame.maxY < UIScreen.main.bounds.height
+          let isNowVisible = frame.maxY > 0 && frame.minY < UIScreen.main.bounds.height
 
           if isNowVisible != isVisible {
             print("📱 SCENEROW: Visibility changed for scene \(scene.id) to \(isNowVisible)")
@@ -147,7 +148,7 @@ struct SceneRow: View {
           // When the row appears, check if it's visible in the viewport
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             let frame = geometry.frame(in: .global)
-            let isNowVisible = frame.minY > 0 && frame.maxY < UIScreen.main.bounds.height
+            let isNowVisible = frame.maxY > 0 && frame.minY < UIScreen.main.bounds.height
 
             if isNowVisible && !isVisible {
               isVisible = true
@@ -157,10 +158,14 @@ struct SceneRow: View {
         }
         .onTapGesture(count: 2) {
           // Double-tap to select scene
-          // Clear any performer context from PerformerDetailView to prevent stale context
-          appModel.performerDetailViewPerformer = nil
-          appModel.currentPerformer = nil
-          print("🎲 SCENEROW: Double-tap - Cleared performer context for clean scene playback")
+          if !preservePerformerContext {
+            // Clear any performer context from PerformerDetailView to prevent stale context
+            appModel.performerDetailViewPerformer = nil
+            appModel.currentPerformer = nil
+            print("🎲 SCENEROW: Double-tap - Cleared performer context for clean scene playback")
+          } else {
+            print("🎲 SCENEROW: Double-tap - Preserving performer context")
+          }
           onSceneSelected(scene)
         }
         .onTapGesture {
@@ -183,10 +188,14 @@ struct SceneRow: View {
           // Title in separate stack with PURPLE COLOR and UNDERLINE like MarkerRow
           HStack {
             Button(action: {
-              // Clear any performer context from PerformerDetailView to prevent stale context
-              appModel.performerDetailViewPerformer = nil
-              appModel.currentPerformer = nil
-              print("🎲 SCENEROW: Title button - Cleared performer context for clean scene playback")
+              if !preservePerformerContext {
+                // Clear any performer context from PerformerDetailView to prevent stale context
+                appModel.performerDetailViewPerformer = nil
+                appModel.currentPerformer = nil
+                print("🎲 SCENEROW: Title button - Cleared performer context for clean scene playback")
+              } else {
+                print("🎲 SCENEROW: Title button - Preserving performer context")
+              }
               onSceneSelected(scene)
             }) {
               Text(titleValue)
@@ -583,10 +592,13 @@ struct SceneRow: View {
   private func playRandomPositionInScene(_ scene: StashScene) {
     print("🎲 SCENEROW: Playing scene from random position")
 
-    // Clear any performer context from PerformerDetailView to prevent stale context
-    appModel.performerDetailViewPerformer = nil
-    appModel.currentPerformer = nil
-    print("🎲 SCENEROW: Cleared performer context for clean scene playback")
+    if !preservePerformerContext {
+      appModel.performerDetailViewPerformer = nil
+      appModel.currentPerformer = nil
+      print("🎲 SCENEROW: Cleared performer context for clean scene playback")
+    } else {
+      print("🎲 SCENEROW: Preserving performer context for random play")
+    }
 
     // Set random jump mode flag so that subsequent "next" button presses will also perform random jumps
     UserDefaults.standard.set(true, forKey: "isRandomJumpMode")

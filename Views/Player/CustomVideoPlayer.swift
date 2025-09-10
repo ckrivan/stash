@@ -15,6 +15,14 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
   // MARK: - Aspect Ratio Correction
   private var originalVideoGravity: AVLayerVideoGravity = .resizeAspect
 
+  // MARK: - Aspect Mode
+  private enum AspectMode: Int, CaseIterable {
+    case fit   // Letterbox, preserve aspect
+    case fill  // Fill, may crop
+    case stretch // Stretch to fill (not recommended, but available)
+  }
+  private var currentAspectMode: AspectMode = .fit
+
   // MARK: - Custom Buttons
   private var randomJumpButton: UIButton!
   private var performerJumpButton: UIButton!
@@ -923,108 +931,60 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
 
   /// Detects if the current video is anamorphic and needs aspect ratio correction
   private func isAnamorphicVideo() -> Bool {
-    // Get video dimensions from the current scene
-    guard let currentScene = scenes.first(where: { $0.id == currentSceneID }),
-      let file = currentScene.files.first,
-      let width = file.width,
-      let height = file.height
-    else {
-      return false
-    }
-
-    print("🎥 Video dimensions: \(width)x\(height)")
-
-    // Common anamorphic resolutions that should display as 16:9
-    let anamorphicResolutions: [(width: Int, height: Int)] = [
-      (1440, 1080),  // Most common anamorphic format
-      (1920, 1440),  // 4:3 anamorphic that should be 16:9
-      (960, 720),  // Smaller anamorphic format
-      (720, 540)  // Even smaller anamorphic format
-    ]
-
-    // Check if current resolution matches any known anamorphic format
-    let isAnamorphic = anamorphicResolutions.contains { res in
-      width == res.width && height == res.height
-    }
-
-    if isAnamorphic {
-      print("🎥 ✅ Detected anamorphic video: \(width)x\(height) - will correct to 16:9 aspect ratio")
-    } else {
-      print("🎥 ⚪ Standard video: \(width)x\(height) - no correction needed")
-    }
-
-    return isAnamorphic
+    // Deprecated heuristic; relying on player-provided presentation size and aspect.
+    return false
   }
 
   /// Applies aspect ratio correction for anamorphic content
   private func applyAspectRatioCorrection() {
-    guard
-      let playerLayer = view.layer.sublayers?.first(where: { $0 is AVPlayerLayer })
-        as? AVPlayerLayer
-    else {
-      print("🎥 ❌ Could not find AVPlayerLayer for aspect ratio correction")
+    guard let playerLayer = findPlayerLayer(in: self.view.layer) else {
+      print("🎥 ❌ Could not find AVPlayerLayer for aspect ratio correction (recursive)")
       return
     }
 
-    // Store original video gravity
+    // Always clear any previous transform to avoid accumulated distortion
+    playerLayer.transform = CATransform3DIdentity
+
+    // Store original gravity if not already captured
     originalVideoGravity = playerLayer.videoGravity
 
-    if isAnamorphicVideo() {
-      // For anamorphic content, use aspect fill to stretch the video to fill the screen properly
-      playerLayer.videoGravity = .resizeAspectFill
-      print("🎥 ✅ Applied aspect ratio correction: changed videoGravity to resizeAspectFill")
-
-      // Apply additional transform to correct the aspect ratio mathematically
-      applyAnamorphicTransform(to: playerLayer)
-    } else {
-      // For standard content, ensure we use the default behavior
+    switch currentAspectMode {
+    case .fit:
       playerLayer.videoGravity = .resizeAspect
-      print("🎥 ⚪ Using standard aspect ratio for non-anamorphic content")
+      print("🎥 Aspect mode: FIT (resizeAspect)")
+    case .fill:
+      playerLayer.videoGravity = .resizeAspectFill
+      print("🎥 Aspect mode: FILL (resizeAspectFill)")
+    case .stretch:
+      playerLayer.videoGravity = .resize
+      print("🎥 Aspect mode: STRETCH (resize)")
     }
+  }
+
+  /// Helper to recursively find AVPlayerLayer inside a CALayer hierarchy
+  private func findPlayerLayer(in layer: CALayer) -> AVPlayerLayer? {
+    if let playerLayer = layer as? AVPlayerLayer { return playerLayer }
+    for sub in layer.sublayers ?? [] {
+      if let found = findPlayerLayer(in: sub) { return found }
+    }
+    return nil
   }
 
   /// Applies a mathematical transform to correct anamorphic aspect ratio
   private func applyAnamorphicTransform(to playerLayer: AVPlayerLayer) {
-    // Get video dimensions
-    guard let currentScene = scenes.first(where: { $0.id == currentSceneID }),
-      let file = currentScene.files.first,
-      let width = file.width,
-      let height = file.height
-    else {
-      return
-    }
-
-    // Calculate the correction factor needed
-    let currentAspectRatio = Double(width) / Double(height)
-    let targetAspectRatio = 16.0 / 9.0  // Target 16:9 aspect ratio
-
-    // For 1440x1080 (4:3), we need to stretch horizontally to achieve 16:9
-    let correctionFactor = targetAspectRatio / currentAspectRatio
-
-    print("🎥 Transform calculation:")
-    print("  Current aspect ratio: \(currentAspectRatio) (\(width):!8(height))")
-    print("  Target aspect ratio: \(targetAspectRatio) (16:9)")
-    print("  Correction factor: \(correctionFactor)")
-
-    // Apply transform to stretch the video horizontally
-    let transform = CATransform3DMakeScale(correctionFactor, 1.0, 1.0)
-    playerLayer.transform = transform
-
-    print("🎥 ✅ Applied anamorphic transform with horizontal scale: \(correctionFactor)")
+    // Deprecated: We no longer apply custom transforms that can distort the image.
+    // Aspect handling is controlled via `currentAspectMode` and `videoGravity` only.
+    print("🎥 Deprecated anamorphic transform skipped")
   }
 
   /// Resets aspect ratio correction
   private func resetAspectRatioCorrection() {
-    guard
-      let playerLayer = view.layer.sublayers?.first(where: { $0 is AVPlayerLayer })
-        as? AVPlayerLayer
-    else {
-      return
-    }
+    guard let playerLayer = findPlayerLayer(in: self.view.layer) else { return }
 
-    playerLayer.videoGravity = originalVideoGravity
+    currentAspectMode = .fit
+    playerLayer.videoGravity = .resizeAspect
     playerLayer.transform = CATransform3DIdentity
-    print("🎥 🔄 Reset aspect ratio correction")
+    print("🎥 🔄 Reset aspect ratio to FIT (resizeAspect)")
   }
 
   // MARK: - Keyboard Handling
@@ -1074,6 +1034,17 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
     case .keyboardSpacebar:
       print("🎹 Keyboard shortcut: Space - Toggle play/pause")
       togglePlayPause()
+
+    case .keyboardA:
+      // Cycle aspect modes: Fit -> Fill -> Stretch -> Fit
+      if let next = AspectMode(rawValue: (currentAspectMode.rawValue + 1) % AspectMode.allCases.count) {
+        currentAspectMode = next
+        applyAspectRatioCorrection()
+        // Provide haptic feedback
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.impactOccurred()
+      }
+      return
 
     default:
       super.pressesBegan(presses, with: event)

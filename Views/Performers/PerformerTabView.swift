@@ -298,7 +298,8 @@ struct PerformerTabView: View {
                     rootViewController.present(controller, animated: true)
                   }
                 }
-              }
+              },
+              preservePerformerContext: true
             )
             .background(Color(UIColor.secondarySystemBackground))
             .cornerRadius(12)
@@ -426,10 +427,10 @@ struct PerformerTabView: View {
                     }
 
                     // Video preview layer
-                    if let previewPlayer = markerPreviewPlayers[marker.id] {
+                    if let previewPlayer = markerPreviewPlayers[marker.id], markerPreviewStates[marker.id, default: false] {
                       VideoPlayer(player: previewPlayer.player)
                         .onAppear {
-                          previewPlayer.player.isMuted = true
+                          previewPlayer.player.isMuted = markerMuteStates[marker.id, default: true]
                         }
                     }
 
@@ -499,27 +500,28 @@ struct PerformerTabView: View {
                     togglePreview(for: marker, in: geometry)
                   }
                   .onChange(of: geometry.frame(in: .global).minY) { _, _ in
-                    // Only check visibility but don't automatically start playing
                     let frame = geometry.frame(in: .global)
                     let isNowVisible = frame.minY > 0 && frame.maxY < UIScreen.main.bounds.height
-
-                    // If no longer visible, stop any playing preview
-                    if !isNowVisible && markerPreviewStates[marker.id, default: false] {
+                    if isNowVisible && markerPreviewStates[marker.id, default: false] == false {
+                      markerPreviewStates[marker.id] = true
+                      startPreview(for: marker)
+                    } else if !isNowVisible && markerPreviewStates[marker.id, default: false] == true {
                       stopPreview(for: marker)
                     }
                   }
                   .onAppear {
-                    // Just check visibility, don't auto-play
                     let frame = geometry.frame(in: .global)
                     let isNowVisible = frame.minY > 0 && frame.maxY < UIScreen.main.bounds.height
-
-                    // If not visible, make sure preview is stopped
-                    if !isNowVisible && markerPreviewStates[marker.id, default: false] {
-                      stopPreview(for: marker)
+                    if isNowVisible && markerPreviewStates[marker.id, default: false] == false {
+                      // initialize player if needed and start muted preview automatically
+                      markerPreviewStates[marker.id] = true
+                      startPreview(for: marker)
                     }
                   }
                   .onDisappear {
-                    stopPreview(for: marker)
+                    if markerPreviewStates[marker.id, default: false] {
+                      stopPreview(for: marker)
+                    }
                   }
                 }
                 .frame(height: 180)
@@ -1170,3 +1172,4 @@ struct PerformerTabView: View {
     previewPlayer.mute(newMuteState)
   }
 }
+

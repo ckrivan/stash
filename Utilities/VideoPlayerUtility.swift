@@ -546,17 +546,34 @@ extension VideoPlayerUtility {
       }
     }
 
-    // Create player and view controller
-    let playerViewController = AVPlayerViewController()
+    // Create player and custom view controller (enables consistent hotkeys)
     let player = AVPlayer(url: finalURL)
+
+    // Derive a scene ID for CustomVideoPlayer
+    let resolvedSceneID: String
+    if scenes.indices.contains(currentIndex) {
+      resolvedSceneID = scenes[currentIndex].id
+    } else if let currentSceneID = appModel.currentScene?.id {
+      resolvedSceneID = currentSceneID
+    } else {
+      resolvedSceneID = ""
+    }
+
+    let playerViewController = CustomVideoPlayer(
+      scenes: scenes,
+      currentIndex: currentIndex,
+      sceneID: resolvedSceneID,
+      appModel: appModel
+    )
+
+    // Assign player to playerViewController
+    playerViewController.player = player
 
     // Optimize player for faster startup and reduced buffering delays
     player.automaticallyWaitsToMinimizeStalling = false  // Reduce waiting time
     if let currentItem = player.currentItem {
       currentItem.preferredForwardBufferDuration = 2.0  // Buffer only 2 seconds ahead
     }
-
-    playerViewController.player = player
 
     // Configure player options
     playerViewController.allowsPictureInPicturePlayback = true
