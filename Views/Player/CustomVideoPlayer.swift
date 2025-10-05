@@ -17,11 +17,12 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
 
   // MARK: - Aspect Mode
   private enum AspectMode: Int, CaseIterable {
-    case fit   // Letterbox, preserve aspect
+    case original  // Whatever the system/player started with
+    case fit  // Letterbox, preserve aspect
     case fill  // Fill, may crop
-    case stretch // Stretch to fill (not recommended, but available)
+    case stretch  // Stretch to fill (not recommended, but available)
   }
-  private var currentAspectMode: AspectMode = .fit
+  private var currentAspectMode: AspectMode = .original
 
   // MARK: - Custom Buttons
   private var randomJumpButton: UIButton!
@@ -49,23 +50,31 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
     randomJumpButton = UIButton(type: .system)
     randomJumpButton.setImage(UIImage(systemName: "arrow.triangle.2.circlepath"), for: .normal)
     randomJumpButton.tintColor = .white
+    randomJumpButton.accessibilityLabel = "Random jump to position in video"
+    randomJumpButton.accessibilityHint = "Jumps to a random position in the current video"
     randomJumpButton.addTarget(
       self, action: #selector(handleRandomJumpButtonTapped), for: .touchUpInside)
 
     performerJumpButton = UIButton(type: .system)
     performerJumpButton.setImage(UIImage(systemName: "person.crop.circle"), for: .normal)
     performerJumpButton.tintColor = .white
+    performerJumpButton.accessibilityLabel = "Jump to performer scene"
+    performerJumpButton.accessibilityHint = "Plays a random scene with the same performer"
     performerJumpButton.addTarget(
       self, action: #selector(handlePerformerJumpButtonTapped), for: .touchUpInside)
 
     shuffleButton = UIButton(type: .system)
     shuffleButton.setImage(UIImage(systemName: "shuffle"), for: .normal)
     shuffleButton.tintColor = .white
+    shuffleButton.accessibilityLabel = "Shuffle to next scene"
+    shuffleButton.accessibilityHint = "Plays a random scene from the library"
     shuffleButton.addTarget(self, action: #selector(handleShuffleButtonTapped), for: .touchUpInside)
 
     reshuffleButton = UIButton(type: .system)
     reshuffleButton.setImage(UIImage(systemName: "shuffle.circle.fill"), for: .normal)
     reshuffleButton.tintColor = .systemBlue
+    reshuffleButton.accessibilityLabel = "Re-shuffle marker queue"
+    reshuffleButton.accessibilityHint = "Randomizes the order of markers in the shuffle queue"
     reshuffleButton.addTarget(
       self, action: #selector(handleReshuffleButtonTapped), for: .touchUpInside)
     reshuffleButton.isHidden = true  // Hidden by default, only shown in marker shuffle mode
@@ -79,6 +88,12 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
       // In marker shuffle mode: Previous | Random Jump | Next | Reshuffle
       performerJumpButton.setImage(UIImage(systemName: "backward.fill"), for: .normal)
       shuffleButton.setImage(UIImage(systemName: "forward.fill"), for: .normal)
+
+      // Update accessibility labels for shuffle mode
+      performerJumpButton.accessibilityLabel = "Previous marker in shuffle queue"
+      performerJumpButton.accessibilityHint = "Go to the previous marker in the shuffle"
+      shuffleButton.accessibilityLabel = "Next marker in shuffle queue"
+      shuffleButton.accessibilityHint = "Go to the next marker in the shuffle"
 
       // Update button colors to indicate shuffle mode
       performerJumpButton.tintColor = .systemOrange
@@ -94,6 +109,12 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
       // Normal mode: Performer Jump | Random Jump | Scene Shuffle
       performerJumpButton.setImage(UIImage(systemName: "person.crop.circle"), for: .normal)
       shuffleButton.setImage(UIImage(systemName: "shuffle"), for: .normal)
+
+      // Reset accessibility labels to normal mode
+      performerJumpButton.accessibilityLabel = "Jump to performer scene"
+      performerJumpButton.accessibilityHint = "Plays a random scene with the same performer"
+      shuffleButton.accessibilityLabel = "Shuffle to next scene"
+      shuffleButton.accessibilityHint = "Plays a random scene from the library"
 
       // Reset to normal colors
       performerJumpButton.tintColor = .white
@@ -111,6 +132,20 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
 
     // Ensure we can become first responder immediately when the view appears
     becomeFirstResponder()
+  }
+
+  override func viewWillDisappear(_ animated: Bool) {
+    super.viewWillDisappear(animated)
+
+    // Invalidate timer to prevent leaks
+    settingsCheckTimer?.invalidate()
+    settingsCheckTimer = nil
+
+    // Invalidate display link to prevent CPU/battery drain
+    if let displayLink = objc_getAssociatedObject(self, "displayLinkKey") as? CADisplayLink {
+      displayLink.invalidate()
+      objc_setAssociatedObject(self, "displayLinkKey", nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+    }
   }
 
   override func viewDidAppear(_ animated: Bool) {
@@ -247,7 +282,8 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
       if let button = subview as? UIButton {
         // Skip our custom buttons
         if button === randomJumpButton || button === performerJumpButton || button === shuffleButton
-          || button === reshuffleButton {
+          || button === reshuffleButton
+        {
           continue
         }
         // Check for settings buttons based on various attributes
@@ -255,7 +291,8 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
           accessLabel.contains("sett") || accessLabel.contains("gear")
             || accessLabel.contains("config") || accessLabel.contains("option")
             || accessLabel.contains("filter") || accessLabel.contains("preferences")
-            || accessLabel.contains("more") {
+            || accessLabel.contains("more")
+        {
           // Hide known settings/gear buttons
           button.isHidden = true
           print("🔧 Found and hidden settings button: \(accessLabel)")
@@ -264,14 +301,16 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
         // Hide any small circular buttons in the corners which are likely settings
         if button.bounds.width < 50 && button.bounds.height < 50
           && (button.layer.cornerRadius > 10
-            || button.layer.cornerRadius == button.bounds.width / 2) {
+            || button.layer.cornerRadius == button.bounds.width / 2)
+        {
           button.isHidden = true
           print("🔧 Hidden small circular button that may be settings")
         }
 
         // Hide any button with an image (likely gear or filter icon)
         if button.image(for: .normal) != nil,
-          button.bounds.width < 60 {
+          button.bounds.width < 60
+        {
           button.isHidden = true
           print("🔧 Hidden small button with image that may be settings")
         }
@@ -296,7 +335,8 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
       if !subview.subviews.isEmpty {
         if let accessID = subview.accessibilityIdentifier?.lowercased(),
           accessID.contains("menu") || accessID.contains("popup") || accessID.contains("settings")
-            || accessID.contains("filter") {
+            || accessID.contains("filter")
+        {
           subview.isHidden = true
           print("🔧 Hidden container with settings-related ID: \(accessID)")
         }
@@ -309,9 +349,12 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
 
   deinit {
     NotificationCenter.default.removeObserver(self)
-    if player != nil {
-      player?.removeObserver(self, forKeyPath: "timeControlStatus")
-      player?.removeObserver(self, forKeyPath: "currentItem")
+
+    // Safely remove observers even if player is nil
+    if let player = player {
+      // Use try-catch to prevent crashes if observer wasn't added
+      player.removeObserver(self, forKeyPath: "timeControlStatus", context: nil)
+      player.removeObserver(self, forKeyPath: "currentItem", context: nil)
     }
 
     // Invalidate and clean up the settings check timer
@@ -321,6 +364,7 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
     // Invalidate the display link
     if let displayLink = objc_getAssociatedObject(self, "displayLinkKey") as? CADisplayLink {
       displayLink.invalidate()
+      objc_setAssociatedObject(self, "displayLinkKey", nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
     }
   }
 
@@ -475,7 +519,8 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
   }
 
   func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch)
-    -> Bool {
+    -> Bool
+  {
     // Make sure pan gestures can receive touches
     print(
       "👆 Gesture recognizer should receive touch: \(gestureRecognizer) at location: \(touch.location(in: gestureRecognizer.view))"
@@ -509,7 +554,7 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
       button.widthAnchor.constraint(equalToConstant: size),
       button.heightAnchor.constraint(equalToConstant: size),
       button.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-      button.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -yOffset)
+      button.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -yOffset),
     ])
   }
 
@@ -530,7 +575,7 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
     NSLayoutConstraint.activate([
       button.widthAnchor.constraint(equalToConstant: size),
       button.heightAnchor.constraint(equalToConstant: size),
-      button.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -yOffset)
+      button.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -yOffset),
     ])
 
     // Set horizontal position based on position enum
@@ -768,7 +813,8 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
         dismiss(animated: true) {
           if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
             let window = windowScene.windows.first,
-            let rootViewController = window.rootViewController {
+            let rootViewController = window.rootViewController
+          {
             let nextIndex = self.scenes.firstIndex { $0.id == randomScene.id } ?? 0
             let nextPlayer = CustomVideoPlayer(
               scenes: self.scenes,
@@ -890,7 +936,8 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
         dismiss(animated: true) {
           if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
             let window = windowScene.windows.first,
-            let rootViewController = window.rootViewController {
+            let rootViewController = window.rootViewController
+          {
             let nextIndex = self.scenes.firstIndex { $0.id == randomScene.id } ?? 0
             let nextPlayer = CustomVideoPlayer(
               scenes: self.scenes,
@@ -949,6 +996,9 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
     originalVideoGravity = playerLayer.videoGravity
 
     switch currentAspectMode {
+    case .original:
+      playerLayer.videoGravity = originalVideoGravity
+      print("🎥 Aspect mode: ORIGINAL (\(originalVideoGravity.rawValue))")
     case .fit:
       playerLayer.videoGravity = .resizeAspect
       print("🎥 Aspect mode: FIT (resizeAspect)")
@@ -981,10 +1031,10 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
   private func resetAspectRatioCorrection() {
     guard let playerLayer = findPlayerLayer(in: self.view.layer) else { return }
 
-    currentAspectMode = .fit
-    playerLayer.videoGravity = .resizeAspect
+    currentAspectMode = .original
+    playerLayer.videoGravity = originalVideoGravity
     playerLayer.transform = CATransform3DIdentity
-    print("🎥 🔄 Reset aspect ratio to FIT (resizeAspect)")
+    print("🎥 🔄 Reset aspect ratio to ORIGINAL (\(originalVideoGravity.rawValue))")
   }
 
   // MARK: - Keyboard Handling
@@ -1036,8 +1086,10 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
       togglePlayPause()
 
     case .keyboardA:
-      // Cycle aspect modes: Fit -> Fill -> Stretch -> Fit
-      if let next = AspectMode(rawValue: (currentAspectMode.rawValue + 1) % AspectMode.allCases.count) {
+      // Cycle aspect modes: Original -> Fit -> Fill -> Stretch -> Original
+      if let next = AspectMode(
+        rawValue: (currentAspectMode.rawValue + 1) % AspectMode.allCases.count)
+      {
         currentAspectMode = next
         applyAspectRatioCorrection()
         // Provide haptic feedback

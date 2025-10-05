@@ -123,7 +123,8 @@ class AppModel: ObservableObject {
   private func checkForSavedConnection() {
     // Load saved server address
     if let savedAddress = UserDefaults.standard.string(forKey: "serverAddress"),
-      !savedAddress.isEmpty {
+      !savedAddress.isEmpty
+    {
       serverAddress = savedAddress
       isConnected = true
 
@@ -152,12 +153,17 @@ class AppModel: ObservableObject {
       address += ":9999"
     }
 
-    isAttemptingConnection = true
-    connectionError = nil
+    // Ensure UI state updates happen on main thread
+    DispatchQueue.main.async {
+      self.isAttemptingConnection = true
+      self.connectionError = nil
+    }
 
-    // Update server address
+    // Update server address on main thread
     UserDefaults.standard.set(address, forKey: "serverAddress")
-    self.serverAddress = address
+    DispatchQueue.main.async {
+      self.serverAddress = address
+    }
 
     // Save API key
     UserDefaults.standard.set(apiKey, forKey: "apiKey")
@@ -218,7 +224,8 @@ class AppModel: ObservableObject {
   }
 
   // MARK: - Navigation
-  func navigateToScene(_ scene: StashScene, startSeconds: Double? = nil, endSeconds: Double? = nil) {
+  func navigateToScene(_ scene: StashScene, startSeconds: Double? = nil, endSeconds: Double? = nil)
+  {
     print(
       "🚀 NAVIGATION - Navigating to scene: \(scene.title ?? "Untitled") with startSeconds: \(String(describing: startSeconds)), endSeconds: \(String(describing: endSeconds))"
     )
@@ -297,14 +304,17 @@ class AppModel: ObservableObject {
       // Kill all audio before navigation to prevent stacking
       killAllAudio()
 
-      // CRITICAL FIX: Use MainActor.run for synchronous execution to prevent race conditions
-      Task { @MainActor in
-        if !self.navigationPath.isEmpty {
-          _ = self.navigationPath.removeLast()
+      // Use synchronous MainActor.run to prevent race conditions
+      // This ensures atomic navigation path updates
+      Task {
+        await MainActor.run {
+          if !self.navigationPath.isEmpty {
+            _ = self.navigationPath.removeLast()
+          }
+          // Immediately append new scene in the same atomic operation
+          self.navigationPath.append(scene)
+          print("⏱ Navigation updated atomically: replaced current video")
         }
-        // Immediately append new scene in the same task to prevent race conditions
-        self.navigationPath.append(scene)
-        print("⏱ Navigation updated atomically: replaced current video")
       }
     } else {
       // Regular navigation - just append to path - ensure main thread for @Published
@@ -312,8 +322,10 @@ class AppModel: ObservableObject {
       // Kill audio before any navigation to prevent stacking
       killAllAudio()
 
-      Task { @MainActor in
-        self.navigationPath.append(scene)
+      Task {
+        await MainActor.run {
+          self.navigationPath.append(scene)
+        }
       }
     }
   }
@@ -353,9 +365,11 @@ class AppModel: ObservableObject {
     // Kill audio before performer navigation
     killAllAudio()
 
-    Task { @MainActor in
-      self.navigationPath.append(performer)
-      print("🏁 NAVIGATION - Navigation completed to performer: \(performer.name)")
+    Task {
+      await MainActor.run {
+        self.navigationPath.append(performer)
+        print("🏁 NAVIGATION - Navigation completed to performer: \(performer.name)")
+      }
     }
 
     // Immediately start loading scenes to ensure they're ready
@@ -487,7 +501,8 @@ class AppModel: ObservableObject {
       for key in keys {
         if key.contains("scene_")
           && (key.contains("_hlsURL") || key.contains("_startTime") || key.contains("_endTime")
-            || key.contains("_forcePlay") || key.contains("_preferHLS")) {
+            || key.contains("_forcePlay") || key.contains("_preferHLS"))
+        {
           defaults.removeObject(forKey: key)
         }
       }
@@ -635,7 +650,7 @@ class AppModel: ObservableObject {
               "scene": fullScene,
               "startSeconds": startSeconds,
               "endSeconds": endSeconds as Any,
-              "hlsURL": hlsStreamURL
+              "hlsURL": hlsStreamURL,
             ]
           )
 
@@ -725,7 +740,8 @@ class AppModel: ObservableObject {
     let cameFromPerformerDetail = currentPerformer != nil
 
     // Check if we're in a performer's marker detail view
-    if previousView.contains("PerformerMarkersView") || previousView.contains("PerformerDetailView") {
+    if previousView.contains("PerformerMarkersView") || previousView.contains("PerformerDetailView")
+    {
       // For performer-related views, pop back one level
       // This will return from the video to the performer view
       if !navigationPath.isEmpty {
@@ -1413,7 +1429,8 @@ class AppModel: ObservableObject {
 
       // Check if we need to switch tags
       if currentTagPlayCount >= 5 || currentShuffleTag.isEmpty
-        || !shuffleTagNames.contains(currentShuffleTag) {
+        || !shuffleTagNames.contains(currentShuffleTag)
+      {
         // Switch to a different tag
         let otherTags = shuffleTagNames.filter { $0 != currentShuffleTag }
         selectedTag = otherTags.randomElement() ?? shuffleTagNames.randomElement()!
@@ -2210,7 +2227,7 @@ class AppModel: ObservableObject {
       object: nil,
       userInfo: [
         "scene": nextScene,
-        "hlsURL": hlsStreamURL
+        "hlsURL": hlsStreamURL,
       ]
     )
 
@@ -2242,7 +2259,7 @@ class AppModel: ObservableObject {
       object: nil,
       userInfo: [
         "scene": previousScene,
-        "hlsURL": hlsStreamURL
+        "hlsURL": hlsStreamURL,
       ]
     )
 
@@ -2355,7 +2372,7 @@ class AppModel: ObservableObject {
       object: nil,
       userInfo: [
         "scene": nextScene,
-        "hlsURL": hlsStreamURL
+        "hlsURL": hlsStreamURL,
       ]
     )
 
@@ -2388,7 +2405,7 @@ class AppModel: ObservableObject {
       object: nil,
       userInfo: [
         "scene": previousScene,
-        "hlsURL": hlsStreamURL
+        "hlsURL": hlsStreamURL,
       ]
     )
 
@@ -2420,7 +2437,9 @@ class AppModel: ObservableObject {
     print("🎭 Starting gender-aware performer shuffle")
     print("🎭 Method parameter currentPerformer: \(currentPerformer?.name ?? "none")")
     print("🎭 AppModel.currentPerformer: \(self.currentPerformer?.name ?? "none")")
-    print("🎭 AppModel.performerDetailViewPerformer: \(self.performerDetailViewPerformer?.name ?? "none")")
+    print(
+      "🎭 AppModel.performerDetailViewPerformer: \(self.performerDetailViewPerformer?.name ?? "none")"
+    )
 
     // Determine if we should default to female performers
     let shouldDefaultToFemale = shouldDefaultToFemalePerformers(currentPerformer: currentPerformer)
@@ -2465,7 +2484,7 @@ class AppModel: ObservableObject {
   private func shouldDefaultToFemalePerformers(currentPerformer: StashScene.Performer?) -> Bool {
     // Check all possible performer contexts in priority order
     let performer = currentPerformer ?? performerDetailViewPerformer ?? self.currentPerformer
-    
+
     if let performer = performer {
       let performerGender = performer.gender?.uppercased()
       let isMalePerformer = performerGender == "MALE"
@@ -2500,10 +2519,10 @@ class AppModel: ObservableObject {
 
     // Preserve performer context before navigation
     let preservedPerformer = currentPerformer ?? performerDetailViewPerformer
-    
+
     // Navigate to the scene
     navigateToScene(randomScene)
-    
+
     // Restore performer context after navigation
     if let preservedPerformer = preservedPerformer {
       currentPerformer = preservedPerformer
