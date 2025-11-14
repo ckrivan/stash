@@ -30,8 +30,18 @@
       "Bash(pkill:*)",
       "Bash(timeout 30 xcodebuild:*)",
       "Bash(gtimeout:*)",
-      "mcp__ref-tools__ref_search_documentation"
+      "mcp__ref-tools__ref_search_documentation",
+      "mcp__Ref__ref_search_documentation",
+      "WebSearch",
+      "Bash(swift-format:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": []
-  }
+  },
+  "enabledMcpjsonServers": [
+    "ref-tools",
+    "apple-docs",
+    "tavily-remote-mcp",
+    "jamf-enterprise"
+  ]
 }

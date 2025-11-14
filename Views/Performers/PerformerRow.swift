@@ -9,24 +9,15 @@ struct PerformerRow: View {
 
   var body: some View {
     VStack(alignment: .center, spacing: 12) {
-      // Image with inline preview
+      // Image with inline preview and caching (300px for performer avatars)
       ZStack {
         if let imagePath = performer.image_path {
-          AsyncImage(url: URL(string: imagePath)) { phase in
-            switch phase {
-            case .success(let image):
-              image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-            case .failure:
-              Image(systemName: "person.circle.fill")
-                .foregroundColor(.gray)
-                .font(.system(size: 60))
-            case .empty:
-              Color.gray.opacity(0.3)
-            @unknown default:
-              Color.gray.opacity(0.3)
-            }
+          CachedAsyncImage(url: URL(string: imagePath), width: 300) { image in
+            image
+              .resizable()
+              .aspectRatio(contentMode: .fill)
+          } placeholder: {
+            Color.gray.opacity(0.3)
           }
         } else {
           Image(systemName: "person.circle.fill")

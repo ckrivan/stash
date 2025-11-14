@@ -12,6 +12,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     // Configure URLSession for better performance
     configureNetworking()
 
+    // Configure image caching for optimal performance
+    CachedImageLoader.configure()
+    print("📱 Configured cached image loader with memory and disk caching")
+
     // Ensure AppModel is properly initialized and authenticates
     initializeAppModel()
 

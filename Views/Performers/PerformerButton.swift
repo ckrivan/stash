@@ -46,9 +46,9 @@ struct PerformerAvatarButton: View {
       }
     }) {
       HStack(spacing: 4) {
-        // Performer avatar if available
+        // Performer avatar with caching (40px for small avatars)
         if let imagePath = performer.image_path, !imagePath.isEmpty {
-          AsyncImage(url: URL(string: "\(serverAddress)\(imagePath)")) { image in
+          CachedAsyncImage(url: URL(string: "\(serverAddress)\(imagePath)"), width: 40) { image in
             image
               .resizable()
               .aspectRatio(contentMode: .fill)

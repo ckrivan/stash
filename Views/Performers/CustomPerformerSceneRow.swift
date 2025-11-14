@@ -9,9 +9,9 @@ struct CustomPerformerSceneRow: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      // Thumbnail section - similar to SceneRow
+      // Thumbnail section with caching - similar to SceneRow
       GeometryReader { _ in
-        AsyncImage(url: URL(string: scene.paths.screenshot)) { image in
+        CachedAsyncImage(url: URL(string: scene.paths.screenshot), width: 500) { image in
           image
             .resizable()
             .aspectRatio(16 / 9, contentMode: .fill)

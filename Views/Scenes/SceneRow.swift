@@ -26,8 +26,8 @@ struct SceneRow: View {
       // Thumbnail with preview
       GeometryReader { geometry in
         ZStack {
-          // Thumbnail
-          AsyncImage(url: URL(string: scene.paths.screenshot)) { image in
+          // Thumbnail with caching and downsampling (500px width for grid view)
+          CachedAsyncImage(url: URL(string: scene.paths.screenshot), width: 500) { image in
             image
               .resizable()
               .aspectRatio(16 / 9, contentMode: .fill)
