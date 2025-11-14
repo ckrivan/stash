@@ -11,9 +11,9 @@ struct PerformerMarkerRow: View {
 
   var body: some View {
     VStack(alignment: .center, spacing: 12) {
-      // Image
+      // Image with caching
       if let imagePath = performer.image_path {
-        AsyncImage(url: URL(string: imagePath)) { image in
+        CachedAsyncImage(url: URL(string: imagePath), width: 300) { image in
           image
             .resizable()
             .aspectRatio(contentMode: .fill)

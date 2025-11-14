@@ -416,8 +416,8 @@ struct PerformerTabView: View {
                 // Thumbnail with preview video functionality
                 GeometryReader { geometry in
                   ZStack {
-                    // Base thumbnail image
-                    AsyncImage(url: URL(string: marker.screenshot)) { image in
+                    // Base thumbnail image with caching
+                    CachedAsyncImage(url: URL(string: marker.screenshot), width: 500) { image in
                       image
                         .resizable()
                         .aspectRatio(contentMode: .fill)

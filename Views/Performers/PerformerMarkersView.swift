@@ -436,9 +436,9 @@ struct PerformerMarkersView: View {
               }
             }) {
               VStack {
-                // Performer avatar or placeholder
+                // Performer avatar with caching
                 if let imagePath = item.performer.image_path, !imagePath.isEmpty {
-                  AsyncImage(url: URL(string: "\(appModel.serverAddress)\(imagePath)")) { image in
+                  CachedAsyncImage(url: URL(string: "\(appModel.serverAddress)\(imagePath)"), width: 300) { image in
                     image
                       .resizable()
                       .aspectRatio(contentMode: .fill)

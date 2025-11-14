@@ -6,7 +6,7 @@ struct PerformerHeaderView: View {
   var body: some View {
     VStack(spacing: 16) {
       if let imagePath = performer.image_path {
-        AsyncImage(url: URL(string: imagePath)) { image in
+        CachedAsyncImage(url: URL(string: imagePath), width: 400) { image in
           image
             .resizable()
             .aspectRatio(contentMode: .fill)

@@ -47,8 +47,8 @@ struct MarkerRow: View {
       // Marker thumbnail and video preview
       GeometryReader { geometry in
         ZStack {
-          // Thumbnail image
-          AsyncImage(url: URL(string: marker.screenshot)) { image in
+          // Thumbnail image with caching
+          CachedAsyncImage(url: URL(string: marker.screenshot), width: 500) { image in
             image
               .resizable()
               .aspectRatio(contentMode: .fill)
@@ -266,9 +266,9 @@ struct MarkerRow: View {
                   if !femalePerformers.contains(where: { $0.id == performer.id }) {
                     NavigationLink(destination: PerformerDetailView(performer: performer)) {
                       HStack(spacing: 4) {
-                        // Performer avatar if available
+                        // Performer avatar with caching
                         if let imagePath = performer.image_path, !imagePath.isEmpty {
-                          AsyncImage(url: URL(string: "\(serverAddress)\(imagePath)")) { image in
+                          CachedAsyncImage(url: URL(string: "\(serverAddress)\(imagePath)"), width: 40) { image in
                             image
                               .resizable()
                               .aspectRatio(contentMode: .fill)

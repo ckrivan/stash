@@ -34,7 +34,7 @@ struct PerformerSelectionListView: View {
             ForEach(selectedPerformers) { performer in
               VStack {
                 if let imagePath = performer.image_path {
-                  AsyncImage(url: URL(string: imagePath)) { image in
+                  CachedAsyncImage(url: URL(string: imagePath), width: 150) { image in
                     image
                       .resizable()
                       .aspectRatio(contentMode: .fill)
@@ -94,7 +94,7 @@ struct PerformerSelectionListView: View {
               }) {
                 VStack {
                   if let imagePath = performer.image_path {
-                    AsyncImage(url: URL(string: imagePath)) { image in
+                    CachedAsyncImage(url: URL(string: imagePath), width: 200) { image in
                       image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
