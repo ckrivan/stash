@@ -763,11 +763,13 @@ class StashAPI: ObservableObject {
           """
       }
 
-      // Choose query fields based on whether this is for grid view or detail view
-      let sceneFields: String
+      // Choose query based on whether this is for grid view or detail view
+      let sceneFieldsQuery: String
       if useGridQuery {
         // Lightweight query for grid views - only essential fields (~15KB per scene vs ~200KB)
-        sceneFields = """
+        sceneFieldsQuery = """
+                  count
+                  scenes {
                       id
                       title
                       date
@@ -786,10 +788,15 @@ class StashAPI: ObservableObject {
                       tags {
                           name
                       }
+                  }
+              }
+          }
           """
       } else {
         // Full query for detail views - all fields
-        sceneFields = """
+        sceneFieldsQuery = """
+                  count
+                  scenes {
                       id
                       title
                       details
@@ -830,18 +837,13 @@ class StashAPI: ObservableObject {
                           id
                           name
                       }
-          """
-      }
-
-      let fullQuery =
-        queryString + """
-                  count
-                  scenes {
-                      \(sceneFields)
                   }
               }
           }
           """
+      }
+
+      let fullQuery = queryString + sceneFieldsQuery
 
       let graphQLRequest: [String: Any] = [
         "operationName": "FindScenes",
