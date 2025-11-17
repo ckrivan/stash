@@ -764,86 +764,92 @@ class StashAPI: ObservableObject {
       }
 
       // Choose query based on whether this is for grid view or detail view
-      let sceneFieldsQuery: String
+      let fullQuery: String
       if useGridQuery {
         // Lightweight query for grid views - only essential fields (~15KB per scene vs ~200KB)
-        sceneFieldsQuery = """
-                  count
-                  scenes {
-                      id
-                      title
-                      date
-                      paths {
-                          screenshot
-                      }
-                      files {
-                          duration
-                          width
-                          height
-                      }
-                      performers {
-                          id
-                          name
-                      }
-                      tags {
-                          name
-                      }
-                  }
-              }
-          }
-          """
+        fullQuery =
+          queryString + """
+                    count
+                    scenes {
+                        id
+                        title
+                        date
+                        paths {
+                            screenshot
+                        }
+                        files {
+                            duration
+                            width
+                            height
+                        }
+                        performers {
+                            id
+                            name
+                        }
+                        tags {
+                            name
+                        }
+                    }
+                }
+            }
+            """
       } else {
         // Full query for detail views - all fields
-        sceneFieldsQuery = """
-                  count
-                  scenes {
-                      id
-                      title
-                      details
-                      url
-                      date
-                      rating100
-                      organized
-                      o_counter
-                      paths {
-                          screenshot
-                          preview
-                          stream
-                          webp
-                          vtt
-                          sprite
-                          funscript
-                          interactive_heatmap
-                      }
-                      files {
-                          size
-                          duration
-                          video_codec
-                          width
-                          height
-                      }
-                      performers {
-                          id
-                          name
-                          gender
-                          image_path
-                          scene_count
-                      }
-                      tags {
-                          id
-                          name
-                      }
-                      studio {
-                          id
-                          name
-                      }
-                  }
-              }
-          }
-          """
+        fullQuery =
+          queryString + """
+                    count
+                    scenes {
+                        id
+                        title
+                        details
+                        url
+                        date
+                        rating100
+                        organized
+                        o_counter
+                        paths {
+                            screenshot
+                            preview
+                            stream
+                            webp
+                            vtt
+                            sprite
+                            funscript
+                            interactive_heatmap
+                        }
+                        files {
+                            size
+                            duration
+                            video_codec
+                            width
+                            height
+                        }
+                        performers {
+                            id
+                            name
+                            gender
+                            image_path
+                            scene_count
+                        }
+                        tags {
+                            id
+                            name
+                        }
+                        studio {
+                            id
+                            name
+                        }
+                    }
+                }
+            }
+            """
       }
 
-      let fullQuery = queryString + sceneFieldsQuery
+      // Debug: Print the full query to see what's being sent
+      print("🔍 DEBUG - Full GraphQL Query:")
+      print(fullQuery)
+      print("🔍 DEBUG - Query Variables:")
+      print(queryVars)
 
       let graphQLRequest: [String: Any] = [
         "operationName": "FindScenes",
@@ -853,6 +859,12 @@ class StashAPI: ObservableObject {
 
       // Convert to JSON data
       let jsonData = try JSONSerialization.data(withJSONObject: graphQLRequest)
+
+      // Debug: Print the JSON payload
+      if let jsonString = String(data: jsonData, encoding: .utf8) {
+        print("🔍 DEBUG - JSON Payload:")
+        print(jsonString.prefix(500))
+      }
 
       guard let url = URL(string: "\(serverAddress)/graphql") else {
         throw StashAPIError.invalidURL
