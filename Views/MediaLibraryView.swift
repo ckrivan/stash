@@ -53,6 +53,11 @@ struct MediaLibraryView: View {
   @State private var originalSearchQuery = ""
   @State private var forcedTagSelection = false  // Prevent suggestion loops
 
+  // Saved marker searches
+  @StateObject private var savedSearchManager = SavedMarkerSearchManager.shared
+  @State private var showingSaveSearchDialog = false
+  @State private var newSearchName = ""
+
   // Show watch history when we have watched scenes and the flag is set (returning from video)
   private var shouldShowWatchHistory: Bool {
     return !appModel.watchHistory.isEmpty && UserDefaults.standard.bool(forKey: "showWatchHistory")
@@ -185,6 +190,11 @@ struct MediaLibraryView: View {
       // Locked tags UI - only show for marker searches
       if searchScope == .markers && (!lockedTags.isEmpty || isValidatingTag) {
         lockedTagsView
+      }
+
+      // Saved searches UI - only show for marker searches
+      if searchScope == .markers {
+        savedSearchesView
       }
 
       mainContentView
@@ -459,6 +469,116 @@ struct MediaLibraryView: View {
         .opacity(0.5),
       alignment: .bottom
     )
+  }
+
+  private var savedSearchesView: some View {
+    VStack(spacing: 12) {
+      // Header with save button
+      HStack {
+        Text("💾 Saved Searches")
+          .font(.headline)
+          .fontWeight(.semibold)
+
+        Spacer()
+
+        // Save current search button - only show if we have active search
+        if !searchText.isEmpty && !searchedMarkers.isEmpty {
+          Button(action: {
+            showingSaveSearchDialog = true
+          }) {
+            HStack(spacing: 4) {
+              Image(systemName: "plus.circle.fill")
+                .font(.system(size: 14))
+              Text("Save")
+                .font(.system(size: 13, weight: .medium))
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(Color.green)
+            .foregroundColor(.white)
+            .cornerRadius(15)
+          }
+        }
+      }
+      .padding(.horizontal)
+
+      // Saved searches display
+      if !savedSearchManager.savedSearches.isEmpty {
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack(spacing: 12) {
+            ForEach(savedSearchManager.savedSearches) { search in
+              Button(action: {
+                loadSavedSearch(search)
+              }) {
+                HStack(spacing: 8) {
+                  VStack(alignment: .leading, spacing: 2) {
+                    Text(search.name)
+                      .font(.system(size: 15, weight: .medium))
+                      .lineLimit(1)
+
+                    Text(search.query)
+                      .font(.system(size: 11))
+                      .opacity(0.7)
+                      .lineLimit(1)
+                  }
+
+                  Button(action: {
+                    savedSearchManager.deleteSearch(search)
+                  }) {
+                    Image(systemName: "xmark.circle.fill")
+                      .font(.system(size: 14))
+                      .foregroundColor(.white.opacity(0.8))
+                  }
+                  .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(
+                  LinearGradient(
+                    colors: [Color.purple, Color.pink],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                  )
+                )
+                .foregroundColor(.white)
+                .cornerRadius(20)
+              }
+              .buttonStyle(.plain)
+            }
+          }
+          .padding(.horizontal)
+        }
+      } else {
+        Text("No saved searches yet. Search for markers and save your favorite combinations!")
+          .font(.caption)
+          .foregroundColor(.secondary)
+          .multilineTextAlignment(.center)
+          .padding(.horizontal)
+      }
+    }
+    .padding(.vertical, 12)
+    .background(Color(.systemBackground))
+    .overlay(
+      Rectangle()
+        .frame(height: 1)
+        .foregroundColor(Color(.separator))
+        .opacity(0.5),
+      alignment: .bottom
+    )
+    .alert("Save Search", isPresented: $showingSaveSearchDialog) {
+      TextField("Search name (e.g., 'BJ + Anal')", text: $newSearchName)
+      Button("Cancel", role: .cancel) {
+        newSearchName = ""
+      }
+      Button("Save") {
+        if !newSearchName.isEmpty {
+          savedSearchManager.saveSearch(name: newSearchName, query: searchText)
+          newSearchName = ""
+        }
+      }
+    } message: {
+      Text("Enter a name for this search: \"\(searchText)\"")
+    }
   }
 
   private var scenesContent: some View {
@@ -990,6 +1110,14 @@ struct MediaLibraryView: View {
 
     // Use the AppModel's new most played shuffle system
     appModel.startMostPlayedShuffle(from: appModel.api.scenes)
+  }
+
+  private func loadSavedSearch(_ search: SavedMarkerSearch) {
+    print("💾 Loading saved search: \(search.name) - \(search.query)")
+    searchText = search.query
+    Task {
+      await performSearch(query: search.query, scope: .markers)
+    }
   }
 
   private func performSearch(query: String, scope: UniversalSearchView.SearchScope) async {

@@ -18,6 +18,7 @@
 		920D41BC2DE5575500085284 /* FilterPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D415F2DE5566000085284 /* FilterPreset.swift */; };
 		920D41BD2DE5575500085284 /* SceneFilterType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41602DE5566000085284 /* SceneFilterType.swift */; };
 		920D41BE2DE5575500085284 /* StashModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41612DE5566000085284 /* StashModels.swift */; };
+		753FB9F17A83458AB3A237C1 /* SavedMarkerSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAC2887FF4D4FF9BB3343BD /* SavedMarkerSearch.swift */; };
 		920D41BF2DE5575500085284 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41632DE5566000085284 /* Models.swift */; };
 		920D41C02DE5575500085284 /* StashAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41642DE5566000085284 /* StashAPI.swift */; };
 		920D41C12DE5575500085284 /* StashAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41672DE5566000085284 /* StashAPIError.swift */; };
@@ -70,6 +71,7 @@
 		920D41F02DE5575500085284 /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41AF2DE5566000085284 /* VideoPlayerView.swift */; };
 		920D41F12DE5575500085284 /* Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41B12DE5566000085284 /* Views.swift */; };
 		920D41F22DE559FF00085284 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 920D41352DE5566000085284 /* Assets.xcassets */; };
+		924385C82EC7735D00302A77 /* CachedImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924385C72EC7735D00302A77 /* CachedImageLoader.swift */; };
 		92933D1D2E3EC0E000CCE3F5 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92933D1C2E3EC0E000CCE3F5 /* HistoryView.swift */; };
 /* End PBXBuildFile section */
 
@@ -115,6 +117,7 @@
 		920D415F2DE5566000085284 /* FilterPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterPreset.swift; sourceTree = "<group>"; };
 		920D41602DE5566000085284 /* SceneFilterType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneFilterType.swift; sourceTree = "<group>"; };
 		920D41612DE5566000085284 /* StashModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StashModels.swift; sourceTree = "<group>"; };
+		8AAC2887FF4D4FF9BB3343BD /* SavedMarkerSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedMarkerSearch.swift; sourceTree = "<group>"; };
 		920D41632DE5566000085284 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		920D41642DE5566000085284 /* StashAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StashAPI.swift; sourceTree = "<group>"; };
 		920D41652DE5566000085284 /* StashAPI.swift.bak */ = {isa = PBXFileReference; lastKnownFileType = text; path = StashAPI.swift.bak; sourceTree = "<group>"; };
@@ -180,6 +183,7 @@
 		920D41AE2DE5566000085284 /* UniversalSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalSearchView.swift; sourceTree = "<group>"; };
 		920D41AF2DE5566000085284 /* VideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		920D41B12DE5566000085284 /* Views.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views.swift; sourceTree = "<group>"; };
+		924385C72EC7735D00302A77 /* CachedImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedImageLoader.swift; sourceTree = "<group>"; };
 		928C09CA2CE6641A00C7B4B1 /* stash.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = stash.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		92933D1C2E3EC0E000CCE3F5 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -262,6 +266,7 @@
 				920D415E2DE5566000085284 /* FilterOptions.swift */,
 				920D415F2DE5566000085284 /* FilterPreset.swift */,
 				920D41602DE5566000085284 /* SceneFilterType.swift */,
+				8AAC2887FF4D4FF9BB3343BD /* SavedMarkerSearch.swift */,
 				920D41612DE5566000085284 /* StashModels.swift */,
 			);
 			path = Models;
@@ -299,6 +304,7 @@
 		920D41792DE5566000085284 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				924385C72EC7735D00302A77 /* CachedImageLoader.swift */,
 				920D41772DE5566000085284 /* AnimationModifiers.swift */,
 				920D41782DE5566000085284 /* VideoPlayerUtility.swift */,
 			);
@@ -571,6 +577,7 @@
 				920D41BB2DE5575500085284 /* FilterOptions.swift in Sources */,
 				920D41BC2DE5575500085284 /* FilterPreset.swift in Sources */,
 				920D41BD2DE5575500085284 /* SceneFilterType.swift in Sources */,
+				753FB9F17A83458AB3A237C1 /* SavedMarkerSearch.swift in Sources */,
 				920D41BE2DE5575500085284 /* StashModels.swift in Sources */,
 				920D41BF2DE5575500085284 /* Models.swift in Sources */,
 				920D41C02DE5575500085284 /* StashAPI.swift in Sources */,
@@ -596,6 +603,7 @@
 				920D41D42DE5575500085284 /* PerformerSelectionView.swift in Sources */,
 				920D41D52DE5575500085284 /* SceneSelectionView.swift in Sources */,
 				920D41D62DE5575500085284 /* TestMarkerPlayerView.swift in Sources */,
+				924385C82EC7735D00302A77 /* CachedImageLoader.swift in Sources */,
 				920D41D72DE5575500085284 /* CustomPerformerSceneRow.swift in Sources */,
 				920D41D82DE5575500085284 /* PerformerButton.swift in Sources */,
 				920D41D92DE5575500085284 /* PerformerDetailView.swift in Sources */,
