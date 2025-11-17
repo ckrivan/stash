@@ -179,8 +179,15 @@ struct ContentView: View {
         print("📱 ContentView appeared")
         ensureContentLoaded()
       }
-      .onChange(of: appModel.activeTab) { _, newTab in
-        print("📱 Tab changed to: \(newTab)")
+      .onChange(of: appModel.activeTab) { oldTab, newTab in
+        print("📱 Tab changed from \(oldTab) to: \(newTab)")
+
+        // Clear navigation path when switching tabs to pop back to root
+        if !appModel.navigationPath.isEmpty {
+          print("📱 Clearing navigation path (was at depth \(appModel.navigationPath.count))")
+          appModel.navigationPath.removeLast(appModel.navigationPath.count)
+        }
+
         ensureContentLoaded()
       }
       .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ShowSettings"))) {
