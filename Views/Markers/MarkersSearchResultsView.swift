@@ -59,22 +59,20 @@ struct MarkersSearchResultsView: View {
         .padding(.vertical, 24)
       }
 
-      ScrollView {
-        LazyVGrid(columns: columns, spacing: 20) {
-          ForEach(markers, id: \.id) { marker in
-            MarkerRowWrapper(marker: marker)
-              .environmentObject(appModel)
-              .onAppear {
-                // Only trigger pagination when we're near the end of the list
-                if let markerIndex = markers.firstIndex(where: { $0.id == marker.id }),
-                  markerIndex >= markers.count - 10 {  // Trigger when within last 10 items
-                  onMarkerAppear?(marker)
-                }
+      LazyVGrid(columns: columns, spacing: 20) {
+        ForEach(markers, id: \.id) { marker in
+          MarkerRowWrapper(marker: marker)
+            .environmentObject(appModel)
+            .onAppear {
+              // Only trigger pagination when we're near the end of the list
+              if let markerIndex = markers.firstIndex(where: { $0.id == marker.id }),
+                markerIndex >= markers.count - 10 {  // Trigger when within last 10 items
+                onMarkerAppear?(marker)
               }
-          }
+            }
         }
-        .padding(.horizontal)
       }
+      .padding(.horizontal)
     }
   }
 

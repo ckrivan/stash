@@ -34,7 +34,11 @@
       "mcp__Ref__ref_search_documentation",
       "WebSearch",
       "Bash(swift-format:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(git reset:*)",
+      "Bash(xed:*)",
+      "Bash(open:*)",
+      "Bash(uuidgen:*)"
     ],
     "deny": []
   },
