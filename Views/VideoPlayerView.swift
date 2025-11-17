@@ -748,7 +748,6 @@ struct VideoPlayerView: View {
                 print("🔄 Close button tapped")
                 // Mark as manual exit for cleanup
                 isManualExit = true
-                dismiss()
                 appModel.forceCloseVideo()
               }) {
                 Image(systemName: "xmark.circle.fill")
@@ -1378,19 +1377,13 @@ struct VideoPlayerView: View {
             // Mark as manual exit for cleanup
             isManualExit = true
 
-            // Force dismiss and navigation cleanup
-            dismiss()
+            // Force close video and navigation cleanup
             appModel.forceCloseVideo()
 
             // Clear the video player
             VideoPlayerRegistry.shared.currentPlayer?.pause()
             VideoPlayerRegistry.shared.currentPlayer = nil
             VideoPlayerRegistry.shared.playerViewController = nil
-
-            // Pop navigation if possible
-            if !appModel.navigationPath.isEmpty {
-              appModel.navigationPath.removeLast()
-            }
           }
       )
     }

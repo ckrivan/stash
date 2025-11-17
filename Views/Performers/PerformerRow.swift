@@ -58,6 +58,7 @@ struct PerformerRow: View {
     .padding()
     .background(Color(UIColor.secondarySystemBackground))
     .cornerRadius(12)
+    .contentShape(Rectangle())
   }
 
   private func startPreview() {
