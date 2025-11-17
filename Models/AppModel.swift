@@ -2215,7 +2215,11 @@ class AppModel: ObservableObject {
 
     // Use the same approach as marker shuffle - update the existing VideoPlayerView instead of navigating
     // Convert to HLS URL format
-    let hlsStreamURL = nextScene.paths.stream
+    guard let stream = nextScene.paths.stream else {
+      print("❌ Tag shuffle: No stream URL for scene \(nextScene.id)")
+      return
+    }
+    let hlsStreamURL = stream
       .replacingOccurrences(of: "/stream?", with: "/stream.m3u8?")
       .appending("&resolution=ORIGINAL&_ts=\(Int(Date().timeIntervalSince1970))")
 
@@ -2247,7 +2251,11 @@ class AppModel: ObservableObject {
 
     // Use the same approach as marker shuffle - update the existing VideoPlayerView instead of navigating
     // Convert to HLS URL format
-    let hlsStreamURL = previousScene.paths.stream
+    guard let stream = previousScene.paths.stream else {
+      print("❌ Tag shuffle previous: No stream URL for scene \(previousScene.id)")
+      return
+    }
+    let hlsStreamURL = stream
       .replacingOccurrences(of: "/stream?", with: "/stream.m3u8?")
       .appending("&resolution=ORIGINAL&_ts=\(Int(Date().timeIntervalSince1970))")
 
@@ -2360,7 +2368,11 @@ class AppModel: ObservableObject {
     )
 
     // Use the same approach as tag shuffle - update the existing VideoPlayerView
-    let hlsStreamURL = nextScene.paths.stream
+    guard let stream = nextScene.paths.stream else {
+      print("❌ Most played shuffle: No stream URL for scene \(nextScene.id)")
+      return
+    }
+    let hlsStreamURL = stream
       .replacingOccurrences(of: "/stream?", with: "/stream.m3u8?")
       .appending("&resolution=ORIGINAL&_ts=\(Int(Date().timeIntervalSince1970))")
 
@@ -2396,7 +2408,11 @@ class AppModel: ObservableObject {
     print("🎯 Shuffling to previous most played scene: \(previousScene.title ?? "Untitled")")
 
     // Use same approach as next scene
-    let hlsStreamURL = previousScene.paths.stream
+    guard let stream = previousScene.paths.stream else {
+      print("❌ Most played shuffle previous: No stream URL for scene \(previousScene.id)")
+      return
+    }
+    let hlsStreamURL = stream
       .replacingOccurrences(of: "/stream?", with: "/stream.m3u8?")
       .appending("&resolution=ORIGINAL&_ts=\(Int(Date().timeIntervalSince1970))")
 

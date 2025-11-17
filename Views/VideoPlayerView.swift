@@ -1537,7 +1537,13 @@ struct VideoPlayerView: View {
     }
 
     // Absolute fallback to default URL (should rarely happen)
-    return URL(string: currentScene.paths.stream)!
+    guard let stream = currentScene.paths.stream,
+          let url = URL(string: stream) else {
+      print("❌ Critical error: No stream URL for current scene \(currentScene.id)")
+      // Return a placeholder URL to avoid crash
+      return URL(string: "about:blank")!
+    }
+    return url
   }
 
   // Video loading timeout functions
@@ -1739,7 +1745,11 @@ extension VideoPlayerView {
             print("✅ Got player reference, preparing to play new content")
 
             // Create a new player item for the random scene using HLS streaming
-            let directURL = URL(string: randomScene.paths.stream)!
+            guard let stream = randomScene.paths.stream,
+                  let directURL = URL(string: stream) else {
+              print("❌ Shuffle: No stream URL for scene \(randomScene.id)")
+              return
+            }
             let hlsURL = VideoPlayerUtility.getHLSStreamURL(from: directURL) ?? directURL
             print("🔄 Created HLS URL for random scene: \(hlsURL.absoluteString)")
             let playerItem = AVPlayerItem(url: hlsURL)
@@ -2187,7 +2197,11 @@ extension VideoPlayerView {
 
       // Get the player and play the scene
       if let player = getCurrentPlayer() {
-        let directURL = URL(string: randomScene.paths.stream)!
+        guard let stream = randomScene.paths.stream,
+              let directURL = URL(string: stream) else {
+          print("❌ Fallback shuffle: No stream URL for scene \(randomScene.id)")
+          return
+        }
         let hlsURL = VideoPlayerUtility.getHLSStreamURL(from: directURL) ?? directURL
         let playerItem = AVPlayerItem(url: hlsURL)
 
@@ -2453,7 +2467,11 @@ extension VideoPlayerView {
             print("🎯 PERFORMER BUTTON: Got player reference, preparing to play new content")
 
             // Create a new player item for the random scene using HLS streaming
-            let directURL = URL(string: randomScene.paths.stream)!
+            guard let stream = randomScene.paths.stream,
+                  let directURL = URL(string: stream) else {
+              print("❌ Performer button shuffle: No stream URL for scene \(randomScene.id)")
+              return
+            }
             let hlsURL = VideoPlayerUtility.getHLSStreamURL(from: directURL) ?? directURL
             print("🎯 PERFORMER BUTTON: Created HLS URL: \(hlsURL.absoluteString)")
             let playerItem = AVPlayerItem(url: hlsURL)
@@ -2665,7 +2683,11 @@ extension VideoPlayerView {
 
               // Play the scene using same method as above
               if let player = getCurrentPlayer() {
-                let directURL = URL(string: randomScene.paths.stream)!
+                guard let stream = randomScene.paths.stream,
+                      let directURL = URL(string: stream) else {
+                  print("❌ Performer button fallback: No stream URL for scene \(randomScene.id)")
+                  return
+                }
                 let hlsURL = VideoPlayerUtility.getHLSStreamURL(from: directURL) ?? directURL
                 let playerItem = AVPlayerItem(url: hlsURL)
 
@@ -2767,7 +2789,11 @@ extension VideoPlayerView {
           }
 
           if let player = getCurrentPlayer() {
-            let directURL = URL(string: randomScene.paths.stream)!
+            guard let stream = randomScene.paths.stream,
+                  let directURL = URL(string: stream) else {
+              print("❌ Performer button API fallback: No stream URL for scene \(randomScene.id)")
+              return
+            }
             let hlsURL = VideoPlayerUtility.getHLSStreamURL(from: directURL) ?? directURL
             print("🎯 PERFORMER BUTTON (FALLBACK): Created HLS URL: \(hlsURL.absoluteString)")
             let playerItem = AVPlayerItem(url: hlsURL)
@@ -2989,7 +3015,11 @@ extension VideoPlayerView {
 
       // Get the player from the current view controller
       if let player = getCurrentPlayer() {
-        let directURL = URL(string: scene.paths.stream)!
+        guard let stream = scene.paths.stream,
+              let directURL = URL(string: stream) else {
+          print("❌ Tag shuffle update: No stream URL for scene \(scene.id)")
+          return
+        }
         let hlsURL = VideoPlayerUtility.getHLSStreamURL(from: directURL) ?? directURL
         let playerItem = AVPlayerItem(url: hlsURL)
 
@@ -3131,7 +3161,11 @@ extension VideoPlayerView {
     }
 
     // Create URL for the scene
-    let directURL = URL(string: scene.paths.stream)!
+    guard let stream = scene.paths.stream,
+          let directURL = URL(string: stream) else {
+      print("❌ Play scene: No stream URL for scene \(scene.id)")
+      return
+    }
     let hlsURL = VideoPlayerUtility.getHLSStreamURL(from: directURL) ?? directURL
 
     // Create asset with HTTP headers to ensure proper authorization

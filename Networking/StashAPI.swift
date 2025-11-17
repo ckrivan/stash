@@ -777,6 +777,8 @@ class StashAPI: ObservableObject {
                       date
                       paths {
                           screenshot
+                          preview
+                          stream
                       }
                       files {
                           duration
@@ -788,6 +790,7 @@ class StashAPI: ObservableObject {
                           name
                       }
                       tags {
+                          id
                           name
                       }
                   }

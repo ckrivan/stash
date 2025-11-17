@@ -748,24 +748,20 @@ struct MediaLibraryView: View {
       }
     }
     .task {
-      // Always attempt to load on appearance, but not when searching
-      if appModel.api.scenes.isEmpty && currentFilter != "search" && searchedMarkers.isEmpty
-        && !isSearching {
+      // Load scenes on initial appearance
+      print("🔄 MediaLibraryView .task - scenes count: \(appModel.api.scenes.count), filter: \(currentFilter)")
+      if appModel.api.scenes.isEmpty && currentFilter != "search" {
         print("🔄 MediaLibraryView .task triggered - loading initial scenes")
-        Task {
-          await initialLoad()
-          print("🔄 Loaded scenes in MediaLibraryView: \(appModel.api.scenes.count)")
-        }
+        await initialLoad()
+        print("🔄 Loaded scenes in MediaLibraryView: \(appModel.api.scenes.count)")
       }
     }
-    .onAppear {
-      // Fallback to ensure scenes load even if .task doesn't fire
-      if appModel.api.scenes.isEmpty && currentFilter != "search" && searchedMarkers.isEmpty
-        && !isSearching {
-        print("🔄 MediaLibraryView .onAppear fallback - loading initial scenes")
+    .onChange(of: appModel.activeTab) { oldTab, newTab in
+      // Reload scenes when switching to Scenes tab from another tab
+      if newTab == .scenes && oldTab != .scenes {
+        print("📱 Switched to Scenes tab - reloading all scenes")
         Task {
           await initialLoad()
-          print("🔄 Loaded scenes in MediaLibraryView (onAppear): \(appModel.api.scenes.count)")
         }
       }
     }

@@ -23,7 +23,7 @@ struct StashScene: Identifiable, Decodable, Equatable, Hashable {
   struct ScenePaths: Decodable, Equatable {
     let screenshot: String
     let preview: String?
-    let stream: String
+    let stream: String?
   }
 
   struct SceneFile: Decodable, Equatable {

@@ -197,64 +197,75 @@ struct PerformerTabView: View {
     }
   }
 
+  @ViewBuilder
   private var scenesContent: some View {
-    VStack {
-      // Debug view without auto-reload
-      Color.clear.frame(height: 0)
-        .onAppear {
-          print("📱 SCENES CONTENT APPEARING")
-          print("📱 Current scenes count: \(appModel.api.scenes.count)")
-          print("📱 isLoading: \(appModel.api.isLoading)")
+    Color.clear.frame(height: 0)
+      .onAppear {
+        print("📱 SCENES CONTENT APPEARING")
+        print("📱 Current scenes count: \(appModel.api.scenes.count)")
+        print("📱 isLoading: \(appModel.api.isLoading)")
 
-          // Only log data, don't trigger reloads
-          if !appModel.api.scenes.isEmpty {
-            print("📱 First scene ID: \(appModel.api.scenes[0].id)")
-            print("📱 First scene title: \(appModel.api.scenes[0].title ?? "No title")")
+        // Only log data, don't trigger reloads
+        if !appModel.api.scenes.isEmpty {
+          print("📱 First scene ID: \(appModel.api.scenes[0].id)")
+          print("📱 First scene title: \(appModel.api.scenes[0].title ?? "No title")")
+        }
+      }
+
+    if appModel.api.isLoading {
+      loadingStateView
+    } else if appModel.api.scenes.isEmpty {
+      emptyStateView
+    } else {
+      scenesGridView
+    }
+  }
+
+  private var loadingStateView: some View {
+    VStack(spacing: 16) {
+      ProgressView()
+        .scaleEffect(1.5)
+        .padding()
+
+      Text("Loading scenes for \(performer.name)...")
+        .foregroundColor(.secondary)
+    }
+    .padding(.vertical, 60)
+    .frame(maxWidth: .infinity)
+  }
+
+  private var emptyStateView: some View {
+    VStack(spacing: 16) {
+      Image(systemName: "film.stack")
+        .font(.system(size: 50))
+        .foregroundColor(.secondary)
+        .padding()
+
+      Text("No scenes found for \(performer.name)")
+        .font(.headline)
+        .foregroundColor(.secondary)
+
+      Button("Reload") {
+        Task {
+          currentPage = 1
+          await loadScenes()
+          // Trigger refresh after manual reload
+          await MainActor.run {
+            viewRefreshTrigger = UUID()
           }
         }
+      }
+      .buttonStyle(.borderedProminent)
+      .padding(.top, 8)
+    }
+    .padding(.vertical, 60)
+    .frame(maxWidth: .infinity)
+  }
 
-      if appModel.api.isLoading {
-        // Loading state
-        VStack(spacing: 16) {
-          ProgressView()
-            .scaleEffect(1.5)
-            .padding()
-
-          Text("Loading scenes for \(performer.name)...")
-            .foregroundColor(.secondary)
-        }
-        .padding(.vertical, 60)
-        .frame(maxWidth: .infinity)
-      } else if appModel.api.scenes.isEmpty {
-        // Empty state
-        VStack(spacing: 16) {
-          Image(systemName: "film.stack")
-            .font(.system(size: 50))
-            .foregroundColor(.secondary)
-            .padding()
-
-          Text("No scenes found for \(performer.name)")
-            .font(.headline)
-            .foregroundColor(.secondary)
-
-          Button("Reload") {
-            Task {
-              currentPage = 1
-              await loadScenes()
-              // Trigger refresh after manual reload
-              await MainActor.run {
-                viewRefreshTrigger = UUID()
-              }
-            }
-          }
-          .buttonStyle(.borderedProminent)
-          .padding(.top, 8)
-        }
-        .padding(.vertical, 60)
-        .frame(maxWidth: .infinity)
-      } else {
-        // Content found - display scene count with shuffle button
-        HStack {
+  @ViewBuilder
+  private var scenesGridView: some View {
+    // Content found - display scene count with shuffle button
+    HStack {
           Text("Found \(appModel.api.scenes.count) scenes")
             .font(.headline)
             .foregroundColor(.primary)
@@ -284,7 +295,8 @@ struct PerformerTabView: View {
               onPerformerSelected: { _ in },  // Ignore performer selection in performer view
               onSceneUpdated: { _ in },
               onSceneSelected: { selectedScene in
-                if let url = URL(string: selectedScene.paths.stream) {
+                if let stream = selectedScene.paths.stream,
+                   let url = URL(string: stream) {
                   if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                     let window = windowScene.windows.first,
                     let rootViewController = window.rootViewController {
@@ -309,7 +321,8 @@ struct PerformerTabView: View {
                 .stroke(Color.purple.opacity(0.3), lineWidth: 1)
             )
             .onTapGesture {
-              if let url = URL(string: scene.paths.stream) {
+              if let stream = scene.paths.stream,
+                 let url = URL(string: stream) {
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                   let window = windowScene.windows.first,
                   let rootViewController = window.rootViewController {
@@ -341,11 +354,6 @@ struct PerformerTabView: View {
         }
         .padding()
         .id(viewRefreshTrigger)  // Force LazyVGrid to refresh when scenes change
-      }
-    }
-    .animation(.easeInOut(duration: 0.3), value: appModel.api.scenes.count)
-    .animation(.easeInOut(duration: 0.3), value: appModel.api.isLoading)
-    .id(viewRefreshTrigger)  // Force view refresh when trigger changes
   }
 
   private var markersContent: some View {

@@ -740,9 +740,14 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
     let otherScenes = performerScenes.filter { $0.id != currentSceneID }
     guard let randomScene = otherScenes.randomElement() ?? performerScenes.first else { return }
 
-    if let nextUrl = URL(string: randomScene.paths.stream) {
-      // Create a new player item for the next scene
-      let playerItem = AVPlayerItem(url: nextUrl)
+    guard let stream = randomScene.paths.stream,
+          let nextUrl = URL(string: stream) else {
+      print("❌ Performer shuffle: No stream URL for scene \(randomScene.id)")
+      return
+    }
+
+    // Create a new player item for the next scene
+    let playerItem = AVPlayerItem(url: nextUrl)
 
       // Replace the current item with the new one
       if let currentPlayer = player {
@@ -827,7 +832,6 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
           }
         }
       }
-    }
   }
 
   @objc private func handleShuffleButtonTapped() {
@@ -861,12 +865,17 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
     let otherScenes = scenes.filter { $0.id != currentSceneID }
     guard let randomScene = otherScenes.randomElement() ?? scenes.first else { return }
 
-    if let nextUrl = URL(string: randomScene.paths.stream) {
-      // Create a new player item for the next scene
-      let playerItem = AVPlayerItem(url: nextUrl)
+    guard let stream = randomScene.paths.stream,
+          let nextUrl = URL(string: stream) else {
+      print("❌ Scene shuffle: No stream URL for scene \(randomScene.id)")
+      return
+    }
 
-      // Replace the current item with the new one
-      if let currentPlayer = player {
+    // Create a new player item for the next scene
+    let playerItem = AVPlayerItem(url: nextUrl)
+
+    // Replace the current item with the new one
+    if let currentPlayer = player {
         // Save progress for current scene before switching
         if let currentTime = currentPlayer.currentItem?.currentTime().seconds {
           UserDefaults.standard.setVideoProgress(currentTime, for: currentSceneID)
@@ -950,7 +959,6 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
           }
         }
       }
-    }
   }
 
   @objc private func handleReshuffleButtonTapped() {
