@@ -769,80 +769,82 @@ class StashAPI: ObservableObject {
         // Lightweight query for grid views - only essential fields (~15KB per scene vs ~200KB)
         fullQuery =
           queryString + """
-                    count
-                    scenes {
-                        id
-                        title
-                        date
-                        paths {
-                            screenshot
-                        }
-                        files {
-                            duration
-                            width
-                            height
-                        }
-                        performers {
-                            id
-                            name
-                        }
-                        tags {
-                            name
-                        }
-                    }
-                }
-            }
-            """
+
+                  count
+                  scenes {
+                      id
+                      title
+                      date
+                      paths {
+                          screenshot
+                      }
+                      files {
+                          duration
+                          width
+                          height
+                      }
+                      performers {
+                          id
+                          name
+                      }
+                      tags {
+                          name
+                      }
+                  }
+              }
+          }
+          """
       } else {
         // Full query for detail views - all fields
         fullQuery =
           queryString + """
-                    count
-                    scenes {
-                        id
-                        title
-                        details
-                        url
-                        date
-                        rating100
-                        organized
-                        o_counter
-                        paths {
-                            screenshot
-                            preview
-                            stream
-                            webp
-                            vtt
-                            sprite
-                            funscript
-                            interactive_heatmap
-                        }
-                        files {
-                            size
-                            duration
-                            video_codec
-                            width
-                            height
-                        }
-                        performers {
-                            id
-                            name
-                            gender
-                            image_path
-                            scene_count
-                        }
-                        tags {
-                            id
-                            name
-                        }
-                        studio {
-                            id
-                            name
-                        }
-                    }
-                }
-            }
-            """
+
+                  count
+                  scenes {
+                      id
+                      title
+                      details
+                      url
+                      date
+                      rating100
+                      organized
+                      o_counter
+                      paths {
+                          screenshot
+                          preview
+                          stream
+                          webp
+                          vtt
+                          sprite
+                          funscript
+                          interactive_heatmap
+                      }
+                      files {
+                          size
+                          duration
+                          video_codec
+                          width
+                          height
+                      }
+                      performers {
+                          id
+                          name
+                          gender
+                          image_path
+                          scene_count
+                      }
+                      tags {
+                          id
+                          name
+                      }
+                      studio {
+                          id
+                          name
+                      }
+                  }
+              }
+          }
+          """
       }
 
       // Debug: Print the full query to see what's being sent
