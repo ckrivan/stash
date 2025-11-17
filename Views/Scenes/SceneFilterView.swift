@@ -17,28 +17,28 @@ struct SceneFilterView: View {
       VStack(spacing: 16) {
         filterButton("Default Sort", systemImage: "rectangle.grid.2x2", filter: "default") {
           Task {
-            await appModel.api.fetchScenes(page: 1, sort: "file_mod_time", direction: "DESC")
+            await appModel.api.fetchScenes(page: 1, sort: "file_mod_time", direction: "DESC", useGridQuery: true)
             dismiss()
           }
         }
 
         filterButton("Newest Videos", systemImage: "clock", filter: "newest") {
           Task {
-            await appModel.api.fetchScenes(page: 1, sort: "date", direction: "DESC")
+            await appModel.api.fetchScenes(page: 1, sort: "date", direction: "DESC", useGridQuery: true)
             dismiss()
           }
         }
 
         filterButton("Most Played", systemImage: "number.circle", filter: "o_counter") {
           Task {
-            await appModel.api.fetchScenes(page: 1, sort: "o_counter", direction: "DESC")
+            await appModel.api.fetchScenes(page: 1, sort: "o_counter", direction: "DESC", useGridQuery: true)
             dismiss()
           }
         }
 
         filterButton("Random Order", systemImage: "shuffle", filter: "random") {
           Task {
-            await appModel.api.fetchScenes(page: 1, sort: "random", direction: "DESC")
+            await appModel.api.fetchScenes(page: 1, sort: "random", direction: "DESC", useGridQuery: true)
             dismiss()
           }
         }

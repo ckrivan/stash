@@ -687,7 +687,8 @@ class StashAPI: ObservableObject {
   }
   func fetchScenes(
     page: Int = 1, sort: String = "file_mod_time", direction: String = "DESC",
-    appendResults: Bool = false, filterOptions: FilterOptions? = nil
+    appendResults: Bool = false, filterOptions: FilterOptions? = nil,
+    useGridQuery: Bool = false  // Use lightweight query for grid views
   ) async {
     print(
       "🔄 StashAPI.fetchScenes called - page: \(page), sort: \(sort), direction: \(direction), appendResults: \(appendResults)"
@@ -762,10 +763,33 @@ class StashAPI: ObservableObject {
           """
       }
 
-      let fullQuery =
-        queryString + """
-                  count
-                  scenes {
+      // Choose query fields based on whether this is for grid view or detail view
+      let sceneFields: String
+      if useGridQuery {
+        // Lightweight query for grid views - only essential fields (~15KB per scene vs ~200KB)
+        sceneFields = """
+                      id
+                      title
+                      date
+                      paths {
+                          screenshot
+                      }
+                      files {
+                          duration
+                          width
+                          height
+                      }
+                      performers {
+                          id
+                          name
+                      }
+                      tags {
+                          name
+                      }
+          """
+      } else {
+        // Full query for detail views - all fields
+        sceneFields = """
                       id
                       title
                       details
@@ -806,6 +830,14 @@ class StashAPI: ObservableObject {
                           id
                           name
                       }
+          """
+      }
+
+      let fullQuery =
+        queryString + """
+                  count
+                  scenes {
+                      \(sceneFields)
                   }
               }
           }
@@ -829,7 +861,7 @@ class StashAPI: ObservableObject {
       configureRequestWithAuth(&request)
       request.httpBody = jsonData
 
-      print("📤 Fetching scenes page \(page) (sort: \(sort), direction: \(direction))")
+      print("📤 Fetching scenes page \(page) (sort: \(sort), direction: \(direction), grid query: \(useGridQuery))")
 
       let (data, response) = try await URLSession.shared.data(for: request)
 

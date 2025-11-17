@@ -207,7 +207,7 @@ struct MediaLibraryView: View {
     ) {
       Task {
         currentFilter = "custom"
-        await appModel.api.fetchScenes(page: 1, filterOptions: filterOptions)
+        await appModel.api.fetchScenes(page: 1, filterOptions: filterOptions, useGridQuery: true)
       }
     }
   }
@@ -816,7 +816,7 @@ struct MediaLibraryView: View {
         print("📱 Using VR exclusion fetch for recently added")
         await appModel.api.fetchScenesExcludingVR(page: 1, sort: sort, direction: direction)
       } else {
-        await appModel.api.fetchScenes(page: 1, sort: sort, direction: direction)
+        await appModel.api.fetchScenes(page: 1, sort: sort, direction: direction, useGridQuery: true)
       }
       print("📱 Fetch completed successfully, scenes count: \(appModel.api.scenes.count)")
       await MainActor.run {
@@ -847,20 +847,20 @@ struct MediaLibraryView: View {
     switch currentFilter {
     case "newest":
       await appModel.api.fetchScenes(
-        page: currentPage, sort: "date", direction: "DESC", appendResults: false)
+        page: currentPage, sort: "date", direction: "DESC", appendResults: false, useGridQuery: true)
     case "o_counter":
       await appModel.api.fetchScenes(
-        page: currentPage, sort: "o_counter", direction: "DESC", appendResults: false)
+        page: currentPage, sort: "o_counter", direction: "DESC", appendResults: false, useGridQuery: true)
     case "random":
       await appModel.api.fetchScenes(
-        page: currentPage, sort: "random", direction: "DESC", appendResults: false)
+        page: currentPage, sort: "random", direction: "DESC", appendResults: false, useGridQuery: true)
     case "custom":
       await appModel.api.fetchScenes(
         page: currentPage, sort: "date", direction: "DESC", appendResults: false,
-        filterOptions: filterOptions)
+        filterOptions: filterOptions, useGridQuery: true)
     default:
       await appModel.api.fetchScenes(
-        page: currentPage, sort: "file_mod_time", direction: "DESC", appendResults: false)
+        page: currentPage, sort: "file_mod_time", direction: "DESC", appendResults: false, useGridQuery: true)
     }
   }
 
@@ -877,20 +877,20 @@ struct MediaLibraryView: View {
     switch currentFilter {
     case "newest":
       await appModel.api.fetchScenes(
-        page: currentPage, sort: "date", direction: "DESC", appendResults: true)
+        page: currentPage, sort: "date", direction: "DESC", appendResults: true, useGridQuery: true)
     case "o_counter":
       await appModel.api.fetchScenes(
-        page: currentPage, sort: "o_counter", direction: "DESC", appendResults: true)
+        page: currentPage, sort: "o_counter", direction: "DESC", appendResults: true, useGridQuery: true)
     case "random":
       await appModel.api.fetchScenes(
-        page: currentPage, sort: "random", direction: "DESC", appendResults: true)
+        page: currentPage, sort: "random", direction: "DESC", appendResults: true, useGridQuery: true)
     case "custom":
       await appModel.api.fetchScenes(
         page: currentPage, sort: "date", direction: "DESC", appendResults: true,
-        filterOptions: filterOptions)
+        filterOptions: filterOptions, useGridQuery: true)
     default:
       await appModel.api.fetchScenes(
-        page: currentPage, sort: "file_mod_time", direction: "DESC", appendResults: true)
+        page: currentPage, sort: "file_mod_time", direction: "DESC", appendResults: true, useGridQuery: true)
     }
 
     hasMorePages = appModel.api.scenes.count > previousCount
