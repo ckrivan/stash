@@ -1759,9 +1759,9 @@ extension VideoPlayerView {
 
             print("▶️ Started playing random scene: \(randomScene.title ?? "Untitled")")
 
-            // Enhanced shuffle: Jump to a random position in the new scene after a brief delay
+            // Enhanced shuffle: Jump to a random position in the new scene after minimal delay
             // Wait for the player to be ready before jumping to random position
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
               print("🎲 Shuffle: Jumping to random position in new scene")
               VideoPlayerUtility.jumpToRandomPosition(in: player)
             }
@@ -2205,9 +2205,9 @@ extension VideoPlayerView {
         player.replaceCurrentItem(with: playerItem)
         player.play()
 
-        // Enhanced shuffle: Jump to a random position in the fallback scene after a brief delay
+        // Enhanced shuffle: Jump to a random position in the fallback scene after minimal delay
         // Wait for the player to be ready before jumping to random position
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
           print("🎲 Fallback shuffle: Jumping to random position in new scene")
           VideoPlayerUtility.jumpToRandomPosition(in: player)
         }
@@ -2484,8 +2484,8 @@ extension VideoPlayerView {
             )
 
             // Generate a random position to seek to (between 20% and 80% of video)
-            // Use a longer delay to make sure the video loads properly
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            // Use minimal delay for faster video switching
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
               print("🎯 PERFORMER BUTTON: First delayed seek timer fired")
 
               guard let player = getCurrentPlayer(),
@@ -2505,10 +2505,10 @@ extension VideoPlayerView {
                 if success {
                   print("✅ PERFORMER BUTTON: Successfully jumped to random position using utility")
                 } else if !isRetry {
-                  print("⚠️ PERFORMER BUTTON: Failed to jump, will retry in 2 seconds")
+                  print("⚠️ PERFORMER BUTTON: Failed to jump, will retry shortly")
 
                   // Last resort retry
-                  DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                  DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     guard let player = getCurrentPlayer(),
                       let currentItem = player.currentItem
                     else { return }
@@ -2535,10 +2535,10 @@ extension VideoPlayerView {
                 print(
                   "⚠️ PERFORMER BUTTON: Player not ready for seeking, status: \(currentItem.status.rawValue)"
                 )
-                print("🎯 PERFORMER BUTTON: Will retry after additional delay")
+                print("🎯 PERFORMER BUTTON: Will retry after short delay")
 
-                // Try again after a slightly longer delay
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                // Try again after minimal delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                   print("🎯 PERFORMER BUTTON: Retry delayed seek timer fired")
                   guard let player = getCurrentPlayer(),
                     let currentItem = player.currentItem
@@ -2797,8 +2797,8 @@ extension VideoPlayerView {
             player.replaceCurrentItem(with: playerItem)
             player.play()
 
-            // Add delayed seek to random position
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            // Add minimal delay seek to random position
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
               print("🎯 PERFORMER BUTTON (FALLBACK): Attempting to seek to random position")
               if let player = getCurrentPlayer() {
                 // Use the improved utility method which handles all edge cases
@@ -2808,8 +2808,8 @@ extension VideoPlayerView {
                 } else {
                   print("⚠️ PERFORMER BUTTON (FALLBACK): Failed initial jump, will retry")
 
-                  // One more try after a delay
-                  DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                  // One more try after minimal delay
+                  DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     if let player = getCurrentPlayer() {
                       VideoPlayerUtility.jumpToRandomPosition(in: player)
                     }
@@ -3023,8 +3023,8 @@ extension VideoPlayerView {
         player.replaceCurrentItem(with: playerItem)
         player.play()
 
-        // Add delayed seeking to random position
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+        // Add minimal delay seeking to random position
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
           VideoPlayerUtility.jumpToRandomPosition(in: player)
         }
 
@@ -3596,8 +3596,8 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
             print("⚠️ Failed to configure audio session: \(error)")
           }
 
-          // Small delay to ensure video layer is ready
-          DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+          // Minimal delay for faster video switching
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
             // NOW it's safe to start playback
             player.play()
             print("▶️ Starting playback after video track verified")
@@ -3608,7 +3608,7 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
 
             // Handle seeking if needed
             if let t = explicitStartTime, t > 0 {
-              DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+              DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
                 let cmTime = CMTime(seconds: t, preferredTimescale: 1000)
                 print("⏱ Seeking to \(t) seconds after playback started")
 
