@@ -569,10 +569,10 @@ extension VideoPlayerUtility {
     // Assign player to playerViewController
     playerViewController.player = player
 
-    // Optimize player for faster startup and reduced buffering delays
-    player.automaticallyWaitsToMinimizeStalling = false  // Reduce waiting time
+    // Let AVPlayer handle stalling naturally for smooth playback
+    player.automaticallyWaitsToMinimizeStalling = true  // Let player handle buffering
     if let currentItem = player.currentItem {
-      currentItem.preferredForwardBufferDuration = 2.0  // Buffer only 2 seconds ahead
+      currentItem.preferredForwardBufferDuration = 5.0  // More buffer for stable playback
     }
 
     // Configure player options

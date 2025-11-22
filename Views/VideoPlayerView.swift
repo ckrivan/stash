@@ -610,6 +610,7 @@ struct VideoPlayerView: View {
   @State private var videoLoadingTimer: Timer?
   @State private var isVideoLoading: Bool = false
   @State private var isManualExit: Bool = false
+  @FocusState private var isVideoPlayerFocused: Bool
 
   init(scene: StashScene, startTime: Double? = nil, endTime: Double? = nil) {
     self.scene = scene
@@ -951,7 +952,7 @@ struct VideoPlayerView: View {
       .statusBarHidden(true)  // Hide the status bar for full immersion
       .ignoresSafeArea(.all)  // Ignore all safe areas for true full screen
       .id(scene.id)  // Force view recreation when scene changes
-      .focusable()  // Make the view focusable for keyboard input
+      .focused($isVideoPlayerFocused)  // Automatically focus for keyboard input
       .onKeyPress(phases: .down) { keyPress in
         return handleKeyPress(keyPress)
       }
@@ -962,6 +963,9 @@ struct VideoPlayerView: View {
           "📱 DEBUG - Is marker navigation: \(UserDefaults.standard.bool(forKey: "scene_\(scene.id)_isMarkerNavigation"))"
         )
         print("📱 DEBUG - showControls: \(showControls)")
+
+        // Automatically focus the video player for immediate keyboard input
+        isVideoPlayerFocused = true
 
         // IMPORTANT: Update currentScene to the correct scene being played
         currentScene = scene
@@ -3513,6 +3517,7 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
     let asset = AVURLAsset(url: finalUrl, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
 
     print("🎬 Creating player item with AVURLAsset")
+
     let playerItem = AVPlayerItem(asset: asset)
     let player = AVPlayer(playerItem: playerItem)
     let playerVC = AVPlayerViewController()
@@ -3522,13 +3527,16 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
     playerVC.allowsPictureInPicturePlayback = true
     playerVC.showsPlaybackControls = true
 
+    // CRITICAL: Configure video layer BEFORE playback
+    playerVC.videoGravity = .resizeAspect
+    print("🎬 Video gravity configured to resizeAspect")
+
     // Create our custom wrapper with scene information for aspect ratio correction
     let currentScene = scenes.indices.contains(currentIndex) ? scenes[currentIndex] : nil
     let customVC = CustomPlayerViewController(playerVC: playerVC, scene: currentScene)
 
-    // CRITICAL: Force playback to start immediately
-    print("▶️ Attempting to force immediate playback")
-    player.play()
+    // DO NOT call play() here - wait for readyToPlay status
+    print("🎬 Player created, waiting for ready state before playback")
 
     // Add timeControlStatus observer for debugging
     let timeObserver = player.observe(\.timeControlStatus, options: [.new]) { player, _ in
@@ -3554,27 +3562,8 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
       playerViewModel.endSeconds = endTime
     }
 
-    // FORCE INITIAL SEEK if we have an explicit start time
-    if let timeToSeek = explicitStartTime, timeToSeek > 0 {
-      // Start playback first
-      print("▶️ Starting playback before seek")
-      player.play()
-
-      // Then perform seek with a small delay to let video buffer
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-        print("⏱ CRITICAL: Performing delayed seek to \(timeToSeek) seconds")
-        let cmTime = CMTime(seconds: timeToSeek, preferredTimescale: 1000)
-        player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { success in
-          print("⏱ Seek completed with result: \(success)")
-          // Ensure playback continues after seek
-          player.play()
-        }
-      }
-    } else {
-      // No seek needed, just start playing
-      print("▶️ Starting playback immediately (no seek required)")
-      player.play()
-    }
+    // Store start time for use in readyToPlay observer
+    // DO NOT seek or play here - wait for video to be ready
 
     // Add observer for readyToPlay status
     let token = playerItem.observe(\.status, options: [.new, .old]) { item, _ in
@@ -3583,37 +3572,54 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
       if item.status == .readyToPlay {
         print("🎬 Player item is ready to play")
 
-        // Check if URL already has t parameter - if yes, we don't need to seek manually
-        let urlString = finalUrl.absoluteString
-        let hasTimeParameter = urlString.contains("&t=") || urlString.contains("?t=")
+        // CRITICAL: Verify video tracks are available and ready
+        let videoTracks = item.asset.tracks(withMediaType: .video)
+        print("🎬 Video tracks found: \(videoTracks.count)")
 
-        // CRITICAL: Force play again regardless of time parameter
-        player.play()
-        print("▶️ Forcing play after ready status")
+        if let videoTrack = videoTracks.first {
+          print("🎬 Video track details:")
+          print("   - Enabled: \(videoTrack.isEnabled)")
+          print("   - Playable: \(videoTrack.isPlayable)")
+          print("   - Natural size: \(videoTrack.naturalSize)")
+        } else {
+          print("❌ WARNING: No video track found - audio only?")
+        }
 
-        // Cancel loading timeout since video is ready and playing
-        NotificationCenter.default.post(
-          name: NSNotification.Name("VideoLoadingSuccess"), object: nil)
-
-        // Only handle seeking if we need to
-        if let t = explicitStartTime, t > 0 {
-          // Create a very precise time value with high timescale
-          let cmTime = CMTime(seconds: t, preferredTimescale: 1000)
-
-          print("⏱ CRITICAL: Seeking to explicit time \(t) seconds after ready status")
-
-          // Use precise seeking with tolerances
-          player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { success in
-            print("⏱ Seek to \(t) completed with result: \(success)")
-
-            // Resume playback
-            player.play()
-            print("▶️ CRITICAL: Playback forced after seeking")
+        // Configure audio session NOW that video is ready
+        DispatchQueue.main.async {
+          do {
+            let audioSession = AVAudioSession.sharedInstance()
+            try audioSession.setCategory(.playback, mode: .moviePlayback, options: [])
+            try audioSession.setActive(true)
+            print("🔊 Audio session configured after video ready")
+          } catch {
+            print("⚠️ Failed to configure audio session: \(error)")
           }
-        } else if hasTimeParameter {
-          print("⏱ URL already has t parameter, ensuring playback")
-          player.play()
-          print("▶️ CRITICAL: Playback forced with t parameter")
+
+          // Small delay to ensure video layer is ready
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            // NOW it's safe to start playback
+            player.play()
+            print("▶️ Starting playback after video track verified")
+
+            // Cancel loading timeout since video is ready and playing
+            NotificationCenter.default.post(
+              name: NSNotification.Name("VideoLoadingSuccess"), object: nil)
+
+            // Handle seeking if needed
+            if let t = explicitStartTime, t > 0 {
+              DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                let cmTime = CMTime(seconds: t, preferredTimescale: 1000)
+                print("⏱ Seeking to \(t) seconds after playback started")
+
+                player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { success in
+                  print("⏱ Seek completed: \(success)")
+                  player.play()  // Resume after seek
+                  print("▶️ Playback resumed after seeking")
+                }
+              }
+            }
+          }
         }
 
         // Set up coordinator
