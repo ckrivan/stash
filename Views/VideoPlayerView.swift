@@ -2320,13 +2320,20 @@ extension VideoPlayerView {
 
     // Enhanced performer selection with persistent context
     var selectedPerformer: StashScene.Performer?
-    
+
+    // Debug logging to track state across view recreations
+    print("📊 PERFORMER STATE DEBUG:")
+    print("📊   appModel.currentPerformer: \(appModel.currentPerformer?.name ?? "nil")")
+    print("📊   appModel.performerDetailViewPerformer: \(appModel.performerDetailViewPerformer?.name ?? "nil")")
+    print("📊   originalPerformer (@State): \(originalPerformer?.name ?? "nil")")
+    print("📊   currentScene performers: \(currentScene.performers.map { $0.name }.joined(separator: ", "))")
+
     print("🎯 PERFORMER BUTTON: Current scene performers:")
     for performer in currentScene.performers {
       print(
         "📊   - \(performer.name) (ID: \(performer.id), gender: \(performer.gender ?? "unknown"))")
     }
-    
+
     // Priority 1: Use performerDetailViewPerformer if set (from PerformerDetailView context)
     if let detailViewPerformer = appModel.performerDetailViewPerformer {
       print("🎯 PERFORMER BUTTON: DetailView performer available: \(detailViewPerformer.name) (ID: \(detailViewPerformer.id))")
@@ -2341,17 +2348,24 @@ extension VideoPlayerView {
         print("🎯 PERFORMER BUTTON: DetailView performer \(detailViewPerformer.name) not in scene, using same gender: \(selectedPerformer?.name ?? "none")")
       }
     }
-    // Priority 2: Use originalPerformer if it's in the current scene
+    // Priority 2: Use appModel.currentPerformer (survives view recreation - MOST RELIABLE)
+    else if let currentPerf = appModel.currentPerformer {
+      // Check if this performer is in the current scene
+      if currentScene.performers.contains(where: { $0.id == currentPerf.id }) {
+        selectedPerformer = currentPerf
+        print("🎯 PERFORMER BUTTON: Using performer from appModel.currentPerformer: \(currentPerf.name)")
+      } else {
+        // Not in scene - use same gender from current scene
+        let sameGenderPerformer = currentScene.performers.first { $0.gender == currentPerf.gender }
+        selectedPerformer = sameGenderPerformer ?? currentScene.performers.first
+        print("🎯 PERFORMER BUTTON: appModel.currentPerformer \(currentPerf.name) not in scene, using same gender: \(selectedPerformer?.name ?? "none")")
+      }
+    }
+    // Priority 3: Use originalPerformer if it's in the current scene (fallback - may be stale due to view recreation)
     else if let originalPerf = originalPerformer,
       currentScene.performers.contains(where: { $0.id == originalPerf.id }) {
       selectedPerformer = originalPerf
       print("🎯 PERFORMER BUTTON: Using original performer from current scene: \(originalPerf.name)")
-    }
-    // Priority 3: Use appModel.currentPerformer if available
-    else if let currentPerf = appModel.currentPerformer,
-      currentScene.performers.contains(where: { $0.id == currentPerf.id }) {
-      selectedPerformer = currentPerf
-      print("🎯 PERFORMER BUTTON: Using current performer from appModel: \(currentPerf.name)")
     }
     // Priority 4: Default to female performer from current scene
     else {
@@ -2360,7 +2374,7 @@ extension VideoPlayerView {
       print(
         "🎯 PERFORMER BUTTON: Using female performer from current scene: \(selectedPerformer?.name ?? "none")"
       )
-      
+
       // Update the originalPerformer to match this performer from current scene
       originalPerformer = selectedPerformer
     }
