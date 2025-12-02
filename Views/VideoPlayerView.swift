@@ -1113,6 +1113,10 @@ struct VideoPlayerView: View {
                     player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { _ in
                       player.play()
                       self.cancelVideoLoadingTimeout()
+                      // Restore keyboard focus after scene transition
+                      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        self.isVideoPlayerFocused = true
+                      }
                     }
                   } else if item.status == .failed {
                     statusObserver?.invalidate()
@@ -1212,6 +1216,10 @@ struct VideoPlayerView: View {
                         print("⚠️ Seek incomplete, starting playback anyway")
                       }
                       player.play()
+                      // Restore keyboard focus after scene transition
+                      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        self.isVideoPlayerFocused = true
+                      }
                     }
                   } else if item.status == .failed {
                     statusObserver?.invalidate()
