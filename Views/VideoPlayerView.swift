@@ -1097,14 +1097,27 @@ struct VideoPlayerView: View {
                   url: url, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
                 let playerItem = AVPlayerItem(asset: asset)
 
+                // CRITICAL: Use stable buffering to prevent black screen with audio
+                playerItem.preferredForwardBufferDuration = 5.0
+                player.automaticallyWaitsToMinimizeStalling = true
+
                 // Replace current item
                 player.replaceCurrentItem(with: playerItem)
 
-                // Seek to start time
-                let cmTime = CMTime(seconds: startSeconds, preferredTimescale: 1000)
-                player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { _ in
-                  player.play()
-                  self.cancelVideoLoadingTimeout()
+                // Wait for player to be READY before seeking/playing (prevents black screen)
+                var statusObserver: NSKeyValueObservation?
+                statusObserver = playerItem.observe(\.status, options: [.new]) { item, _ in
+                  if item.status == .readyToPlay {
+                    statusObserver?.invalidate()
+                    let cmTime = CMTime(seconds: startSeconds, preferredTimescale: 1000)
+                    player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { _ in
+                      player.play()
+                      self.cancelVideoLoadingTimeout()
+                    }
+                  } else if item.status == .failed {
+                    statusObserver?.invalidate()
+                    print("❌ Player item failed: \(item.error?.localizedDescription ?? "unknown")")
+                  }
                 }
               }
             }
@@ -1176,29 +1189,33 @@ struct VideoPlayerView: View {
                   url: hlsURL, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
                 let playerItem = AVPlayerItem(asset: asset)
 
-                // Optimize for faster switching between videos
-                playerItem.preferredForwardBufferDuration = 2.0  // Buffer only 2 seconds ahead
-                player.automaticallyWaitsToMinimizeStalling = false  // Reduce waiting time
+                // CRITICAL: Use stable buffering to prevent black screen with audio
+                playerItem.preferredForwardBufferDuration = 5.0
+                player.automaticallyWaitsToMinimizeStalling = true
 
                 // Replace current item
                 player.replaceCurrentItem(with: playerItem)
 
-                // Wait longer for player item to be ready, then seek to marker start time
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                  let cmTime = CMTime(seconds: startTime, preferredTimescale: 1000)
-                  print("🎲 Seeking to marker time: \(startTime)s (CMTime: \(cmTime))")
+                // Wait for player to be READY before seeking/playing (prevents black screen)
+                var statusObserver: NSKeyValueObservation?
+                statusObserver = playerItem.observe(\.status, options: [.new]) { item, _ in
+                  if item.status == .readyToPlay {
+                    statusObserver?.invalidate()
+                    print("🎲 Player ready - seeking to marker time: \(startTime)s")
 
-                  player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) {
-                    completed in
-                    if completed {
-                      print(
-                        "🎲 ✅ Successfully seeked to marker time \(startTime)s, starting playback")
-                      player.play()
-                    } else {
-                      print("⚠️ ❌ Failed to seek to marker time \(startTime)s")
-                      // Try to play anyway
+                    let cmTime = CMTime(seconds: startTime, preferredTimescale: 1000)
+                    player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) {
+                      completed in
+                      if completed {
+                        print("🎲 ✅ Successfully seeked to marker time \(startTime)s, starting playback")
+                      } else {
+                        print("⚠️ Seek incomplete, starting playback anyway")
+                      }
                       player.play()
                     }
+                  } else if item.status == .failed {
+                    statusObserver?.invalidate()
+                    print("❌ Player item failed: \(item.error?.localizedDescription ?? "unknown")")
                   }
                 }
               } else {
