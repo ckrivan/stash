@@ -70,9 +70,31 @@ struct StashScene: Identifiable, Decodable, Equatable, Hashable {
   struct Tag: Identifiable, Decodable, Equatable, Hashable {
     let id: String
     let name: String
+    let children: [Tag]?  // Sub-tags for hierarchical tag search
+
+    enum CodingKeys: String, CodingKey {
+      case id, name, children
+    }
+
+    init(from decoder: Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      id = try container.decode(String.self, forKey: .id)
+      name = try container.decode(String.self, forKey: .name)
+      children = try container.decodeIfPresent([Tag].self, forKey: .children)
+    }
+
+    init(id: String, name: String, children: [Tag]? = nil) {
+      self.id = id
+      self.name = name
+      self.children = children
+    }
 
     func hash(into hasher: inout Hasher) {
       hasher.combine(id)
+    }
+
+    static func == (lhs: Tag, rhs: Tag) -> Bool {
+      return lhs.id == rhs.id
     }
   }
 }
@@ -171,9 +193,31 @@ struct SceneMarker: Identifiable, Decodable, Equatable, Hashable {
   struct Tag: Identifiable, Decodable, Equatable, Hashable {
     let id: String
     let name: String
+    let children: [Tag]?  // Sub-tags for hierarchical tag search
+
+    enum CodingKeys: String, CodingKey {
+      case id, name, children
+    }
+
+    init(from decoder: Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      id = try container.decode(String.self, forKey: .id)
+      name = try container.decode(String.self, forKey: .name)
+      children = try container.decodeIfPresent([Tag].self, forKey: .children)
+    }
+
+    init(id: String, name: String, children: [Tag]? = nil) {
+      self.id = id
+      self.name = name
+      self.children = children
+    }
 
     func hash(into hasher: inout Hasher) {
       hasher.combine(id)
+    }
+
+    static func == (lhs: Tag, rhs: Tag) -> Bool {
+      return lhs.id == rhs.id
     }
   }
 

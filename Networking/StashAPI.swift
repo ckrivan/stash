@@ -2221,6 +2221,10 @@ class StashAPI: ObservableObject {
             name
             scene_count
             image_count
+            children {
+              id
+              name
+            }
           }
         }
       }
@@ -2288,6 +2292,10 @@ class StashAPI: ObservableObject {
             name
             scene_count
             image_count
+            children {
+              id
+              name
+            }
           }
         }
       }
@@ -3125,13 +3133,17 @@ class StashAPI: ObservableObject {
   // Search markers by exact tag name for SHUFFLE SYSTEM ONLY (can load more markers)
   func searchMarkersByExactTagForShuffle(tagName: String, maxMarkers: Int = 2000) async throws
     -> [SceneMarker] {
-    // First, find the tag by exact name
+    // First, find the tag by exact name (including children for hierarchical search)
     let tagQuery = """
       query FindTags($filter: FindFilterType) {
           findTags(filter: $filter) {
               tags {
                   id
                   name
+                  children {
+                      id
+                      name
+                  }
               }
           }
       }
@@ -3160,6 +3172,12 @@ class StashAPI: ObservableObject {
     struct Tag: Decodable {
       let id: String
       let name: String
+      let children: [ChildTag]?
+
+      struct ChildTag: Decodable {
+        let id: String
+        let name: String
+      }
     }
 
     let tagResponse: TagResponse = try await performGraphQLRequest(
@@ -3175,8 +3193,19 @@ class StashAPI: ObservableObject {
       return []
     }
 
-    print(
-      "✅ Found tag: \(tag.name) (ID: \(tag.id)) for shuffle - loading up to \(maxMarkers) markers")
+    // Collect tag ID + all child tag IDs for hierarchical search
+    var tagIds = [tag.id]
+    if let children = tag.children {
+      let childIds = children.map { $0.id }
+      tagIds.append(contentsOf: childIds)
+      print(
+        "✅ Found tag: \(tag.name) (ID: \(tag.id)) + \(children.count) sub-tag(s) for shuffle - loading up to \(maxMarkers) markers"
+      )
+    } else {
+      print(
+        "✅ Found tag: \(tag.name) (ID: \(tag.id)) for shuffle - loading up to \(maxMarkers) markers"
+      )
+    }
 
     // Now search for markers with this tag ID using random sorting for shuffle
     let markerQuery = """
@@ -3229,7 +3258,7 @@ class StashAPI: ObservableObject {
       ],
       "scene_marker_filter": [
         "tags": [
-          "value": [tag.id],
+          "value": tagIds,  // Include parent tag + all child tags
           "modifier": "INCLUDES"
         ]
       ]
@@ -3259,7 +3288,7 @@ class StashAPI: ObservableObject {
   // Search markers by exact tag name for DISPLAY (limited for performance)
   func searchMarkersByExactTag(tagName: String, randomize: Bool = false) async throws
     -> [SceneMarker] {
-    // First, find the tag by exact name
+    // First, find the tag by exact name (including children for hierarchical search)
     let tagQuery = """
       query FindTags($filter: FindFilterType) {
           findTags(filter: $filter) {
@@ -3267,6 +3296,10 @@ class StashAPI: ObservableObject {
               tags {
                   id
                   name
+                  children {
+                      id
+                      name
+                  }
               }
           }
       }
@@ -3295,6 +3328,12 @@ class StashAPI: ObservableObject {
     struct Tag: Decodable {
       let id: String
       let name: String
+      let children: [ChildTag]?
+
+      struct ChildTag: Decodable {
+        let id: String
+        let name: String
+      }
     }
 
     let tagResponse: TagResponse = try await performGraphQLRequest(
@@ -3310,7 +3349,17 @@ class StashAPI: ObservableObject {
       return []
     }
 
-    print("✅ Found tag: \(tag.name) (ID: \(tag.id))")
+    // Collect tag ID + all child tag IDs for hierarchical search
+    var tagIds = [tag.id]
+    if let children = tag.children {
+      let childIds = children.map { $0.id }
+      tagIds.append(contentsOf: childIds)
+      print(
+        "✅ Found tag: \(tag.name) (ID: \(tag.id)) + \(children.count) sub-tag(s): \(children.map { $0.name }.joined(separator: ", "))"
+      )
+    } else {
+      print("✅ Found tag: \(tag.name) (ID: \(tag.id)) - no sub-tags")
+    }
 
     // Now search for markers with this tag ID
     let markerQuery = """
@@ -3364,7 +3413,7 @@ class StashAPI: ObservableObject {
       ],
       "scene_marker_filter": [
         "tags": [
-          "value": [tag.id],
+          "value": tagIds,  // Include parent tag + all child tags
           "modifier": "INCLUDES"
         ]
       ]
@@ -3765,6 +3814,114 @@ class StashAPI: ObservableObject {
       isLoading = false
     }
   }  // END NEW FETCHMARKERS
+
+  // MARK: - Tag Hierarchy Helpers
+
+  /// Recursively collects all child tag IDs from a tag
+  private func collectAllChildTagIds(from tag: StashScene.Tag) -> [String] {
+    var ids: [String] = []
+    if let children = tag.children {
+      for child in children {
+        ids.append(child.id)
+        // Recursively collect grandchildren if present
+        ids.append(contentsOf: collectAllChildTagIds(from: child))
+      }
+    }
+    return ids
+  }
+
+  /// Fetch markers by multiple tag IDs (used for hierarchical tag search)
+  func fetchMarkersByTags(
+    tagIds: [String], page: Int = 1, appendResults: Bool = false, perPage: Int = 2000
+  ) async {
+    isLoading = true
+
+    // Build the tag IDs array for the GraphQL query
+    let tagIdsJson = tagIds.map { "\"\($0)\"" }.joined(separator: ", ")
+
+    let query = """
+      {
+          "operationName": "FindSceneMarkers",
+          "variables": {
+              "filter": {
+                  "page": \(page),
+                  "per_page": \(perPage),
+                  "sort": "title",
+                  "direction": "ASC"
+              },
+              "scene_marker_filter": {
+                  "tags": {
+                      "value": [\(tagIdsJson)],
+                      "modifier": "INCLUDES"
+                  }
+              }
+          },
+          "query": "query FindSceneMarkers($filter: FindFilterType, $scene_marker_filter: SceneMarkerFilterType) { findSceneMarkers(filter: $filter, scene_marker_filter: $scene_marker_filter) { count scene_markers { id title seconds stream preview screenshot scene { id title paths { screenshot preview stream } performers { id name image_path } } primary_tag { id name } tags { id name } } } }"
+      }
+      """
+
+    print("🔍 Fetching markers for \(tagIds.count) tag(s) (page \(page))")
+
+    do {
+      guard let url = URL(string: "\(serverAddress)/graphql") else {
+        throw StashAPIError.invalidURL
+      }
+
+      var request = URLRequest(url: url)
+      request.httpMethod = "POST"
+      request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+      request.setValue("*/*", forHTTPHeaderField: "Accept")
+      request.setValue(apiKey, forHTTPHeaderField: "ApiKey")
+      request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+      request.setValue(serverAddress, forHTTPHeaderField: "Origin")
+      request.httpBody = query.data(using: .utf8)
+
+      let (data, response) = try await URLSession.shared.data(for: request)
+
+      if let httpResponse = response as? HTTPURLResponse {
+        print("📡 HTTP Status: \(httpResponse.statusCode)")
+      }
+
+      struct SceneMarkersResponse: Decodable {
+        struct Data: Decodable {
+          struct FindSceneMarkers: Decodable {
+            let count: Int
+            let scene_markers: [SceneMarker]
+          }
+          let findSceneMarkers: FindSceneMarkers
+        }
+        let data: Data
+      }
+
+      let markersResponse = try JSONDecoder().decode(SceneMarkersResponse.self, from: data)
+      let fetchedMarkers = markersResponse.data.findSceneMarkers.scene_markers
+
+      await MainActor.run {
+        if appendResults {
+          // Filter out duplicates before appending
+          let newMarkers = fetchedMarkers.filter { newMarker in
+            !self.markers.contains { $0.id == newMarker.id }
+          }
+          self.markers.append(contentsOf: newMarkers)
+          print("✅ Added \(newMarkers.count) new markers for \(tagIds.count) tag(s)")
+        } else {
+          self.markers = fetchedMarkers
+          print("✅ Set \(fetchedMarkers.count) markers for \(tagIds.count) tag(s)")
+          print("✅ Total available markers: \(markersResponse.data.findSceneMarkers.count)")
+          self.totalMarkerCount = markersResponse.data.findSceneMarkers.count
+        }
+        self.isLoading = false
+      }
+
+    } catch {
+      print("❌ Error fetching markers by tags: \(error)")
+      await MainActor.run {
+        self.isLoading = false
+        self.error = error
+      }
+    }
+  }
+
   func fetchMarkersByTag(
     tagId: String, page: Int = 1, appendResults: Bool = false, perPage: Int = 2000
   ) async {
@@ -3888,19 +4045,30 @@ class StashAPI: ObservableObject {
     }
   }
 
-  /// Simple search for markers by tag name - simplified version
+  /// Simple search for markers by tag name - includes sub-tags (children) in search
   func searchMarkersByTagName(tagName: String) async {
     print("🏷️ Tag-based search for: '\(tagName)'")
     isLoading = true
 
     do {
-      // First search for the tag to get its ID
+      // First search for the tag to get its ID (includes children for hierarchical search)
       let tagResponse = try await searchTags(query: tagName)
 
       if let tag = tagResponse.first {
-        print("🏷️ Found tag: \(tag.name) (ID: \(tag.id))")
-        // Use proper tag-based marker search
-        await fetchMarkersByTag(tagId: tag.id, page: 1, appendResults: false)
+        // Collect tag ID + all child tag IDs for hierarchical search
+        var tagIds = [tag.id]
+        let childIds = collectAllChildTagIds(from: tag)
+        tagIds.append(contentsOf: childIds)
+
+        if childIds.isEmpty {
+          print("🏷️ Found tag: \(tag.name) (ID: \(tag.id)) - no sub-tags")
+        } else {
+          print(
+            "🏷️ Found tag: \(tag.name) (ID: \(tag.id)) + \(childIds.count) sub-tag(s)")
+        }
+
+        // Use hierarchical tag-based marker search
+        await fetchMarkersByTags(tagIds: tagIds, page: 1, appendResults: false)
       } else {
         print("⚠️ Tag '\(tagName)' not found, falling back to text search")
         // Fallback to text search if tag not found
