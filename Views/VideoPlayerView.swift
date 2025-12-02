@@ -2290,6 +2290,22 @@ extension VideoPlayerView {
       UserDefaults.standard.set(false, forKey: "isMarkerShuffleContext")
     }
 
+    // CRITICAL: Clear local VideoPlayerView marker state to prevent state leakage
+    // This ensures we don't have stale marker context when switching to performer shuffle
+    isMarkerShuffleMode = false
+    currentMarker = nil
+    print("🎯 PERFORMER BUTTON: Cleared local marker state (isMarkerShuffleMode=false, currentMarker=nil)")
+
+    // CRITICAL: Sync originalPerformer with current performer context
+    // When user taps a different performer, performerDetailViewPerformer is updated
+    // We must sync originalPerformer to use the NEW performer, not the old one
+    if let detailPerformer = appModel.performerDetailViewPerformer {
+      if originalPerformer?.id != detailPerformer.id {
+        print("🎯 PERFORMER BUTTON: Updating originalPerformer from \(originalPerformer?.name ?? "nil") to \(detailPerformer.name)")
+        originalPerformer = detailPerformer
+      }
+    }
+
     // Debug context information
     print("📊 CONTEXT DEBUG - playPerformerRandomVideo:")
     print("📊   Current performer: \(appModel.currentPerformer?.name ?? "none")")
