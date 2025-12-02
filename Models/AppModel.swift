@@ -1171,6 +1171,70 @@ class AppModel: ObservableObject {
   private var currentShuffleTag: String = ""  // Track current tag being played
   private var currentTagPlayCount: Int = 0  // Track how many times current tag has played
 
+  // Saved marker shuffle state (for restoring after performer shuffle)
+  private var savedMarkerShuffleQueue: [SceneMarker] = []
+  private var savedShuffleTagFilter: String?
+  private var savedShuffleTagFilters: [String] = []
+  private var savedShuffleSearchQuery: String?
+  private var savedShuffleTagNames: [String] = []
+  private var savedIsServerSideShuffle: Bool = false
+  private var savedCurrentShuffleIndex: Int = 0
+  var hasSavedMarkerShuffleState: Bool { !savedMarkerShuffleQueue.isEmpty }
+
+  /// Save current marker shuffle state before switching to performer shuffle
+  func saveMarkerShuffleState() {
+    guard isMarkerShuffleMode && !markerShuffleQueue.isEmpty else {
+      print("🔒 No marker shuffle state to save")
+      return
+    }
+    savedMarkerShuffleQueue = markerShuffleQueue
+    savedShuffleTagFilter = shuffleTagFilter
+    savedShuffleTagFilters = shuffleTagFilters
+    savedShuffleSearchQuery = shuffleSearchQuery
+    savedShuffleTagNames = shuffleTagNames
+    savedIsServerSideShuffle = isServerSideShuffle
+    savedCurrentShuffleIndex = currentShuffleIndex
+    print(
+      "💾 Saved marker shuffle state: \(savedMarkerShuffleQueue.count) markers, tag: \(savedShuffleTagFilter ?? "none"), query: \(savedShuffleSearchQuery ?? "none")"
+    )
+  }
+
+  /// Restore saved marker shuffle state when returning from performer shuffle
+  func restoreMarkerShuffleState() -> Bool {
+    guard !savedMarkerShuffleQueue.isEmpty else {
+      print("🔓 No saved marker shuffle state to restore")
+      return false
+    }
+    markerShuffleQueue = savedMarkerShuffleQueue
+    shuffleTagFilter = savedShuffleTagFilter
+    shuffleTagFilters = savedShuffleTagFilters
+    shuffleSearchQuery = savedShuffleSearchQuery
+    shuffleTagNames = savedShuffleTagNames
+    isServerSideShuffle = savedIsServerSideShuffle
+    currentShuffleIndex = savedCurrentShuffleIndex
+    isMarkerShuffleMode = true
+    UserDefaults.standard.set(true, forKey: "isMarkerShuffleContext")
+    UserDefaults.standard.set(true, forKey: "isMarkerShuffleMode")
+    print(
+      "🔓 Restored marker shuffle state: \(markerShuffleQueue.count) markers, tag: \(shuffleTagFilter ?? "none"), query: \(shuffleSearchQuery ?? "none")"
+    )
+    // Clear saved state after restoring
+    clearSavedMarkerShuffleState()
+    return true
+  }
+
+  /// Clear saved marker shuffle state
+  func clearSavedMarkerShuffleState() {
+    savedMarkerShuffleQueue = []
+    savedShuffleTagFilter = nil
+    savedShuffleTagFilters = []
+    savedShuffleSearchQuery = nil
+    savedShuffleTagNames = []
+    savedIsServerSideShuffle = false
+    savedCurrentShuffleIndex = 0
+    print("🧹 Cleared saved marker shuffle state")
+  }
+
   /// Start marker shuffle for a specific tag - uses server-side random selection
   func startMarkerShuffle(forTag tagId: String, tagName: String, displayedMarkers: [SceneMarker]) {
     print("🎲 Starting SERVER-SIDE marker shuffle for tag: \(tagName)")

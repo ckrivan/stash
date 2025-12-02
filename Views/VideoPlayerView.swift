@@ -1479,6 +1479,22 @@ struct VideoPlayerView: View {
       showControls = false
     }
 
+    // Check if we should restore marker shuffle state (returning from performer shuffle to markers)
+    // This happens when: NOT in marker shuffle mode AND there's saved marker shuffle state
+    if !appModel.isMarkerShuffleMode && !isMarkerShuffleMode && appModel.hasSavedMarkerShuffleState {
+      print("🔙 M KEY: Detected return from performer shuffle to marker shuffle")
+      if appModel.restoreMarkerShuffleState() {
+        print("🔙 M KEY: Restored marker shuffle state, navigating to next marker")
+        isMarkerShuffleMode = true
+        // Navigate to next marker in the restored queue
+        if let nextMarker = appModel.nextMarkerInShuffle() {
+          print("🎲 M KEY: Navigating to restored marker: \(nextMarker.title)")
+          appModel.navigateToMarker(nextMarker)
+        }
+        return
+      }
+    }
+
     playPerformerRandomVideo()
   }
 
@@ -2323,6 +2339,10 @@ extension VideoPlayerView {
     if wasInMarkerShuffle {
       print("🎯 PERFORMER BUTTON: Switching FROM marker shuffle TO performer shuffle")
       print("🎯 PERFORMER BUTTON: Flags - appModel.isMarkerShuffleMode: \(appModel.isMarkerShuffleMode), local isMarkerShuffleMode: \(isMarkerShuffleMode)")
+
+      // CRITICAL: Save marker shuffle state BEFORE clearing so we can restore when returning
+      appModel.saveMarkerShuffleState()
+
       print("🎯 PERFORMER BUTTON: Clearing shuffle context to prevent empty queue issues")
       appModel.isMarkerShuffleMode = false
       appModel.markerShuffleQueue = []
@@ -3617,6 +3637,15 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
     let asset = AVURLAsset(url: finalUrl, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
 
     print("🎬 Creating player item with AVURLAsset")
+
+    // CRITICAL FIX: Clean up existing player BEFORE creating new one
+    // This prevents audio overlap when switching scenes
+    if let existingPlayer = VideoPlayerRegistry.shared.currentPlayer {
+      print("🧹 Cleaning up existing player BEFORE creating new one")
+      existingPlayer.pause()
+      existingPlayer.replaceCurrentItem(with: nil)
+      VideoPlayerRegistry.shared.currentPlayer = nil
+    }
 
     let playerItem = AVPlayerItem(asset: asset)
     let player = AVPlayer(playerItem: playerItem)
