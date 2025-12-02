@@ -661,6 +661,18 @@ class AppModel: ObservableObject {
         // Normal case: Navigate to the scene with the marker timestamp directly as a parameter
         // This passes startTime and endTime directly to VideoPlayerView's initializer
 
+        // IMPORTANT: Set currentPerformer BEFORE navigation to preserve performer context
+        // This ensures that when the new VideoPlayerView appears and user presses M (performer shuffle),
+        // the priority 2 check in playPerformerRandomVideo() will find the correct performer
+        let femalePerformer = fullScene.performers.first { self.isLikelyFemalePerformer($0) }
+        let selectedPerformer = femalePerformer ?? fullScene.performers.first
+        if let selectedPerformer = selectedPerformer {
+          await MainActor.run {
+            self.currentPerformer = selectedPerformer
+            print("🎯 MARKER NAVIGATION: Set currentPerformer to \(selectedPerformer.name) for performer context preservation")
+          }
+        }
+
         // Important: Check if we need to preserve marker shuffle context
         if isMarkerShuffle {
           print("🔄 Preserving marker shuffle context in standard navigation")
@@ -2554,6 +2566,40 @@ class AppModel: ObservableObject {
         print("⚠️ No player available for random jump")
       }
     }
+  }
+}
+
+// MARK: - Helper Functions
+
+extension AppModel {
+  /// Determines if a performer is likely female based on gender field or heuristics
+  func isLikelyFemalePerformer(_ performer: StashScene.Performer) -> Bool {
+    // First check explicit gender
+    if performer.gender == "FEMALE" {
+      return true
+    }
+
+    // If gender is unknown or missing, use name-based heuristics for known male performers
+    let knownMalePerformers = [
+      "robby echo", "johnny sins", "danny d", "mike adriano", "ryan madison",
+      "manuel ferrara", "charles dera", "van wylde", "chad white", "kyle mason",
+      "scott nails", "jason luv", "richard mann", "lexington steele",
+    ]
+
+    let lowercaseName = performer.name.lowercased()
+
+    // If it's a known male performer, return false
+    if knownMalePerformers.contains(lowercaseName) {
+      return false
+    }
+
+    // If gender is explicitly MALE, return false
+    if performer.gender == "MALE" {
+      return false
+    }
+
+    // For unknown gender, assume female (most performers in adult content are female)
+    return true
   }
 }
 

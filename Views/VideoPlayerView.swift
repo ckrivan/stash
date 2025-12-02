@@ -1044,7 +1044,7 @@ struct VideoPlayerView: View {
           )
           originalPerformer = currentPerformer
         } else {
-          // Default to female performers when no specific performer context (from SceneView)
+          // Default to female performer from current scene
           let femalePerformer = scene.performers.first { isLikelyFemalePerformer($0) }
           let selectedPerformer = femalePerformer ?? scene.performers.first
           if let selectedPerformer = selectedPerformer {
@@ -1081,6 +1081,14 @@ struct VideoPlayerView: View {
             // Update the current scene and times
             currentScene = newScene
             effectiveStartTime = startSeconds
+
+            // Update originalPerformer to match the female performer from current scene
+            let femalePerformer = newScene.performers.first { self.isLikelyFemalePerformer($0) }
+            let newOriginalPerformer = femalePerformer ?? newScene.performers.first
+            if let newOriginalPerformer = newOriginalPerformer {
+              print("🔄 Updating originalPerformer to: \(newOriginalPerformer.name) from \(self.originalPerformer?.name ?? "nil")")
+              self.originalPerformer = newOriginalPerformer
+            }
 
             if let endSeconds = userInfo["endSeconds"] as? Double {
               effectiveEndTime = endSeconds
@@ -1158,6 +1166,14 @@ struct VideoPlayerView: View {
             currentMarker = marker
             effectiveStartTime = startTime
             effectiveEndTime = nil  // Reset end time for markers
+
+            // Update originalPerformer to match the female performer from current scene
+            let femalePerformer = newScene.performers.first { self.isLikelyFemalePerformer($0) }
+            let newOriginalPerformer = femalePerformer ?? newScene.performers.first
+            if let newOriginalPerformer = newOriginalPerformer {
+              print("🎲 Updating originalPerformer to: \(newOriginalPerformer.name) from \(self.originalPerformer?.name ?? "nil")")
+              self.originalPerformer = newOriginalPerformer
+            }
 
             // Update the current player with new content
             if let player = getCurrentPlayer() {
@@ -1663,6 +1679,18 @@ extension VideoPlayerView {
   private func playPureRandomVideo() {
     Task {
       print("🔄 Starting random video selection with female performer preference")
+
+      // CRITICAL: Clear performer context when switching to library random shuffle
+      // This ensures subsequent M presses use the female performer from the NEW scene
+      // rather than a stale performer from a previous shuffle session
+      await MainActor.run {
+        if appModel.currentPerformer != nil {
+          print("🧹 LIBRARY SHUFFLE: Clearing appModel.currentPerformer (was: \(appModel.currentPerformer?.name ?? "nil"))")
+          appModel.currentPerformer = nil
+        }
+        // Also clear local originalPerformer so we pick from the new scene
+        originalPerformer = nil
+      }
 
       // Fetch a random scene with female performers using direct GraphQL query
       let query = """
@@ -2176,6 +2204,16 @@ extension VideoPlayerView {
   private func fallbackToAnyScene() async {
     print("🔄 Falling back to fetch any scene")
 
+    // CRITICAL: Clear performer context when switching to library random shuffle (fallback path)
+    // This ensures subsequent M presses use the female performer from the NEW scene
+    await MainActor.run {
+      if appModel.currentPerformer != nil {
+        print("🧹 FALLBACK SHUFFLE: Clearing appModel.currentPerformer (was: \(appModel.currentPerformer?.name ?? "nil"))")
+        appModel.currentPerformer = nil
+      }
+      originalPerformer = nil
+    }
+
     // Fetch any scene using the API's random sort
     await appModel.api.fetchScenes(page: 1, sort: "random", direction: "DESC")
 
@@ -2280,7 +2318,11 @@ extension VideoPlayerView {
     }
 
     // Clear shuffle context when doing performer random jumps to prevent empty queue issues
-    if appModel.isMarkerShuffleMode {
+    // CRITICAL: Check BOTH local and appModel flags - local may be true when appModel is false
+    let wasInMarkerShuffle = appModel.isMarkerShuffleMode || isMarkerShuffleMode
+    if wasInMarkerShuffle {
+      print("🎯 PERFORMER BUTTON: Switching FROM marker shuffle TO performer shuffle")
+      print("🎯 PERFORMER BUTTON: Flags - appModel.isMarkerShuffleMode: \(appModel.isMarkerShuffleMode), local isMarkerShuffleMode: \(isMarkerShuffleMode)")
       print("🎯 PERFORMER BUTTON: Clearing shuffle context to prevent empty queue issues")
       appModel.isMarkerShuffleMode = false
       appModel.markerShuffleQueue = []
@@ -2288,6 +2330,12 @@ extension VideoPlayerView {
       appModel.shuffleTagFilter = nil
       appModel.shuffleSearchQuery = nil
       UserDefaults.standard.set(false, forKey: "isMarkerShuffleContext")
+
+      // IMPORTANT: Do NOT clear appModel.currentPerformer when coming from marker shuffle!
+      // navigateToMarker() sets currentPerformer to the female performer from the destination scene,
+      // and we want to KEEP that performer context so M press shuffles the correct performer.
+      // Only log what we're preserving for debugging.
+      print("🎯 PERFORMER BUTTON: Preserving appModel.currentPerformer from marker navigation: \(appModel.currentPerformer?.name ?? "nil")")
     }
 
     // CRITICAL: Clear local VideoPlayerView marker state to prevent state leakage
@@ -2349,16 +2397,13 @@ extension VideoPlayerView {
       }
     }
     // Priority 2: Use appModel.currentPerformer (survives view recreation - MOST RELIABLE)
+    // ALWAYS use this performer when set - we want to find MORE of their scenes
     else if let currentPerf = appModel.currentPerformer {
-      // Check if this performer is in the current scene
+      selectedPerformer = currentPerf
       if currentScene.performers.contains(where: { $0.id == currentPerf.id }) {
-        selectedPerformer = currentPerf
-        print("🎯 PERFORMER BUTTON: Using performer from appModel.currentPerformer: \(currentPerf.name)")
+        print("🎯 PERFORMER BUTTON: Using performer from appModel.currentPerformer (in scene): \(currentPerf.name)")
       } else {
-        // Not in scene - use same gender from current scene
-        let sameGenderPerformer = currentScene.performers.first { $0.gender == currentPerf.gender }
-        selectedPerformer = sameGenderPerformer ?? currentScene.performers.first
-        print("🎯 PERFORMER BUTTON: appModel.currentPerformer \(currentPerf.name) not in scene, using same gender: \(selectedPerformer?.name ?? "none")")
+        print("🎯 PERFORMER BUTTON: Using performer from appModel.currentPerformer (searching for more scenes): \(currentPerf.name)")
       }
     }
     // Priority 3: Use originalPerformer if it's in the current scene (fallback - may be stale due to view recreation)
