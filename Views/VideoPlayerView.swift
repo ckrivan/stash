@@ -2354,8 +2354,15 @@ extension VideoPlayerView {
       // IMPORTANT: Do NOT clear appModel.currentPerformer when coming from marker shuffle!
       // navigateToMarker() sets currentPerformer to the female performer from the destination scene,
       // and we want to KEEP that performer context so M press shuffles the correct performer.
-      // Only log what we're preserving for debugging.
       print("🎯 PERFORMER BUTTON: Preserving appModel.currentPerformer from marker navigation: \(appModel.currentPerformer?.name ?? "nil")")
+
+      // CRITICAL FIX: Clear performerDetailViewPerformer when coming from marker shuffle
+      // This stale value from previous PerformerDetailView browsing takes Priority 1 in performer selection
+      // and would override the correct currentPerformer set by marker navigation
+      if appModel.performerDetailViewPerformer != nil {
+        print("🎯 PERFORMER BUTTON: Clearing stale performerDetailViewPerformer: \(appModel.performerDetailViewPerformer?.name ?? "nil")")
+        appModel.performerDetailViewPerformer = nil
+      }
     }
 
     // CRITICAL: Clear local VideoPlayerView marker state to prevent state leakage
