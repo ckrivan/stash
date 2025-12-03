@@ -1331,27 +1331,76 @@ class AppModel: ObservableObject {
     }
   }
 
-  /// Set up server-side shuffle for multiple tags - no preloading needed
+  /// Load optimized markers for multiple tags from API (lighter than single-tag: 3 pages, 500 cap)
   private func loadOptimizedMarkersForMultipleTags(
     tagIds: [String], tagNames: [String], displayedMarkers: [SceneMarker]
   ) async {
-    print("🔄 Setting up server-side shuffle for combined tags: \(tagNames.joined(separator: ", "))")
+    print("🔄 Loading optimized markers for multiple tags: \(tagNames.joined(separator: ", "))")
 
-    // PERFORMANCE FIX: Don't preload all markers - let server handle combination
-    // Just use the displayed markers as initial queue and fetch more during shuffle
+    var allMarkers = displayedMarkers  // Start with what we have
+    let maxPagesToFetch = 3  // Lighter than single-tag (3 vs 5)
+    let perPage = 500  // Lighter per-page count
+    let maxMarkers = 500  // Lower cap for multi-tag
 
-    await MainActor.run {
-      // Start with displayed markers shuffled
-      self.markerShuffleQueue = displayedMarkers.shuffled()
-      self.api.isLoading = false
+    // First fetch page 1 just to get total count (needed to know full page range)
+    await api.fetchMarkersByTags(tagIds: tagIds, page: 1, appendResults: false, perPage: perPage)
+    let totalCount = api.totalMarkerCount
+    let totalPages = max(1, (totalCount + perPage - 1) / perPage)  // Ceiling division
+    let page1Markers = api.markers  // Cache page 1 in case we select it randomly
 
-      // Store the combined search query for server-side fetching during shuffle
-      let combinedQuery = tagNames.joined(separator: " +")
-      self.shuffleSearchQuery = combinedQuery
+    print("📊 Total markers available: \(totalCount) across \(totalPages) pages")
+
+    // Pick 3 fully random pages from the FULL range - every page has equal chance
+    let randomPages = Array(1...totalPages).shuffled().prefix(maxPagesToFetch)
+    print("🎲 Fetching random pages for variety: \(randomPages.map { String($0) }.joined(separator: ", ")) (of \(totalPages) total)")
+
+    for page in randomPages {
+      guard allMarkers.count < maxMarkers else { break }
+
+      print("🔄 Loading page \(page) for multi-tag shuffle")
+
+      // Reuse cached page 1 if selected, otherwise fetch from API
+      let newMarkers: [SceneMarker]
+      if page == 1 {
+        newMarkers = page1Markers
+        print("📄 Using cached page 1 markers")
+      } else {
+        await api.fetchMarkersByTags(
+          tagIds: tagIds, page: page, appendResults: false, perPage: perPage)
+        newMarkers = api.markers
+      }
+
+      if newMarkers.isEmpty {
+        print("📄 No markers found on page \(page), continuing to next random page")
+        continue
+      }
+
+      // Add unique markers to avoid duplicates
+      let uniqueMarkers = newMarkers.filter { newMarker in
+        !allMarkers.contains { $0.id == newMarker.id }
+      }
+      allMarkers.append(contentsOf: uniqueMarkers)
 
       print(
-        "✅ Server-side shuffle initialized with \(self.markerShuffleQueue.count) initial markers")
-      print("🔍 Combined search query: '\(combinedQuery)' will be used for on-demand loading")
+        "📊 Page \(page): Found \(newMarkers.count) markers, \(uniqueMarkers.count) unique (Total: \(allMarkers.count))"
+      )
+
+      // Small delay to prevent overwhelming server (skip for cached page 1)
+      if page != 1 {
+        try? await Task.sleep(nanoseconds: 100_000_000)  // 0.1 second
+      }
+
+      // Update queue with expanded results every page
+      await MainActor.run {
+        self.markerShuffleQueue = allMarkers.shuffled()
+        print("🔄 Updated shuffle queue with \(self.markerShuffleQueue.count) markers")
+      }
+    }
+
+    await MainActor.run {
+      self.markerShuffleQueue = allMarkers.shuffled()
+      self.api.isLoading = false
+      print("✅ Multi-tag shuffle queue: \(self.markerShuffleQueue.count) total markers (equal weight)")
     }
   }
 
@@ -1385,7 +1434,7 @@ class AppModel: ObservableObject {
     }
   }
 
-  /// Start marker shuffle for multiple tags - uses client-side shuffle with loaded markers
+  /// Start marker shuffle for multiple tags - uses client-side shuffle with equal weight for all markers
   func startMarkerShuffle(
     forMultipleTags tagIds: [String], tagNames: [String], displayedMarkers: [SceneMarker]
   ) {
@@ -1399,44 +1448,38 @@ class AppModel: ObservableObject {
     // Set shuffle context
     DispatchQueue.main.async {
       self.isMarkerShuffleMode = true
-      self.isServerSideShuffle = true  // Use SERVER-side shuffle to get random markers from ALL available
+      self.isServerSideShuffle = false  // Client-side random with equal weight for all markers
       self.shuffleTagNames = tagNames
     }
     shuffleTagFilters = tagIds
     shuffleTagFilter = nil
     shuffleSearchQuery = nil
 
-    // Group markers by tag for balanced rotation
+    // EQUAL WEIGHT: Don't group by tag - all markers have equal chance
+    // Clear any previous tag groupings to ensure nextMarkerInShuffle uses pure random
     markersByTag.removeAll()
     recentMarkersByTag.removeAll()
 
+    // Log the tag distribution for debugging only
+    var tagCounts: [String: Int] = [:]
     for marker in displayedMarkers {
       let tagName = marker.primary_tag.name
-      if markersByTag[tagName] == nil {
-        markersByTag[tagName] = []
-        recentMarkersByTag[tagName] = []
-      }
-      markersByTag[tagName]?.append(marker)
+      tagCounts[tagName, default: 0] += 1
+    }
+    for (tagName, count) in tagCounts {
+      print("🎲 Tag '\(tagName)': \(count) markers (equal weight)")
     }
 
-    // Log the distribution
-    for (tagName, markers) in markersByTag {
-      print("🎲 Tag '\(tagName)': \(markers.count) markers")
-    }
-
-    // Still keep the combined queue for backwards compatibility, but use balanced selection
+    // Use pure random shuffled queue - all markers have equal chance
     markerShuffleQueue = displayedMarkers.shuffled()
     DispatchQueue.main.async {
       self.currentShuffleIndex = 0
     }
 
     print(
-      "✅ Created balanced tag rotation with \(markersByTag.count) tags, total \(displayedMarkers.count) markers"
+      "✅ Created equal-weight shuffle with \(displayedMarkers.count) markers from \(tagCounts.count) tags"
     )
 
-    // Reset the tag rotation tracking
-    currentShuffleTag = ""
-    currentTagPlayCount = 0
     UserDefaults.standard.set(true, forKey: "isMarkerShuffleContext")
     UserDefaults.standard.set(true, forKey: "isMarkerShuffleMode")
 
@@ -1447,6 +1490,13 @@ class AppModel: ObservableObject {
       GlobalVideoManager.shared.stopAllPreviews()
       setHLSPreferenceForMarker(firstMarker)
       navigateToMarker(firstMarker)
+
+      // Load more markers from API in background (lighter than single-tag: 3 pages, 500 cap)
+      Task {
+        await loadOptimizedMarkersForMultipleTags(
+          tagIds: tagIds, tagNames: tagNames, displayedMarkers: displayedMarkers
+        )
+      }
     } else {
       print("❌ No markers available to shuffle")
       stopMarkerShuffle()
