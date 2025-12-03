@@ -3541,6 +3541,7 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
     var endTimeReached = false
     var timeStatusObserver: NSKeyValueObservation?
     var progressObserver: Any?
+    var recoveryObserver: NSKeyValueObservation?
 
     deinit {
       // Clean up resources
@@ -3553,6 +3554,7 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
 
       // Only invalidate observation tokens that are specific to this coordinator
       timeStatusObserver?.invalidate()
+      recoveryObserver?.invalidate()
 
       // Note: observationToken is now managed by VideoPlayerRegistry
       // Don't pause here as the player may have been replaced
@@ -3824,7 +3826,15 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
         // Register for cleanup on view disappear - pass player to avoid cross-player crashes
         VideoPlayerRegistry.shared.registerTimeObserver(progressObs, for: player)
       } else if item.status == .failed {
-        print("❌ Player item failed: \(item.error?.localizedDescription ?? "Unknown error")")
+        let errorDesc = item.error?.localizedDescription ?? "Unknown error"
+        let errorCode = (item.error as NSError?)?.code ?? -1
+        print("❌ Player item failed!")
+        print("   📍 Original URL: \(url.absoluteString)")
+        print("   ❗ Error: \(errorDesc)")
+        print("   🔢 Error code: \(errorCode)")
+        if let underlyingError = (item.error as NSError?)?.userInfo[NSUnderlyingErrorKey] as? NSError {
+          print("   📋 Underlying error: \(underlyingError.localizedDescription) (code: \(underlyingError.code))")
+        }
 
         // Try to recover: if direct stream failed, try HLS; if HLS failed, try direct
         let urlString = url.absoluteString
@@ -3843,34 +3853,52 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
             hlsString += "&resolution=ORIGINAL"
           }
           recoveryURL = URL(string: hlsString)
-          print("🔄 Direct play failed - attempting HLS recovery: \(hlsString)")
+          print("🔄 RECOVERY: Direct play failed - attempting HLS")
+          print("   📍 Recovery URL: \(hlsString)")
         } else {
           // HLS failed - try direct stream
           let directString = urlString
             .replacingOccurrences(of: "stream.m3u8", with: "stream")
             .replacingOccurrences(of: "&resolution=ORIGINAL", with: "")
           recoveryURL = URL(string: directString)
-          print("🔄 HLS failed - attempting direct stream recovery: \(directString)")
+          print("🔄 RECOVERY: HLS failed - attempting direct stream")
+          print("   📍 Recovery URL: \(directString)")
         }
 
         if let recoveryURL = recoveryURL {
-          player.replaceCurrentItem(with: AVPlayerItem(url: recoveryURL))
-          player.play()
+          let recoveryItem = AVPlayerItem(url: recoveryURL)
+          player.replaceCurrentItem(with: recoveryItem)
 
-          // Cancel loading timeout since video started playing
-          NotificationCenter.default.post(
-            name: NSNotification.Name("VideoLoadingSuccess"), object: nil)
+          // Observe recovery item status
+          let recoveryObserver = recoveryItem.observe(\.status, options: [.new]) { recoveryItem, _ in
+            if recoveryItem.status == .readyToPlay {
+              print("✅ RECOVERY SUCCESS: Video now playing")
+              NotificationCenter.default.post(
+                name: NSNotification.Name("VideoLoadingSuccess"), object: nil)
+            } else if recoveryItem.status == .failed {
+              print("❌ RECOVERY ALSO FAILED!")
+              print("   ❗ Error: \(recoveryItem.error?.localizedDescription ?? "Unknown")")
+              // Don't try again - both methods failed
+            }
+          }
+          // Store observer to prevent deallocation
+          context.coordinator.recoveryObserver = recoveryObserver
+
+          player.play()
 
           // If we have an explicit start time, seek to it
           if let timeToSeek = explicitStartTime, timeToSeek > 0 {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-              print("⏱ CRITICAL: Performing recovery seek to \(timeToSeek) seconds")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+              print("⏱ RECOVERY: Seeking to \(timeToSeek) seconds")
               let cmTime = CMTime(seconds: timeToSeek, preferredTimescale: 1000)
-              player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { _ in
+              player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { success in
+                print("⏱ RECOVERY: Seek \(success ? "succeeded" : "failed")")
                 player.play()
               }
             }
           }
+        } else {
+          print("❌ RECOVERY: Could not create recovery URL!")
         }
       }
     }
