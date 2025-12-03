@@ -1484,14 +1484,15 @@ struct VideoPlayerView: View {
   private func getStreamURL() -> URL {
     let sceneId = currentScene.id
 
-    // Check if we're in marker shuffle mode and need to clear all cached URLs
+    // Check if we're in marker shuffle mode and need to clear cached URLs for OTHER scenes
     let isMarkerShuffle = UserDefaults.standard.bool(forKey: "isMarkerShuffleContext")
     if isMarkerShuffle {
-      print("🧹 VideoPlayerView: Clearing all cached stream URLs due to marker shuffle")
+      print("🧹 VideoPlayerView: Clearing cached stream URLs for other scenes (keeping current scene \(sceneId))")
       let defaults = UserDefaults.standard
       let keys = defaults.dictionaryRepresentation().keys
       for key in keys {
-        if key.contains("_hlsURL") || key.contains("_streamURL") {
+        // Only clear URLs for OTHER scenes, not the current one we're about to play
+        if (key.contains("_hlsURL") || key.contains("_streamURL")) && !key.contains("scene_\(sceneId)_") {
           defaults.removeObject(forKey: key)
           print("🧹 Removed cached URL key: \(key)")
         }
@@ -1502,12 +1503,16 @@ struct VideoPlayerView: View {
     let videoCodec = currentScene.files.first?.video_codec
     let canDirectPlay = VideoPlayerUtility.canDirectPlay(codec: videoCodec)
 
+    // Check if marker navigation prefers HLS (for reliable seeking via manifest)
+    let preferHLS = UserDefaults.standard.bool(forKey: "scene_\(sceneId)_preferHLS")
+
     let apiKey = appModel.apiKey
     let baseServerURL = appModel.serverAddress.trimmingCharacters(
       in: CharacterSet(charactersIn: "/"))
     let currentTimestamp = Int(Date().timeIntervalSince1970)
 
-    if canDirectPlay {
+    // Use HLS if preferred (marker navigation) OR if codec needs transcoding
+    if canDirectPlay && !preferHLS {
       // Use direct stream URL for compatible codecs (no transcoding needed)
       print("✅ Using direct play for scene \(sceneId) with codec: \(videoCodec ?? "unknown")")
 
@@ -1525,8 +1530,12 @@ struct VideoPlayerView: View {
         return url
       }
     } else {
-      // Use HLS for incompatible codecs that need transcoding
-      print("🔄 Using HLS transcoding for scene \(sceneId) with codec: \(videoCodec ?? "unknown")")
+      // Use HLS for incompatible codecs OR when marker navigation prefers HLS
+      if preferHLS {
+        print("🔄 Using HLS for marker navigation (preferHLS=true) for scene \(sceneId)")
+      } else {
+        print("🔄 Using HLS transcoding for scene \(sceneId) with codec: \(videoCodec ?? "unknown")")
+      }
 
       // First check if we have a saved HLS URL format FOR THIS SPECIFIC SCENE
       if let savedHlsUrlString = UserDefaults.standard.string(forKey: "scene_\(sceneId)_hlsURL"),
