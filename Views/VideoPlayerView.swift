@@ -1182,68 +1182,52 @@ struct VideoPlayerView: View {
               // Pause current playback to prevent audio stacking
               player.pause()
 
-              // Construct high-quality stream URL like PerformerView does
-              let sceneId = marker.scene.id
-              let markerSeconds = Int(startTime)
-              let currentTimestamp = Int(Date().timeIntervalSince1970)
+              // Get codec-aware stream URL (direct play for h264/hevc, HLS otherwise)
+              guard let streamURL = VideoPlayerUtility.getStreamURL(for: newScene, startTime: startTime) else {
+                print("❌ Failed to construct stream URL for marker scene")
+                return
+              }
+              print("🎲 Using stream URL for marker: \(streamURL.absoluteString)")
 
-              // Get server URL and API key from appModel (not StashAPI.shared)
-              let serverURL = appModel.serverAddress.trimmingCharacters(
-                in: CharacterSet(charactersIn: "/"))
-              let apiKey = appModel.apiKey
+              // Create headers for authentication (simplified, following existing pattern)
+              let headers = ["User-Agent": "StashApp/iOS"]
 
-              // Construct high-quality URL with ORIGINAL resolution but WITHOUT timestamp (we'll use seek instead)
-              let hlsStreamURL =
-                "\(serverURL)/scene/\(sceneId)/stream.m3u8?apikey=\(apiKey)&resolution=ORIGINAL&_ts=\(currentTimestamp)"
-              print("🎲 Constructed high-quality HLS URL: \(hlsStreamURL)")
+              let asset = AVURLAsset(
+                url: streamURL, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
+              let playerItem = AVPlayerItem(asset: asset)
 
-              if let directURL = URL(string: hlsStreamURL) {
-                // Convert to HLS format for better quality (same as existing video player logic)
-                let hlsURL = VideoPlayerUtility.getHLSStreamURL(from: directURL) ?? directURL
-                print("🎲 Using HLS URL for marker: \(hlsURL.absoluteString)")
+              // CRITICAL: Use stable buffering to prevent black screen with audio
+              playerItem.preferredForwardBufferDuration = 5.0
+              player.automaticallyWaitsToMinimizeStalling = true
 
-                // Create headers for authentication (simplified, following existing pattern)
-                let headers = ["User-Agent": "StashApp/iOS"]
+              // Replace current item
+              player.replaceCurrentItem(with: playerItem)
 
-                let asset = AVURLAsset(
-                  url: hlsURL, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
-                let playerItem = AVPlayerItem(asset: asset)
+              // Wait for player to be READY before seeking/playing (prevents black screen)
+              var statusObserver: NSKeyValueObservation?
+              statusObserver = playerItem.observe(\.status, options: [.new]) { item, _ in
+                if item.status == .readyToPlay {
+                  statusObserver?.invalidate()
+                  print("🎲 Player ready - seeking to marker time: \(startTime)s")
 
-                // CRITICAL: Use stable buffering to prevent black screen with audio
-                playerItem.preferredForwardBufferDuration = 5.0
-                player.automaticallyWaitsToMinimizeStalling = true
-
-                // Replace current item
-                player.replaceCurrentItem(with: playerItem)
-
-                // Wait for player to be READY before seeking/playing (prevents black screen)
-                var statusObserver: NSKeyValueObservation?
-                statusObserver = playerItem.observe(\.status, options: [.new]) { item, _ in
-                  if item.status == .readyToPlay {
-                    statusObserver?.invalidate()
-                    print("🎲 Player ready - seeking to marker time: \(startTime)s")
-
-                    let cmTime = CMTime(seconds: startTime, preferredTimescale: 1000)
-                    player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) {
-                      completed in
-                      if completed {
-                        print("🎲 ✅ Successfully seeked to marker time \(startTime)s, starting playback")
-                      } else {
-                        print("⚠️ Seek incomplete, starting playback anyway")
-                      }
-                      player.play()
-                      // Restore keyboard focus after scene transition
-                      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        self.isVideoPlayerFocused = true
-                      }
+                  let cmTime = CMTime(seconds: startTime, preferredTimescale: 1000)
+                  player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) {
+                    completed in
+                    if completed {
+                      print("🎲 ✅ Successfully seeked to marker time \(startTime)s, starting playback")
+                    } else {
+                      print("⚠️ Seek incomplete, starting playback anyway")
                     }
-                  } else if item.status == .failed {
-                    statusObserver?.invalidate()
-                    print("❌ Player item failed: \(item.error?.localizedDescription ?? "unknown")")
+                    player.play()
+                    // Restore keyboard focus after scene transition
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                      self.isVideoPlayerFocused = true
+                    }
                   }
+                } else if item.status == .failed {
+                  statusObserver?.invalidate()
+                  print("❌ Player item failed: \(item.error?.localizedDescription ?? "unknown")")
                 }
-              } else {
-                print("❌ Failed to construct stream URL for marker")
               }
             } else {
               print("❌ No current player found for marker update")
@@ -1496,63 +1480,102 @@ struct VideoPlayerView: View {
     playNextScene()
   }
 
-  // Helper to get the correct stream URL with HLS format when available
+  // Helper to get the correct stream URL - uses direct play for compatible codecs, HLS for others
   private func getStreamURL() -> URL {
     let sceneId = currentScene.id
 
     // Check if we're in marker shuffle mode and need to clear all cached URLs
     let isMarkerShuffle = UserDefaults.standard.bool(forKey: "isMarkerShuffleContext")
     if isMarkerShuffle {
-      print("🧹 VideoPlayerView: Clearing all cached HLS URLs due to marker shuffle")
+      print("🧹 VideoPlayerView: Clearing all cached stream URLs due to marker shuffle")
       let defaults = UserDefaults.standard
       let keys = defaults.dictionaryRepresentation().keys
       for key in keys {
-        if key.contains("_hlsURL") {
+        if key.contains("_hlsURL") || key.contains("_streamURL") {
           defaults.removeObject(forKey: key)
           print("🧹 Removed cached URL key: \(key)")
         }
       }
     }
 
-    // First check if we have a saved direct HLS URL format FOR THIS SPECIFIC SCENE
-    if let savedHlsUrlString = UserDefaults.standard.string(forKey: "scene_\(sceneId)_hlsURL"),
-      let savedHlsUrl = URL(string: savedHlsUrlString) {
-      // Verify the saved URL is actually for this scene
-      if savedHlsUrlString.contains("/scene/\(sceneId)/") {
-        print("📱 Using saved HLS URL format for scene \(sceneId): \(savedHlsUrlString)")
-        // Force update effectiveStartTime if it's included in the URL
-        if savedHlsUrlString.contains("t=") {
-          if let tRange = savedHlsUrlString.range(of: "t=\\d+", options: .regularExpression),
-            let tValue = Int(savedHlsUrlString[tRange].replacingOccurrences(of: "t=", with: "")) {
-            print("📱 Extracted timestamp from URL: \(tValue)")
-            // Only update if not already set
-            if effectiveStartTime == nil {
-              effectiveStartTime = Double(tValue)
-              print("📱 Updated effectiveStartTime to \(tValue) from URL")
+    // Check if this video can be direct played (h264, hevc, etc.)
+    let videoCodec = currentScene.files.first?.video_codec
+    let canDirectPlay = VideoPlayerUtility.canDirectPlay(codec: videoCodec)
+
+    let apiKey = appModel.apiKey
+    let baseServerURL = appModel.serverAddress.trimmingCharacters(
+      in: CharacterSet(charactersIn: "/"))
+    let currentTimestamp = Int(Date().timeIntervalSince1970)
+
+    if canDirectPlay {
+      // Use direct stream URL for compatible codecs (no transcoding needed)
+      print("✅ Using direct play for scene \(sceneId) with codec: \(videoCodec ?? "unknown")")
+
+      var streamURL = "\(baseServerURL)/scene/\(sceneId)/stream?apikey=\(apiKey)&_ts=\(currentTimestamp)"
+
+      // Add start time if we have one (for seeking after load)
+      if let startTime = effectiveStartTime {
+        streamURL += "&t=\(Int(startTime))"
+        print("🎬 Direct stream URL with start time: \(streamURL)")
+      } else {
+        print("🎬 Direct stream URL: \(streamURL)")
+      }
+
+      if let url = URL(string: streamURL) {
+        return url
+      }
+    } else {
+      // Use HLS for incompatible codecs that need transcoding
+      print("🔄 Using HLS transcoding for scene \(sceneId) with codec: \(videoCodec ?? "unknown")")
+
+      // First check if we have a saved HLS URL format FOR THIS SPECIFIC SCENE
+      if let savedHlsUrlString = UserDefaults.standard.string(forKey: "scene_\(sceneId)_hlsURL"),
+        let savedHlsUrl = URL(string: savedHlsUrlString) {
+        // Verify the saved URL is actually for this scene
+        if savedHlsUrlString.contains("/scene/\(sceneId)/") {
+          print("📱 Using saved HLS URL format for scene \(sceneId): \(savedHlsUrlString)")
+          // Force update effectiveStartTime if it's included in the URL
+          if savedHlsUrlString.contains("t=") {
+            if let tRange = savedHlsUrlString.range(of: "t=\\d+", options: .regularExpression),
+              let tValue = Int(savedHlsUrlString[tRange].replacingOccurrences(of: "t=", with: "")) {
+              print("📱 Extracted timestamp from URL: \(tValue)")
+              // Only update if not already set
+              if effectiveStartTime == nil {
+                effectiveStartTime = Double(tValue)
+                print("📱 Updated effectiveStartTime to \(tValue) from URL")
+              }
             }
           }
+          return savedHlsUrl
+        } else {
+          print(
+            "⚠️ Saved HLS URL is for wrong scene (found scene ID in URL doesn't match \(sceneId)), clearing it"
+          )
+          UserDefaults.standard.removeObject(forKey: "scene_\(sceneId)_hlsURL")
         }
-        return savedHlsUrl
-      } else {
-        print(
-          "⚠️ Saved HLS URL is for wrong scene (found scene ID in URL doesn't match \(sceneId)), clearing it"
-        )
-        UserDefaults.standard.removeObject(forKey: "scene_\(sceneId)_hlsURL")
       }
-    }
 
-    // If no saved URL and we have a start time, construct a proper HLS URL
-    if let startTime = effectiveStartTime {
-      let apiKey = appModel.apiKey
-      let baseServerURL = appModel.serverAddress.trimmingCharacters(
-        in: CharacterSet(charactersIn: "/"))
-      let markerSeconds = Int(startTime)
-      let currentTimestamp = Int(Date().timeIntervalSince1970)
+      // If no saved URL and we have a start time, construct a proper HLS URL
+      if let startTime = effectiveStartTime {
+        let markerSeconds = Int(startTime)
 
-      // Format exactly like the example
+        // Format exactly like the example
+        let hlsStreamURL =
+          "\(baseServerURL)/scene/\(sceneId)/stream.m3u8?apikey=\(apiKey)&resolution=ORIGINAL&t=\(markerSeconds)&_ts=\(currentTimestamp)"
+        print("🎬 Constructing HLS URL on-demand: \(hlsStreamURL)")
+
+        // Save for future use
+        UserDefaults.standard.set(hlsStreamURL, forKey: "scene_\(sceneId)_hlsURL")
+
+        if let url = URL(string: hlsStreamURL) {
+          return url
+        }
+      }
+
+      // Construct HLS URL without timestamp (will seek manually if needed)
       let hlsStreamURL =
-        "\(baseServerURL)/scene/\(sceneId)/stream.m3u8?apikey=\(apiKey)&resolution=ORIGINAL&t=\(markerSeconds)&_ts=\(currentTimestamp)"
-      print("🎬 Constructing HLS URL on-demand: \(hlsStreamURL)")
+        "\(baseServerURL)/scene/\(sceneId)/stream.m3u8?apikey=\(apiKey)&resolution=ORIGINAL&_ts=\(currentTimestamp)"
+      print("🎬 Constructing HLS URL without start time: \(hlsStreamURL)")
 
       // Save for future use
       UserDefaults.standard.set(hlsStreamURL, forKey: "scene_\(sceneId)_hlsURL")
@@ -1560,24 +1583,6 @@ struct VideoPlayerView: View {
       if let url = URL(string: hlsStreamURL) {
         return url
       }
-    }
-
-    // Always construct high-quality URL even without start time
-    let apiKey = appModel.apiKey
-    let baseServerURL = appModel.serverAddress.trimmingCharacters(
-      in: CharacterSet(charactersIn: "/"))
-    let currentTimestamp = Int(Date().timeIntervalSince1970)
-
-    // Construct high-quality URL without timestamp (will seek manually if needed)
-    let hlsStreamURL =
-      "\(baseServerURL)/scene/\(sceneId)/stream.m3u8?apikey=\(apiKey)&resolution=ORIGINAL&_ts=\(currentTimestamp)"
-    print("🎬 Constructing high-quality URL without start time: \(hlsStreamURL)")
-
-    // Save for future use
-    UserDefaults.standard.set(hlsStreamURL, forKey: "scene_\(sceneId)_hlsURL")
-
-    if let url = URL(string: hlsStreamURL) {
-      return url
     }
 
     // Absolute fallback to default URL (should rarely happen)
@@ -1800,17 +1805,15 @@ extension VideoPlayerView {
           if let player = getCurrentPlayer() {
             print("✅ Got player reference, preparing to play new content")
 
-            // Create a new player item for the random scene using HLS streaming
-            guard let stream = randomScene.paths.stream,
-                  let directURL = URL(string: stream) else {
+            // Create a new player item using codec-aware URL (direct play for h264/hevc, HLS otherwise)
+            guard let streamURL = VideoPlayerUtility.getStreamURL(for: randomScene) else {
               print("❌ Shuffle: No stream URL for scene \(randomScene.id)")
               return
             }
-            let hlsURL = VideoPlayerUtility.getHLSStreamURL(from: directURL) ?? directURL
-            print("🔄 Created HLS URL for random scene: \(hlsURL.absoluteString)")
-            let playerItem = AVPlayerItem(url: hlsURL)
+            print("🔄 Created stream URL for random scene: \(streamURL.absoluteString)")
+            let playerItem = AVPlayerItem(url: streamURL)
 
-            print("🔄 Creating new player item with URL: \(hlsURL.absoluteString)")
+            print("🔄 Creating new player item with URL: \(streamURL.absoluteString)")
 
             // Replace the current item in the player
             player.replaceCurrentItem(with: playerItem)
@@ -2279,13 +2282,11 @@ extension VideoPlayerView {
 
       // Get the player and play the scene
       if let player = getCurrentPlayer() {
-        guard let stream = randomScene.paths.stream,
-              let directURL = URL(string: stream) else {
+        guard let streamURL = VideoPlayerUtility.getStreamURL(for: randomScene) else {
           print("❌ Fallback shuffle: No stream URL for scene \(randomScene.id)")
           return
         }
-        let hlsURL = VideoPlayerUtility.getHLSStreamURL(from: directURL) ?? directURL
-        let playerItem = AVPlayerItem(url: hlsURL)
+        let playerItem = AVPlayerItem(url: streamURL)
 
         player.replaceCurrentItem(with: playerItem)
         player.play()
@@ -2603,17 +2604,15 @@ extension VideoPlayerView {
           if let player = getCurrentPlayer() {
             print("🎯 PERFORMER BUTTON: Got player reference, preparing to play new content")
 
-            // Create a new player item for the random scene using HLS streaming
-            guard let stream = randomScene.paths.stream,
-                  let directURL = URL(string: stream) else {
+            // Create a new player item using codec-aware URL (direct play for h264/hevc, HLS otherwise)
+            guard let streamURL = VideoPlayerUtility.getStreamURL(for: randomScene) else {
               print("❌ Performer button shuffle: No stream URL for scene \(randomScene.id)")
               return
             }
-            let hlsURL = VideoPlayerUtility.getHLSStreamURL(from: directURL) ?? directURL
-            print("🎯 PERFORMER BUTTON: Created HLS URL: \(hlsURL.absoluteString)")
-            let playerItem = AVPlayerItem(url: hlsURL)
+            print("🎯 PERFORMER BUTTON: Created stream URL: \(streamURL.absoluteString)")
+            let playerItem = AVPlayerItem(url: streamURL)
 
-            print("🎯 PERFORMER BUTTON: Creating new player item with URL: \(hlsURL.absoluteString)")
+            print("🎯 PERFORMER BUTTON: Creating new player item with URL: \(streamURL.absoluteString)")
 
             // Replace the current item in the player
             player.replaceCurrentItem(with: playerItem)
@@ -2820,13 +2819,11 @@ extension VideoPlayerView {
 
               // Play the scene using same method as above
               if let player = getCurrentPlayer() {
-                guard let stream = randomScene.paths.stream,
-                      let directURL = URL(string: stream) else {
+                guard let streamURL = VideoPlayerUtility.getStreamURL(for: randomScene) else {
                   print("❌ Performer button fallback: No stream URL for scene \(randomScene.id)")
                   return
                 }
-                let hlsURL = VideoPlayerUtility.getHLSStreamURL(from: directURL) ?? directURL
-                let playerItem = AVPlayerItem(url: hlsURL)
+                let playerItem = AVPlayerItem(url: streamURL)
 
                 player.replaceCurrentItem(with: playerItem)
                 player.play()
@@ -2926,14 +2923,12 @@ extension VideoPlayerView {
           }
 
           if let player = getCurrentPlayer() {
-            guard let stream = randomScene.paths.stream,
-                  let directURL = URL(string: stream) else {
+            guard let streamURL = VideoPlayerUtility.getStreamURL(for: randomScene) else {
               print("❌ Performer button API fallback: No stream URL for scene \(randomScene.id)")
               return
             }
-            let hlsURL = VideoPlayerUtility.getHLSStreamURL(from: directURL) ?? directURL
-            print("🎯 PERFORMER BUTTON (FALLBACK): Created HLS URL: \(hlsURL.absoluteString)")
-            let playerItem = AVPlayerItem(url: hlsURL)
+            print("🎯 PERFORMER BUTTON (FALLBACK): Created stream URL: \(streamURL.absoluteString)")
+            let playerItem = AVPlayerItem(url: streamURL)
             player.replaceCurrentItem(with: playerItem)
             player.play()
 
@@ -3152,13 +3147,11 @@ extension VideoPlayerView {
 
       // Get the player from the current view controller
       if let player = getCurrentPlayer() {
-        guard let stream = scene.paths.stream,
-              let directURL = URL(string: stream) else {
+        guard let streamURL = VideoPlayerUtility.getStreamURL(for: scene) else {
           print("❌ Tag shuffle update: No stream URL for scene \(scene.id)")
           return
         }
-        let hlsURL = VideoPlayerUtility.getHLSStreamURL(from: directURL) ?? directURL
-        let playerItem = AVPlayerItem(url: hlsURL)
+        let playerItem = AVPlayerItem(url: streamURL)
 
         player.replaceCurrentItem(with: playerItem)
         player.play()
@@ -3297,17 +3290,15 @@ extension VideoPlayerView {
       return
     }
 
-    // Create URL for the scene
-    guard let stream = scene.paths.stream,
-          let directURL = URL(string: stream) else {
+    // Create URL for the scene using codec-aware method
+    guard let streamURL = VideoPlayerUtility.getStreamURL(for: scene) else {
       print("❌ Play scene: No stream URL for scene \(scene.id)")
       return
     }
-    let hlsURL = VideoPlayerUtility.getHLSStreamURL(from: directURL) ?? directURL
 
     // Create asset with HTTP headers to ensure proper authorization
     let headers = ["User-Agent": "StashApp/iOS"]
-    let asset = AVURLAsset(url: hlsURL, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
+    let asset = AVURLAsset(url: streamURL, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
     let playerItem = AVPlayerItem(asset: asset)
 
     // Replace current item and play
@@ -3637,13 +3628,10 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
           }
         }
       } else {
-        // Not an HLS URL, convert it
-        if let hlsUrl = VideoPlayerUtility.getHLSStreamURL(from: url, isMarkerURL: startTime != nil) {
-          print("🔄 Converted to HLS URL: \(hlsUrl.absoluteString)")
-          finalUrl = hlsUrl
-        } else {
-          finalUrl = url
-        }
+        // Not an HLS URL - could be a direct stream URL (for h264/hevc codecs)
+        // Keep it as-is since getStreamURL() already made the codec-aware decision
+        print("🎬 Using direct stream URL (codec-compatible): \(url.absoluteString)")
+        finalUrl = url
       }
     }
 

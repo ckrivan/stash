@@ -5,6 +5,101 @@ import UIKit
 
 /// Utility class for handling video player URLs and requests
 class VideoPlayerUtility {
+
+  /// Codecs that iOS can play natively without transcoding
+  /// These don't need HLS transcoding and can be direct played
+  static let directPlayCodecs: Set<String> = [
+    "h264", "avc", "avc1",           // H.264/AVC variants
+    "hevc", "h265", "hev1", "hvc1",  // HEVC/H.265 variants
+    "mpeg4", "mp4v",                  // MPEG-4 Part 2
+    "prores"                          // ProRes (Apple devices)
+  ]
+
+  /// Check if a video codec can be direct played on iOS without HLS transcoding
+  /// - Parameter codec: The video codec string from the scene file
+  /// - Returns: True if the codec can be played natively
+  static func canDirectPlay(codec: String?) -> Bool {
+    guard let codec = codec?.lowercased() else {
+      // If codec is unknown, default to HLS for safety
+      return false
+    }
+
+    let canPlay = directPlayCodecs.contains(codec)
+    print("🎬 Codec '\(codec)' can direct play: \(canPlay)")
+    return canPlay
+  }
+
+  /// Gets the appropriate stream URL based on codec compatibility
+  /// - Parameters:
+  ///   - scene: The scene to get the stream URL for
+  ///   - startTime: Optional start time in seconds
+  /// - Returns: The best URL for playback (direct or HLS)
+  static func getStreamURL(for scene: StashScene, startTime: Double? = nil) -> URL? {
+    guard let streamURLString = scene.paths.stream,
+          let baseURL = URL(string: streamURLString) else {
+      print("❌ No stream URL available for scene \(scene.id)")
+      return nil
+    }
+
+    let codec = scene.files.first?.video_codec
+
+    if canDirectPlay(codec: codec) {
+      // Use direct stream URL for compatible codecs
+      print("✅ Using direct play for scene \(scene.id) with codec: \(codec ?? "unknown")")
+      return getDirectStreamURL(from: baseURL, startTime: startTime)
+    } else {
+      // Use HLS for incompatible codecs that need transcoding
+      print("🔄 Using HLS transcoding for scene \(scene.id) with codec: \(codec ?? "unknown")")
+      return getHLSStreamURL(from: baseURL, isMarkerURL: startTime != nil)
+    }
+  }
+
+  /// Gets a direct stream URL (non-HLS) with proper parameters
+  /// - Parameters:
+  ///   - directURL: The base direct stream URL
+  ///   - startTime: Optional start time in seconds
+  /// - Returns: The configured direct stream URL
+  static func getDirectStreamURL(from directURL: URL, startTime: Double? = nil) -> URL? {
+    var urlString = directURL.absoluteString
+
+    // Remove .m3u8 if present (in case we're converting from HLS back to direct)
+    urlString = urlString.replacingOccurrences(of: "/stream.m3u8", with: "/stream")
+
+    // Build query parameters
+    var parameters = [String]()
+
+    // Add start time if provided
+    if let time = startTime, time > 0 {
+      parameters.append("t=\(Int(time))")
+    }
+
+    // Add API key if present in the original URL
+    if directURL.absoluteString.contains("apikey=") {
+      if let apiKeyRange = directURL.absoluteString.range(of: "apikey=[^&]+", options: .regularExpression) {
+        let apiKey = String(directURL.absoluteString[apiKeyRange])
+        if !parameters.contains(where: { $0.starts(with: "apikey=") }) {
+          parameters.append(apiKey)
+        }
+      }
+    }
+
+    // Add timestamp for cache busting
+    let currentTimestamp = Int(Date().timeIntervalSince1970)
+    parameters.append("_ts=\(currentTimestamp)")
+
+    // Add parameters to URL
+    if !parameters.isEmpty {
+      // Check if URL already has query parameters
+      if urlString.contains("?") {
+        urlString += "&" + parameters.joined(separator: "&")
+      } else {
+        urlString += "?" + parameters.joined(separator: "&")
+      }
+    }
+
+    print("🎬 Direct stream URL: \(urlString)")
+    return URL(string: urlString)
+  }
   /// Gets a thumbnail URL for a scene at a specific timestamp
   /// - Parameters:
   ///   - sceneID: The scene ID
