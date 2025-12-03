@@ -1171,6 +1171,10 @@ class AppModel: ObservableObject {
   private var currentShuffleTag: String = ""  // Track current tag being played
   private var currentTagPlayCount: Int = 0  // Track how many times current tag has played
 
+  // Performer shuffle mode tracking (M key shuffle within a performer's scenes)
+  @Published var isPerformerShuffleMode: Bool = false
+  var performerShufflePerformer: StashScene.Performer?  // Track current performer being shuffled
+
   // Saved marker shuffle state (for restoring after performer shuffle)
   private var savedMarkerShuffleQueue: [SceneMarker] = []
   private var savedShuffleTagFilter: String?
@@ -2043,6 +2047,11 @@ class AppModel: ObservableObject {
     // Clear balanced rotation data
     markersByTag.removeAll()
     recentMarkersByTag.removeAll()
+
+    // Clear performer shuffle mode when fully exiting shuffle
+    isPerformerShuffleMode = false
+    performerShufflePerformer = nil
+    clearSavedMarkerShuffleState()
 
     UserDefaults.standard.set(false, forKey: "isMarkerShuffleContext")
     UserDefaults.standard.set(false, forKey: "isMarkerShuffleMode")

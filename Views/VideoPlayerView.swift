@@ -1479,22 +1479,8 @@ struct VideoPlayerView: View {
       showControls = false
     }
 
-    // Check if we should restore marker shuffle state (returning from performer shuffle to markers)
-    // This happens when: NOT in marker shuffle mode AND there's saved marker shuffle state
-    if !appModel.isMarkerShuffleMode && !isMarkerShuffleMode && appModel.hasSavedMarkerShuffleState {
-      print("🔙 M KEY: Detected return from performer shuffle to marker shuffle")
-      if appModel.restoreMarkerShuffleState() {
-        print("🔙 M KEY: Restored marker shuffle state, navigating to next marker")
-        isMarkerShuffleMode = true
-        // Navigate to next marker in the restored queue
-        if let nextMarker = appModel.nextMarkerInShuffle() {
-          print("🎲 M KEY: Navigating to restored marker: \(nextMarker.title)")
-          appModel.navigateToMarker(nextMarker)
-        }
-        return
-      }
-    }
-
+    // M key ALWAYS plays performer random video - no restore logic here
+    // Restore logic is on V key (navigateToNextScene) to return to marker shuffle
     playPerformerRandomVideo()
   }
 
@@ -1869,6 +1855,22 @@ extension VideoPlayerView {
     }
   }
   private func navigateToNextScene() {
+    // FIRST CHECK: If in performer shuffle mode with saved marker state, restore markers on V press
+    // This allows V key to return from performer shuffle back to marker shuffle
+    if appModel.isPerformerShuffleMode && appModel.hasSavedMarkerShuffleState {
+      print("🔙 V KEY: Returning from performer shuffle to marker shuffle")
+      appModel.isPerformerShuffleMode = false
+      appModel.performerShufflePerformer = nil
+      if appModel.restoreMarkerShuffleState() {
+        isMarkerShuffleMode = true
+        if let nextMarker = appModel.nextMarkerInShuffle() {
+          print("🎲 V KEY: Navigating to restored marker: \(nextMarker.title)")
+          appModel.navigateToMarker(nextMarker)
+        }
+        return
+      }
+    }
+
     // Load state flags from UserDefaults (to handle view recreations)
     if !isRandomJumpMode {
       isRandomJumpMode = UserDefaults.standard.bool(forKey: "isRandomJumpMode")
@@ -2363,6 +2365,10 @@ extension VideoPlayerView {
         print("🎯 PERFORMER BUTTON: Clearing stale performerDetailViewPerformer: \(appModel.performerDetailViewPerformer?.name ?? "nil")")
         appModel.performerDetailViewPerformer = nil
       }
+
+      // Set performer shuffle mode so V key knows to restore markers
+      appModel.isPerformerShuffleMode = true
+      print("🎯 PERFORMER BUTTON: Set isPerformerShuffleMode = true")
     }
 
     // CRITICAL: Clear local VideoPlayerView marker state to prevent state leakage
@@ -2474,6 +2480,9 @@ extension VideoPlayerView {
     print(
       "🎯 PERFORMER BUTTON: Current scene ID: \(currentScene.id), title: \(currentScene.title ?? "Untitled")"
     )
+
+    // Track the performer being shuffled for performer shuffle mode
+    appModel.performerShufflePerformer = selectedPerformer
 
     // Start a task to find and play another scene with this performer
     Task {
