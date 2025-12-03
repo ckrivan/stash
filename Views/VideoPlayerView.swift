@@ -1395,6 +1395,10 @@ struct VideoPlayerView: View {
         // 1. Not in shuffle mode, OR
         // 2. Manual exit (user pressed close/exit button)
         if (!isMarkerShuffle && !isTagShuffle && !isMostPlayedShuffle) || isManualExit {
+          // CRITICAL: Clean up time observers BEFORE disposing the player
+          // This prevents the "black screen + audio continuing" bug
+          VideoPlayerRegistry.shared.cleanupObservers()
+
           if let player = VideoPlayerRegistry.shared.currentPlayer {
             print("🔇 Disposing of video player on view disappear (non-shuffle or manual exit)")
             player.pause()
@@ -3545,20 +3549,18 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
 
     deinit {
       // Clean up resources
-      observationToken?.invalidate()
+      // NOTE: Time observers are now managed by VideoPlayerRegistry.cleanupObservers()
+      // which is called from onDisappear and killAllAudio(). We should NOT try to
+      // remove them here as they may have already been removed, or the player
+      // reference here may not match the one that created the observers.
+      // Attempting to remove an observer from a different player crashes with:
+      // "An instance of AVPlayer cannot remove a time observer that was added by a different instance of AVPlayer."
+
+      // Only invalidate observation tokens that are specific to this coordinator
       timeStatusObserver?.invalidate()
 
-      // Remove time observer if it exists
-      if let timeObserver = timeObserver, let player = player {
-        player.removeTimeObserver(timeObserver)
-      }
-
-      // Remove progress observer if it exists
-      if let progressObserver = progressObserver, let player = player {
-        player.removeTimeObserver(progressObserver)
-      }
-
-      player?.pause()
+      // Note: observationToken is now managed by VideoPlayerRegistry
+      // Don't pause here as the player may have been replaced
       player = nil
       timeObserver = nil
       progressObserver = nil
@@ -3792,7 +3794,7 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
           }
 
           // Create a precise time observer for the end time
-          context.coordinator.timeObserver = player.addPeriodicTimeObserver(
+          let endTimeObs = player.addPeriodicTimeObserver(
             forInterval: CMTime(seconds: 0.1, preferredTimescale: 600),
             queue: .main
           ) { [weak player] time in
@@ -3814,15 +3816,21 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
               )
             }
           }
+          context.coordinator.timeObserver = endTimeObs
+          // Register for cleanup on view disappear - pass player to avoid cross-player crashes
+          VideoPlayerRegistry.shared.registerTimeObserver(endTimeObs, for: player)
         }
 
         // Add periodic time observer to monitor actual playback progress
-        context.coordinator.progressObserver = player.addPeriodicTimeObserver(
+        let progressObs = player.addPeriodicTimeObserver(
           forInterval: CMTime(seconds: 1.0, preferredTimescale: 10),
           queue: .main
         ) { time in
           print("⏱ Current playback position: \(time.seconds) seconds")
         }
+        context.coordinator.progressObserver = progressObs
+        // Register for cleanup on view disappear - pass player to avoid cross-player crashes
+        VideoPlayerRegistry.shared.registerTimeObserver(progressObs, for: player)
       } else if item.status == .failed {
         print("❌ Player item failed: \(item.error?.localizedDescription ?? "Unknown error")")
 
@@ -3853,11 +3861,15 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
 
     // Store token in context for memory management
     context.coordinator.observationToken = token
+    // Register for cleanup on view disappear
+    VideoPlayerRegistry.shared.registerObservationToken(token)
 
     // Register with VideoPlayerRegistry for consistent access
     // CRITICAL FIX: Clean up existing player before setting new one
     if let existingPlayer = VideoPlayerRegistry.shared.currentPlayer, existingPlayer !== player {
       print("🧹 [makeCoordinator] Cleaning up existing player before setting new one")
+      // Also clean up observers from the old player
+      VideoPlayerRegistry.shared.cleanupObservers()
       existingPlayer.pause()
       existingPlayer.replaceCurrentItem(with: nil)
     }
@@ -3912,7 +3924,42 @@ class VideoPlayerRegistry {
   var currentPlayer: AVPlayer?
   var playerViewController: AVPlayerViewController?
 
+  // Store time observers WITH their associated player for safe cleanup
+  // This prevents "cannot remove observer added by different player" crashes
+  private var timeObserverEntries: [(player: AVPlayer, observer: Any)] = []
+  var observationTokens: [NSKeyValueObservation] = []
+
   private init() {}
+
+  /// Clean up all time observers - MUST be called before disposing player
+  func cleanupObservers() {
+    print("🔇 Cleaning up \(timeObserverEntries.count) time observers and \(observationTokens.count) tokens")
+
+    // Remove each observer from its ORIGINAL player (not currentPlayer)
+    // This prevents crashes when the player instance has changed
+    for entry in timeObserverEntries {
+      entry.player.removeTimeObserver(entry.observer)
+    }
+    timeObserverEntries.removeAll()
+
+    // Invalidate all observation tokens
+    for token in observationTokens {
+      token.invalidate()
+    }
+    observationTokens.removeAll()
+
+    print("🔇 Observer cleanup complete")
+  }
+
+  /// Register a time observer for later cleanup - stores the player reference
+  func registerTimeObserver(_ observer: Any, for player: AVPlayer) {
+    timeObserverEntries.append((player: player, observer: observer))
+  }
+
+  /// Register an observation token for later cleanup
+  func registerObservationToken(_ token: NSKeyValueObservation) {
+    observationTokens.append(token)
+  }
 
   func seek(by seconds: Double) {
     guard let player = currentPlayer,

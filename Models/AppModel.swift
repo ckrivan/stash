@@ -935,6 +935,10 @@ class AppModel: ObservableObject {
     let cleanupGroup = DispatchGroup()
 
     // Method 1: Check VideoPlayerRegistry (quick operation, do synchronously)
+    // CRITICAL: Clean up time observers BEFORE disposing the player
+    // This prevents the "black screen + audio continuing" bug
+    VideoPlayerRegistry.shared.cleanupObservers()
+
     if let player = VideoPlayerRegistry.shared.currentPlayer {
       print("🔇 Stopping VideoPlayerRegistry player")
       player.isMuted = true
