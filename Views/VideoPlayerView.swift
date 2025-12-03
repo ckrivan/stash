@@ -1503,16 +1503,15 @@ struct VideoPlayerView: View {
     let videoCodec = currentScene.files.first?.video_codec
     let canDirectPlay = VideoPlayerUtility.canDirectPlay(codec: videoCodec)
 
-    // Check if marker navigation prefers HLS (for reliable seeking via manifest)
-    let preferHLS = UserDefaults.standard.bool(forKey: "scene_\(sceneId)_preferHLS")
+    // NOTE: Always try direct play first for speed - HLS fallback handled on error in makeUIViewController
 
     let apiKey = appModel.apiKey
     let baseServerURL = appModel.serverAddress.trimmingCharacters(
       in: CharacterSet(charactersIn: "/"))
     let currentTimestamp = Int(Date().timeIntervalSince1970)
 
-    // Use HLS if preferred (marker navigation) OR if codec needs transcoding
-    if canDirectPlay && !preferHLS {
+    // Use direct play for compatible codecs (fast), HLS fallback on error
+    if canDirectPlay {
       // Use direct stream URL for compatible codecs (no transcoding needed)
       print("✅ Using direct play for scene \(sceneId) with codec: \(videoCodec ?? "unknown")")
 
@@ -1530,12 +1529,8 @@ struct VideoPlayerView: View {
         return url
       }
     } else {
-      // Use HLS for incompatible codecs OR when marker navigation prefers HLS
-      if preferHLS {
-        print("🔄 Using HLS for marker navigation (preferHLS=true) for scene \(sceneId)")
-      } else {
-        print("🔄 Using HLS transcoding for scene \(sceneId) with codec: \(videoCodec ?? "unknown")")
-      }
+      // Use HLS for incompatible codecs that need transcoding
+      print("🔄 Using HLS transcoding for scene \(sceneId) with codec: \(videoCodec ?? "unknown")")
 
       // First check if we have a saved HLS URL format FOR THIS SPECIFIC SCENE
       if let savedHlsUrlString = UserDefaults.standard.string(forKey: "scene_\(sceneId)_hlsURL"),
@@ -3831,11 +3826,35 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
       } else if item.status == .failed {
         print("❌ Player item failed: \(item.error?.localizedDescription ?? "Unknown error")")
 
-        // Try to recover by creating a new player with direct URL
-        if let directURL = URL(
-          string: url.absoluteString.replacingOccurrences(of: "stream.m3u8", with: "stream")) {
-          print("🔄 Attempting recovery with direct URL: \(directURL)")
-          player.replaceCurrentItem(with: AVPlayerItem(url: directURL))
+        // Try to recover: if direct stream failed, try HLS; if HLS failed, try direct
+        let urlString = url.absoluteString
+        var recoveryURL: URL?
+
+        if !urlString.contains("stream.m3u8") {
+          // Direct stream failed - try HLS (more reliable for seeking)
+          var hlsString = urlString.replacingOccurrences(of: "/stream?", with: "/stream.m3u8?")
+          hlsString = hlsString.replacingOccurrences(of: "/stream&", with: "/stream.m3u8&")
+          if hlsString == urlString {
+            // URL didn't have query params after /stream
+            hlsString = urlString.replacingOccurrences(of: "/stream", with: "/stream.m3u8")
+          }
+          // Add resolution=ORIGINAL for HLS
+          if !hlsString.contains("resolution=") {
+            hlsString += "&resolution=ORIGINAL"
+          }
+          recoveryURL = URL(string: hlsString)
+          print("🔄 Direct play failed - attempting HLS recovery: \(hlsString)")
+        } else {
+          // HLS failed - try direct stream
+          let directString = urlString
+            .replacingOccurrences(of: "stream.m3u8", with: "stream")
+            .replacingOccurrences(of: "&resolution=ORIGINAL", with: "")
+          recoveryURL = URL(string: directString)
+          print("🔄 HLS failed - attempting direct stream recovery: \(directString)")
+        }
+
+        if let recoveryURL = recoveryURL {
+          player.replaceCurrentItem(with: AVPlayerItem(url: recoveryURL))
           player.play()
 
           // Cancel loading timeout since video started playing
