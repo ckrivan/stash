@@ -326,39 +326,19 @@ class VideoPlayerUtility {
       return false
     }
 
-    // When video first loads, duration might not be available or fully loaded
-    let duration: Double
-
-    // Handle different states of video loading
-    if currentItem.status == .readyToPlay && currentItem.duration.isValid
-      && !currentItem.duration.seconds.isNaN && currentItem.duration.seconds > 0 {
-      // Normal case - video is ready with valid duration
-      duration = currentItem.duration.seconds
-      print("🎲 Current video duration: \(duration) seconds")
-    } else {
-      // Fallback case - try to use a reasonable default duration if not fully loaded
-      // This allows jumping to work even if the video is still loading
-      print("⚠️ Video duration not fully loaded yet, using estimated duration")
-
-      // Try to get duration from file information if available
-      if let loadedTimeRanges = currentItem.loadedTimeRanges.first {
-        let timeRange = loadedTimeRanges.timeRangeValue
-        let loadedDuration = timeRange.duration.seconds
-
-        if loadedDuration > 0 {
-          print("🎲 Using loaded time range: \(loadedDuration) seconds")
-          duration = loadedDuration
-        } else {
-          // If no loaded time range, use a reasonable default (typical video length)
-          duration = 1800  // 30 minutes as a fallback
-          print("🎲 Using default duration: \(duration) seconds (30 minutes)")
-        }
-      } else {
-        // No loaded time ranges, use a reasonable default
-        duration = 1800  // 30 minutes as a fallback
-        print("🎲 Using default duration: \(duration) seconds (30 minutes)")
-      }
+    // Only allow random jump when we have a valid duration
+    // This prevents seeking to positions that don't exist in the video
+    guard currentItem.status == .readyToPlay,
+          currentItem.duration.isValid,
+          !currentItem.duration.seconds.isNaN,
+          currentItem.duration.seconds > 0 else {
+      print("⚠️ Cannot jump to random position - video duration not ready yet")
+      print("   Status: \(currentItem.status.rawValue), Duration valid: \(currentItem.duration.isValid)")
+      return false
     }
+
+    let duration = currentItem.duration.seconds
+    print("🎲 Current video duration: \(duration) seconds")
 
     // Current time for logging
     let currentSeconds =
