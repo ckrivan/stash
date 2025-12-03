@@ -50,7 +50,7 @@ class VideoPlayerUtility {
     } else {
       // Use HLS for incompatible codecs that need transcoding
       print("🔄 Using HLS transcoding for scene \(scene.id) with codec: \(codec ?? "unknown")")
-      return getHLSStreamURL(from: baseURL, isMarkerURL: startTime != nil)
+      return getHLSStreamURL(from: baseURL, startTime: startTime)
     }
   }
 
@@ -229,9 +229,11 @@ class VideoPlayerUtility {
   }
 
   /// Utility method to convert a direct stream URL to an HLS stream URL
-  /// - Parameter directURL: The direct stream URL
+  /// - Parameters:
+  ///   - directURL: The direct stream URL
+  ///   - startTime: Optional start time in seconds to include in the URL
   /// - Returns: The corresponding HLS stream URL
-  static func getHLSStreamURL(from directURL: URL, isMarkerURL: Bool = false) -> URL? {
+  static func getHLSStreamURL(from directURL: URL, startTime: Double? = nil) -> URL? {
     var urlString = directURL.absoluteString
     print("🔍 Converting direct URL to HLS: \(urlString)")
 
@@ -247,32 +249,9 @@ class VideoPlayerUtility {
         parameters.append("resolution=ORIGINAL")
       }
 
-      // Add t parameter if this is a marker URL and doesn't already have it
-      if isMarkerURL {
-        // Extract t parameter from existing URL
-        let urlComponents = URLComponents(url: directURL, resolvingAgainstBaseURL: false)
-        if let items = urlComponents?.queryItems {
-          if let startItem = items.first(where: { $0.name == "start" || $0.name == "t" }) {
-            if let startSeconds = startItem.value, let seconds = Double(startSeconds) {
-              // Convert start parameter to t parameter if needed
-              if startItem.name == "start" && !urlString.contains("t=") {
-                parameters.append("t=\(Int(seconds))")
-
-                // Remove existing start parameter
-                urlString = urlString.replacingOccurrences(
-                  of: "start=\(startSeconds)",
-                  with: ""
-                )
-                // Clean up any leftover "&" or "?" after removing start parameter
-                urlString = urlString.replacingOccurrences(of: "&&", with: "&")
-                urlString = urlString.replacingOccurrences(of: "?&", with: "?")
-                if urlString.hasSuffix("&") {
-                  urlString.removeLast()
-                }
-              }
-            }
-          }
-        }
+      // Add t parameter if we have a start time and URL doesn't already have it
+      if let time = startTime, time > 0, !urlString.contains("t=") {
+        parameters.append("t=\(Int(time))")
       }
 
       // Add timestamp parameter (_ts) for cache busting if missing
@@ -301,29 +280,10 @@ class VideoPlayerUtility {
       // Build query parameters with all needed values
       var parameters = ["resolution=ORIGINAL"]
 
-      // Get the start parameter if present for marker URLs
-      var startParameter: String?
-      if isMarkerURL {
-        // Extract seconds from direct URL parameters
-        let urlComponents = URLComponents(url: directURL, resolvingAgainstBaseURL: false)
-        if let items = urlComponents?.queryItems {
-          if let startItem = items.first(where: { $0.name == "start" || $0.name == "t" }) {
-            if let startSeconds = startItem.value, let seconds = Double(startSeconds) {
-              // Always use t parameter in the output URL
-              startParameter = "t=\(Int(seconds))"
-              print("🎯 Found timestamp parameter: \(startParameter!)")
-            }
-          }
-        }
-
-        // If we have a start parameter, add it
-        if let startParam = startParameter {
-          parameters.append(startParam)
-        } else {
-          // Default to 0 seconds for marker URLs without a timestamp
-          parameters.append("t=0")
-          print("⚠️ No timestamp found in marker URL, defaulting to t=0")
-        }
+      // Add start time parameter if provided
+      if let time = startTime, time > 0 {
+        parameters.append("t=\(Int(time))")
+        print("🎯 Using start time: t=\(Int(time))")
       }
 
       // Add API key if present in the original URL
