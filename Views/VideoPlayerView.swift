@@ -3869,12 +3869,29 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
           let recoveryItem = AVPlayerItem(url: recoveryURL)
           player.replaceCurrentItem(with: recoveryItem)
 
-          // Observe recovery item status
-          let recoveryObserver = recoveryItem.observe(\.status, options: [.new]) { recoveryItem, _ in
+          // Capture timeToSeek for use in observer closure
+          let seekTime = explicitStartTime
+
+          // Observe recovery item status - seek AFTER ready to play
+          let recoveryObserver = recoveryItem.observe(\.status, options: [.new]) { [weak player] recoveryItem, _ in
+            guard let player = player else { return }
+
             if recoveryItem.status == .readyToPlay {
-              print("✅ RECOVERY SUCCESS: Video now playing")
+              print("✅ RECOVERY SUCCESS: HLS stream ready")
               NotificationCenter.default.post(
                 name: NSNotification.Name("VideoLoadingSuccess"), object: nil)
+
+              // NOW seek after stream is ready (not on a timer)
+              if let timeToSeek = seekTime, timeToSeek > 0 {
+                print("⏱ RECOVERY: Seeking to \(timeToSeek) seconds (after readyToPlay)")
+                let cmTime = CMTime(seconds: timeToSeek, preferredTimescale: 1000)
+                player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { success in
+                  print("⏱ RECOVERY: Seek \(success ? "succeeded" : "failed")")
+                  player.play()
+                }
+              } else {
+                player.play()
+              }
             } else if recoveryItem.status == .failed {
               print("❌ RECOVERY ALSO FAILED!")
               print("   ❗ Error: \(recoveryItem.error?.localizedDescription ?? "Unknown")")
@@ -3885,18 +3902,6 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
           context.coordinator.recoveryObserver = recoveryObserver
 
           player.play()
-
-          // If we have an explicit start time, seek to it
-          if let timeToSeek = explicitStartTime, timeToSeek > 0 {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-              print("⏱ RECOVERY: Seeking to \(timeToSeek) seconds")
-              let cmTime = CMTime(seconds: timeToSeek, preferredTimescale: 1000)
-              player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { success in
-                print("⏱ RECOVERY: Seek \(success ? "succeeded" : "failed")")
-                player.play()
-              }
-            }
-          }
         } else {
           print("❌ RECOVERY: Could not create recovery URL!")
         }
