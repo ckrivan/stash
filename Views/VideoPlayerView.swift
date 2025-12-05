@@ -129,6 +129,11 @@ class CustomPlayerViewController: UIViewController {
       toggleAspectRatio()
       return
 
+    case .keyboardX:
+      print("🎹 X key (pressesBegan) - Universal next")
+      NotificationCenter.default.post(name: NSNotification.Name("XKeyPressed"), object: nil)
+      return
+
     default:
       super.pressesBegan(presses, with: event)
     }
@@ -611,6 +616,8 @@ struct VideoPlayerView: View {
   @State private var isVideoLoading: Bool = false
   @State private var isManualExit: Bool = false
   @FocusState private var isVideoPlayerFocused: Bool
+  // Track if notification observers have been registered (prevent duplicate registration)
+  @State private var hasRegisteredNotificationObservers: Bool = false
 
   init(scene: StashScene, startTime: Double? = nil, endTime: Double? = nil) {
     self.scene = scene
@@ -965,7 +972,10 @@ struct VideoPlayerView: View {
         print("📱 DEBUG - showControls: \(showControls)")
 
         // Automatically focus the video player for immediate keyboard input
-        isVideoPlayerFocused = true
+        // Use small delay to ensure view is fully ready to accept focus
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+          isVideoPlayerFocused = true
+        }
 
         // IMPORTANT: Update currentScene to the correct scene being played
         currentScene = scene
@@ -1065,6 +1075,15 @@ struct VideoPlayerView: View {
         NotificationCenter.default.post(
           name: Notification.Name("MainVideoPlayerStarted"), object: nil)
 
+        // Guard against duplicate notification observer registration
+        // This prevents notification spam (4x notifications per scene change)
+        guard !hasRegisteredNotificationObservers else {
+          print("⚠️ Notification observers already registered, skipping duplicate registration")
+          return
+        }
+        hasRegisteredNotificationObservers = true
+        print("✅ Registering notification observers (first time only)")
+
         // Listen for marker shuffle updates to avoid navigation flicker
         NotificationCenter.default.addObserver(
           forName: NSNotification.Name("UpdateVideoPlayerForMarkerShuffle"),
@@ -1078,8 +1097,9 @@ struct VideoPlayerView: View {
             let hlsURL = userInfo["hlsURL"] as? String {
             print("🔄 Updating VideoPlayerView to new scene: \(newScene.id) at \(startSeconds)s")
 
-            // Update the current scene and times
+            // Update the current scene and times (both local @State and appModel for consistency)
             currentScene = newScene
+            appModel.currentScene = newScene
             effectiveStartTime = startSeconds
 
             // Update originalPerformer to match the female performer from current scene
@@ -1128,7 +1148,7 @@ struct VideoPlayerView: View {
                     }
                   } else if item.status == .failed {
                     statusObserver?.invalidate()
-                    print("❌ Player item failed: \(item.error?.localizedDescription ?? "unknown")")
+                    print("⚫ BLACK SCREEN FAILED: \(item.error?.localizedDescription ?? "unknown")")
                   }
                 }
               }
@@ -1161,8 +1181,9 @@ struct VideoPlayerView: View {
 
             print("🎲 Updating VideoPlayerView with marker: \(marker.title) at \(startTime)s")
 
-            // Update the current scene and marker
+            // Update the current scene and marker (both local @State and appModel for consistency)
             currentScene = newScene
+            appModel.currentScene = newScene
             currentMarker = marker
             effectiveStartTime = startTime
             effectiveEndTime = nil  // Reset end time for markers
@@ -1226,7 +1247,7 @@ struct VideoPlayerView: View {
                   }
                 } else if item.status == .failed {
                   statusObserver?.invalidate()
-                  print("❌ Player item failed: \(item.error?.localizedDescription ?? "unknown")")
+                  print("⚫ BLACK SCREEN FAILED: \(item.error?.localizedDescription ?? "unknown")")
                 }
               }
             } else {
@@ -1245,6 +1266,16 @@ struct VideoPlayerView: View {
             let keyCode = UIKeyboardHIDUsage(rawValue: keyCodeRaw) {
             self.handleMenuKeyboardShortcut(keyCode)
           }
+        }
+
+        // Listen for X key pressed from pressesBegan (UIKit level)
+        NotificationCenter.default.addObserver(
+          forName: NSNotification.Name("XKeyPressed"),
+          object: nil,
+          queue: .main
+        ) { _ in
+          print("🎹 XKeyPressed notification received - calling handleUniversalNext()")
+          self.handleUniversalNext()
         }
 
         // Listen for video loading timeout
@@ -1374,11 +1405,12 @@ struct VideoPlayerView: View {
         let isMarkerShuffle = UserDefaults.standard.bool(forKey: "isMarkerShuffleContext")
         let isTagShuffle = UserDefaults.standard.bool(forKey: "isTagSceneShuffleContext")
         let isMostPlayedShuffle = UserDefaults.standard.bool(forKey: "isMostPlayedShuffleMode")
+        let isPerformerShuffle = appModel.isPerformerShuffleMode
 
         // Clean up video player if:
         // 1. Not in shuffle mode, OR
         // 2. Manual exit (user pressed close/exit button)
-        if (!isMarkerShuffle && !isTagShuffle && !isMostPlayedShuffle) || isManualExit {
+        if (!isMarkerShuffle && !isTagShuffle && !isMostPlayedShuffle && !isPerformerShuffle) || isManualExit {
           // CRITICAL: Clean up time observers BEFORE disposing the player
           // This prevents the "black screen + audio continuing" bug
           VideoPlayerRegistry.shared.cleanupObservers()
@@ -1392,8 +1424,18 @@ struct VideoPlayerView: View {
           VideoPlayerRegistry.shared.playerViewController = nil
 
           if isManualExit {
-            print("🔇 Manual exit detected - forcing audio cleanup in shuffle mode")
+            print("🔇 Manual exit detected - forcing audio cleanup and clearing shuffle modes")
             appModel.killAllAudio()
+            // Clear performer shuffle mode when manually exiting
+            appModel.isPerformerShuffleMode = false
+            appModel.performerShufflePerformer = nil
+
+            // Re-randomize scenes when going back to grid
+            Task {
+              print("🎲 Re-randomizing scenes on exit")
+              await appModel.api.fetchScenesExcludingVR(
+                page: 1, sort: "random", direction: "DESC", appendResults: false)
+            }
           }
         } else {
           print("🎲 Skipping video player cleanup - in shuffle mode (automatic navigation)")
@@ -1499,9 +1541,10 @@ struct VideoPlayerView: View {
       }
     }
 
-    // Check if this video can be direct played (h264, hevc, etc.)
+    // Check if this video can be direct played (codec AND container format must be compatible)
     let videoCodec = currentScene.files.first?.video_codec
-    let canDirectPlay = VideoPlayerUtility.canDirectPlay(codec: videoCodec)
+    let containerFormat = currentScene.files.first?.format
+    let canDirectPlay = VideoPlayerUtility.canDirectPlayWithFormat(codec: videoCodec, format: containerFormat)
 
     // NOTE: Always try direct play first for speed - HLS fallback handled on error in makeUIViewController
 
@@ -1510,10 +1553,10 @@ struct VideoPlayerView: View {
       in: CharacterSet(charactersIn: "/"))
     let currentTimestamp = Int(Date().timeIntervalSince1970)
 
-    // Use direct play for compatible codecs (fast), HLS fallback on error
+    // Use direct play for compatible codecs AND containers (fast), HLS fallback on error
     if canDirectPlay {
-      // Use direct stream URL for compatible codecs (no transcoding needed)
-      print("✅ Using direct play for scene \(sceneId) with codec: \(videoCodec ?? "unknown")")
+      // Use direct stream URL for compatible codecs and containers (no transcoding needed)
+      print("✅ Using direct play for scene \(sceneId) with codec: \(videoCodec ?? "unknown"), format: \(containerFormat ?? "unknown")")
 
       var streamURL = "\(baseServerURL)/scene/\(sceneId)/stream?apikey=\(apiKey)&_ts=\(currentTimestamp)"
 
@@ -1529,8 +1572,8 @@ struct VideoPlayerView: View {
         return url
       }
     } else {
-      // Use HLS for incompatible codecs that need transcoding
-      print("🔄 Using HLS transcoding for scene \(sceneId) with codec: \(videoCodec ?? "unknown")")
+      // Use HLS for incompatible codecs or containers that need transcoding
+      print("🔄 Using HLS transcoding for scene \(sceneId) with codec: \(videoCodec ?? "unknown"), format: \(containerFormat ?? "unknown")")
 
       // First check if we have a saved HLS URL format FOR THIS SPECIFIC SCENE
       if let savedHlsUrlString = UserDefaults.standard.string(forKey: "scene_\(sceneId)_hlsURL"),
@@ -1605,7 +1648,7 @@ struct VideoPlayerView: View {
     videoLoadingTimer?.invalidate()
 
     videoLoadingTimer = Timer.scheduledTimer(withTimeInterval: 15.0, repeats: false) { _ in
-      print("⚠️ VIDEO LOADING TIMEOUT: Video failed to load within 15 seconds")
+      print("⚫ BLACK SCREEN TIMEOUT: Video failed to load within 15 seconds")
 
       // Check if we're in shuffle mode and can advance to next
       let isMarkerShuffle = UserDefaults.standard.bool(forKey: "isMarkerShuffleContext")
@@ -1725,7 +1768,7 @@ extension VideoPlayerView {
                     }
                 }
             },
-            "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height } performers { id name gender scene_count } tags { id name } rating100 } } }"
+            "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height format } performers { id name gender scene_count } tags { id name } rating100 } } }"
         }
         """
 
@@ -1866,21 +1909,9 @@ extension VideoPlayerView {
     }
   }
   private func navigateToNextScene() {
-    // FIRST CHECK: If in performer shuffle mode with saved marker state, restore markers on V press
-    // This allows V key to return from performer shuffle back to marker shuffle
-    if appModel.isPerformerShuffleMode && appModel.hasSavedMarkerShuffleState {
-      print("🔙 V KEY: Returning from performer shuffle to marker shuffle")
-      appModel.isPerformerShuffleMode = false
-      appModel.performerShufflePerformer = nil
-      if appModel.restoreMarkerShuffleState() {
-        isMarkerShuffleMode = true
-        if let nextMarker = appModel.nextMarkerInShuffle() {
-          print("🎲 V KEY: Navigating to restored marker: \(nextMarker.title)")
-          appModel.navigateToMarker(nextMarker)
-        }
-        return
-      }
-    }
+    // NOTE: With V/X key redesign, this function is now used for legacy/UI button navigation
+    // V key now directly handles markers, X key uses handleUniversalNext()
+    // The marker restore logic has been removed - V is markers-only now
 
     // Load state flags from UserDefaults (to handle view recreations)
     if !isRandomJumpMode {
@@ -2324,6 +2355,123 @@ extension VideoPlayerView {
     }
   }
 
+  /// X KEY: Universal next handler for ALL non-marker shuffle modes
+  /// This is the primary "next" button for scenes - handles tag shuffle, most played,
+  /// performer shuffle, random jump, and sequential navigation
+  private func handleUniversalNext() {
+    print("🎹 X KEY DEBUG - handleUniversalNext() called")
+
+    // Load state flags from UserDefaults (to handle view recreations)
+    if !isRandomJumpMode {
+      isRandomJumpMode = UserDefaults.standard.bool(forKey: "isRandomJumpMode")
+    }
+
+    print("🎹 X KEY DEBUG - Mode states:")
+    print("  isTagSceneShuffleMode: \(appModel.isTagSceneShuffleMode)")
+    print("  tagSceneShuffleQueue.isEmpty: \(appModel.tagSceneShuffleQueue.isEmpty)")
+    print("  tagSceneShuffleQueue.count: \(appModel.tagSceneShuffleQueue.count)")
+    print("  isMostPlayedShuffleMode: \(appModel.isMostPlayedShuffleMode)")
+    print("  mostPlayedShuffleQueue.isEmpty: \(appModel.mostPlayedShuffleQueue.isEmpty)")
+    print("  mostPlayedShuffleQueue.count: \(appModel.mostPlayedShuffleQueue.count)")
+    print("  isPerformerShuffleMode: \(appModel.isPerformerShuffleMode)")
+    print("  isRandomJumpMode: \(isRandomJumpMode)")
+    print("  appModel.api.scenes.count: \(appModel.api.scenes.count)")
+    print("  currentScene.id: \(currentScene.id)")
+
+    // Check shuffle modes in priority order
+
+    // 1. TAG SCENE SHUFFLE
+    if appModel.isTagSceneShuffleMode && !appModel.tagSceneShuffleQueue.isEmpty {
+      print("🏷️ X: Tag scene shuffle mode - going to next tag scene")
+      appModel.shuffleToNextTagScene()
+      return
+    }
+
+    // 2. MOST PLAYED SHUFFLE
+    if appModel.isMostPlayedShuffleMode && !appModel.mostPlayedShuffleQueue.isEmpty {
+      print("🎯 X: Most played shuffle mode - going to next most played scene")
+      appModel.shuffleToNextMostPlayedScene()
+      return
+    }
+
+    // 3. PERFORMER SHUFFLE
+    if appModel.isPerformerShuffleMode {
+      print("👤 X: Performer shuffle mode - playing next performer random video")
+      playPerformerRandomVideo()
+      return
+    }
+
+    // 4. RANDOM JUMP MODE (jumping through scenes in context list)
+    if isRandomJumpMode {
+      print("🎲 X: Random jump mode - navigating to next scene with random jump")
+      navigateToNextSceneWithRandomJump()
+      return
+    }
+
+    // 5. DEFAULT: Sequential navigation through context scenes
+    print("▶️ X: Sequential mode - navigating to next scene in list")
+    navigateToNextSceneSequential()
+  }
+
+  /// Navigate to next scene in context list and perform random jump
+  private func navigateToNextSceneWithRandomJump() {
+    let contextScenes = appModel.api.scenes
+    let currentIndex = contextScenes.firstIndex(of: currentScene) ?? -1
+
+    if currentIndex >= 0 && currentIndex < contextScenes.count - 1 {
+      let nextScene = contextScenes[currentIndex + 1]
+      print("🎲 Random jump: Moving to next scene: \(nextScene.title ?? "Untitled")")
+      currentScene = nextScene
+      appModel.currentScene = nextScene
+      playScene(nextScene)
+
+      // Perform random jump after scene loads
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        if let player = self.getCurrentPlayer() {
+          VideoPlayerUtility.jumpToRandomPosition(in: player)
+        }
+      }
+    } else if !contextScenes.isEmpty {
+      // Loop back to first scene
+      let firstScene = contextScenes[0]
+      print("🔄 Random jump: Looping to first scene: \(firstScene.title ?? "Untitled")")
+      currentScene = firstScene
+      appModel.currentScene = firstScene
+      playScene(firstScene)
+
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        if let player = self.getCurrentPlayer() {
+          VideoPlayerUtility.jumpToRandomPosition(in: player)
+        }
+      }
+    } else {
+      print("⚠️ No scenes available for random jump navigation")
+    }
+  }
+
+  /// Navigate to next scene in context list sequentially (no random jump)
+  private func navigateToNextSceneSequential() {
+    let contextScenes = appModel.api.scenes
+    let currentIndex = contextScenes.firstIndex(of: currentScene) ?? -1
+
+    if currentIndex >= 0 && currentIndex < contextScenes.count - 1 {
+      let nextScene = contextScenes[currentIndex + 1]
+      print("▶️ Sequential: Moving to next scene: \(nextScene.title ?? "Untitled")")
+      currentScene = nextScene
+      appModel.currentScene = nextScene
+      playScene(nextScene)
+    } else if !contextScenes.isEmpty {
+      // Loop back to first scene
+      let firstScene = contextScenes[0]
+      print("🔄 Sequential: Looping to first scene: \(firstScene.title ?? "Untitled")")
+      currentScene = firstScene
+      appModel.currentScene = firstScene
+      playScene(firstScene)
+    } else {
+      print("⚠️ No scenes available for sequential navigation")
+    }
+  }
+
   /// Plays a different scene featuring the same performer from current scene
   private func playPerformerRandomVideo() {
     print("🎯 PERFORMER BUTTON: Starting performer random video function")
@@ -2344,17 +2492,39 @@ extension VideoPlayerView {
       }
     }
 
-    // Clear shuffle context when doing performer random jumps to prevent empty queue issues
-    // CRITICAL: Check BOTH local and appModel flags - local may be true when appModel is false
+    // CRITICAL FIX: Sync marker shuffle state from UserDefaults BEFORE checking wasInMarkerShuffle
+    // This handles cases where local state is stale due to view recreation
+    // The removal of t= parameter from direct play URLs exposed this state sync issue
+    let udMarkerShuffle = UserDefaults.standard.bool(forKey: "isMarkerShuffleMode")
+    let udMarkerContext = UserDefaults.standard.bool(forKey: "isMarkerShuffleContext")
+    if (udMarkerShuffle || udMarkerContext) && !appModel.isMarkerShuffleMode {
+      print("🎯 PERFORMER BUTTON: Syncing appModel.isMarkerShuffleMode from UserDefaults (was false)")
+      appModel.isMarkerShuffleMode = true
+    }
+    if (udMarkerShuffle || udMarkerContext) && !isMarkerShuffleMode {
+      print("🎯 PERFORMER BUTTON: Syncing local isMarkerShuffleMode from UserDefaults (was false)")
+      isMarkerShuffleMode = true
+    }
+
+    // CRITICAL: Always sync currentScene from appModel.currentScene if they differ
+    // This handles cases where marker navigation updated appModel but VideoPlayerView @State is stale
+    if let appModelScene = appModel.currentScene, appModelScene.id != currentScene.id {
+      print("🎯 PERFORMER BUTTON: SCENE SYNC - Local currentScene OUT OF DATE")
+      print("🎯 PERFORMER BUTTON: LOCAL scene: \(currentScene.title ?? "nil") (ID: \(currentScene.id))")
+      print("🎯 PERFORMER BUTTON: APPMODEL scene: \(appModelScene.title ?? "nil") (ID: \(appModelScene.id))")
+      currentScene = appModelScene
+      print("🎯 PERFORMER BUTTON: SYNCED currentScene to appModel version")
+      print("🎯 PERFORMER BUTTON: New performers: \(currentScene.performers.map { $0.name }.joined(separator: ", "))")
+    }
+
+    // Clear marker shuffle context when switching to performer shuffle
+    // SIMPLIFIED: With V/X key redesign, no need to save/restore marker state
+    // V is now markers-only, X handles all other modes including performer shuffle
     let wasInMarkerShuffle = appModel.isMarkerShuffleMode || isMarkerShuffleMode
     if wasInMarkerShuffle {
       print("🎯 PERFORMER BUTTON: Switching FROM marker shuffle TO performer shuffle")
-      print("🎯 PERFORMER BUTTON: Flags - appModel.isMarkerShuffleMode: \(appModel.isMarkerShuffleMode), local isMarkerShuffleMode: \(isMarkerShuffleMode)")
+      print("🎯 PERFORMER BUTTON: Clearing marker shuffle context (no save needed - V is markers-only now)")
 
-      // CRITICAL: Save marker shuffle state BEFORE clearing so we can restore when returning
-      appModel.saveMarkerShuffleState()
-
-      print("🎯 PERFORMER BUTTON: Clearing shuffle context to prevent empty queue issues")
       appModel.isMarkerShuffleMode = false
       appModel.markerShuffleQueue = []
       appModel.currentShuffleIndex = 0
@@ -2362,23 +2532,72 @@ extension VideoPlayerView {
       appModel.shuffleSearchQuery = nil
       UserDefaults.standard.set(false, forKey: "isMarkerShuffleContext")
 
-      // IMPORTANT: Do NOT clear appModel.currentPerformer when coming from marker shuffle!
-      // navigateToMarker() sets currentPerformer to the female performer from the destination scene,
-      // and we want to KEEP that performer context so M press shuffles the correct performer.
-      print("🎯 PERFORMER BUTTON: Preserving appModel.currentPerformer from marker navigation: \(appModel.currentPerformer?.name ?? "nil")")
+      // Note: currentScene already synced at top of function
+      // CRITICAL: Clear ALL performer context including performerShufflePerformer
+      // This ensures we start fresh with the marker's scene performer, not a stale performer from PerformerView
+      print("🎯 PERFORMER BUTTON: Clearing ALL performer context from marker shuffle")
+      print("🎯 PERFORMER BUTTON: OLD performerShufflePerformer: \(appModel.performerShufflePerformer?.name ?? "nil") (clearing)")
+      appModel.currentPerformer = nil
+      appModel.performerDetailViewPerformer = nil
+      appModel.performerShufflePerformer = nil  // CRITICAL: Clear this too!
+      appModel.isPerformerShuffleMode = false   // Reset so wasAlreadyInPerformerShuffle = false
+      originalPerformer = nil
+      print("🎯 PERFORMER BUTTON: Cleared all performer context - will use current scene's performer (Priority 4)")
+      print("🎯 PERFORMER BUTTON: Current scene performers: \(currentScene.performers.map { $0.name }.joined(separator: ", "))")
 
-      // CRITICAL FIX: Clear performerDetailViewPerformer when coming from marker shuffle
-      // This stale value from previous PerformerDetailView browsing takes Priority 1 in performer selection
-      // and would override the correct currentPerformer set by marker navigation
-      if appModel.performerDetailViewPerformer != nil {
-        print("🎯 PERFORMER BUTTON: Clearing stale performerDetailViewPerformer: \(appModel.performerDetailViewPerformer?.name ?? "nil")")
-        appModel.performerDetailViewPerformer = nil
+      // CRITICAL FIX: Get performer from the CURRENT MARKER being displayed, not stale currentScene
+      // When rapid V keys are pressed, currentScene may not match the marker actually playing
+      let activeMarker = currentMarker ?? appModel.currentMarker
+      if let marker = activeMarker, let markerPerformers = marker.scene.performers, !markerPerformers.isEmpty {
+        print("🎯 PERFORMER BUTTON: MARKER FIX - Using performers from currentMarker: \(marker.title)")
+        print("🎯 PERFORMER BUTTON: MARKER FIX - Marker scene ID: \(marker.scene.id)")
+        print("🎯 PERFORMER BUTTON: MARKER FIX - Marker performers: \(markerPerformers.map { $0.name }.joined(separator: ", "))")
+
+        // Build currentScene from marker's actual scene data
+        let markerScene = StashScene(
+          id: marker.scene.id,
+          title: marker.scene.title,
+          details: nil,
+          paths: StashScene.ScenePaths(
+            screenshot: marker.screenshot,
+            preview: marker.preview,
+            stream: marker.stream
+          ),
+          files: [],
+          performers: markerPerformers,
+          tags: [],
+          rating100: nil,
+          o_counter: nil
+        )
+        currentScene = markerScene
+        print("🎯 PERFORMER BUTTON: MARKER FIX - Updated currentScene to marker's scene with \(markerPerformers.count) performers")
+      } else {
+        print("🎯 PERFORMER BUTTON: MARKER FIX - No currentMarker or no performers, using existing currentScene")
       }
-
-      // Set performer shuffle mode so V key knows to restore markers
-      appModel.isPerformerShuffleMode = true
-      print("🎯 PERFORMER BUTTON: Set isPerformerShuffleMode = true")
     }
+
+    // Track if we were ALREADY in performer shuffle mode (continuing) vs starting fresh
+    // CRITICAL: Also detect CONTEXT CHANGE - if user selected a different performer in PerformerDetailView
+    let hasStoredPerformer = appModel.isPerformerShuffleMode && appModel.performerShufflePerformer != nil
+
+    // Check if context changed: PerformerDetailView has a DIFFERENT performer than stored shuffle performer
+    let contextChanged: Bool
+    if let detailPerformer = appModel.performerDetailViewPerformer,
+       let shufflePerformer = appModel.performerShufflePerformer {
+      contextChanged = detailPerformer.id != shufflePerformer.id
+      if contextChanged {
+        print("🎯 PERFORMER BUTTON: CONTEXT CHANGED - DetailView performer \(detailPerformer.name) != stored \(shufflePerformer.name)")
+      }
+    } else {
+      contextChanged = false
+    }
+
+    let wasAlreadyInPerformerShuffle = hasStoredPerformer && !contextChanged
+    print("🎯 PERFORMER BUTTON: wasAlreadyInPerformerShuffle = \(wasAlreadyInPerformerShuffle) (hasStored=\(hasStoredPerformer), contextChanged=\(contextChanged))")
+
+    // ALWAYS set performer shuffle mode - X key checks this flag
+    appModel.isPerformerShuffleMode = true
+    print("🎯 PERFORMER BUTTON: Set isPerformerShuffleMode = true (X key will use this)")
 
     // CRITICAL: Clear local VideoPlayerView marker state to prevent state leakage
     // This ensures we don't have stale marker context when switching to performer shuffle
@@ -2386,14 +2605,14 @@ extension VideoPlayerView {
     currentMarker = nil
     print("🎯 PERFORMER BUTTON: Cleared local marker state (isMarkerShuffleMode=false, currentMarker=nil)")
 
-    // CRITICAL: Sync originalPerformer with current performer context
-    // When user taps a different performer, performerDetailViewPerformer is updated
-    // We must sync originalPerformer to use the NEW performer, not the old one
-    if let detailPerformer = appModel.performerDetailViewPerformer {
-      if originalPerformer?.id != detailPerformer.id {
-        print("🎯 PERFORMER BUTTON: Updating originalPerformer from \(originalPerformer?.name ?? "nil") to \(detailPerformer.name)")
-        originalPerformer = detailPerformer
-      }
+    // If NOT continuing an existing performer shuffle, clear stale performer state
+    // This ensures fresh context when: Markers → Performer, SceneRow → Performer, PerformerView → new Performer
+    if !wasAlreadyInPerformerShuffle {
+      print("🎯 PERFORMER BUTTON: NEW performer shuffle session - clearing stale performer context")
+      appModel.performerShufflePerformer = nil
+      // Also clear other stale context that might interfere
+      appModel.currentPerformer = nil
+      originalPerformer = nil
     }
 
     // Debug context information
@@ -2415,6 +2634,7 @@ extension VideoPlayerView {
     print("📊 PERFORMER STATE DEBUG:")
     print("📊   appModel.currentPerformer: \(appModel.currentPerformer?.name ?? "nil")")
     print("📊   appModel.performerDetailViewPerformer: \(appModel.performerDetailViewPerformer?.name ?? "nil")")
+    print("📊   appModel.performerShufflePerformer: \(appModel.performerShufflePerformer?.name ?? "nil")")
     print("📊   originalPerformer (@State): \(originalPerformer?.name ?? "nil")")
     print("📊   currentScene performers: \(currentScene.performers.map { $0.name }.joined(separator: ", "))")
 
@@ -2424,8 +2644,16 @@ extension VideoPlayerView {
         "📊   - \(performer.name) (ID: \(performer.id), gender: \(performer.gender ?? "unknown"))")
     }
 
+    // PRIORITY 0: If ALREADY in performer shuffle mode, use the stored performer
+    // This ensures consistency across X key presses - we stick with the same performer
+    if appModel.isPerformerShuffleMode, let shufflePerformer = appModel.performerShufflePerformer {
+      selectedPerformer = shufflePerformer
+      print("🎯 PERFORMER BUTTON: PRIORITY 0 - Already in performer shuffle, using stored performer: \(shufflePerformer.name)")
+    }
+
     // Priority 1: Use performerDetailViewPerformer if set (from PerformerDetailView context)
-    if let detailViewPerformer = appModel.performerDetailViewPerformer {
+    // Only runs if Priority 0 didn't set a performer
+    if selectedPerformer == nil, let detailViewPerformer = appModel.performerDetailViewPerformer {
       print("🎯 PERFORMER BUTTON: DetailView performer available: \(detailViewPerformer.name) (ID: \(detailViewPerformer.id))")
       // Check if this performer is in the current scene
       if currentScene.performers.contains(where: { $0.id == detailViewPerformer.id }) {
@@ -2438,30 +2666,30 @@ extension VideoPlayerView {
         print("🎯 PERFORMER BUTTON: DetailView performer \(detailViewPerformer.name) not in scene, using same gender: \(selectedPerformer?.name ?? "none")")
       }
     }
-    // Priority 2: Use appModel.currentPerformer (survives view recreation - MOST RELIABLE)
-    // ALWAYS use this performer when set - we want to find MORE of their scenes
-    else if let currentPerf = appModel.currentPerformer {
-      selectedPerformer = currentPerf
+    // Priority 2: Use appModel.currentPerformer ONLY if they're in the current scene
+    // Uses `if selectedPerformer == nil` to allow fallthrough to Priority 3/4 when performer NOT in scene
+    if selectedPerformer == nil, let currentPerf = appModel.currentPerformer {
       if currentScene.performers.contains(where: { $0.id == currentPerf.id }) {
-        print("🎯 PERFORMER BUTTON: Using performer from appModel.currentPerformer (in scene): \(currentPerf.name)")
+        selectedPerformer = currentPerf
+        print("🎯 PERFORMER BUTTON: Using appModel.currentPerformer (in scene): \(currentPerf.name)")
       } else {
-        print("🎯 PERFORMER BUTTON: Using performer from appModel.currentPerformer (searching for more scenes): \(currentPerf.name)")
+        // Performer NOT in scene - don't set selectedPerformer, let Priority 3/4 run
+        print("⚠️ PERFORMER BUTTON: appModel.currentPerformer \(currentPerf.name) NOT in scene, trying Priority 3/4")
       }
     }
-    // Priority 3: Use originalPerformer if it's in the current scene (fallback - may be stale due to view recreation)
-    else if let originalPerf = originalPerformer,
-      currentScene.performers.contains(where: { $0.id == originalPerf.id }) {
+
+    // Priority 3: Use originalPerformer if it's in the current scene
+    if selectedPerformer == nil, let originalPerf = originalPerformer,
+       currentScene.performers.contains(where: { $0.id == originalPerf.id }) {
       selectedPerformer = originalPerf
       print("🎯 PERFORMER BUTTON: Using original performer from current scene: \(originalPerf.name)")
     }
+
     // Priority 4: Default to female performer from current scene
-    else {
+    if selectedPerformer == nil {
       let femalePerformer = currentScene.performers.first { isLikelyFemalePerformer($0) }
       selectedPerformer = femalePerformer ?? currentScene.performers.first
-      print(
-        "🎯 PERFORMER BUTTON: Using female performer from current scene: \(selectedPerformer?.name ?? "none")"
-      )
-
+      print("🎯 PERFORMER BUTTON: Using female performer from current scene: \(selectedPerformer?.name ?? "none")")
       // Update the originalPerformer to match this performer from current scene
       originalPerformer = selectedPerformer
     }
@@ -2516,7 +2744,7 @@ extension VideoPlayerView {
                     }
                 }
             },
-            "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height } performers { id name gender scene_count } tags { id name } rating100 } } }"
+            "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height format } performers { id name gender scene_count } tags { id name } rating100 } } }"
         }
         """
 
@@ -2626,72 +2854,61 @@ extension VideoPlayerView {
               "🎯 PERFORMER BUTTON: Started playing random scene with performer: \(selectedPerformer.name)"
             )
 
-            // Generate a random position to seek to (between 20% and 80% of video)
-            // Use minimal delay for faster video switching
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-              print("🎯 PERFORMER BUTTON: First delayed seek timer fired")
+            // Use KVO observer to wait for player to be ready before seeking
+            // This is more reliable than static delays which may not be long enough
+            print("🎯 PERFORMER BUTTON: Setting up KVO observer for player status")
 
-              guard let player = getCurrentPlayer(),
-                let currentItem = player.currentItem
-              else {
-                print("⚠️ PERFORMER BUTTON: Player or item is nil in delayed seek")
-                return
-              }
+            var statusObserver: NSKeyValueObservation?
+            var timeoutWorkItem: DispatchWorkItem?
+            var hasSeekCompleted = false
 
-              print("🎯 PERFORMER BUTTON: Current item status: \(currentItem.status.rawValue)")
+            // Create timeout fallback (5 seconds)
+            timeoutWorkItem = DispatchWorkItem { [weak player] in
+              guard !hasSeekCompleted, let player = player else { return }
+              hasSeekCompleted = true
+              statusObserver?.invalidate()
+              statusObserver = nil
+              print("⚠️ PERFORMER BUTTON: KVO timeout after 5s, attempting seek anyway")
+              let success = VideoPlayerUtility.jumpToRandomPosition(in: player)
+              print("🎯 PERFORMER BUTTON: Timeout seek result: \(success ? "succeeded" : "failed")")
+            }
 
-              // Helper function to handle the actual seek
-              func attemptSeek(with player: AVPlayer, item: AVPlayerItem, isRetry: Bool = false) {
-                // Use VideoPlayerUtility to handle the seek with full fallback logic
-                // This will work even if the player isn't fully loaded
-                let success = VideoPlayerUtility.jumpToRandomPosition(in: player)
-                if success {
-                  print("✅ PERFORMER BUTTON: Successfully jumped to random position using utility")
-                } else if !isRetry {
-                  print("⚠️ PERFORMER BUTTON: Failed to jump, will retry shortly")
+            // Schedule timeout
+            if let workItem = timeoutWorkItem {
+              DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: workItem)
+            }
 
-                  // Last resort retry
-                  DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    guard let player = getCurrentPlayer(),
-                      let currentItem = player.currentItem
-                    else { return }
+            // Set up KVO observer on the playerItem status
+            statusObserver = playerItem.observe(\.status, options: [.new, .initial]) { [weak player] item, _ in
+              // Check if we already completed
+              guard !hasSeekCompleted else { return }
 
-                    print("🎯 PERFORMER BUTTON: Final retry for seeking")
-                    attemptSeek(with: player, item: currentItem, isRetry: true)
-                  }
+              print("🎯 PERFORMER BUTTON: KVO status changed to: \(item.status.rawValue)")
+
+              if item.status == .readyToPlay {
+                hasSeekCompleted = true
+                timeoutWorkItem?.cancel()
+                statusObserver?.invalidate()
+                statusObserver = nil
+
+                guard let player = player else {
+                  print("⚠️ PERFORMER BUTTON: Player nil when ready to seek")
+                  return
                 }
-              }
 
-              // If the player is ready, use its duration
-              if currentItem.status == .readyToPlay {
-                let duration = currentItem.duration.seconds
-                if !duration.isNaN && duration.isFinite && duration > 0 {
+                // Player is ready, now safe to seek
+                DispatchQueue.main.async {
+                  let duration = item.duration.seconds
                   print("🎯 PERFORMER BUTTON: Player ready with duration: \(duration) seconds")
-                  attemptSeek(with: player, item: currentItem)
-                } else {
-                  print(
-                    "⚠️ PERFORMER BUTTON: Player ready but duration not valid: \(duration), will still attempt seek"
-                  )
-                  attemptSeek(with: player, item: currentItem)
+                  let success = VideoPlayerUtility.jumpToRandomPosition(in: player)
+                  print("✅ PERFORMER BUTTON: KVO seek result: \(success ? "succeeded" : "failed")")
                 }
-              } else {
-                print(
-                  "⚠️ PERFORMER BUTTON: Player not ready for seeking, status: \(currentItem.status.rawValue)"
-                )
-                print("🎯 PERFORMER BUTTON: Will retry after short delay")
-
-                // Try again after minimal delay
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                  print("🎯 PERFORMER BUTTON: Retry delayed seek timer fired")
-                  guard let player = getCurrentPlayer(),
-                    let currentItem = player.currentItem
-                  else { return }
-
-                  print(
-                    "🎯 PERFORMER BUTTON: Retry - current item status: \(currentItem.status.rawValue)"
-                  )
-                  attemptSeek(with: player, item: currentItem)
-                }
+              } else if item.status == .failed {
+                hasSeekCompleted = true
+                timeoutWorkItem?.cancel()
+                statusObserver?.invalidate()
+                statusObserver = nil
+                print("⚫ BLACK SCREEN FAILED: PERFORMER BUTTON player failed - \(item.error?.localizedDescription ?? "unknown error")")
               }
             }
 
@@ -2747,7 +2964,7 @@ extension VideoPlayerView {
                         }
                     }
                 },
-                "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height } performers { id name gender scene_count } tags { id name } rating100 } } }"
+                "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height format } performers { id name gender scene_count } tags { id name } rating100 } } }"
             }
             """
 
@@ -3328,9 +3545,25 @@ extension VideoPlayerView {
     let character = key.character
     switch character.lowercased() {
     case "v":
-      // Previous scene / Next Scene button
-      print("🎹 Keyboard shortcut: V - Next Scene")
-      navigateToNextScene()
+      // V KEY: ONLY for marker shuffle navigation
+      // V is dedicated to markers - use X for all other shuffle modes
+      if appModel.isMarkerShuffleMode && !appModel.markerShuffleQueue.isEmpty {
+        print("🎹 V - Next marker (marker shuffle mode)")
+        if let nextMarker = appModel.nextMarkerInShuffle() {
+          appModel.navigateToMarker(nextMarker)
+        } else {
+          print("🎹 V - No more markers in shuffle queue")
+        }
+      } else {
+        print("🎹 V - Not in marker shuffle mode (use X for universal next)")
+      }
+      return .handled
+
+    case "x":
+      // X KEY: Universal next for ALL non-marker shuffle modes
+      // Handles: tag shuffle, most played, performer shuffle, random jump, sequential
+      print("🎹 X - Universal next")
+      handleUniversalNext()
       return .handled
 
     case "b":
@@ -3424,6 +3657,10 @@ extension VideoPlayerView {
     case .keyboardR:
       print("🎹 Menu shortcut: R - Restart from beginning")
       restartFromBeginning()
+
+    case .keyboardX:
+      print("🎹 Menu shortcut: X - Universal next")
+      handleUniversalNext()
 
     case .keyboardA:
       print("🎹 Menu shortcut: A - Toggle aspect ratio correction")
@@ -3575,70 +3812,97 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
     let finalUrl: URL
     var explicitStartTime: Double? = startTime
 
-    // Always check if we can extract the scene ID from the URL to use the saved HLS format
-    if let sceneId = extractSceneId(from: url.absoluteString),
-      let savedHlsUrlString = UserDefaults.standard.string(forKey: "scene_\(sceneId)_hlsURL"),
-      let savedHlsUrl = URL(string: savedHlsUrlString) {
-      print("📱 Using saved exact HLS URL format: \(savedHlsUrlString)")
-      finalUrl = savedHlsUrl
+    // Check for saved URLs from marker navigation (direct stream URL first, then HLS)
+    if let sceneId = extractSceneId(from: url.absoluteString) {
+      // First check for direct stream URL (codec-compatible videos)
+      if let savedStreamUrlString = UserDefaults.standard.string(forKey: "scene_\(sceneId)_streamURL"),
+        let savedStreamUrl = URL(string: savedStreamUrlString) {
+        print("📱 Using saved direct stream URL: \(savedStreamUrlString)")
+        finalUrl = savedStreamUrl
 
-      // Extract timestamp from URL if present
-      if let tRange = savedHlsUrlString.range(of: "t=\\d+", options: .regularExpression),
-        let tValue = Int(savedHlsUrlString[tRange].replacingOccurrences(of: "t=", with: "")) {
-        print("📱 Extracted timestamp from URL: \(tValue)")
-
-        // Create player with forced seek
-        explicitStartTime = Double(tValue)
+        // Extract timestamp from URL if present
+        if let tRange = savedStreamUrlString.range(of: "t=\\d+", options: .regularExpression),
+          let tValue = Int(savedStreamUrlString[tRange].replacingOccurrences(of: "t=", with: "")) {
+          print("📱 Extracted timestamp from direct URL: \(tValue)")
+          explicitStartTime = Double(tValue)
+        }
       }
-    } else {
-      // If no saved URL, use the provided URL but make sure it's in HLS format with t parameter
-      let urlString = url.absoluteString
+      // Fall back to HLS URL (for incompatible codecs/containers)
+      else if let savedHlsUrlString = UserDefaults.standard.string(forKey: "scene_\(sceneId)_hlsURL"),
+        let savedHlsUrl = URL(string: savedHlsUrlString) {
+        print("📱 Using saved HLS URL format: \(savedHlsUrlString)")
+        finalUrl = savedHlsUrl
 
-      // Check if this is already an HLS URL
-      if urlString.contains("stream.m3u8") {
-        // If URL doesn't have the t parameter but has startTime, add it
-        if !urlString.contains("&t=") && !urlString.contains("?t=") && startTime != nil {
-          // Add t parameter to the URL
-          var modifiedUrlString = urlString
-          let timeParam = "t=\(Int(startTime!))"
-          if modifiedUrlString.contains("?") {
-            modifiedUrlString += "&\(timeParam)"
-          } else {
-            modifiedUrlString += "?\(timeParam)"
-          }
-
-          // Add timestamp parameter if missing
-          if !modifiedUrlString.contains("_ts=") {
-            let currentTimestamp = Int(Date().timeIntervalSince1970)
-            modifiedUrlString += "&_ts=\(currentTimestamp)"
-          }
-
-          print("🔄 Modified URL to include t parameter: \(modifiedUrlString)")
-
-          if let modifiedUrl = URL(string: modifiedUrlString) {
-            finalUrl = modifiedUrl
-          } else {
-            finalUrl = url
-          }
-        } else {
-          finalUrl = url
-
-          // Extract t parameter if it exists in the URL
-          if let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false),
-            let queryItems = urlComponents.queryItems,
-            let tItem = queryItems.first(where: { $0.name == "t" }),
-            let tValue = tItem.value,
-            let tSeconds = Double(tValue) {
-            print("📱 Extracted t parameter from URL: \(tSeconds)")
-            explicitStartTime = tSeconds
-          }
+        // Extract timestamp from URL if present
+        if let tRange = savedHlsUrlString.range(of: "t=\\d+", options: .regularExpression),
+          let tValue = Int(savedHlsUrlString[tRange].replacingOccurrences(of: "t=", with: "")) {
+          print("📱 Extracted timestamp from HLS URL: \(tValue)")
+          explicitStartTime = Double(tValue)
         }
       } else {
-        // Not an HLS URL - could be a direct stream URL (for h264/hevc codecs)
-        // Keep it as-is since getStreamURL() already made the codec-aware decision
-        print("🎬 Using direct stream URL (codec-compatible): \(url.absoluteString)")
-        finalUrl = url
+        // If no saved URL, use the provided URL but make sure it's in HLS format with t parameter
+        let urlString = url.absoluteString
+
+        // Check if this is already an HLS URL
+        if urlString.contains("stream.m3u8") {
+          // If URL doesn't have the t parameter but has startTime, add it
+          if !urlString.contains("&t=") && !urlString.contains("?t=") && startTime != nil {
+            // Add t parameter to the URL
+            var modifiedUrlString = urlString
+            let timeParam = "t=\(Int(startTime!))"
+            if modifiedUrlString.contains("?") {
+              modifiedUrlString += "&\(timeParam)"
+            } else {
+              modifiedUrlString += "?\(timeParam)"
+            }
+
+            // Add timestamp parameter if missing
+            if !modifiedUrlString.contains("_ts=") {
+              let currentTimestamp = Int(Date().timeIntervalSince1970)
+              modifiedUrlString += "&_ts=\(currentTimestamp)"
+            }
+
+            print("🔄 Modified URL to include t parameter: \(modifiedUrlString)")
+
+            if let modifiedUrl = URL(string: modifiedUrlString) {
+              finalUrl = modifiedUrl
+            } else {
+              finalUrl = url
+            }
+          } else {
+            finalUrl = url
+
+            // Extract t parameter if it exists in the URL
+            if let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let queryItems = urlComponents.queryItems,
+              let tItem = queryItems.first(where: { $0.name == "t" }),
+              let tValue = tItem.value,
+              let tSeconds = Double(tValue) {
+              print("📱 Extracted t parameter from URL: \(tSeconds)")
+              explicitStartTime = tSeconds
+            }
+          }
+        } else {
+          // Not an HLS URL - could be a direct stream URL (for h264/hevc codecs)
+          // Keep it as-is since getStreamURL() already made the codec-aware decision
+          print("🎬 Using direct stream URL (codec-compatible): \(url.absoluteString)")
+          finalUrl = url
+
+          // Extract start time from direct stream URL if present
+          // Direct stream URLs also have ?t= parameter added by getStreamURL()
+          let directUrlString = url.absoluteString
+          if explicitStartTime == nil,
+            let tRange = directUrlString.range(of: "t=\\d+", options: .regularExpression),
+            let tValue = Int(directUrlString[tRange].replacingOccurrences(of: "t=", with: "")) {
+            print("📱 Extracted timestamp from direct stream URL: \(tValue)")
+            explicitStartTime = Double(tValue)
+          }
+        }
       }
+    } else {
+      // Couldn't extract scene ID from URL - use provided URL as-is
+      print("⚠️ Couldn't extract scene ID, using provided URL: \(url.absoluteString)")
+      finalUrl = url
     }
 
     print("🎬 Final URL being used: \(finalUrl.absoluteString)")
@@ -3688,7 +3952,7 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
         print("⚠️ Player status: PAUSED")
       case .waitingToPlayAtSpecifiedRate:
         print(
-          "⏳ Player status: WAITING TO PLAY - \(player.reasonForWaitingToPlay?.rawValue ?? "Unknown reason")"
+          "⚫ BLACK SCREEN WARNING: Player WAITING - \(player.reasonForWaitingToPlay?.rawValue ?? "Unknown reason")"
         )
       @unknown default:
         print("❓ Player status: UNKNOWN")
@@ -3746,6 +4010,49 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
             // Cancel loading timeout since video is ready and playing
             NotificationCenter.default.post(
               name: NSNotification.Name("VideoLoadingSuccess"), object: nil)
+
+            // CRITICAL: Detect "QuickTime logo + audio only" case after 2 seconds
+            // This happens when codec looks compatible but has unsupported profile
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+              guard let currentItem = player.currentItem else { return }
+              let urlString = url.absoluteString
+
+              // Skip if already using HLS
+              guard !urlString.contains("stream.m3u8") else { return }
+
+              // Check if video track is actually rendering
+              let videoTracks = currentItem.asset.tracks(withMediaType: .video)
+              let hasValidVideo = videoTracks.first.map { track in
+                let size = track.naturalSize
+                return size.width > 0 && size.height > 0
+              } ?? false
+
+              if !hasValidVideo {
+                print("⚠️ VIDEO TRACK CHECK: No valid video rendering after 2s - switching to HLS")
+                print("   📍 Current URL: \(urlString)")
+
+                // Switch to HLS
+                var hlsString = urlString.replacingOccurrences(of: "/stream?", with: "/stream.m3u8?")
+                hlsString = hlsString.replacingOccurrences(of: "/stream&", with: "/stream.m3u8&")
+                if hlsString == urlString {
+                  hlsString = urlString.replacingOccurrences(of: "/stream", with: "/stream.m3u8")
+                }
+                if !hlsString.contains("resolution=") {
+                  hlsString += "&resolution=ORIGINAL"
+                }
+
+                if let hlsURL = URL(string: hlsString) {
+                  print("🔄 RECOVERY: Switching to HLS due to video track issue")
+                  print("   📍 HLS URL: \(hlsString)")
+
+                  let hlsItem = AVPlayerItem(url: hlsURL)
+                  player.replaceCurrentItem(with: hlsItem)
+                  player.play()
+                }
+              } else {
+                print("✅ VIDEO TRACK CHECK: Video rendering correctly")
+              }
+            }
 
             // Handle seeking if needed
             if let t = explicitStartTime, t > 0 {
@@ -3828,8 +4135,8 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
       } else if item.status == .failed {
         let errorDesc = item.error?.localizedDescription ?? "Unknown error"
         let errorCode = (item.error as NSError?)?.code ?? -1
-        print("❌ Player item failed!")
-        print("   📍 Original URL: \(url.absoluteString)")
+        print("⚫ BLACK SCREEN FAILED: Player item failed!")
+        print("   📍 URL: \(url.absoluteString)")
         print("   ❗ Error: \(errorDesc)")
         print("   🔢 Error code: \(errorCode)")
         if let underlyingError = (item.error as NSError?)?.userInfo[NSUnderlyingErrorKey] as? NSError {
@@ -3893,7 +4200,7 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
                 player.play()
               }
             } else if recoveryItem.status == .failed {
-              print("❌ RECOVERY ALSO FAILED!")
+              print("⚫ BLACK SCREEN FAILED: RECOVERY ALSO FAILED!")
               print("   ❗ Error: \(recoveryItem.error?.localizedDescription ?? "Unknown")")
               // Don't try again - both methods failed
             }

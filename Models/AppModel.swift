@@ -226,6 +226,20 @@ class AppModel: ObservableObject {
   // MARK: - Navigation
   func navigateToScene(_ scene: StashScene, startSeconds: Double? = nil, endSeconds: Double? = nil)
   {
+    // Prevent race conditions - if already navigating, skip this request
+    guard !isNavigatingToScene else {
+      print("⚠️ NAVIGATION - Already navigating to a scene, skipping duplicate request for \(scene.id)")
+      // CRITICAL FIX: Even when skipping navigation, STILL update currentScene
+      // This ensures M key (performer shuffle) uses the correct scene's performers
+      // Without this, rapid V key presses leave currentScene stale at the first marker
+      DispatchQueue.main.async {
+        self.currentScene = scene
+        print("🎯 NAVIGATION - Updated currentScene to \(scene.title ?? "Untitled") despite skipping navigation")
+      }
+      return
+    }
+    isNavigatingToScene = true
+
     print(
       "🚀 NAVIGATION - Navigating to scene: \(scene.title ?? "Untitled") with startSeconds: \(String(describing: startSeconds)), endSeconds: \(String(describing: endSeconds))"
     )
@@ -304,17 +318,17 @@ class AppModel: ObservableObject {
       // Kill all audio before navigation to prevent stacking
       killAllAudio()
 
-      // Use synchronous MainActor.run to prevent race conditions
-      // This ensures atomic navigation path updates
-      Task {
-        await MainActor.run {
-          if !self.navigationPath.isEmpty {
-            _ = self.navigationPath.removeLast()
-          }
-          // Immediately append new scene in the same atomic operation
-          self.navigationPath.append(scene)
-          print("⏱ Navigation updated atomically: replaced current video")
+      // Use synchronous DispatchQueue.main.async to ensure atomic navigation path updates
+      // This prevents race conditions that cause double VideoPlayerViews
+      DispatchQueue.main.async {
+        if !self.navigationPath.isEmpty {
+          _ = self.navigationPath.removeLast()
         }
+        // Immediately append new scene in the same atomic operation
+        self.navigationPath.append(scene)
+        print("⏱ Navigation updated atomically: replaced current video")
+        // Clear navigation lock after update completes
+        self.isNavigatingToScene = false
       }
     } else {
       // Regular navigation - just append to path - ensure main thread for @Published
@@ -322,10 +336,10 @@ class AppModel: ObservableObject {
       // Kill audio before any navigation to prevent stacking
       killAllAudio()
 
-      Task {
-        await MainActor.run {
-          self.navigationPath.append(scene)
-        }
+      DispatchQueue.main.async {
+        self.navigationPath.append(scene)
+        // Clear navigation lock after update completes
+        self.isNavigatingToScene = false
       }
     }
   }
@@ -398,7 +412,7 @@ class AppModel: ObservableObject {
                       }
                   }
               },
-              "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height } performers { id name gender scene_count } tags { id name } rating100 } } }"
+              "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height format } performers { id name gender scene_count } tags { id name } rating100 } } }"
           }
           """
 
@@ -461,6 +475,12 @@ class AppModel: ObservableObject {
     // Prevent multiple simultaneous navigations
     guard !isNavigatingToMarker else {
       print("⚠️ NAVIGATION - Already navigating to a marker, skipping duplicate navigation")
+      // NOTE: Do NOT update currentScene/currentMarker/currentPerformer here!
+      // The marker being skipped is a RANDOM marker from nextMarkerInShuffle(),
+      // NOT the marker actually being displayed. Updating state here would corrupt
+      // the performer context, causing M key to use the wrong performer.
+      // Let the FIRST successful navigation complete and set the correct context.
+      print("🎯 MARKER NAVIGATION (SKIPPED): Preserving existing context - marker \(marker.title) will not update state")
       return
     }
 
@@ -538,6 +558,22 @@ class AppModel: ObservableObject {
     // Make sure the marker navigation flag is set
     UserDefaults.standard.set(true, forKey: "scene_\(marker.scene.id)_isMarkerNavigation")
 
+    // CRITICAL: Set currentPerformer IMMEDIATELY from marker's scene data
+    // This ensures M key (performer shuffle) has the correct performer BEFORE async fetch completes
+    // The async Task below will update with the fetched scene, but this provides immediate availability
+    if let performers = marker.scene.performers, !performers.isEmpty {
+      let femalePerformer = performers.first { isLikelyFemalePerformer($0) }
+      let selectedPerformer = femalePerformer ?? performers.first
+      if let selectedPerformer = selectedPerformer {
+        self.currentPerformer = selectedPerformer
+        // CRITICAL: Clear performerDetailViewPerformer to prevent Priority 1 override
+        // Without this, stale performer from prior browsing would override marker's performer
+        self.performerDetailViewPerformer = nil
+        print("🎯 MARKER NAVIGATION: Set currentPerformer IMMEDIATELY to \(selectedPerformer.name) (from marker scene data)")
+        print("   Also cleared performerDetailViewPerformer to prevent Priority 1 override")
+      }
+    }
+
     // For direct marker playback, we actually want to navigate to the scene
     // with the marker's timestamp as the start position
     Task {
@@ -574,35 +610,59 @@ class AppModel: ObservableObject {
           }
         }
 
-        // Store the exact HLS URL format directly in UserDefaults
+        // MARKER NAVIGATION: Check codec/format for direct play compatibility
         let apiKey = self.apiKey
         let baseServerURL = serverAddress.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         let sceneId = fullScene.id
         let markerSeconds = Int(marker.seconds)
         let currentTimestamp = Int(Date().timeIntervalSince1970)
 
-        // Format: http://192.168.86.100:9999/scene/3174/stream.m3u8?apikey=KEY&resolution=ORIGINAL&t=2132&_ts=1747330385
-        let hlsStreamURL =
-          "\(baseServerURL)/scene/\(sceneId)/stream.m3u8?apikey=\(apiKey)&resolution=ORIGINAL&t=\(markerSeconds)&_ts=\(currentTimestamp)"
-        print(
-          "🎬 MARKER NAVIGATION: Using exact HLS format with timestamp t=\(markerSeconds): \(hlsStreamURL)"
-        )
+        // Check codec/format for direct play compatibility
+        let videoCodec = fullScene.files.first?.video_codec
+        let containerFormat = fullScene.files.first?.format
+        let canDirectPlay = VideoPlayerUtility.canDirectPlayWithFormat(
+          codec: videoCodec, format: containerFormat)
 
-        // Clear all cached HLS URLs first to prevent using wrong scene's URL
+        let streamURL: String
+        if canDirectPlay {
+          // Direct play WITHOUT t= parameter - AVPlayer will seek after ready
+          // The t= parameter in direct URLs causes black screen with audio
+          streamURL =
+            "\(baseServerURL)/scene/\(sceneId)/stream?apikey=\(apiKey)&_ts=\(currentTimestamp)"
+          print(
+            "✅ MARKER NAVIGATION: Using direct stream (no t= param) - will seek to \(markerSeconds)s after ready"
+          )
+          print("   Codec: \(videoCodec ?? "nil"), Format: \(containerFormat ?? "nil")")
+        } else {
+          // HLS handles t= parameter correctly - server starts transcoding from that position
+          streamURL =
+            "\(baseServerURL)/scene/\(sceneId)/stream.m3u8?apikey=\(apiKey)&resolution=ORIGINAL&t=\(markerSeconds)&_ts=\(currentTimestamp)"
+          print(
+            "🔄 MARKER NAVIGATION: Using HLS with t=\(markerSeconds) (codec/format incompatible)")
+          print("   Codec: \(videoCodec ?? "nil"), Format: \(containerFormat ?? "nil")")
+        }
+
+        // Clear all cached URLs first to prevent using wrong scene's URL
         if isMarkerShuffle {
-          print("🧹 Clearing all cached HLS URLs for marker shuffle")
+          print("🧹 Clearing all cached URLs for marker shuffle")
           let defaults = UserDefaults.standard
           let keys = defaults.dictionaryRepresentation().keys
           for key in keys {
-            if key.contains("_hlsURL") {
+            if key.contains("_hlsURL") || key.contains("_streamURL") {
               defaults.removeObject(forKey: key)
             }
           }
         }
 
-        // Save HLS format URL and preferences for VideoPlayerView to use
-        UserDefaults.standard.set(hlsStreamURL, forKey: "scene_\(fullScene.id)_hlsURL")
-        UserDefaults.standard.set(true, forKey: "scene_\(fullScene.id)_preferHLS")
+        // Save URL and preferences for VideoPlayerView to use
+        if canDirectPlay {
+          UserDefaults.standard.set(streamURL, forKey: "scene_\(fullScene.id)_streamURL")
+          UserDefaults.standard.removeObject(forKey: "scene_\(fullScene.id)_hlsURL")
+          UserDefaults.standard.set(false, forKey: "scene_\(fullScene.id)_preferHLS")
+        } else {
+          UserDefaults.standard.set(streamURL, forKey: "scene_\(fullScene.id)_hlsURL")
+          UserDefaults.standard.set(true, forKey: "scene_\(fullScene.id)_preferHLS")
+        }
         UserDefaults.standard.set(true, forKey: "scene_\(fullScene.id)_isMarkerNavigation")
         UserDefaults.standard.set(Double(marker.seconds), forKey: "scene_\(fullScene.id)_startTime")
         UserDefaults.standard.set(true, forKey: "scene_\(fullScene.id)_forcePlay")
@@ -629,9 +689,15 @@ class AppModel: ObservableObject {
             self.currentScene = fullScene
           }
 
-          // Set up all the UserDefaults that VideoPlayerView needs
-          UserDefaults.standard.set(hlsStreamURL, forKey: "scene_\(fullScene.id)_hlsURL")
-          UserDefaults.standard.set(true, forKey: "scene_\(fullScene.id)_preferHLS")
+          // Set up all the UserDefaults that VideoPlayerView needs (codec-aware)
+          if canDirectPlay {
+            UserDefaults.standard.set(streamURL, forKey: "scene_\(fullScene.id)_streamURL")
+            UserDefaults.standard.removeObject(forKey: "scene_\(fullScene.id)_hlsURL")
+            UserDefaults.standard.set(false, forKey: "scene_\(fullScene.id)_preferHLS")
+          } else {
+            UserDefaults.standard.set(streamURL, forKey: "scene_\(fullScene.id)_hlsURL")
+            UserDefaults.standard.set(true, forKey: "scene_\(fullScene.id)_preferHLS")
+          }
           UserDefaults.standard.set(true, forKey: "scene_\(fullScene.id)_isMarkerNavigation")
           UserDefaults.standard.set(startSeconds, forKey: "scene_\(fullScene.id)_startTime")
           UserDefaults.standard.set(true, forKey: "scene_\(fullScene.id)_forcePlay")
@@ -650,7 +716,8 @@ class AppModel: ObservableObject {
               "scene": fullScene,
               "startSeconds": startSeconds,
               "endSeconds": endSeconds as Any,
-              "hlsURL": hlsStreamURL,
+              "streamURL": streamURL,
+              "canDirectPlay": canDirectPlay,
             ]
           )
 
@@ -664,13 +731,26 @@ class AppModel: ObservableObject {
         // IMPORTANT: Set currentPerformer BEFORE navigation to preserve performer context
         // This ensures that when the new VideoPlayerView appears and user presses M (performer shuffle),
         // the priority 2 check in playPerformerRandomVideo() will find the correct performer
+        // CRITICAL: Only update if we're still on the same marker - rapid V presses may have moved us on
         let femalePerformer = fullScene.performers.first { self.isLikelyFemalePerformer($0) }
         let selectedPerformer = femalePerformer ?? fullScene.performers.first
         if let selectedPerformer = selectedPerformer {
           await MainActor.run {
-            self.currentPerformer = selectedPerformer
-            print("🎯 MARKER NAVIGATION: Set currentPerformer to \(selectedPerformer.name) for performer context preservation")
+            // Check if we've moved to a different marker since starting this async task
+            if self.currentMarker?.id == marker.id {
+              self.currentPerformer = selectedPerformer
+              print("🎯 MARKER NAVIGATION: Set currentPerformer to \(selectedPerformer.name) for performer context preservation")
+            } else {
+              print("⚠️ MARKER NAVIGATION: Skipping async performer update - moved to different marker (was \(marker.id), now \(self.currentMarker?.id ?? "nil"))")
+            }
           }
+        }
+
+        // CRITICAL: Check if we've moved to a different marker before navigating
+        // This prevents stale async completions from overwriting currentScene
+        guard self.currentMarker?.id == marker.id else {
+          print("⚠️ MARKER NAVIGATION: Skipping async scene navigation - moved to different marker (was \(marker.id), now \(self.currentMarker?.id ?? "nil"))")
+          return
         }
 
         // Important: Check if we need to preserve marker shuffle context
@@ -1163,6 +1243,7 @@ class AppModel: ObservableObject {
   @Published var shuffleTagFilters: [String] = []  // For multi-tag shuffling
   @Published var shuffleSearchQuery: String?
   private var isNavigatingToMarker: Bool = false  // Prevent multiple simultaneous navigations
+  private var isNavigatingToScene: Bool = false  // Prevent race conditions in scene navigation
 
   // Balanced tag rotation properties
   private var markersByTag: [String: [SceneMarker]] = [:]  // Markers grouped by tag
@@ -1221,6 +1302,7 @@ class AppModel: ObservableObject {
     isServerSideShuffle = savedIsServerSideShuffle
     currentShuffleIndex = savedCurrentShuffleIndex
     isMarkerShuffleMode = true
+    isPerformerShuffleMode = false  // Clear performer shuffle mode when returning to markers
     UserDefaults.standard.set(true, forKey: "isMarkerShuffleContext")
     UserDefaults.standard.set(true, forKey: "isMarkerShuffleMode")
     print(
