@@ -84,7 +84,7 @@ struct SplashScreen: View {
           if appModel.api.connectionStatus == .connected {
             print("🔄 Prefetching initial data...")
 
-            // Fetch scenes
+            // Fetch scenes - use "random" for Random preset as default view
             await appModel.api.fetchScenes(
               page: 1, sort: "random", direction: "DESC", appendResults: false)
             print("✅ Prefetched \(appModel.api.scenes.count) scenes while in splash screen")
