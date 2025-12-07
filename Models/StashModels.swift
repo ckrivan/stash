@@ -32,6 +32,8 @@ struct StashScene: Identifiable, Decodable, Equatable, Hashable {
     let video_codec: String?
     let width: Int?
     let height: Int?
+    let format: String?  // Container format (mp4, mkv, etc.) - needed for direct play checks
+    let frame_rate: Float?  // Frame rate - SVP files have 60fps/120fps which may exceed iOS decoder limits
 
     var formattedSize: String {
       guard let size = size else { return "Unknown" }

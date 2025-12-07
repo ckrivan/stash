@@ -175,7 +175,9 @@ struct SceneFilterView_Previews: PreviewProvider {
           duration: 300,
           video_codec: "h264",
           width: 1920,
-          height: 1080
+          height: 1080,
+          format: "mp4",
+          frame_rate: nil
         )
       ],
       performers: [

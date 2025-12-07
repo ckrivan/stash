@@ -15,6 +15,18 @@ class VideoPlayerUtility {
     "prores"                          // ProRes (Apple devices)
   ]
 
+  /// Container formats that iOS can play natively
+  /// MKV/Matroska, AVI, WMV etc. need HLS transcoding even with compatible codecs
+  static let directPlayContainers: Set<String> = [
+    "mp4", "mov", "m4v", "qt",       // Apple/QuickTime containers
+    "3gp", "3g2"                      // Mobile video containers
+  ]
+
+  /// Maximum frame rate iOS can reliably hardware decode for HEVC
+  /// 60fps works on A12+ chips; 120fps (HEVC Level 5.0) is NOT supported
+  /// SVP (Smooth Video Project) files often have 60fps/120fps and need HLS transcoding
+  static let maxDirectPlayFrameRate: Float = 60.0
+
   /// Check if a video codec can be direct played on iOS without HLS transcoding
   /// - Parameter codec: The video codec string from the scene file
   /// - Returns: True if the codec can be played natively
@@ -29,7 +41,54 @@ class VideoPlayerUtility {
     return canPlay
   }
 
-  /// Gets the appropriate stream URL based on codec compatibility
+  /// Check if codec, container format, AND frame rate can be direct played
+  /// iOS requires compatible codec AND container - MKV with h264 still needs transcoding
+  /// High frame rate content (>60fps) also requires HLS transcoding
+  /// - Parameters:
+  ///   - codec: The video codec string
+  ///   - format: The container format string (optional - if nil, only codec is checked)
+  ///   - frameRate: The frame rate (optional - SVP files have 60fps/120fps)
+  /// - Returns: True if codec, container, and frame rate are all iOS-compatible
+  static func canDirectPlayWithFormat(codec: String?, format: String?, frameRate: Float? = nil) -> Bool {
+    guard let codec = codec?.lowercased() else {
+      print("🎬 Unknown codec - defaulting to HLS")
+      return false
+    }
+
+    let codecOK = directPlayCodecs.contains(codec)
+
+    // Check container format - if unknown, be conservative and use HLS
+    let formatOK: Bool
+    if let format = format?.lowercased() {
+      formatOK = directPlayContainers.contains(format)
+      if !formatOK {
+        print("🎬 Container '\(format)' requires transcoding (even with compatible codec)")
+      }
+    } else {
+      // Unknown format - default to HLS for safety
+      // Direct play fails silently with black screen if container is incompatible (e.g., MKV)
+      print("🎬 Unknown container format - defaulting to HLS for safety")
+      formatOK = false
+    }
+
+    // Check frame rate - SVP files with high frame rates need HLS transcoding
+    let frameRateOK: Bool
+    if let fps = frameRate, fps > maxDirectPlayFrameRate {
+      print("🎬 Frame rate \(fps)fps exceeds max \(maxDirectPlayFrameRate)fps - using HLS (likely SVP file)")
+      frameRateOK = false
+    } else {
+      frameRateOK = true
+      if let fps = frameRate {
+        print("🎬 Frame rate \(fps)fps is within direct play limit")
+      }
+    }
+
+    let canPlay = codecOK && formatOK && frameRateOK
+    print("🎬 Codec '\(codec)' + Container '\(format ?? "unknown")' + FPS '\(frameRate.map { String(format: "%.1f", $0) } ?? "unknown")' can direct play: \(canPlay)")
+    return canPlay
+  }
+
+  /// Gets the appropriate stream URL based on codec, container, AND frame rate compatibility
   /// - Parameters:
   ///   - scene: The scene to get the stream URL for
   ///   - startTime: Optional start time in seconds
@@ -42,14 +101,17 @@ class VideoPlayerUtility {
     }
 
     let codec = scene.files.first?.video_codec
+    let format = scene.files.first?.format
+    let frameRate = scene.files.first?.frame_rate
 
-    if canDirectPlay(codec: codec) {
-      // Use direct stream URL for compatible codecs
-      print("✅ Using direct play for scene \(scene.id) with codec: \(codec ?? "unknown")")
+    // Check codec, container format, AND frame rate for direct play compatibility
+    if canDirectPlayWithFormat(codec: codec, format: format, frameRate: frameRate) {
+      // Use direct stream URL for compatible codec, container, AND frame rate
+      print("✅ Using direct play for scene \(scene.id) with codec: \(codec ?? "unknown"), format: \(format ?? "unknown"), fps: \(frameRate.map { String(format: "%.1f", $0) } ?? "unknown")")
       return getDirectStreamURL(from: baseURL, startTime: startTime)
     } else {
-      // Use HLS for incompatible codecs that need transcoding
-      print("🔄 Using HLS transcoding for scene \(scene.id) with codec: \(codec ?? "unknown")")
+      // Use HLS for incompatible codec, container, OR high frame rate (e.g., SVP 120fps files)
+      print("🔄 Using HLS transcoding for scene \(scene.id) with codec: \(codec ?? "unknown"), format: \(format ?? "unknown"), fps: \(frameRate.map { String(format: "%.1f", $0) } ?? "unknown")")
       return getHLSStreamURL(from: baseURL, startTime: startTime)
     }
   }
@@ -73,13 +135,12 @@ class VideoPlayerUtility {
       parameters.append("t=\(Int(time))")
     }
 
-    // Add API key if present in the original URL
-    if directURL.absoluteString.contains("apikey=") {
+    // Add API key to parameters ONLY if URL doesn't already have a query string
+    // (If URL already has ?, apikey is already in the query string - don't add again)
+    if !urlString.contains("?") && directURL.absoluteString.contains("apikey=") {
       if let apiKeyRange = directURL.absoluteString.range(of: "apikey=[^&]+", options: .regularExpression) {
         let apiKey = String(directURL.absoluteString[apiKeyRange])
-        if !parameters.contains(where: { $0.starts(with: "apikey=") }) {
-          parameters.append(apiKey)
-        }
+        parameters.append(apiKey)
       }
     }
 
