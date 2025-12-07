@@ -23,9 +23,9 @@ class VideoPlayerUtility {
   ]
 
   /// Maximum frame rate iOS can reliably hardware decode for HEVC
-  /// 60fps works on A12+ chips; 120fps (HEVC Level 5.0) is NOT supported
-  /// SVP (Smooth Video Project) files often have 60fps/120fps and need HLS transcoding
-  static let maxDirectPlayFrameRate: Float = 60.0
+  /// M4 chips can handle 120fps+ without issues
+  /// Only limit extremely high frame rates that might cause issues
+  static let maxDirectPlayFrameRate: Float = 240.0
 
   /// Check if a video codec can be direct played on iOS without HLS transcoding
   /// - Parameter codec: The video codec string from the scene file
