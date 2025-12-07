@@ -44,8 +44,6 @@ class VideoPlayerUtility {
   /// Check if codec, container format, AND frame rate can be direct played
   /// iOS requires compatible codec AND container - MKV with h264 still needs transcoding
   /// High frame rate content (>60fps) also requires HLS transcoding
-  /// IMPORTANT: HEVC always uses HLS because iOS only plays hvc1-tagged HEVC, not hev1
-  /// Since Stash API doesn't expose codec_tag, we can't detect hev1 vs hvc1
   /// - Parameters:
   ///   - codec: The video codec string
   ///   - format: The container format string (optional - if nil, only codec is checked)
@@ -54,16 +52,6 @@ class VideoPlayerUtility {
   static func canDirectPlayWithFormat(codec: String?, format: String?, frameRate: Float? = nil) -> Bool {
     guard let codec = codec?.lowercased() else {
       print("🎬 Unknown codec - defaulting to HLS")
-      return false
-    }
-
-    // HEVC: ALWAYS use HLS transcoding
-    // iOS only plays HEVC with hvc1 tag, not hev1 tag
-    // hev1 shows QuickTime logo with audio only - no video renders
-    // Since Stash API doesn't expose codec_tag, we can't detect hev1 vs hvc1
-    // HLS transcoding handles this correctly by re-encoding
-    if codec == "hevc" || codec == "h265" || codec == "hev1" || codec == "hvc1" {
-      print("🎬 HEVC detected - using HLS to handle potential hev1 tag (iOS only plays hvc1)")
       return false
     }
 

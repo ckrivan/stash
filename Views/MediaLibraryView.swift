@@ -31,7 +31,7 @@ struct MediaLibraryView: View {
   @State private var selectedTag: StashScene.Tag?
   @State private var selectedPerformer: StashScene.Performer?
   @State private var filterOptions = FilterOptions()
-  @State private var currentFilter: String = "random"
+  @State private var currentFilter: String = "default"
   @State private var searchText = ""
   @State private var isSearching = false
   @State private var searchScope = UniversalSearchView.SearchScope.scenes

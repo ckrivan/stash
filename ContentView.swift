@@ -271,12 +271,12 @@ extension ContentView {
         switch appModel.activeTab {
         case .scenes:
           print("📱 Loading scenes for tab")
-          // Load random scenes as default view (matching SplashScreen)
-          // Only load if empty - preserves order when returning from video player
+          // FIXED: Load "Recently Added" (VR-excluded) as default view
+          // This prevents randomizing when returning from video player
           if appModel.api.scenes.isEmpty {
-            print("📱 No scenes loaded, loading random scenes (excluding VR)")
+            print("📱 No scenes loaded, loading recently added scenes (excluding VR)")
             await appModel.api.fetchScenesExcludingVR(
-              page: 1, sort: "random", direction: "DESC", appendResults: false)
+              page: 1, sort: "created_at", direction: "DESC", appendResults: false)
           } else {
             print("📱 Scenes already loaded (\(appModel.api.scenes.count)), preserving order")
           }

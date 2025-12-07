@@ -87,7 +87,7 @@ enum FilterPreset: String, CaseIterable, Identifiable {
                     }
                 }
             },
-            "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details url date rating100 organized o_counter paths { screenshot preview stream } files { size duration video_codec width height format } performers { id name gender } tags { id name } studio { id name } stash_ids { endpoint stash_id } created_at updated_at } } }"
+            "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details url date rating100 organized o_counter paths { screenshot preview stream } files { size duration video_codec width height } performers { id name gender } tags { id name } studio { id name } stash_ids { endpoint stash_id } created_at updated_at } } }"
         }
         """
 
@@ -110,7 +110,7 @@ enum FilterPreset: String, CaseIterable, Identifiable {
                     }
                 }
             },
-            "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details url date rating100 organized o_counter paths { screenshot preview stream } files { size duration video_codec width height format } performers { id name gender } tags { id name } studio { id name } stash_ids { endpoint stash_id } created_at updated_at } } }"
+            "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details url date rating100 organized o_counter paths { screenshot preview stream } files { size duration video_codec width height } performers { id name gender } tags { id name } studio { id name } stash_ids { endpoint stash_id } created_at updated_at } } }"
         }
         """
 
@@ -127,7 +127,7 @@ enum FilterPreset: String, CaseIterable, Identifiable {
                     "direction": "DESC"
                 }
             },
-            "query": "query FindScenes($filter: FindFilterType) { findScenes(filter: $filter) { count scenes { id title details url date rating100 organized o_counter paths { screenshot preview stream } files { size duration video_codec width height format } performers { id name gender } tags { id name } studio { id name } stash_ids { endpoint stash_id } created_at updated_at } } }"
+            "query": "query FindScenes($filter: FindFilterType) { findScenes(filter: $filter) { count scenes { id title details url date rating100 organized o_counter paths { screenshot preview stream } files { size duration video_codec width height } performers { id name gender } tags { id name } studio { id name } stash_ids { endpoint stash_id } created_at updated_at } } }"
         }
         """
 
@@ -150,7 +150,7 @@ enum FilterPreset: String, CaseIterable, Identifiable {
                     }
                 }
             },
-            "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details url date rating100 organized o_counter paths { screenshot preview stream } files { size duration video_codec width height format } performers { id name gender } tags { id name } studio { id name } stash_ids { endpoint stash_id } created_at updated_at } } }"
+            "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details url date rating100 organized o_counter paths { screenshot preview stream } files { size duration video_codec width height } performers { id name gender } tags { id name } studio { id name } stash_ids { endpoint stash_id } created_at updated_at } } }"
         }
         """
 
@@ -167,7 +167,7 @@ enum FilterPreset: String, CaseIterable, Identifiable {
                     "direction": "\(self == .longest ? "DESC" : "ASC")"
                 }
             },
-            "query": "query FindScenes($filter: FindFilterType) { findScenes(filter: $filter) { count scenes { id title details url date rating100 organized o_counter paths { screenshot preview stream } files { size duration video_codec width height format } performers { id name gender } tags { id name } studio { id name } stash_ids { endpoint stash_id } created_at updated_at } } }"
+            "query": "query FindScenes($filter: FindFilterType) { findScenes(filter: $filter) { count scenes { id title details url date rating100 organized o_counter paths { screenshot preview stream } files { size duration video_codec width height } performers { id name gender } tags { id name } studio { id name } stash_ids { endpoint stash_id } created_at updated_at } } }"
         }
         """
 
@@ -189,7 +189,7 @@ enum FilterPreset: String, CaseIterable, Identifiable {
                     }
                 }
             },
-            "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details url date rating100 organized o_counter paths { screenshot preview stream } files { size duration video_codec width height format } performers { id name gender } tags { id name } studio { id name } stash_ids { endpoint stash_id } created_at updated_at } } }"
+            "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details url date rating100 organized o_counter paths { screenshot preview stream } files { size duration video_codec width height } performers { id name gender } tags { id name } studio { id name } stash_ids { endpoint stash_id } created_at updated_at } } }"
         }
         """
 
@@ -206,7 +206,7 @@ enum FilterPreset: String, CaseIterable, Identifiable {
                     "direction": "DESC"
                 }
             },
-            "query": "query FindScenes($filter: FindFilterType) { findScenes(filter: $filter) { count scenes { id title details url date rating100 organized o_counter paths { screenshot preview stream } files { size duration video_codec width height format } performers { id name gender } tags { id name } studio { id name } stash_ids { endpoint stash_id } created_at updated_at } } }"
+            "query": "query FindScenes($filter: FindFilterType) { findScenes(filter: $filter) { count scenes { id title details url date rating100 organized o_counter paths { screenshot preview stream } files { size duration video_codec width height } performers { id name gender } tags { id name } studio { id name } stash_ids { endpoint stash_id } created_at updated_at } } }"
         }
         """
     }

@@ -28,7 +28,7 @@ struct TaggedScenesView: View {
                   }
               }
           },
-          "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height format } performers { id name } tags { id name } rating100 } } }"
+          "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height } performers { id name } tags { id name } rating100 } } }"
       }
       """
 

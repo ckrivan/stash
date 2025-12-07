@@ -633,7 +633,6 @@ class StashAPI: ObservableObject {
                   video_codec
                   width
                   height
-                  format
               }
               performers {
                   id
@@ -776,7 +775,6 @@ class StashAPI: ObservableObject {
                       id
                       title
                       date
-                      o_counter
                       paths {
                           screenshot
                           preview
@@ -784,10 +782,8 @@ class StashAPI: ObservableObject {
                       }
                       files {
                           duration
-                          video_codec
                           width
                           height
-                          format
                       }
                       performers {
                           id
@@ -832,7 +828,6 @@ class StashAPI: ObservableObject {
                           video_codec
                           width
                           height
-                          format
                       }
                       performers {
                           id
@@ -1213,7 +1208,7 @@ class StashAPI: ObservableObject {
                   }
               }
           },
-          "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height format } performers { id name gender image_path scene_count } tags { id name } studio { id name } rating100 o_counter } } }"
+          "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height } performers { id name gender image_path scene_count } tags { id name } studio { id name } rating100 o_counter } } }"
       }
       """
 
@@ -1396,7 +1391,7 @@ class StashAPI: ObservableObject {
                   }
               }
           },
-          "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height format } performers { id name } tags { id name } rating100 } } }"
+          "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height } performers { id name } tags { id name } rating100 } } }"
       }
       """
 
@@ -1640,7 +1635,6 @@ class StashAPI: ObservableObject {
             height
             frame_rate
             bit_rate
-            format
           }
           paths {
             screenshot
@@ -2118,7 +2112,6 @@ class StashAPI: ObservableObject {
                   video_codec
                   width
                   height
-                  format
               }
               performers {
                   id
@@ -2520,7 +2513,6 @@ class StashAPI: ObservableObject {
                       video_codec
                       width
                       height
-                      format
                   }
                   performers {
                       id
