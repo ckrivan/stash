@@ -139,7 +139,7 @@ class StashAPI: ObservableObject {
                   }
               }
           },
-          "query": "query FindSceneMarkers($filter: FindFilterType, $scene_marker_filter: SceneMarkerFilterType) { findSceneMarkers(filter: $filter, scene_marker_filter: $scene_marker_filter) { count scene_markers { id title seconds end_seconds stream preview screenshot scene { id title files { width height path __typename } performers { id name image_path __typename } __typename } primary_tag { id name __typename } tags { id name __typename } __typename } __typename } __typename }"
+          "query": "query FindSceneMarkers($filter: FindFilterType, $scene_marker_filter: SceneMarkerFilterType) { findSceneMarkers(filter: $filter, scene_marker_filter: $scene_marker_filter) { count scene_markers { id title seconds end_seconds stream preview screenshot scene { id title files { width height path video_codec format frame_rate __typename } performers { id name image_path __typename } __typename } primary_tag { id name __typename } tags { id name __typename } __typename } __typename } __typename }"
       }
       """
 
@@ -633,6 +633,8 @@ class StashAPI: ObservableObject {
                   video_codec
                   width
                   height
+                  format
+                  frame_rate
               }
               performers {
                   id
@@ -784,6 +786,9 @@ class StashAPI: ObservableObject {
                           duration
                           width
                           height
+                          video_codec
+                          format
+                          frame_rate
                       }
                       performers {
                           id
@@ -828,6 +833,8 @@ class StashAPI: ObservableObject {
                           video_codec
                           width
                           height
+                          format
+                          frame_rate
                       }
                       performers {
                           id
@@ -1208,7 +1215,7 @@ class StashAPI: ObservableObject {
                   }
               }
           },
-          "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height } performers { id name gender image_path scene_count } tags { id name } studio { id name } rating100 o_counter } } }"
+          "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height format frame_rate } performers { id name gender image_path scene_count } tags { id name } studio { id name } rating100 o_counter } } }"
       }
       """
 
@@ -1391,7 +1398,7 @@ class StashAPI: ObservableObject {
                   }
               }
           },
-          "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height } performers { id name } tags { id name } rating100 } } }"
+          "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height format frame_rate } performers { id name } tags { id name } rating100 } } }"
       }
       """
 
@@ -1635,6 +1642,7 @@ class StashAPI: ObservableObject {
             height
             frame_rate
             bit_rate
+            format
           }
           paths {
             screenshot
@@ -2112,6 +2120,8 @@ class StashAPI: ObservableObject {
                   video_codec
                   width
                   height
+                  format
+                  frame_rate
               }
               performers {
                   id
@@ -2513,6 +2523,8 @@ class StashAPI: ObservableObject {
                       video_codec
                       width
                       height
+                      format
+                      frame_rate
                   }
                   performers {
                       id
@@ -2611,6 +2623,8 @@ class StashAPI: ObservableObject {
                       video_codec
                       width
                       height
+                      format
+                      frame_rate
                   }
                   performers {
                       id
@@ -2783,6 +2797,8 @@ class StashAPI: ObservableObject {
                       width
                       height
                       video_codec
+                      format
+                      frame_rate
                   }
               }
           }
@@ -3724,7 +3740,7 @@ class StashAPI: ObservableObject {
                   \(performerId != nil ? "\"performers\": {\"value\": [\"\(performerId!)\"], \"modifier\": \"INCLUDES\"}" : "")
               }
           },
-          "query": "query FindSceneMarkers($filter: FindFilterType, $scene_marker_filter: SceneMarkerFilterType) { findSceneMarkers(filter: $filter, scene_marker_filter: $scene_marker_filter) { count scene_markers { ...SceneMarkerData __typename } __typename } } fragment SceneMarkerData on SceneMarker { id title seconds end_seconds stream preview screenshot scene { ...SceneMarkerSceneData __typename } primary_tag { id name __typename } tags { id name __typename } __typename } fragment SceneMarkerSceneData on Scene { id title files { width height path __typename } performers { id name image_path __typename } __typename }"
+          "query": "query FindSceneMarkers($filter: FindFilterType, $scene_marker_filter: SceneMarkerFilterType) { findSceneMarkers(filter: $filter, scene_marker_filter: $scene_marker_filter) { count scene_markers { ...SceneMarkerData __typename } __typename } } fragment SceneMarkerData on SceneMarker { id title seconds end_seconds stream preview screenshot scene { ...SceneMarkerSceneData __typename } primary_tag { id name __typename } tags { id name __typename } __typename } fragment SceneMarkerSceneData on Scene { id title files { width height path video_codec format frame_rate __typename } performers { id name image_path __typename } __typename }"
       }
       """
 

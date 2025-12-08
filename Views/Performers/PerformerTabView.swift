@@ -696,7 +696,7 @@ struct PerformerTabView: View {
                     }
                 }
             },
-            "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height } performers { id name gender scene_count } tags { id name } rating100 o_counter} } }"
+            "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height format frame_rate } performers { id name gender scene_count } tags { id name } rating100 o_counter} } }"
         }
         """
 
@@ -765,7 +765,7 @@ struct PerformerTabView: View {
                       }
                   }
               },
-              "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height } performers { id name } tags { id name } rating100 o_counter } } }"
+              "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height format frame_rate } performers { id name } tags { id name } rating100 o_counter } } }"
           }
           """
 

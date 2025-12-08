@@ -81,7 +81,7 @@ class MarkerViewModel: ObservableObject {
                     }
                 }
             },
-            "query": "query FindSceneMarkers($filter: FindFilterType, $scene_marker_filter: SceneMarkerFilterType) { findSceneMarkers(filter: $filter, scene_marker_filter: $scene_marker_filter) { count markers { id title seconds stream scene { id name date created_at title studio { id name } performers { id name } files { height width duration } galleries { id } } preview tags { id name } primary_tag { id name } screenshot } } }"
+            "query": "query FindSceneMarkers($filter: FindFilterType, $scene_marker_filter: SceneMarkerFilterType) { findSceneMarkers(filter: $filter, scene_marker_filter: $scene_marker_filter) { count markers { id title seconds stream scene { id name date created_at title studio { id name } performers { id name } files { height width duration video_codec format frame_rate } galleries { id } } preview tags { id name } primary_tag { id name } screenshot } } }"
         }
         """
 
@@ -212,7 +212,7 @@ class MarkerViewModel: ObservableObject {
                     "direction": "DESC"
                 }
             },
-            "query": "query FindSceneMarkers($filter: FindFilterType) { findSceneMarkers(filter: $filter) { count markers { id title seconds stream scene { id name date created_at title studio { id name } performers { id name } files { height width duration } galleries { id } } preview tags { id name } primary_tag { id name } screenshot } } }"
+            "query": "query FindSceneMarkers($filter: FindFilterType) { findSceneMarkers(filter: $filter) { count markers { id title seconds stream scene { id name date created_at title studio { id name } performers { id name } files { height width duration video_codec format frame_rate } galleries { id } } preview tags { id name } primary_tag { id name } screenshot } } }"
         }
         """
 
@@ -350,7 +350,7 @@ class MarkerViewModel: ObservableObject {
                     }
                 }
             },
-            "query": "query FindSceneMarkers($filter: FindFilterType, $scene_marker_filter: SceneMarkerFilterType) { findSceneMarkers(filter: $filter, scene_marker_filter: $scene_marker_filter) { count markers { id title seconds stream scene { id name date created_at title studio { id name } performers { id name } files { height width duration } galleries { id } } preview tags { id name } primary_tag { id name } screenshot } } }"
+            "query": "query FindSceneMarkers($filter: FindFilterType, $scene_marker_filter: SceneMarkerFilterType) { findSceneMarkers(filter: $filter, scene_marker_filter: $scene_marker_filter) { count markers { id title seconds stream scene { id name date created_at title studio { id name } performers { id name } files { height width duration video_codec format frame_rate } galleries { id } } preview tags { id name } primary_tag { id name } screenshot } } }"
         }
         """
 
@@ -418,7 +418,7 @@ class MarkerViewModel: ObservableObject {
                     "direction": "DESC"
                 }
             },
-            "query": "query FindSceneMarkers($filter: FindFilterType) { findSceneMarkers(filter: $filter) { count markers { id title seconds stream scene { id name date created_at title studio { id name } performers { id name } files { height width duration } galleries { id } } preview tags { id name } primary_tag { id name } screenshot } } }"
+            "query": "query FindSceneMarkers($filter: FindFilterType) { findSceneMarkers(filter: $filter) { count markers { id title seconds stream scene { id name date created_at title studio { id name } performers { id name } files { height width duration video_codec format frame_rate } galleries { id } } preview tags { id name } primary_tag { id name } screenshot } } }"
         }
         """
 
