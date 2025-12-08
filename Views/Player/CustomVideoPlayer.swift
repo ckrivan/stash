@@ -154,11 +154,16 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
     // Make this view controller the first responder to receive keyboard events
     becomeFirstResponder()
 
-    // Use a delayed call to ensure first responder status is maintained
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-      if !self.isFirstResponder {
-        print("🎹 Video player was not first responder, forcing focus")
-        self.becomeFirstResponder()
+    // Use multiple delayed calls to ensure first responder status is maintained
+    // AVPlayerViewController's internal views can steal focus at various times
+    let retryIntervals: [Double] = [0.1, 0.3, 0.5, 1.0, 2.0]
+    for delay in retryIntervals {
+      DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+        guard let self = self else { return }
+        if !self.isFirstResponder {
+          print("🎹 Video player was not first responder at \(delay)s, forcing focus")
+          self.becomeFirstResponder()
+        }
       }
     }
 
@@ -377,7 +382,22 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
       // Immediately check for and hide settings buttons on any player state change
       hideSettingsButtons()
 
+      // Re-acquire first responder when playback starts or changes state
+      // This ensures keyboard shortcuts work immediately
+      if !isFirstResponder {
+        print("🎹 Player status changed, re-acquiring first responder for keyboard shortcuts")
+        becomeFirstResponder()
+      }
+
       if player.timeControlStatus == .playing {
+        // Ensure we have first responder when playback begins
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+          guard let self = self else { return }
+          if !self.isFirstResponder {
+            print("🎹 Playback started, forcing first responder for keyboard shortcuts")
+            self.becomeFirstResponder()
+          }
+        }
         // Hide buttons 5 seconds after playback starts
         DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) { [weak self] in
           guard let self = self else { return }
@@ -408,13 +428,28 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
       print("🔄 Player current item changed, checking for settings buttons")
       hideSettingsButtons()
 
-      // Schedule additional checks for settings buttons after item change
+      // Re-acquire first responder when content changes
+      // Scene switching can cause focus to be lost
+      if !isFirstResponder {
+        print("🎹 Content changed, re-acquiring first responder for keyboard shortcuts")
+        becomeFirstResponder()
+      }
+
+      // Schedule additional checks for settings buttons and first responder after item change
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-        self?.hideSettingsButtons()
+        guard let self = self else { return }
+        self.hideSettingsButtons()
+        if !self.isFirstResponder {
+          self.becomeFirstResponder()
+        }
       }
 
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak self] in
-        self?.hideSettingsButtons()
+        guard let self = self else { return }
+        self.hideSettingsButtons()
+        if !self.isFirstResponder {
+          self.becomeFirstResponder()
+        }
       }
     }
   }
@@ -430,6 +465,12 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
 
     // Always hide settings buttons when player controls are toggled
     hideSettingsButtons()
+
+    // Re-acquire first responder after tap - tapping can steal focus
+    if !isFirstResponder {
+      print("🎹 After tap, re-acquiring first responder for keyboard shortcuts")
+      becomeFirstResponder()
+    }
 
     // If we're showing buttons, hide them after a delay
     if !buttonsVisible {
