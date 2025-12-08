@@ -1092,6 +1092,83 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
     return true
   }
 
+  // Use UIKeyCommand for reliable hardware keyboard handling on iPadOS
+  // This works even without explicit first responder status
+  override var keyCommands: [UIKeyCommand]? {
+    return [
+      // Arrow keys for seeking
+      UIKeyCommand(
+        input: UIKeyCommand.inputLeftArrow, modifierFlags: [], action: #selector(seekBackward30)),
+      UIKeyCommand(
+        input: UIKeyCommand.inputRightArrow, modifierFlags: [], action: #selector(seekForward30)),
+
+      // Space for play/pause
+      UIKeyCommand(input: " ", modifierFlags: [], action: #selector(handleSpaceKey)),
+
+      // V for next scene/marker
+      UIKeyCommand(input: "v", modifierFlags: [], action: #selector(handleVKey)),
+
+      // B for seek back 30 seconds
+      UIKeyCommand(input: "b", modifierFlags: [], action: #selector(seekBackward30)),
+
+      // N for random position jump
+      UIKeyCommand(input: "n", modifierFlags: [], action: #selector(handleNKey)),
+
+      // M for performer jump / previous marker
+      UIKeyCommand(input: "m", modifierFlags: [], action: #selector(handleMKey)),
+
+      // A for aspect ratio cycling
+      UIKeyCommand(input: "a", modifierFlags: [], action: #selector(handleAKey)),
+
+      // Comma for previous (performer jump)
+      UIKeyCommand(input: ",", modifierFlags: [], action: #selector(handleMKey)),
+    ]
+  }
+
+  // MARK: - Key Command Handlers (for UIKeyCommand)
+
+  @objc private func seekBackward30() {
+    print("🎹 UIKeyCommand: Seek backward 30 seconds")
+    seekVideo(by: -30)
+  }
+
+  @objc private func seekForward30() {
+    print("🎹 UIKeyCommand: Seek forward 30 seconds")
+    seekVideo(by: 30)
+  }
+
+  @objc private func handleSpaceKey() {
+    print("🎹 UIKeyCommand: Space - Toggle play/pause")
+    togglePlayPause()
+  }
+
+  @objc private func handleVKey() {
+    print("🎹 UIKeyCommand: V - Next Scene/Marker")
+    handleShuffleButtonTapped()
+  }
+
+  @objc private func handleNKey() {
+    print("🎹 UIKeyCommand: N - Random position jump")
+    handleRandomJumpButtonTapped()
+  }
+
+  @objc private func handleMKey() {
+    print("🎹 UIKeyCommand: M - Performer jump / Previous marker")
+    handlePerformerJumpButtonTapped()
+  }
+
+  @objc private func handleAKey() {
+    print("🎹 UIKeyCommand: A - Cycle aspect ratio")
+    if let next = AspectMode(rawValue: (currentAspectMode.rawValue + 1) % AspectMode.allCases.count)
+    {
+      currentAspectMode = next
+      applyAspectRatioCorrection()
+      let generator = UIImpactFeedbackGenerator(style: .light)
+      generator.impactOccurred()
+    }
+  }
+
+  // Keep pressesBegan as a fallback for other key handling
   override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
     guard let key = presses.first?.key else {
       super.pressesBegan(presses, with: event)
