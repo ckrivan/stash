@@ -151,6 +151,10 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
 
+    // Disable native playback controls - they steal keyboard focus
+    // We have our own custom buttons, and users can still tap to show native controls
+    showsPlaybackControls = false
+
     // Make this view controller the first responder to receive keyboard events
     becomeFirstResponder()
 
@@ -403,11 +407,17 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
           guard let self = self else { return }
           // Only hide if they're currently visible
           if self.randomJumpButton.alpha > 0 {
+            // Hide native controls to restore keyboard focus
+            self.showsPlaybackControls = false
+
             UIView.animate(withDuration: 0.3) {
               self.randomJumpButton.alpha = 0.0
               self.performerJumpButton.alpha = 0.0
               self.shuffleButton.alpha = 0.0
             }
+
+            // Re-acquire first responder for keyboard shortcuts
+            self.becomeFirstResponder()
           }
 
           // Also check for settings buttons that may have appeared since playback started
@@ -457,6 +467,9 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
   @objc private func toggleButtonVisibility() {
     let buttonsVisible = randomJumpButton.alpha > 0
 
+    // Toggle native playback controls along with custom buttons
+    showsPlaybackControls = !buttonsVisible
+
     UIView.animate(withDuration: 0.3) {
       self.randomJumpButton.alpha = buttonsVisible ? 0.0 : 1.0
       self.performerJumpButton.alpha = buttonsVisible ? 0.0 : 1.0
@@ -479,11 +492,17 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
 
         // Only hide if they're currently visible
         if self.randomJumpButton.alpha > 0 {
+          // Hide native controls to restore keyboard focus
+          self.showsPlaybackControls = false
+
           UIView.animate(withDuration: 0.3) {
             self.randomJumpButton.alpha = 0.0
             self.performerJumpButton.alpha = 0.0
             self.shuffleButton.alpha = 0.0
           }
+
+          // Re-acquire first responder for keyboard shortcuts
+          self.becomeFirstResponder()
         }
 
         // Also hide settings buttons again in case they reappeared
