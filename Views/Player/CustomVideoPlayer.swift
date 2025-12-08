@@ -1095,7 +1095,9 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
   // Use UIKeyCommand for reliable hardware keyboard handling on iPadOS
   // This works even without explicit first responder status
   override var keyCommands: [UIKeyCommand]? {
-    return [
+    // Create commands with priority over system behavior so they work
+    // even when native AVPlayerViewController controls are visible
+    let commands = [
       // Arrow keys for seeking
       UIKeyCommand(
         input: UIKeyCommand.inputLeftArrow, modifierFlags: [], action: #selector(seekBackward30)),
@@ -1123,6 +1125,14 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
       // Comma for previous (performer jump)
       UIKeyCommand(input: ",", modifierFlags: [], action: #selector(handleMKey)),
     ]
+
+    // Set priority over system behavior for all commands
+    // This ensures our shortcuts work even when native player controls are visible
+    for command in commands {
+      command.wantsPriorityOverSystemBehavior = true
+    }
+
+    return commands
   }
 
   // MARK: - Key Command Handlers (for UIKeyCommand)
