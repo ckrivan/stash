@@ -34,8 +34,7 @@ jobs:
         with:
           model: "claude-opus-4-5-20251101"
           use_oauth: true
-          claude_access_token: ${{ secrets.CLAUDE_ACCESS_TOKEN }}
+          claude_access_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_refresh_token: ${{ secrets.CLAUDE_REFRESH_TOKEN }}
           claude_expires_at: ${{ secrets.CLAUDE_EXPIRES_AT }}
           isMax: ${{ secrets.ISMAX }}
-          timeout_minutes: "60"
