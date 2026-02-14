@@ -2040,6 +2040,25 @@ extension VideoPlayerView {
     let currentIndex = contextScenes.firstIndex(of: currentScene) ?? -1
     print("📊 Current scene index: \(currentIndex) out of \(contextScenes.count)")
 
+    // If in random jump mode, pick a random scene instead of sequential
+    if isRandomJumpMode && !contextScenes.isEmpty {
+      let otherScenes = contextScenes.filter { $0.id != currentScene.id }
+      guard let randomScene = otherScenes.randomElement() ?? contextScenes.first else { return }
+
+      print("🎲 Random shuffle: Jumping to random scene: \(randomScene.title ?? "Untitled")")
+      currentScene = randomScene
+      appModel.currentScene = randomScene
+      playScene(randomScene)
+
+      // Perform random jump after scene loads
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        if let player = self.getCurrentPlayer() {
+          VideoPlayerUtility.jumpToRandomPosition(in: player)
+        }
+      }
+      return
+    }
+
     // If current scene is in the list and there's a next one, go to it
     if currentIndex >= 0 && currentIndex < contextScenes.count - 1 {
       // Get the next scene
@@ -2050,49 +2069,8 @@ extension VideoPlayerView {
       currentScene = nextScene
       appModel.currentScene = nextScene
 
-      if isRandomJumpMode {
-        print("🎲 Continuing in RANDOM JUMP mode - will perform random jump in the next scene")
-
-        // Play the scene first
-        playScene(nextScene)
-
-        // Then perform a random jump within that scene
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-          if let player = self.getCurrentPlayer() {
-            // Get current duration to calculate a random position
-            guard let currentItem = player.currentItem else { return }
-
-            // Define the check duration function as a recursive function
-            func checkDuration() {
-              let duration = currentItem.duration.seconds
-              if duration.isFinite && duration > 10 {
-                // Generate a random position (10% to 90% of the video)
-                let minPosition = max(5, duration * 0.1)
-                let maxPosition = min(duration - 10, duration * 0.9)
-                let randomPosition = Double.random(in: minPosition...maxPosition)
-
-                print("🎲 Random jumping to \(Int(randomPosition)) seconds in next scene")
-
-                // Set position and play
-                let time = CMTime(seconds: randomPosition, preferredTimescale: 1000)
-                player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
-                player.play()
-              } else {
-                // Try again after a delay if duration isn't ready
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                  checkDuration()
-                }
-              }
-            }
-
-            // Start the duration check
-            checkDuration()
-          }
-        }
-      } else {
-        // Normal sequential playback
-        playScene(nextScene)
-      }
+      // Normal sequential playback
+      playScene(nextScene)
     } else {
       // We're at the end of the current context's list
       print("📊 Reached the end of the current context list")
@@ -2413,39 +2391,28 @@ extension VideoPlayerView {
     navigateToNextSceneSequential()
   }
 
-  /// Navigate to next scene in context list and perform random jump
+  /// Navigate to a random scene and perform random jump within it
   private func navigateToNextSceneWithRandomJump() {
     let contextScenes = appModel.api.scenes
-    let currentIndex = contextScenes.firstIndex(of: currentScene) ?? -1
-
-    if currentIndex >= 0 && currentIndex < contextScenes.count - 1 {
-      let nextScene = contextScenes[currentIndex + 1]
-      print("🎲 Random jump: Moving to next scene: \(nextScene.title ?? "Untitled")")
-      currentScene = nextScene
-      appModel.currentScene = nextScene
-      playScene(nextScene)
-
-      // Perform random jump after scene loads
-      DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-        if let player = self.getCurrentPlayer() {
-          VideoPlayerUtility.jumpToRandomPosition(in: player)
-        }
-      }
-    } else if !contextScenes.isEmpty {
-      // Loop back to first scene
-      let firstScene = contextScenes[0]
-      print("🔄 Random jump: Looping to first scene: \(firstScene.title ?? "Untitled")")
-      currentScene = firstScene
-      appModel.currentScene = firstScene
-      playScene(firstScene)
-
-      DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-        if let player = self.getCurrentPlayer() {
-          VideoPlayerUtility.jumpToRandomPosition(in: player)
-        }
-      }
-    } else {
+    guard !contextScenes.isEmpty else {
       print("⚠️ No scenes available for random jump navigation")
+      return
+    }
+
+    // Pick a RANDOM scene, excluding the current one
+    let otherScenes = contextScenes.filter { $0.id != currentScene.id }
+    guard let randomScene = otherScenes.randomElement() ?? contextScenes.first else { return }
+
+    print("🎲 Random shuffle: Jumping to random scene: \(randomScene.title ?? "Untitled")")
+    currentScene = randomScene
+    appModel.currentScene = randomScene
+    playScene(randomScene)
+
+    // Perform random jump after scene loads
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+      if let player = self.getCurrentPlayer() {
+        VideoPlayerUtility.jumpToRandomPosition(in: player)
+      }
     }
   }
 
@@ -2580,13 +2547,20 @@ extension VideoPlayerView {
     // CRITICAL: Also detect CONTEXT CHANGE - if user selected a different performer in PerformerDetailView
     let hasStoredPerformer = appModel.isPerformerShuffleMode && appModel.performerShufflePerformer != nil
 
-    // Check if context changed: PerformerDetailView has a DIFFERENT performer than stored shuffle performer
+    // Check if context changed: either PerformerDetailView has a DIFFERENT performer,
+    // OR the current scene on screen doesn't contain the stored shuffle performer
     let contextChanged: Bool
-    if let detailPerformer = appModel.performerDetailViewPerformer,
-       let shufflePerformer = appModel.performerShufflePerformer {
-      contextChanged = detailPerformer.id != shufflePerformer.id
-      if contextChanged {
+    if let shufflePerformer = appModel.performerShufflePerformer {
+      if let detailPerformer = appModel.performerDetailViewPerformer,
+         detailPerformer.id != shufflePerformer.id {
+        contextChanged = true
         print("🎯 PERFORMER BUTTON: CONTEXT CHANGED - DetailView performer \(detailPerformer.name) != stored \(shufflePerformer.name)")
+      } else if !currentScene.performers.contains(where: { $0.id == shufflePerformer.id }) {
+        // The scene on screen has different performers than who we were shuffling
+        contextChanged = true
+        print("🎯 PERFORMER BUTTON: CONTEXT CHANGED - stored performer \(shufflePerformer.name) not in current scene performers: \(currentScene.performers.map { $0.name }.joined(separator: ", "))")
+      } else {
+        contextChanged = false
       }
     } else {
       contextChanged = false
