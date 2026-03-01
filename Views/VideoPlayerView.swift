@@ -1813,17 +1813,7 @@ extension VideoPlayerView {
             currentScene = randomScene
             appModel.currentScene = randomScene
 
-            // IMPORTANT: Add to watch history (avoid duplicates of consecutive same scene)
-            if appModel.watchHistory.last?.id != randomScene.id {
-              appModel.watchHistory.append(randomScene)
-              // Keep history to reasonable size (last 20 scenes)
-              if appModel.watchHistory.count > 20 {
-                appModel.watchHistory = Array(appModel.watchHistory.suffix(20))
-              }
-              print(
-                "🔄 SHUFFLE: Added to watch history: \(randomScene.title ?? "Untitled") (history count: \(appModel.watchHistory.count))"
-              )
-            }
+            SessionHistoryManager.shared.addEntry(scene: randomScene)
 
             // When shuffling to a new scene, update the original performer to first female performer
             // But ONLY if we don't already have an original performer set
@@ -2270,17 +2260,7 @@ extension VideoPlayerView {
         currentScene = randomScene
         appModel.currentScene = randomScene
 
-        // IMPORTANT: Add to watch history (avoid duplicates of consecutive same scene)
-        if appModel.watchHistory.last?.id != randomScene.id {
-          appModel.watchHistory.append(randomScene)
-          // Keep history to reasonable size (last 20 scenes)
-          if appModel.watchHistory.count > 20 {
-            appModel.watchHistory = Array(appModel.watchHistory.suffix(20))
-          }
-          print(
-            "🔄 FALLBACK SHUFFLE: Added to watch history: \(randomScene.title ?? "Untitled") (history count: \(appModel.watchHistory.count))"
-          )
-        }
+        SessionHistoryManager.shared.addEntry(scene: randomScene)
 
         // When shuffling to a new scene, update the original performer with female preference
         let femalePerformer = randomScene.performers.first { isLikelyFemalePerformer($0) }
@@ -2793,17 +2773,7 @@ extension VideoPlayerView {
               print("🎯 PERFORMER BUTTON: Preserving DetailView performer context")
             }
 
-            // IMPORTANT: Add to watch history (avoid duplicates of consecutive same scene)
-            if appModel.watchHistory.last?.id != randomScene.id {
-              appModel.watchHistory.append(randomScene)
-              // Keep history to reasonable size (last 20 scenes)
-              if appModel.watchHistory.count > 20 {
-                appModel.watchHistory = Array(appModel.watchHistory.suffix(20))
-              }
-              print(
-                "🎯 PERFORMER BUTTON: Added to watch history: \(randomScene.title ?? "Untitled") (history count: \(appModel.watchHistory.count))"
-              )
-            }
+            SessionHistoryManager.shared.addEntry(scene: randomScene)
           }
 
           // Get the player from the current view controller
@@ -2994,17 +2964,7 @@ extension VideoPlayerView {
                   print("🎯 PERFORMER BUTTON (FALLBACK): Preserving DetailView performer context")
                 }
 
-                // IMPORTANT: Add to watch history (avoid duplicates of consecutive same scene)
-                if appModel.watchHistory.last?.id != randomScene.id {
-                  appModel.watchHistory.append(randomScene)
-                  // Keep history to reasonable size (last 20 scenes)
-                  if appModel.watchHistory.count > 20 {
-                    appModel.watchHistory = Array(appModel.watchHistory.suffix(20))
-                  }
-                  print(
-                    "🎯 PERFORMER BUTTON (FALLBACK): Added to watch history: \(randomScene.title ?? "Untitled") (history count: \(appModel.watchHistory.count))"
-                  )
-                }
+                SessionHistoryManager.shared.addEntry(scene: randomScene)
 
                 // IMPORTANT: Keep the original performer reference unchanged
                 print(
@@ -3104,17 +3064,7 @@ extension VideoPlayerView {
             currentScene = randomScene
             appModel.currentScene = randomScene
 
-            // IMPORTANT: Add to watch history (avoid duplicates of consecutive same scene)
-            if appModel.watchHistory.last?.id != randomScene.id {
-              appModel.watchHistory.append(randomScene)
-              // Keep history to reasonable size (last 20 scenes)
-              if appModel.watchHistory.count > 20 {
-                appModel.watchHistory = Array(appModel.watchHistory.suffix(20))
-              }
-              print(
-                "🎯 PERFORMER BUTTON (API FALLBACK): Added to watch history: \(randomScene.title ?? "Untitled") (history count: \(appModel.watchHistory.count))"
-              )
-            }
+            SessionHistoryManager.shared.addEntry(scene: randomScene)
           }
 
           if let player = getCurrentPlayer() {
@@ -3715,21 +3665,7 @@ extension VideoPlayerView {
 
   /// Add scene to watch history when video starts playing
   private func addToWatchHistory() {
-    // Add current scene to watch history (avoid duplicates)
-    if appModel.watchHistory.last?.id != currentScene.id {
-      appModel.watchHistory.append(currentScene)
-      // Keep history to reasonable size (last 20 scenes)
-      if appModel.watchHistory.count > 20 {
-        appModel.watchHistory = Array(appModel.watchHistory.suffix(20))
-      }
-      print(
-        "🎯 HISTORY - Added to watch history from VideoPlayerView: \(currentScene.title ?? "Untitled") (history count: \(appModel.watchHistory.count))"
-      )
-    } else {
-      print(
-        "🎯 HISTORY - Skipping duplicate scene in VideoPlayerView: \(currentScene.title ?? "Untitled")"
-      )
-    }
+    SessionHistoryManager.shared.addEntry(scene: currentScene)
   }
 }
 

@@ -22,8 +22,7 @@ class AppModel: ObservableObject {
   @Published var currentPerformer: StashScene.Performer?
   @Published var currentMarker: SceneMarker?
   @Published var performerScenes: [StashScene] = []  // Separate array for performer scenes
-  @Published var lastWatchedScene: StashScene?  // Track the last scene that was actually watched
-  @Published var watchHistory: [StashScene] = []  // Track the sequence of scenes watched in current session
+  // History is now managed by SessionHistoryManager.shared
 
   // MARK: - Performer Detail View Context
   @Published var performerDetailViewPerformer: StashScene.Performer?  // Dedicated performer for PerformerDetailView shuffle context
@@ -264,32 +263,14 @@ class AppModel: ObservableObject {
     print("🔇 Killing audio for navigation (marker: \(isMarkerShuffle), tag: \(isTagShuffle))")
     killAllAudio()
 
-    // Store both scene and timestamp in properties - ensure main thread for @Published
+    // Store scene in properties - ensure main thread for @Published
     DispatchQueue.main.async {
       self.currentScene = scene
-
-      // FIXED: Track this as the last watched scene for return navigation
-      self.lastWatchedScene = scene
     }
-    print("🎯 HISTORY - Set lastWatchedScene to: \(scene.title ?? "Untitled")")
 
-    // Add to watch history (avoid duplicates of consecutive same scene) - ensure main thread for @Published
+    // Add to session history via dedicated manager
     DispatchQueue.main.async {
-      if self.watchHistory.last?.id != scene.id {
-        self.watchHistory.append(scene)
-        // Keep history to reasonable size (last 20 scenes)
-        if self.watchHistory.count > 20 {
-          self.watchHistory = Array(self.watchHistory.suffix(20))
-        }
-        print(
-          "🎯 HISTORY - Added to watch history: \(scene.title ?? "Untitled") (history count: \(self.watchHistory.count))"
-        )
-        print("🎯 HISTORY - Full history: \(self.watchHistory.map { $0.title ?? "Untitled" })")
-      } else {
-        print(
-          "🎯 HISTORY - Skipping duplicate scene: \(scene.title ?? "Untitled") (last in history: \(self.watchHistory.last?.title ?? "None"))"
-        )
-      }
+      SessionHistoryManager.shared.addEntry(scene: scene, startSeconds: startSeconds)
     }
 
     // Critical: Clear any stale scene data before setting new scene
@@ -979,18 +960,20 @@ class AppModel: ObservableObject {
       }
     }
 
-    // FIXED: Navigate back to last watched scene in scenes view if we're returning to scenes tab
-    if manualExit && activeTab == .scenes && lastWatchedScene != nil {
-      print("🎯 HISTORY - Manual exit to scenes tab, will show watch history")
-      // Set a flag that MediaLibraryView can use to show watch history
-      if !watchHistory.isEmpty {
-        UserDefaults.standard.set(true, forKey: "showWatchHistory")
-        print("🎯 HISTORY - Set flag to show watch history (\(watchHistory.count) scenes)")
+    // Navigate back to last watched scene in scenes view if we're returning to scenes tab
+    if manualExit && activeTab == .scenes {
+      DispatchQueue.main.async {
+        let historyEntries = SessionHistoryManager.shared.entries
+        if !historyEntries.isEmpty {
+          print("🎯 HISTORY - Manual exit to scenes tab, will show watch history")
+          UserDefaults.standard.set(true, forKey: "showWatchHistory")
+          print("🎯 HISTORY - Set flag to show watch history (\(historyEntries.count) scenes)")
 
-        // Also set scroll target for the first scene in history
-        if let firstScene = watchHistory.first {
-          UserDefaults.standard.set(firstScene.id, forKey: "scrollToSceneId")
-          print("🎯 HISTORY - Set scrollToSceneId to first in history: \(firstScene.id)")
+          // Also set scroll target for the first scene in history
+          if let firstScene = historyEntries.first?.scene {
+            UserDefaults.standard.set(firstScene.id, forKey: "scrollToSceneId")
+            print("🎯 HISTORY - Set scrollToSceneId to first in history: \(firstScene.id)")
+          }
         }
       }
     }

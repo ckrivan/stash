@@ -13,6 +13,7 @@
 		920D41B72DE5575500085284 /* LoggerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41542DE5566000085284 /* LoggerExtensions.swift */; };
 		920D41B82DE5575500085284 /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41552DE5566000085284 /* UserDefaultsExtensions.swift */; };
 		920D41B92DE5575500085284 /* AppImports.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D415B2DE5566000085284 /* AppImports.swift */; };
+		920D41F42DE5575500085284 /* SessionHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41F32DE5575500085284 /* SessionHistory.swift */; };
 		920D41BA2DE5575500085284 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D415C2DE5566000085284 /* AppModel.swift */; };
 		920D41BB2DE5575500085284 /* FilterOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D415E2DE5566000085284 /* FilterOptions.swift */; };
 		920D41BC2DE5575500085284 /* FilterPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D415F2DE5566000085284 /* FilterPreset.swift */; };
@@ -112,6 +113,7 @@
 		920D415A2DE5566000085284 /* marker_stream.out */ = {isa = PBXFileReference; lastKnownFileType = file; path = marker_stream.out; sourceTree = "<group>"; };
 		920D415B2DE5566000085284 /* AppImports.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppImports.swift; sourceTree = "<group>"; };
 		920D415C2DE5566000085284 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		920D41F32DE5575500085284 /* SessionHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionHistory.swift; sourceTree = "<group>"; };
 		920D415D2DE5566000085284 /* AppModel.swift.bak */ = {isa = PBXFileReference; lastKnownFileType = text; path = AppModel.swift.bak; sourceTree = "<group>"; };
 		920D415E2DE5566000085284 /* FilterOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterOptions.swift; sourceTree = "<group>"; };
 		920D415F2DE5566000085284 /* FilterPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterPreset.swift; sourceTree = "<group>"; };
@@ -267,6 +269,7 @@
 				920D415F2DE5566000085284 /* FilterPreset.swift */,
 				920D41602DE5566000085284 /* SceneFilterType.swift */,
 				8AAC2887FF4D4FF9BB3343BD /* SavedMarkerSearch.swift */,
+				920D41F32DE5575500085284 /* SessionHistory.swift */,
 				920D41612DE5566000085284 /* StashModels.swift */,
 			);
 			path = Models;
@@ -578,6 +581,7 @@
 				920D41BC2DE5575500085284 /* FilterPreset.swift in Sources */,
 				920D41BD2DE5575500085284 /* SceneFilterType.swift in Sources */,
 				753FB9F17A83458AB3A237C1 /* SavedMarkerSearch.swift in Sources */,
+				920D41F42DE5575500085284 /* SessionHistory.swift in Sources */,
 				920D41BE2DE5575500085284 /* StashModels.swift in Sources */,
 				920D41BF2DE5575500085284 /* Models.swift in Sources */,
 				920D41C02DE5575500085284 /* StashAPI.swift in Sources */,

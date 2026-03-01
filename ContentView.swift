@@ -60,18 +60,7 @@ struct ContentView: View {
             .onAppear {
               print(
                 "🎬 ContentView: StashScene navigation destination appeared for scene \(scene.id)")
-
-              // FIXED: Add to watch history when navigating directly to scene
-              if appModel.watchHistory.last?.id != scene.id {
-                appModel.watchHistory.append(scene)
-                // Keep history to reasonable size (last 20 scenes)
-                if appModel.watchHistory.count > 20 {
-                  appModel.watchHistory = Array(appModel.watchHistory.suffix(20))
-                }
-                print(
-                  "🎯 HISTORY - Added to watch history via navigation: \(scene.title ?? "Untitled") (history count: \(appModel.watchHistory.count))"
-                )
-              }
+              SessionHistoryManager.shared.addEntry(scene: scene)
             }
           }
           .navigationDestination(for: StashScene.Performer.self) { performer in
@@ -107,7 +96,6 @@ struct ContentView: View {
                 "🎬 ContentView: SceneMarker navigation destination appeared for marker \(marker.id) -> scene \(marker.scene.id)"
               )
 
-              // FIXED: Add marker's scene to watch history when navigating to marker
               let markerScene = StashScene(
                 id: marker.scene.id,
                 title: marker.title,
@@ -124,16 +112,11 @@ struct ContentView: View {
                 o_counter: nil
               )
 
-              if appModel.watchHistory.last?.id != markerScene.id {
-                appModel.watchHistory.append(markerScene)
-                // Keep history to reasonable size (last 20 scenes)
-                if appModel.watchHistory.count > 20 {
-                  appModel.watchHistory = Array(appModel.watchHistory.suffix(20))
-                }
-                print(
-                  "🎯 HISTORY - Added marker scene to watch history: \(marker.title) (history count: \(appModel.watchHistory.count))"
-                )
-              }
+              SessionHistoryManager.shared.addEntry(
+                scene: markerScene,
+                startSeconds: Double(marker.seconds),
+                markerTitle: marker.title
+              )
             }
           }
         }
@@ -296,7 +279,7 @@ extension ContentView {
 
         case .history:
           print("📱 History tab selected - no loading needed")
-        // History is already in appModel.watchHistory, no need to load anything
+        // History is managed by SessionHistoryManager.shared
         }
       } catch {
         print("❌ Error loading content for tab \(appModel.activeTab): \(error)")

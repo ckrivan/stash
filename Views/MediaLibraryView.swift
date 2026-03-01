@@ -60,7 +60,7 @@ struct MediaLibraryView: View {
 
   // Show watch history when we have watched scenes and the flag is set (returning from video)
   private var shouldShowWatchHistory: Bool {
-    return !appModel.watchHistory.isEmpty && UserDefaults.standard.bool(forKey: "showWatchHistory")
+    return !SessionHistoryManager.shared.entries.isEmpty && UserDefaults.standard.bool(forKey: "showWatchHistory")
       && currentFilter == "default" && !isSearching && searchScope == .scenes && searchText.isEmpty
   }
 
@@ -722,9 +722,10 @@ struct MediaLibraryView: View {
         .padding(.top, 40)
       } else {
         // Show watch history if we have it and user is returning from video session
-        let displayScenes = shouldShowWatchHistory ? appModel.watchHistory : appModel.api.scenes
+        let historyScenes = SessionHistoryManager.shared.entries.map { $0.scene }
+        let displayScenes = shouldShowWatchHistory ? historyScenes : appModel.api.scenes
 
-        if shouldShowWatchHistory && !appModel.watchHistory.isEmpty {
+        if shouldShowWatchHistory && !SessionHistoryManager.shared.entries.isEmpty {
           VStack(alignment: .leading, spacing: 12) {
             HStack {
               Text("Recently Watched")
@@ -734,7 +735,7 @@ struct MediaLibraryView: View {
               Spacer()
 
               Button("Clear History") {
-                appModel.watchHistory.removeAll()
+                SessionHistoryManager.shared.clearHistory()
               }
               .buttonStyle(.bordered)
               .foregroundColor(.secondary)
@@ -751,7 +752,7 @@ struct MediaLibraryView: View {
             .padding(.horizontal)
             .padding(.top, 8)
 
-            Text("\(appModel.watchHistory.count) scenes in your watch session")
+            Text("\(SessionHistoryManager.shared.entries.count) scenes in your watch session")
               .font(.caption)
               .foregroundColor(.secondary)
               .padding(.horizontal)
