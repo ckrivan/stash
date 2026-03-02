@@ -60,7 +60,9 @@ struct ContentView: View {
             .onAppear {
               print(
                 "🎬 ContentView: StashScene navigation destination appeared for scene \(scene.id)")
-              SessionHistoryManager.shared.addEntry(scene: scene)
+              if !appModel.skipNextHistoryAdd {
+                SessionHistoryManager.shared.addEntry(scene: scene)
+              }
             }
           }
           .navigationDestination(for: StashScene.Performer.self) { performer in
@@ -143,7 +145,9 @@ struct ContentView: View {
               }
 
               // Settings button
-              NavigationLink(destination: SettingsView().environmentObject(appModel)) {
+              Button(action: {
+                showingSettings = true
+              }) {
                 Image(systemName: "gear")
                   .font(.title2)
                   .foregroundColor(.white)
@@ -156,6 +160,7 @@ struct ContentView: View {
             Spacer()
           }
           .padding(.top, 8)
+          .allowsHitTesting(true)
         }
       }
       .onAppear {

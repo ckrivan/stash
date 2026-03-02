@@ -3429,6 +3429,9 @@ extension VideoPlayerView {
   }
 
   private func playScene(_ scene: StashScene) {
+    // Add to session history
+    SessionHistoryManager.shared.addEntry(scene: scene)
+
     // Get the player from the current view controller
     guard let player = getCurrentPlayer() else {
       print("⚠️ Cannot play scene - player not found")
@@ -3665,6 +3668,10 @@ extension VideoPlayerView {
 
   /// Add scene to watch history when video starts playing
   private func addToWatchHistory() {
+    if appModel.skipNextHistoryAdd {
+      appModel.skipNextHistoryAdd = false
+      return
+    }
     SessionHistoryManager.shared.addEntry(scene: currentScene)
   }
 }

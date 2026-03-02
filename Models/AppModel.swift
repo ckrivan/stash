@@ -23,6 +23,7 @@ class AppModel: ObservableObject {
   @Published var currentMarker: SceneMarker?
   @Published var performerScenes: [StashScene] = []  // Separate array for performer scenes
   // History is now managed by SessionHistoryManager.shared
+  var skipNextHistoryAdd = false
 
   // MARK: - Performer Detail View Context
   @Published var performerDetailViewPerformer: StashScene.Performer?  // Dedicated performer for PerformerDetailView shuffle context
@@ -223,7 +224,7 @@ class AppModel: ObservableObject {
   }
 
   // MARK: - Navigation
-  func navigateToScene(_ scene: StashScene, startSeconds: Double? = nil, endSeconds: Double? = nil)
+  func navigateToScene(_ scene: StashScene, startSeconds: Double? = nil, endSeconds: Double? = nil, skipHistory: Bool = false)
   {
     // Prevent race conditions - if already navigating, skip this request
     guard !isNavigatingToScene else {
@@ -268,9 +269,13 @@ class AppModel: ObservableObject {
       self.currentScene = scene
     }
 
-    // Add to session history via dedicated manager
-    DispatchQueue.main.async {
-      SessionHistoryManager.shared.addEntry(scene: scene, startSeconds: startSeconds)
+    // Add to session history (skip when replaying from history)
+    if skipHistory {
+      skipNextHistoryAdd = true
+    } else {
+      Task { @MainActor in
+        SessionHistoryManager.shared.addEntry(scene: scene, startSeconds: startSeconds)
+      }
     }
 
     // Critical: Clear any stale scene data before setting new scene
@@ -467,6 +472,17 @@ class AppModel: ObservableObject {
 
     DispatchQueue.main.async {
       self.isNavigatingToMarker = true
+    }
+
+    // Add to session history with marker info
+    if let scene = api.scenes.first(where: { $0.id == marker.scene.id }) {
+      Task { @MainActor in
+        SessionHistoryManager.shared.addEntry(
+          scene: scene,
+          startSeconds: Double(marker.seconds),
+          markerTitle: marker.title
+        )
+      }
     }
 
     // Reset flag after a delay to allow navigation to complete
@@ -2415,6 +2431,10 @@ class AppModel: ObservableObject {
 
     print("🎲 Shuffling to next scene: \(nextScene.title)")
 
+    Task { @MainActor in
+      SessionHistoryManager.shared.addEntry(scene: nextScene)
+    }
+
     print("🎲 Preparing for tag shuffle - updating current video player")
 
     // Use the same approach as marker shuffle - update the existing VideoPlayerView instead of navigating
@@ -2570,6 +2590,10 @@ class AppModel: ObservableObject {
     print(
       "🎯 Shuffling to next most played scene: \(nextScene.title ?? "Untitled") (o_counter: \(nextScene.o_counter ?? 0))"
     )
+
+    Task { @MainActor in
+      SessionHistoryManager.shared.addEntry(scene: nextScene)
+    }
 
     // Use the same approach as tag shuffle - update the existing VideoPlayerView
     guard let stream = nextScene.paths.stream else {

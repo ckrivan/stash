@@ -9,6 +9,18 @@ struct SettingsView: View {
   @State private var preferHLSStreaming = true
   @State private var showConfirmation = false
 
+  private var buildDateString: String {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "MMM d, yyyy h:mm a"
+    if let infoPath = Bundle.main.path(forResource: "Info", ofType: "plist"),
+      let attrs = try? FileManager.default.attributesOfItem(atPath: infoPath),
+      let date = attrs[.modificationDate] as? Date
+    {
+      return formatter.string(from: date)
+    }
+    return "Unknown"
+  }
+
   var body: some View {
     NavigationStack {
       Form {
@@ -53,8 +65,16 @@ struct SettingsView: View {
           HStack {
             Text("Version")
             Spacer()
-            Text("2.0.0")
+            Text("\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"))")
               .foregroundColor(.secondary)
+          }
+
+          HStack {
+            Text("Build")
+            Spacer()
+            Text(buildDateString)
+              .foregroundColor(.secondary)
+              .font(.caption)
           }
         }
       }

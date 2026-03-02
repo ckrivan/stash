@@ -2,7 +2,7 @@ import SwiftUI
 
 struct HistoryView: View {
   @EnvironmentObject private var appModel: AppModel
-  @StateObject private var historyManager = SessionHistoryManager.shared
+  @ObservedObject private var historyManager = SessionHistoryManager.shared
 
   private var columns: [GridItem] {
     if UIDevice.current.userInterfaceIdiom == .pad {
@@ -80,9 +80,9 @@ struct HistoryView: View {
 
   private func playEntry(_ entry: HistoryEntry) {
     if let startSeconds = entry.startSeconds {
-      appModel.navigateToScene(entry.scene, startSeconds: startSeconds)
+      appModel.navigateToScene(entry.scene, startSeconds: startSeconds, skipHistory: true)
     } else {
-      appModel.navigateToScene(entry.scene)
+      appModel.navigateToScene(entry.scene, skipHistory: true)
     }
   }
 }
@@ -100,27 +100,38 @@ struct HistoryCard: View {
           if !entry.scene.paths.screenshot.isEmpty,
             let url = URL(string: entry.scene.paths.screenshot)
           {
-            CachedAsyncImage(url: url, width: 500) { image in
-              image
-                .resizable()
-                .aspectRatio(16 / 9, contentMode: .fill)
-            } placeholder: {
-              Rectangle()
-                .fill(Color.gray.opacity(0.3))
-                .aspectRatio(16 / 9, contentMode: .fill)
-                .overlay {
-                  Image(systemName: "film")
-                    .font(.title)
-                    .foregroundColor(.gray)
-                }
+            GeometryReader { geometry in
+              CachedAsyncImage(url: url, width: 500) { image in
+                image
+                  .resizable()
+                  .aspectRatio(16 / 9, contentMode: .fill)
+              } placeholder: {
+                Rectangle()
+                  .fill(Color.gray.opacity(0.3))
+                  .overlay {
+                    Image(systemName: "film")
+                      .font(.title)
+                      .foregroundColor(.gray)
+                  }
+              }
+              .frame(width: geometry.size.width, height: geometry.size.width * 9 / 16)
+              .clipped()
             }
-            .clipped()
+            .aspectRatio(16 / 9, contentMode: .fit)
             .cornerRadius(12)
+            .overlay(
+              RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.green, lineWidth: 2)
+            )
           } else {
             Rectangle()
               .fill(Color.gray.opacity(0.3))
-              .aspectRatio(16 / 9, contentMode: .fill)
+              .aspectRatio(16 / 9, contentMode: .fit)
               .cornerRadius(12)
+              .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                  .stroke(Color.green, lineWidth: 2)
+              )
               .overlay {
                 Image(systemName: "film")
                   .font(.title)
