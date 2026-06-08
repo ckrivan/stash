@@ -33,6 +33,8 @@ struct ScenesGrid: View {
             .stroke(Color.purple.opacity(0.3), lineWidth: 1)
         )
         .onTapGesture {
+          // Tapping a scene directly = watch in order (NOT shuffle mode).
+          UserDefaults.standard.set(false, forKey: "isRandomJumpMode")
           onSceneSelected(scene)
         }
         .onAppear {

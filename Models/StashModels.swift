@@ -12,6 +12,12 @@ struct StashScene: Identifiable, Decodable, Equatable, Hashable {
   let rating100: Int?
   let o_counter: Int?
 
+  /// True for VR content, which is excluded from shuffle / random-play pools.
+  /// Identified by the "vr" tag (case-insensitive).
+  var isVR: Bool {
+    tags.contains { $0.name.lowercased() == "vr" }
+  }
+
   static func == (lhs: StashScene, rhs: StashScene) -> Bool {
     return lhs.id == rhs.id
   }

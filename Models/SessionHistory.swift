@@ -4,7 +4,7 @@ import SwiftUI
 /// Entry in the session history
 struct HistoryEntry: Identifiable, Equatable {
   let id = UUID()
-  let scene: StashScene
+  var scene: StashScene
   let timestamp: Date
   let startSeconds: Double?
   let markerTitle: String?
@@ -54,6 +54,16 @@ class SessionHistoryManager: ObservableObject {
     }
 
     print("📜 History: Added '\(scene.title ?? "Untitled")' (total: \(entries.count))")
+  }
+
+  /// Update the stored scene for any matching history entries (e.g. after an o-counter
+  /// increment) so the history view reflects the new value live.
+  func updateScene(_ updated: StashScene) {
+    // Mutate the scene in place so the entry's identity (id) is preserved and the
+    // history card updates without re-creating/flickering.
+    for index in entries.indices where entries[index].scene.id == updated.id {
+      entries[index].scene = updated
+    }
   }
 
   /// Clear all history

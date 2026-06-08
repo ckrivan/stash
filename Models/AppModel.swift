@@ -38,6 +38,11 @@ class AppModel: ObservableObject {
   // MARK: - Navigation
   @Published var navigationPath = NavigationPath()
 
+  /// The EXACT list the user started playback from (normal list, watch history, performer
+  /// results, or a library-random pool). The video player's X navigation walks THIS list,
+  /// leaving the displayed `api.scenes` untouched so the scene row is unchanged on exit.
+  @Published var playbackScenes: [StashScene] = []
+
   // MARK: - API
   @Published private(set) var api: StashAPI
   private var cancellables = Set<AnyCancellable>()
@@ -387,7 +392,7 @@ class AppModel: ObservableObject {
               "variables": {
                   "filter": {
                       "page": 1,
-                      "per_page": 100,
+                      "per_page": 200,
                       "sort": "date",
                       "direction": "DESC"
                   },
@@ -976,20 +981,16 @@ class AppModel: ObservableObject {
       }
     }
 
-    // Navigate back to last watched scene in scenes view if we're returning to scenes tab
+    // On manual exit back to the Scenes tab, KEEP the user's original pulled list
+    // (search / filter / library results) visible instead of replacing it with the
+    // watch-history view. We still scroll back to the scene they were last viewing
+    // so they land where they left off.
     if manualExit && activeTab == .scenes {
       DispatchQueue.main.async {
-        let historyEntries = SessionHistoryManager.shared.entries
-        if !historyEntries.isEmpty {
-          print("🎯 HISTORY - Manual exit to scenes tab, will show watch history")
-          UserDefaults.standard.set(true, forKey: "showWatchHistory")
-          print("🎯 HISTORY - Set flag to show watch history (\(historyEntries.count) scenes)")
-
-          // Also set scroll target for the first scene in history
-          if let firstScene = historyEntries.first?.scene {
-            UserDefaults.standard.set(firstScene.id, forKey: "scrollToSceneId")
-            print("🎯 HISTORY - Set scrollToSceneId to first in history: \(firstScene.id)")
-          }
+        // Preserve the original list and scroll back to where the user was.
+        if let currentSceneId = currentSceneId {
+          UserDefaults.standard.set(currentSceneId, forKey: "scrollToSceneId")
+          print("🎯 NAVIGATION - Manual exit to scenes tab: preserving list, scrolling to \(currentSceneId)")
         }
       }
     }

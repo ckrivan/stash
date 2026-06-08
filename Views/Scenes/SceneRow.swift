@@ -157,7 +157,8 @@ struct SceneRow: View {
           }
         }
         .onTapGesture(count: 2) {
-          // Double-tap to select scene
+          // Double-tap to select scene — watch in order (NOT shuffle mode).
+          UserDefaults.standard.set(false, forKey: "isRandomJumpMode")
           if !preservePerformerContext {
             // Clear any performer context from PerformerDetailView to prevent stale context
             appModel.performerDetailViewPerformer = nil
@@ -188,6 +189,8 @@ struct SceneRow: View {
           // Title in separate stack with PURPLE COLOR and UNDERLINE like MarkerRow
           HStack {
             Button(action: {
+              // Tapping the scene title = watch in order (NOT shuffle mode).
+              UserDefaults.standard.set(false, forKey: "isRandomJumpMode")
               if !preservePerformerContext {
                 // Clear any performer context from PerformerDetailView to prevent stale context
                 appModel.performerDetailViewPerformer = nil

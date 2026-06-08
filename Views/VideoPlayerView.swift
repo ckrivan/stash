@@ -607,6 +607,11 @@ struct VideoPlayerView: View {
   @State private var currentMarker: SceneMarker?
   // Track whether we're in random jump mode
   @State private var isRandomJumpMode: Bool = false
+  // Shuffled, no-repeat walk of the current search/context for random-jump "next" (X key).
+  // Rebuilt whenever the underlying context (appModel.api.scenes) changes or is exhausted.
+  @State private var randomShuffleQueue: [StashScene] = []
+  @State private var randomShuffleIndex: Int = 0
+  @State private var randomShuffleContextSignature: String = ""
   // Track whether we're in marker shuffle mode
   @State private var isMarkerShuffleMode: Bool = false
   // Prevent rapid-fire performer shuffle calls
@@ -1815,6 +1820,13 @@ extension VideoPlayerView {
 
             SessionHistoryManager.shared.addEntry(scene: randomScene)
 
+            // Library Random points the PLAYBACK context (not the displayed list) at the
+            // random library pool, so subsequent X presses keep shuffling the library
+            // (+ random jump) while the scene row stays untouched.
+            appModel.playbackScenes = filteredScenes
+            isRandomJumpMode = true
+            UserDefaults.standard.set(true, forKey: "isRandomJumpMode")
+
             // When shuffling to a new scene, update the original performer to first female performer
             // But ONLY if we don't already have an original performer set
             if originalPerformer == nil {
@@ -2030,15 +2042,15 @@ extension VideoPlayerView {
     let currentIndex = contextScenes.firstIndex(of: currentScene) ?? -1
     print("📊 Current scene index: \(currentIndex) out of \(contextScenes.count)")
 
-    // If in random jump mode, pick a random scene instead of sequential
+    // If in random jump mode, walk the context as a shuffled, no-repeat queue
+    // (same path as the X key) instead of re-rolling and looping the same few.
     if isRandomJumpMode && !contextScenes.isEmpty {
-      let otherScenes = contextScenes.filter { $0.id != currentScene.id }
-      guard let randomScene = otherScenes.randomElement() ?? contextScenes.first else { return }
+      guard let nextScene = nextRandomShuffleScene(in: contextScenes) else { return }
 
-      print("🎲 Random shuffle: Jumping to random scene: \(randomScene.title ?? "Untitled")")
-      currentScene = randomScene
-      appModel.currentScene = randomScene
-      playScene(randomScene)
+      print("🎲 Random shuffle: next scene: \(nextScene.title ?? "Untitled")")
+      currentScene = nextScene
+      appModel.currentScene = nextScene
+      playScene(nextScene)
 
       // Perform random jump after scene loads
       DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
@@ -2262,6 +2274,11 @@ extension VideoPlayerView {
 
         SessionHistoryManager.shared.addEntry(scene: randomScene)
 
+        // Library Random (fallback path): point the playback context at the library pool.
+        appModel.playbackScenes = filteredScenes
+        isRandomJumpMode = true
+        UserDefaults.standard.set(true, forKey: "isRandomJumpMode")
+
         // When shuffling to a new scene, update the original performer with female preference
         let femalePerformer = randomScene.performers.first { isLikelyFemalePerformer($0) }
         let newPerformer = femalePerformer ?? randomScene.performers.first
@@ -2371,34 +2388,144 @@ extension VideoPlayerView {
     navigateToNextSceneSequential()
   }
 
-  /// Navigate to a random scene and perform random jump within it
+  /// Navigate to the next scene in random-jump mode and perform a random jump within it.
+  ///
+  /// Walks the CURRENT context (`appModel.api.scenes` — your search / performer / tag
+  /// results) as a shuffled, no-repeat queue: every scene plays once before any repeats,
+  /// so pressing X no longer loops the same few videos. Only when there is no context at
+  /// all does it fall back to a fresh library-random fetch.
   private func navigateToNextSceneWithRandomJump() {
-    let contextScenes = appModel.api.scenes
-    guard !contextScenes.isEmpty else {
-      print("⚠️ No scenes available for random jump navigation")
-      return
-    }
+    Task {
+      // Walk the list the user actually started playback from, falling back to a fresh
+      // library-random pool only when there's genuinely no context.
+      var context = navigationContextScenes
+      if context.isEmpty {
+        context = await fetchFreshRandomScenes()
+      }
 
-    // Pick a RANDOM scene, excluding the current one
-    let otherScenes = contextScenes.filter { $0.id != currentScene.id }
-    guard let randomScene = otherScenes.randomElement() ?? contextScenes.first else { return }
+      await MainActor.run {
+        guard let nextScene = nextRandomShuffleScene(in: context) else {
+          print("⚠️ No scenes available for random jump navigation")
+          return
+        }
 
-    print("🎲 Random shuffle: Jumping to random scene: \(randomScene.title ?? "Untitled")")
-    currentScene = randomScene
-    appModel.currentScene = randomScene
-    playScene(randomScene)
+        print("🎲 Random shuffle: next scene: \(nextScene.title ?? "Untitled")")
+        currentScene = nextScene
+        appModel.currentScene = nextScene
+        playScene(nextScene)
 
-    // Perform random jump after scene loads
-    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-      if let player = self.getCurrentPlayer() {
-        VideoPlayerUtility.jumpToRandomPosition(in: player)
+        // Perform random jump after scene loads
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+          if let player = self.getCurrentPlayer() {
+            VideoPlayerUtility.jumpToRandomPosition(in: player)
+          }
+        }
       }
     }
   }
 
+  /// Returns the next scene from a shuffled, no-repeat walk of `context`.
+  ///
+  /// The queue is rebuilt (reshuffled) when the underlying context changes (a new search)
+  /// or when it has been fully consumed — guaranteeing every scene in the current results
+  /// plays once before any repeats. The freshly-played current scene is pushed off the
+  /// front of a new cycle so a reshuffle never immediately replays it.
+  private func nextRandomShuffleScene(in context: [StashScene]) -> StashScene? {
+    // Omit VR videos from the shuffle pool (see StashScene.isVR — tagged "vr").
+    let pool = context.filter { !$0.isVR }
+    guard !pool.isEmpty else { return nil }
+
+    // Cheap signature to detect when the context (search results) changes underneath us.
+    let signature = "\(pool.count):\(pool.first?.id ?? "")-\(pool.last?.id ?? "")"
+    let needsRebuild =
+      randomShuffleQueue.isEmpty
+      || randomShuffleContextSignature != signature
+      || randomShuffleIndex >= randomShuffleQueue.count
+
+    if needsRebuild {
+      var shuffled = pool.shuffled()
+      // Don't open a fresh cycle with the scene that's already playing.
+      if shuffled.count > 1, shuffled.first?.id == currentScene.id {
+        shuffled.swapAt(0, shuffled.count - 1)
+      }
+      randomShuffleQueue = shuffled
+      randomShuffleContextSignature = signature
+      randomShuffleIndex = 0
+      print("🔀 Built random shuffle queue of \(shuffled.count) scene(s) from current context")
+    }
+
+    let scene = randomShuffleQueue[randomShuffleIndex]
+    randomShuffleIndex += 1
+    return scene
+  }
+
+  /// Fetches a fresh batch of random scenes straight from the library
+  /// (female-preferenced, VR-excluded), mirroring the `,` library-random query.
+  /// Used only as a fallback for random-jump "next" when there is no current
+  /// context to walk (`appModel.api.scenes` is empty).
+  private func fetchFreshRandomScenes() async -> [StashScene] {
+    let query = """
+      {
+          "operationName": "FindScenes",
+          "variables": {
+              "filter": {
+                  "page": 1,
+                  "per_page": 100,
+                  "sort": "random",
+                  "direction": "ASC"
+              },
+              "scene_filter": {
+                  "performer_gender": {
+                      "value": ["FEMALE"],
+                      "modifier": "INCLUDES"
+                  }
+              }
+          },
+          "query": "query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType) { findScenes(filter: $filter, scene_filter: $scene_filter) { count scenes { id title details paths { screenshot preview stream } files { size duration video_codec width height format frame_rate } performers { id name gender scene_count } tags { id name } rating100 } } }"
+      }
+      """
+
+    do {
+      let data = try await appModel.api.executeGraphQLQuery(query)
+
+      struct FindScenesResponse: Decodable {
+        struct DataField: Decodable {
+          struct FindScenes: Decodable {
+            let count: Int
+            let scenes: [StashScene]
+          }
+          let findScenes: FindScenes
+        }
+        let data: DataField
+      }
+
+      let response = try JSONDecoder().decode(FindScenesResponse.self, from: data)
+      // VR is normally filtered server-side, but double-check in memory.
+      return response.data.findScenes.scenes.filter { scene in
+        !scene.tags.contains { $0.name.lowercased() == "vr" }
+      }
+    } catch {
+      print("⚠️ fetchFreshRandomScenes failed: \(error.localizedDescription)")
+      return []
+    }
+  }
+
   /// Navigate to next scene in context list sequentially (no random jump)
+  /// Play the NEXT scene in list order (the same order shown in the scene list).
+  /// Loops back to the first scene after the last. In-order playback — no random jump.
+  /// The list to navigate with X: prefer the captured playback context, but always choose
+  /// whichever of (playback context, displayed list) actually contains the current scene,
+  /// so a stale playbackScenes from an earlier session can't hijack navigation.
+  private var navigationContextScenes: [StashScene] {
+    let pb = appModel.playbackScenes
+    let display = appModel.api.scenes
+    if pb.contains(where: { $0.id == currentScene.id }) { return pb }
+    if display.contains(where: { $0.id == currentScene.id }) { return display }
+    return pb.isEmpty ? display : pb
+  }
+
   private func navigateToNextSceneSequential() {
-    let contextScenes = appModel.api.scenes
+    let contextScenes = navigationContextScenes
     let currentIndex = contextScenes.firstIndex(of: currentScene) ?? -1
 
     if currentIndex >= 0 && currentIndex < contextScenes.count - 1 {
@@ -3472,8 +3599,8 @@ extension VideoPlayerView {
     let character = key.character
     switch character.lowercased() {
     case "v":
-      // V KEY: ONLY for marker shuffle navigation
-      // V is dedicated to markers - use X for all other shuffle modes
+      // V KEY: marker playback only — next marker when playing a combined-marker queue.
+      // V is for markers; X drives scene navigation (shuffle or in-order).
       if appModel.isMarkerShuffleMode && !appModel.markerShuffleQueue.isEmpty {
         print("🎹 V - Next marker (marker shuffle mode)")
         if let nextMarker = appModel.nextMarkerInShuffle() {
@@ -3482,7 +3609,7 @@ extension VideoPlayerView {
           print("🎹 V - No more markers in shuffle queue")
         }
       } else {
-        print("🎹 V - Not in marker shuffle mode (use X for universal next)")
+        print("🎹 V - Not in marker shuffle mode (no-op)")
       }
       return .handled
 

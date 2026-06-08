@@ -1033,19 +1033,32 @@ class StashAPI: ObservableObject {
   /// Fallback method for loading scenes when the standard fetching fails
   private func tryFallbackSceneLoading(page: Int, sort: String, direction: String) async {
     do {
-      // Simpler query structure using GraphQL query
       let randomSeed = Int.random(in: 0...999999)
       let sortField = sort == "random" ? "random_\(randomSeed)" : sort
 
-      // Create a simpler query with minimal fields to test the API
-      // Also include tags for VR filtering
-      let query = """
-        {
-            "query": "{ findScenes(filter: {page: \(page), per_page: 500, sort: \\"date\\", direction: \\"DESC\\"}) { count scenes { id title paths { screenshot stream } tags { id name } } } }"
+      // Simpler query with minimal fields and proper parameterized variables
+      let fallbackQuery = """
+        query FindScenes($filter: FindFilterType) {
+          findScenes(filter: $filter) {
+            count
+            scenes {
+              id
+              title
+              paths { screenshot stream }
+              tags { id name }
+            }
+          }
         }
         """
 
-      let data = try await performGraphQLRequest(query: query)
+      let fallbackVars: [String: Any] = [
+        "filter": [
+          "page": page,
+          "per_page": 500,
+          "sort": sortField,
+          "direction": direction
+        ]
+      ]
 
       struct SimpleScenesResponse: Decodable {
         struct Data: Decodable {
@@ -1075,12 +1088,9 @@ class StashAPI: ObservableObject {
         let data: Data
       }
 
-      // Try to decode the simpler response
-      if let jsonStr = String(data: data, encoding: .utf8) {
-        print("🔍 Fallback response: \(jsonStr.prefix(200))...")
-      }
-
-      let simpleResponse = try JSONDecoder().decode(SimpleScenesResponse.self, from: data)
+      let simpleResponse: SimpleScenesResponse = try await performGraphQLRequest(
+        query: fallbackQuery, variables: fallbackVars
+      )
 
       // If successful, convert simple scenes to full scenes with minimal data
       // Also filter out VR content
@@ -1184,7 +1194,7 @@ class StashAPI: ObservableObject {
 
   // MARK: - Performer Scenes Method
   func fetchPerformerScenes(
-    performerId: String, page: Int = 1, perPage: Int = 100, sort: String = "date",
+    performerId: String, page: Int = 1, perPage: Int = 200, sort: String = "date",
     direction: String = "DESC", appendResults: Bool = false
   ) async {
     isLoading = true
@@ -2320,21 +2330,25 @@ class StashAPI: ObservableObject {
       ]
     ]
 
-    struct TagSearchResponse: Decodable {
-      let findTags: TagsData
+    struct TagSearchResponseLocal: Decodable {
+      struct DataWrapper: Decodable {
+        let findTags: TagsData
+      }
 
       struct TagsData: Decodable {
         let count: Int
         let tags: [StashScene.Tag]
       }
+
+      let data: DataWrapper
     }
 
     executeGraphQLQuery(
       query: graphQLQuery, variables: variables
-    ) { (result: Result<TagSearchResponse, Error>) in
+    ) { (result: Result<TagSearchResponseLocal, Error>) in
       switch result {
       case .success(let response):
-        completion(.success(response.findTags.tags))
+        completion(.success(response.data.findTags.tags))
       case .failure(let error):
         completion(.failure(error))
       }

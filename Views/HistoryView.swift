@@ -79,6 +79,10 @@ struct HistoryView: View {
   }
 
   private func playEntry(_ entry: HistoryEntry) {
+    // Tapping a history card = watch in order through the history list (not shuffle),
+    // so X navigates the history list rather than a stale/empty context.
+    appModel.playbackScenes = historyManager.entries.map { $0.scene }
+    UserDefaults.standard.set(false, forKey: "isRandomJumpMode")
     if let startSeconds = entry.startSeconds {
       appModel.navigateToScene(entry.scene, startSeconds: startSeconds, skipHistory: true)
     } else {
@@ -91,9 +95,12 @@ struct HistoryView: View {
 struct HistoryCard: View {
   let entry: HistoryEntry
   let onTap: () -> Void
+  @EnvironmentObject private var appModel: AppModel
+  @State private var isIncrementingOCounter = false
 
   var body: some View {
-    Button(action: onTap) {
+    VStack(alignment: .leading, spacing: 6) {
+      Button(action: onTap) {
       VStack(alignment: .leading, spacing: 8) {
         // Thumbnail with resume position badge
         ZStack(alignment: .bottomTrailing) {
@@ -186,6 +193,57 @@ struct HistoryCard: View {
       }
     }
     .buttonStyle(.plain)
+
+      // O-counter — tappable, kept as a sibling of the play button so tapping it
+      // increments instead of starting playback.
+      HStack {
+        oCounterButton
+        Spacer()
+      }
+      .padding(.horizontal, 4)
+    }
+  }
+
+  private var oCounterButton: some View {
+    Button {
+      Task { await incrementOCounter() }
+    } label: {
+      HStack(spacing: 3) {
+        if isIncrementingOCounter {
+          ProgressView()
+            .scaleEffect(0.8)
+            .progressViewStyle(CircularProgressViewStyle(tint: .orange))
+        } else {
+          Image(systemName: (entry.scene.o_counter ?? 0) > 0 ? "number.circle.fill" : "plus.circle")
+            .foregroundColor(.orange)
+        }
+        Text("\(entry.scene.o_counter ?? 0)")
+          .foregroundColor(.secondary)
+      }
+      .font(.subheadline)
+      .padding(.horizontal, 8)
+      .padding(.vertical, 4)
+      .background(Color.orange.opacity(0.12))
+      .cornerRadius(6)
+    }
+    .buttonStyle(.plain)
+  }
+
+  private func incrementOCounter() async {
+    guard !isIncrementingOCounter else { return }
+    await MainActor.run { isIncrementingOCounter = true }
+    do {
+      let current = entry.scene.o_counter ?? 0
+      let updated = try await appModel.api.incrementSceneOCounter(
+        sceneID: entry.scene.id, currentValue: current)
+      await MainActor.run {
+        SessionHistoryManager.shared.updateScene(updated)
+        isIncrementingOCounter = false
+      }
+    } catch {
+      print("❌ HISTORY: Failed to increment o_counter for scene \(entry.scene.id): \(error)")
+      await MainActor.run { isIncrementingOCounter = false }
+    }
   }
 
   private func formatTimestamp(_ seconds: Double) -> String {

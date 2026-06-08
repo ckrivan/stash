@@ -58,10 +58,14 @@ struct MediaLibraryView: View {
   @State private var showingSaveSearchDialog = false
   @State private var newSearchName = ""
 
-  // Show watch history when we have watched scenes and the flag is set (returning from video)
+  // Watch history (session) — shown only when the user deliberately toggles it on.
+  @StateObject private var historyManager = SessionHistoryManager.shared
+  @State private var showWatchHistory = false
+
+  // History view is a deliberate, user-toggled overlay. It never hijacks an active search.
   private var shouldShowWatchHistory: Bool {
-    return !SessionHistoryManager.shared.entries.isEmpty && UserDefaults.standard.bool(forKey: "showWatchHistory")
-      && currentFilter == "default" && !isSearching && searchScope == .scenes && searchText.isEmpty
+    return showWatchHistory && !historyManager.entries.isEmpty
+      && !isSearching && searchScope == .scenes && searchText.isEmpty
   }
 
   private var columns: [GridItem] {
@@ -721,11 +725,11 @@ struct MediaLibraryView: View {
         }
         .padding(.top, 40)
       } else {
-        // Show watch history if we have it and user is returning from video session
-        let historyScenes = SessionHistoryManager.shared.entries.map { $0.scene }
+        // Watch history overlay (deliberately toggled) vs. the normal library list.
+        let historyScenes = historyManager.entries.map { $0.scene }
         let displayScenes = shouldShowWatchHistory ? historyScenes : appModel.api.scenes
 
-        if shouldShowWatchHistory && !SessionHistoryManager.shared.entries.isEmpty {
+        if shouldShowWatchHistory && !historyManager.entries.isEmpty {
           VStack(alignment: .leading, spacing: 12) {
             HStack {
               Text("Recently Watched")
@@ -736,23 +740,21 @@ struct MediaLibraryView: View {
 
               Button("Clear History") {
                 SessionHistoryManager.shared.clearHistory()
+                showWatchHistory = false
               }
               .buttonStyle(.bordered)
               .foregroundColor(.secondary)
 
               Button("Show All") {
-                // Clear watch history flag and return to normal view
-                UserDefaults.standard.removeObject(forKey: "showWatchHistory")
-                Task {
-                  await resetAndReload()
-                }
+                // Return to the normal library list (which is still intact underneath).
+                showWatchHistory = false
               }
               .buttonStyle(.borderedProminent)
             }
             .padding(.horizontal)
             .padding(.top, 8)
 
-            Text("\(SessionHistoryManager.shared.entries.count) scenes in your watch session")
+            Text("\(historyManager.entries.count) scenes in your watch session")
               .font(.caption)
               .foregroundColor(.secondary)
               .padding(.horizontal)
@@ -763,6 +765,9 @@ struct MediaLibraryView: View {
           scenes: displayScenes,
           columns: columns,
           onSceneSelected: { scene in
+            // Capture the EXACT list being shown (history or normal) as the playback
+            // context so X navigates this list — without mutating it.
+            appModel.playbackScenes = displayScenes
             appModel.navigateToScene(scene)
           },
           onTagSelected: { selectedTag = $0 },
@@ -781,6 +786,8 @@ struct MediaLibraryView: View {
             if let index = appModel.api.scenes.firstIndex(where: { $0.id == updatedScene.id }) {
               appModel.api.scenes[index] = updatedScene
             }
+            // Keep the history entry in sync so o-counter changes show live in the history view.
+            SessionHistoryManager.shared.updateScene(updatedScene)
           },
           isLoadingMore: isLoadingMore
         )
@@ -795,6 +802,13 @@ struct MediaLibraryView: View {
       if UIDevice.current.userInterfaceIdiom == .pad {
         ToolbarItem(placement: .navigationBarTrailing) {
           HStack {
+            Button {
+              showWatchHistory.toggle()
+            } label: {
+              Image(systemName: showWatchHistory ? "clock.fill" : "clock.arrow.circlepath")
+            }
+            .disabled(historyManager.entries.isEmpty)
+
             Button {
               Task {
                 await resetAndReload()
@@ -908,11 +922,9 @@ struct MediaLibraryView: View {
     print("📱 filterAction called - filter: \(filter), sort: \(sort), direction: \(direction)")
     print("📱 currentFilter before: \(currentFilter)")
 
-    // Clear watch history flag when user explicitly changes filters
-    UserDefaults.standard.removeObject(forKey: "showWatchHistory")
-
-    // Set currentFilter to keep UI in sync
+    // Set currentFilter and exit the history view when the user changes filters
     await MainActor.run {
+      showWatchHistory = false
       currentFilter = filter
     }
 

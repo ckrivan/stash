@@ -471,7 +471,7 @@ struct PerformerDetailView: View {
           "variables": {
               "filter": {
                   "page": 1,
-                  "per_page": 100,
+                  "per_page": 200,
                   "sort": "date",
                   "direction": "DESC"
               },
@@ -557,7 +557,7 @@ struct PerformerDetailView: View {
     await appModel.api.fetchPerformerScenes(
       performerId: performer.id,
       page: 1,
-      perPage: 60,  // Increased page size for better results
+      perPage: 200,  // Cap performer scene loads at 200 so large performers load fully
       sort: "date",
       direction: "DESC",
       appendResults: false
