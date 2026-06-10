@@ -150,6 +150,7 @@ struct PerformerSelectionListView: View {
                   }
                 }
                 .padding(.vertical, 8)
+                .contentShape(Rectangle())
               }
               .buttonStyle(PlainButtonStyle())
             }
@@ -196,7 +197,7 @@ struct PerformerSelectionListView: View {
 
   private func loadPerformers() async {
     isLoading = true
-    await appModel.api.fetchPerformers(
+    appModel.api.fetchPerformers(
       filter: .all, page: 1, appendResults: false, search: ""
     ) { result in
       switch result {

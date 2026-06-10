@@ -92,19 +92,14 @@ struct TagSelectionListView: View {
 
   private func loadTags() async {
     isLoading = true
-    do {
-      try await appModel.api.searchTags(query: "") { result in
-        switch result {
-        case .success(let tags):
-          self.allTags = tags
-        case .failure(let error):
-          print("Error loading tags: \(error)")
-        }
-        self.isLoading = false
+    appModel.api.searchTags(query: "") { result in
+      switch result {
+      case .success(let tags):
+        self.allTags = tags
+      case .failure(let error):
+        print("Error loading tags: \(error)")
       }
-    } catch {
-      print("Error loading tags: \(error)")
-      isLoading = false
+      self.isLoading = false
     }
   }
 
@@ -114,19 +109,14 @@ struct TagSelectionListView: View {
     }
 
     isLoading = true
-    do {
-      try await appModel.api.searchTags(query: query) { result in
-        switch result {
-        case .success(let tags):
-          self.allTags = tags
-        case .failure(let error):
-          print("Error searching tags: \(error)")
-        }
-        self.isLoading = false
+    appModel.api.searchTags(query: query) { result in
+      switch result {
+      case .success(let tags):
+        self.allTags = tags
+      case .failure(let error):
+        print("Error searching tags: \(error)")
       }
-    } catch {
-      print("Error searching tags: \(error)")
-      isLoading = false
+      self.isLoading = false
     }
   }
 

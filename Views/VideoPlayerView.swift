@@ -1,5 +1,6 @@
 import AVKit
 import Combine
+@preconcurrency import Dispatch
 import SwiftUI
 import UIKit
 
@@ -1977,7 +1978,7 @@ extension VideoPlayerView {
       } else {
         print("🎲 ❌ AppModel shuffle queue empty - falling back to old system")
         // Fallback to old system if queue is empty
-        if let currentMarker = currentMarker {
+        if currentMarker != nil {
           handleMarkerShuffle()
           return
         }
@@ -2090,11 +2091,6 @@ extension VideoPlayerView {
         // If we have effectiveStartTime but no marker, try to create one
         if appModel.currentMarker == nil && effectiveStartTime != nil {
           print("🔄 Creating temporary marker from effectiveStartTime")
-
-          // Try to get the primary tag from UserDefaults
-          let sceneId = currentScene.id
-          let isMarkerNavigation = UserDefaults.standard.bool(
-            forKey: "scene_\(sceneId)_isMarkerNavigation")
 
           // Use TagAPI to get a default tag
           Task {
@@ -3338,8 +3334,9 @@ extension VideoPlayerView {
     }
 
     // Fallback to searching for player in view hierarchy
-    if let playerVC = UIApplication.shared.windows.first?.rootViewController?
-      .presentedViewController as? AVPlayerViewController {
+    if let playerVC = UIApplication.shared.connectedScenes
+      .compactMap({ $0 as? UIWindowScene }).first?.windows.first?
+      .rootViewController?.presentedViewController as? AVPlayerViewController {
       // Register this player for future use
       VideoPlayerRegistry.shared.currentPlayer = playerVC.player
       VideoPlayerRegistry.shared.playerViewController = playerVC
@@ -3363,7 +3360,8 @@ extension VideoPlayerView {
   /// Helper method to find the AVPlayerViewController in the view hierarchy
   private func findPlayerViewController() -> AVPlayerViewController? {
     // Try to find the player view controller in the parent hierarchy
-    var parentController = UIApplication.shared.windows.first?.rootViewController
+    var parentController = UIApplication.shared.connectedScenes
+      .compactMap({ $0 as? UIWindowScene }).first?.windows.first?.rootViewController
     while parentController != nil {
       if let playerVC = parentController as? AVPlayerViewController {
         return playerVC
@@ -3516,7 +3514,7 @@ extension VideoPlayerView {
     UserDefaults.standard.set(true, forKey: "isMarkerShuffleMode")
 
     // If we have a current marker, shuffle to another marker with same tag
-    if let currentMarker = currentMarker {
+    if currentMarker != nil {
       Task {
         await findNextMarkerInSameTag()
       }

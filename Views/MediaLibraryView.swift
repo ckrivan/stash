@@ -933,31 +933,21 @@ struct MediaLibraryView: View {
     hasMorePages = true
 
     // Clear scenes to show loading state and force UI refresh
-    let previousScenes = appModel.api.scenes
     await MainActor.run {
       appModel.api.scenes = []
       appModel.objectWillChange.send()
     }
     print("📱 About to call fetchScenes with sort: \(sort)")
 
-    do {
-      if filter == "recently_added" {
-        print("📱 Using VR exclusion fetch for recently added")
-        await appModel.api.fetchScenesExcludingVR(page: 1, sort: sort, direction: direction)
-      } else {
-        await appModel.api.fetchScenes(page: 1, sort: sort, direction: direction, useGridQuery: true)
-      }
-      print("📱 Fetch completed successfully, scenes count: \(appModel.api.scenes.count)")
-      await MainActor.run {
-        appModel.objectWillChange.send()
-      }
-    } catch {
-      // If API call fails, restore previous scenes
-      await MainActor.run {
-        appModel.api.scenes = previousScenes
-        appModel.objectWillChange.send()
-      }
-      print("❌ Filter action failed, restored previous scenes. Error: \(error)")
+    if filter == "recently_added" {
+      print("📱 Using VR exclusion fetch for recently added")
+      await appModel.api.fetchScenesExcludingVR(page: 1, sort: sort, direction: direction)
+    } else {
+      await appModel.api.fetchScenes(page: 1, sort: sort, direction: direction, useGridQuery: true)
+    }
+    print("📱 Fetch completed successfully, scenes count: \(appModel.api.scenes.count)")
+    await MainActor.run {
+      appModel.objectWillChange.send()
     }
   }
 
@@ -1044,7 +1034,6 @@ struct MediaLibraryView: View {
     print(
       "🔥 Loading more markers (page \(currentPage)) for query: '\(searchText)' (current: \(searchedMarkers.count))"
     )
-    let previousCount = searchedMarkers.count
 
     do {
       let newMarkers = try await appModel.api.searchMarkers(
@@ -1083,7 +1072,6 @@ struct MediaLibraryView: View {
     print(
       "🔥 Manual loading more markers (page \(currentPage)) for query: '\(searchText)' (current: \(searchedMarkers.count))"
     )
-    let previousCount = searchedMarkers.count
 
     do {
       let newMarkers = try await appModel.api.searchMarkers(

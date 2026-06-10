@@ -660,19 +660,14 @@ struct PerformerMarkersView: View {
 
   /// Load performers from the API
   private func loadPerformers() async {
-    do {
-      await appModel.api.fetchPerformers { result in
-        switch result {
-        case .success(let performers):
-          Self.logger.info("Successfully loaded \(performers.count) performers")
-        case .failure(let error):
-          Self.logger.error("Error loading performers: \(error.localizedDescription)")
-          showErrorMessage("Failed to load performers: \(error.localizedDescription)")
-        }
+    appModel.api.fetchPerformers { result in
+      switch result {
+      case .success(let performers):
+        Self.logger.info("Successfully loaded \(performers.count) performers")
+      case .failure(let error):
+        Self.logger.error("Error loading performers: \(error.localizedDescription)")
+        showErrorMessage("Failed to load performers: \(error.localizedDescription)")
       }
-    } catch {
-      Self.logger.error("Error loading performers: \(error.localizedDescription)")
-      showErrorMessage("Failed to load performers: \(error.localizedDescription)")
     }
   }
 

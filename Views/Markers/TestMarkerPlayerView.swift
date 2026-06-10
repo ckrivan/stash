@@ -379,7 +379,7 @@ struct TestMarkerPlayerView: View {
 
   // Simplified method to set up a player with just a URL
   private func setupPlayer(withURL url: URL) {
-    guard let marker = marker else { return }
+    guard marker != nil else { return }
 
     print("🎬 Setting up player with URL: \(url)")
 
@@ -674,7 +674,7 @@ struct TestMarkerPlayerView: View {
 
   // Seek to random position
   private func seekToRandomPosition() {
-    guard let player = player, let marker = marker,
+    guard let player = player, marker != nil,
       let duration = player.currentItem?.duration.seconds, duration > 0
     else { return }
 

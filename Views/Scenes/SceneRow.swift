@@ -18,7 +18,7 @@ struct SceneRow: View {
 
   var body: some View {
     // Log scene info for debugging
-    _ = print(
+    print(
       "📱 SCENE ROW: Rendering scene: \(scene.id), title: \(scene.title ?? "missing title")")
     let titleValue = scene.title ?? "Untitled"  // Cache title for consistent use
 

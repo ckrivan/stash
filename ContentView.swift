@@ -49,7 +49,7 @@ struct ContentView: View {
             .presentationDetents([.medium, .large])
           }
           .navigationDestination(for: StashScene.self) { scene in
-            VideoPlayerView(
+            NativeVideoPlayerView(
               scene: scene,
               startTime: UserDefaults.standard.object(forKey: "scene_\(scene.id)_startTime")
                 as? Double,
@@ -74,7 +74,7 @@ struct ContentView: View {
               .environmentObject(appModel)
           }
           .navigationDestination(for: SceneMarker.self) { marker in
-            VideoPlayerView(
+            NativeVideoPlayerView(
               scene: StashScene(
                 id: marker.scene.id,
                 title: nil,
@@ -255,39 +255,35 @@ extension ContentView {
     isLoadingContent = true
 
     Task {
-      do {
-        switch appModel.activeTab {
-        case .scenes:
-          print("📱 Loading scenes for tab")
-          // FIXED: Load "Recently Added" (VR-excluded) as default view
-          // This prevents randomizing when returning from video player
-          if appModel.api.scenes.isEmpty {
-            print("📱 No scenes loaded, loading recently added scenes (excluding VR)")
-            await appModel.api.fetchScenesExcludingVR(
-              page: 1, sort: "created_at", direction: "DESC", appendResults: false)
-          } else {
-            print("📱 Scenes already loaded (\(appModel.api.scenes.count)), preserving order")
-          }
-
-        case .performers:
-          print("📱 Loading performers for tab")
-          appModel.api.fetchPerformers(
-            filter: .twoOrMore, page: 1, appendResults: false, search: ""
-          ) { result in
-            switch result {
-            case .success(let performers):
-              print("✅ Loaded \(performers.count) performers")
-            case .failure(let error):
-              print("❌ Error loading performers: \(error)")
-            }
-          }
-
-        case .history:
-          print("📱 History tab selected - no loading needed")
-        // History is managed by SessionHistoryManager.shared
+      switch appModel.activeTab {
+      case .scenes:
+        print("📱 Loading scenes for tab")
+        // FIXED: Load "Recently Added" (VR-excluded) as default view
+        // This prevents randomizing when returning from video player
+        if appModel.api.scenes.isEmpty {
+          print("📱 No scenes loaded, loading recently added scenes (excluding VR)")
+          await appModel.api.fetchScenesExcludingVR(
+            page: 1, sort: "created_at", direction: "DESC", appendResults: false)
+        } else {
+          print("📱 Scenes already loaded (\(appModel.api.scenes.count)), preserving order")
         }
-      } catch {
-        print("❌ Error loading content for tab \(appModel.activeTab): \(error)")
+
+      case .performers:
+        print("📱 Loading performers for tab")
+        appModel.api.fetchPerformers(
+          filter: .twoOrMore, page: 1, appendResults: false, search: ""
+        ) { result in
+          switch result {
+          case .success(let performers):
+            print("✅ Loaded \(performers.count) performers")
+          case .failure(let error):
+            print("❌ Error loading performers: \(error)")
+          }
+        }
+
+      case .history:
+        print("📱 History tab selected - no loading needed")
+      // History is managed by SessionHistoryManager.shared
       }
 
       await MainActor.run {

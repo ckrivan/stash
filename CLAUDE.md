@@ -65,3 +65,42 @@ When requesting interface design:
 - Specify platform-specific guidelines you want to follow
 
 Remember: Claude excels when given clear direction and specific requirements while also being asked to apply critical thinking to problems.
+
+## blitz-ios
+
+This project is opened in **Blitz**, a web-based iOS development IDE with integrated simulator streaming. The user sees a live simulator view in their browser alongside your code. Blitz manages the build pipeline, simulator lifecycle, and dev servers — you focus on writing code.
+
+### Important: What Blitz Manages (Do NOT Do These Manually)
+
+- **Do not start the iOS simulator** — Blitz boots and manages it
+
+- **Do not modify build settings or signing** — managed by Blitz
+
+### MCP Tools (`blitz-ios`)
+
+The `blitz-ios` MCP server (`.mcp.json`) lets you control the iOS simulator and query project state. Use these tools to test your changes autonomously.
+
+**Simulator interaction:**
+- `device_action` — Perform a single action: `tap`, `swipe`, `button` (HOME/LOCK/SIRI), `input-text`, `key`, `key-sequence`. Supports `describe_after` to capture screen state after the action.
+- `device_actions` — Execute multiple actions in sequence (batch). Same action types, with optional `describe_after` at the end.
+- `describe_screen` — Get the full UI element hierarchy (element types, labels, positions, frames). Use this to understand what's on screen before interacting.
+- `describe_point` — Get the UI element at specific (x, y) coordinates.
+
+**Project state and logs:**
+- `get_project_state` — Get runtime status, project type, dev server URLs/ports, error state, and simulator UDID. Call with `projectDir` set to your current working directory.
+- `query_server_logs` — Query server-side logs (sources: `vite`, `metro`, `ios-build`, `backend`, `runtime`). Supports filtering by level, source, timestamp, and search text.
+- `query_backend_logs` — Query application-level backend logs (console.log/error from user code).
+- `list_issues` — Get issues filed by the user via Blitz's visual issue tracker. Issues are pinned to screen locations and include UI element metadata.
+
+### Testing Workflow
+
+After making code changes:
+1. Wait briefly for hot reload / rebuild
+2. Use `describe_screen` to verify the UI updated as expected
+3. Use `device_action` to interact (tap buttons, enter text, navigate)
+4. Use `describe_screen` again to verify the result
+5. Check `query_server_logs` if something looks wrong
+
+### Issue Tracking
+
+Users can file visual issues by tapping directly on the simulator stream in Blitz. These issues include the screen coordinates, a description, and metadata about the tapped UI element. Use `list_issues` to see open issues and fix them.

@@ -33,7 +33,6 @@ struct PerformerRow: View {
       }
       .frame(width: 120, height: 120)
       .clipShape(Circle())
-      .contentShape(Circle())
       .simultaneousGesture(
         LongPressGesture(minimumDuration: 0.2)
           .onChanged { _ in startPreview() }

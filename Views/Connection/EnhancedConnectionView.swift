@@ -174,7 +174,7 @@ struct EnhancedConnectionView: View {
 
       Button(action: {
         Task {
-          await appModel.api.testConnection { _ in
+          appModel.api.testConnection { _ in
             // Handle completion
           }
         }

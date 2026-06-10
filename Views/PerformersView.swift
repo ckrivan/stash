@@ -132,7 +132,7 @@ struct PerformersView: View {
     isLoading = true
 
     // Since we're using filter .twoOrMore and it already sets to > 2 scenes
-    await appModel.api.fetchPerformers(
+    appModel.api.fetchPerformers(
       filter: .twoOrMore,
       page: 1,
       appendResults: false,

@@ -133,10 +133,6 @@ struct PerformerTabView: View {
         "🚀 TASK: PerformerTabView appeared, selectedTab: \(selectedTab), performer: \(performer.name) (ID: \(performer.id))"
       )
 
-      // Avoid any existing tasks with a unique ID
-      let taskID = UUID()
-      let currentTaskID = taskID
-
       // Clear any previous content immediately to avoid stale data
       await MainActor.run {
         print("🚀 Clearing existing data and showing loading state")
@@ -295,21 +291,10 @@ struct PerformerTabView: View {
               onPerformerSelected: { _ in },  // Ignore performer selection in performer view
               onSceneUpdated: { _ in },
               onSceneSelected: { selectedScene in
-                if let stream = selectedScene.paths.stream,
-                   let url = URL(string: stream) {
-                  if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                    let window = windowScene.windows.first,
-                    let rootViewController = window.rootViewController {
-                    let controller = VideoPlayerUtility.createPlayerViewController(
-                      url: url,
-                      startTime: UserDefaults.standard.getVideoProgress(for: selectedScene.id),
-                      scenes: appModel.api.scenes,
-                      currentIndex: appModel.api.scenes.firstIndex(of: selectedScene) ?? 0,
-                      appModel: appModel
-                    )
-                    rootViewController.present(controller, animated: true)
-                  }
-                }
+                // Present via the shared navigation destination -> NativeVideoPlayerView
+                let progress = UserDefaults.standard.getVideoProgress(for: selectedScene.id)
+                appModel.navigateToScene(
+                  selectedScene, startSeconds: progress > 0 ? progress : nil)
               },
               preservePerformerContext: true
             )
@@ -321,21 +306,9 @@ struct PerformerTabView: View {
                 .stroke(Color.purple.opacity(0.3), lineWidth: 1)
             )
             .onTapGesture {
-              if let stream = scene.paths.stream,
-                 let url = URL(string: stream) {
-                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                  let window = windowScene.windows.first,
-                  let rootViewController = window.rootViewController {
-                  let controller = VideoPlayerUtility.createPlayerViewController(
-                    url: url,
-                    startTime: UserDefaults.standard.getVideoProgress(for: scene.id),
-                    scenes: appModel.api.scenes,
-                    currentIndex: appModel.api.scenes.firstIndex(of: scene) ?? 0,
-                    appModel: appModel
-                  )
-                  rootViewController.present(controller, animated: true)
-                }
-              }
+              // Present via the shared navigation destination -> NativeVideoPlayerView
+              let progress = UserDefaults.standard.getVideoProgress(for: scene.id)
+              appModel.navigateToScene(scene, startSeconds: progress > 0 ? progress : nil)
             }
             .onAppear {
               if scene == appModel.api.scenes.last && !isLoadingMore && hasMorePages {
@@ -889,7 +862,7 @@ struct PerformerTabView: View {
             print("  [\(index)] Marker: \(marker.title)")
 
             if let performers = marker.scene.performers {
-              var performerNames = performers.map { $0.name }
+              let performerNames = performers.map { $0.name }
               print("    Has performers: \(performerNames.joined(separator: ", "))")
             }
           }

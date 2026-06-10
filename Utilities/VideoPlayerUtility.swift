@@ -488,7 +488,7 @@ class GlobalVideoManager {
   func unregisterPlayer(_ player: AVPlayer) {
     DispatchQueue.main.async {
       self.activePlayers.remove(player)
-      if let token = self.observationTokens[player] {
+      if self.observationTokens[player] != nil {
         self.observationTokens.removeValue(forKey: player)
       }
       print("🎬 GlobalVideoManager: Unregistered player, total active: \(self.activePlayers.count)")

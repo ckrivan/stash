@@ -51,7 +51,7 @@ struct PerformerSelectionView: View {
 
   private func loadPerformers() async {
     isLoading = true
-    await appModel.api.fetchPerformers(
+    appModel.api.fetchPerformers(
       filter: .all, page: 1, appendResults: false, search: ""
     ) { _ in }
     performers = appModel.api.performers

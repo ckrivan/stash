@@ -160,26 +160,19 @@ struct CreateMarkerView: View {
     isLoading = true
 
     Task {
-      do {
-        print("Creating marker for scene: \(sceneID) at \(seconds) with tag: \(primaryTagId)")
-        _ = try await appModel.api.createSceneMarker(
-          sceneId: sceneID,
-          title: primaryTagName,  // Use tag name as title
-          seconds: secondsFloat,
-          primaryTagId: primaryTagId,
-          tagIds: []  // Empty array for additional tags
-        ) { _ in
-          // Completion handler - result is handled by the await pattern
-        }
-        await MainActor.run {
-          onMarkerCreated()
-          dismiss()
-        }
-      } catch {
-        print("❌ Error creating marker: \(error)")
-        errorMessage = error.localizedDescription
-        showError = true
-        isLoading = false
+      print("Creating marker for scene: \(sceneID) at \(seconds) with tag: \(primaryTagId)")
+      appModel.api.createSceneMarker(
+        sceneId: sceneID,
+        title: primaryTagName,  // Use tag name as title
+        seconds: secondsFloat,
+        primaryTagId: primaryTagId,
+        tagIds: []  // Empty array for additional tags
+      ) { _ in
+        // Completion handler - result is handled by the await pattern
+      }
+      await MainActor.run {
+        onMarkerCreated()
+        dismiss()
       }
     }
   }

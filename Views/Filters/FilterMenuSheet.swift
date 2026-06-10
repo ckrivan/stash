@@ -46,8 +46,6 @@ struct FilterMenuSheet: View {
       }
       .padding(.vertical, 8)
 
-      Spacer()
-
       // Advanced filter button
       Button {
         // Cancel this sheet and show advanced filters

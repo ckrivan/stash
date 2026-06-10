@@ -119,10 +119,11 @@ class MarkerViewModel: ObservableObject {
         }
       }
 
+      let capturedTags = tags
       await MainActor.run {
         self.markers = loadedMarkers
         self.filteredMarkers = loadedMarkers
-        self.availableTags = Array(tags).sorted { $0.name < $1.name }
+        self.availableTags = Array(capturedTags).sorted { $0.name < $1.name }
         self.isLoading = false
         self.hasMorePages = loadedMarkers.count >= 100  // Assuming 100 per page
       }
@@ -169,10 +170,11 @@ class MarkerViewModel: ObservableObject {
         }
       }
 
+      let capturedTags2 = tags
       await MainActor.run {
         self.markers = loadedMarkers
         self.filteredMarkers = loadedMarkers
-        self.availableTags = Array(tags).sorted { $0.name < $1.name }
+        self.availableTags = Array(capturedTags2).sorted { $0.name < $1.name }
         self.isLoading = false
         self.hasMorePages = loadedMarkers.count >= 40
         print("🧩 DEBUG MARKERVM: Updated state with \(self.markers.count) markers")
@@ -250,10 +252,11 @@ class MarkerViewModel: ObservableObject {
         }
       }
 
+      let capturedTags3 = tags
       await MainActor.run {
         self.markers = loadedMarkers
         self.filteredMarkers = loadedMarkers
-        self.availableTags = Array(tags).sorted { $0.name < $1.name }
+        self.availableTags = Array(capturedTags3).sorted { $0.name < $1.name }
         self.isLoading = false
         self.hasMorePages = loadedMarkers.count >= 40  // Assuming 40 per page
       }

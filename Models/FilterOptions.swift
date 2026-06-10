@@ -24,19 +24,26 @@ class FilterOptions: ObservableObject {
       ]
     }
 
-    // Resolution filter
+    // Resolution filter — map display strings to Stash ResolutionEnum values
     if let resolution = selectedResolution {
+      let enumValue: String
+      switch resolution {
+      case "240p": enumValue = "LOW"
+      case "480p": enumValue = "STANDARD"
+      case "720p": enumValue = "STANDARD_HD"
+      case "1080p": enumValue = "FULL_HD"
+      case "4K": enumValue = "FOUR_K"
+      default: enumValue = "FULL_HD"
+      }
       sceneFilter["resolution"] = [
-        "value": resolution,
+        "value": enumValue,
         "modifier": "EQUALS"
       ]
     }
 
-    // Favorites filter
+    // Favorites filter — performer_favorite is a bare Boolean in SceneFilterType
     if isFavoritesOnly {
-      sceneFilter["favorite"] = [
-        "value": true
-      ]
+      sceneFilter["performer_favorite"] = true
     }
 
     // Duration filter
@@ -54,20 +61,22 @@ class FilterOptions: ObservableObject {
       ]
     }
 
-    // Tags filter
+    // Tags filter — HierarchicalMultiCriterionInput
     if !selectedTagIds.isEmpty {
       sceneFilter["tags"] = [
         "value": selectedTagIds,
-        "modifier": "INCLUDES"
-      ]
+        "excludes": [] as [String],
+        "modifier": "INCLUDES_ALL"
+      ] as [String: Any]
     }
 
-    // Performers filter
+    // Performers filter — MultiCriterionInput
     if !selectedPerformerIds.isEmpty {
       sceneFilter["performers"] = [
         "value": selectedPerformerIds,
-        "modifier": "INCLUDES"
-      ]
+        "excludes": [] as [String],
+        "modifier": "INCLUDES_ALL"
+      ] as [String: Any]
     }
 
     return sceneFilter

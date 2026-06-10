@@ -93,7 +93,6 @@ struct SceneSelectionView: View {
 
     // We'll simulate pagination for now
     // In a real implementation, you'd want to add page parameter to searchScenes
-    let previousCount = scenes.count
     hasMorePages = false  // For simplicity, disable pagination for now
     isLoading = false
   }

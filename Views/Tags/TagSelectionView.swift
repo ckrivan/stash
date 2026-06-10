@@ -132,16 +132,12 @@ struct TagSelectionView: View {
 
     if !missingTagIds.isEmpty {
       print("🏷️ Fetching \(missingTagIds.count) missing tags")
-      do {
-        for tagId in missingTagIds {
-          try await appModel.api.findTag(id: tagId) { result in
-            if case .success(let tag) = result {
-              self.tags.append(tag)
-            }
+      for tagId in missingTagIds {
+        appModel.api.findTag(id: tagId) { result in
+          if case .success(let tag) = result {
+            self.tags.append(tag)
           }
         }
-      } catch {
-        print("❌ Error fetching missing tags: \(error)")
       }
     }
 
@@ -167,21 +163,17 @@ struct TagSelectionView: View {
   }
 
   private func searchTags(query: String) async {
-    do {
-      try await appModel.api.searchTags(query: query) { result in
-        switch result {
-        case .success(let foundTags):
-          self.tags = foundTags
-          print("🏷️ Loaded \(self.tags.count) tags from search")
-          Task {
-            await self.loadRecentTags()
-          }
-        case .failure(let error):
-          print("❌ Error searching tags: \(error)")
+    appModel.api.searchTags(query: query) { result in
+      switch result {
+      case .success(let foundTags):
+        self.tags = foundTags
+        print("🏷️ Loaded \(self.tags.count) tags from search")
+        Task {
+          await self.loadRecentTags()
         }
+      case .failure(let error):
+        print("❌ Error searching tags: \(error)")
       }
-    } catch {
-      print("❌ Error searching tags: \(error)")
     }
   }
 

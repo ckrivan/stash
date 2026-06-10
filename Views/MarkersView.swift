@@ -964,8 +964,6 @@ struct MarkersView: View {
 
     print("🔄 Loading more search results for query '\(appModel.searchQuery)' (page \(currentPage))")
 
-    // Preserve current marker count for comparison
-    let previousCount = allMarkers.count
     let previousIds = Set(allMarkers.map { $0.id })
 
     // Use pagination parameter for fetching next page
@@ -1081,7 +1079,6 @@ struct MarkersView: View {
     isLoadingMore = true
 
     let nextPage = currentPage + 1
-    let previousCount = allMarkers.count
 
     if let tagId = selectedTagId {
       await appModel.api.fetchMarkersByTag(tagId: tagId, page: nextPage, appendResults: true)
@@ -1116,7 +1113,6 @@ struct MarkersView: View {
     currentPage += 1
 
     print("🔥 Loading more markers (page \(currentPage))")
-    let previousCount = allMarkers.count
     await appModel.api.fetchMarkers(page: currentPage, appendResults: true, perPage: 50)
 
     // Add new markers without duplicates

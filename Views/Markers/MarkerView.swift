@@ -26,7 +26,7 @@ struct MarkerView: View {
 
   private func getNavigationTitle() -> String {
     if let scene = scene {
-      return "Markers: \(scene.title)"
+      return "Markers: \(scene.title ?? "Untitled")"
     } else if let performer = performer {
       return "\(performer.name)'s Markers"
     } else {
@@ -58,7 +58,7 @@ struct MarkerView: View {
         .padding()
 
       if let scene = scene {
-        Text("No markers for \(scene.title)")
+        Text("No markers for \(scene.title ?? "Untitled")")
           .font(.headline)
       } else if let performer = performer {
         Text("No markers for \(performer.name)")

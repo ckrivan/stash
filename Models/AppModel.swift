@@ -313,7 +313,7 @@ class AppModel: ObservableObject {
       // This prevents race conditions that cause double VideoPlayerViews
       DispatchQueue.main.async {
         if !self.navigationPath.isEmpty {
-          _ = self.navigationPath.removeLast()
+          self.navigationPath.removeLast()
         }
         // Immediately append new scene in the same atomic operation
         self.navigationPath.append(scene)
@@ -599,14 +599,16 @@ class AppModel: ObservableObject {
 
         // Make sure the VideoPlayerViewModel is set up with the end time - ensure main thread for @Published
         if let endSeconds = endSeconds {
-          DispatchQueue.main.async {
+          let capturedEndSeconds = endSeconds
+          Task { @MainActor [weak self] in
+            guard let self else { return }
             if let playerViewModel = self.playerViewModel as? VideoPlayerViewModel {
               print("⏱ Setting endSeconds in existing playerViewModel")
-              playerViewModel.endSeconds = endSeconds
+              playerViewModel.endSeconds = capturedEndSeconds
             } else {
               print("⏱ Creating new playerViewModel with endSeconds")
               let viewModel = VideoPlayerViewModel()
-              viewModel.endSeconds = endSeconds
+              viewModel.endSeconds = capturedEndSeconds
               self.playerViewModel = viewModel
             }
           }
@@ -1148,7 +1150,10 @@ class AppModel: ObservableObject {
 
     // ALL UI operations must happen on main thread to avoid Main Thread Checker warnings
     let getPlayersOnMainThread = {
-      for window in UIApplication.shared.windows {
+      let windows = UIApplication.shared.connectedScenes
+        .compactMap { $0 as? UIWindowScene }
+        .flatMap { $0.windows }
+      for window in windows {
         players.append(contentsOf: self.findPlayers(in: window.rootViewController))
       }
     }
@@ -1401,15 +1406,17 @@ class AppModel: ObservableObject {
       try? await Task.sleep(nanoseconds: 100_000_000)  // 0.1 second
 
       // Update queue with expanded results every page
+      let capturedMarkers1 = allMarkers
       await MainActor.run {
-        self.markerShuffleQueue = allMarkers.shuffled()
+        self.markerShuffleQueue = capturedMarkers1.shuffled()
         print("🔄 Updated shuffle queue with \(self.markerShuffleQueue.count) markers")
       }
     }
 
+    let capturedMarkersFinal = allMarkers
     await MainActor.run {
       // Final update with all markers
-      self.markerShuffleQueue = allMarkers.shuffled()
+      self.markerShuffleQueue = capturedMarkersFinal.shuffled()
       self.api.isLoading = false
       print(
         "✅ Optimized shuffle queue created with \(self.markerShuffleQueue.count) total markers for tag: \(tagName)"
@@ -1477,14 +1484,16 @@ class AppModel: ObservableObject {
       }
 
       // Update queue with expanded results every page
+      let capturedMarkersPage = allMarkers
       await MainActor.run {
-        self.markerShuffleQueue = allMarkers.shuffled()
+        self.markerShuffleQueue = capturedMarkersPage.shuffled()
         print("🔄 Updated shuffle queue with \(self.markerShuffleQueue.count) markers")
       }
     }
 
+    let capturedMarkersMultiFinal = allMarkers
     await MainActor.run {
-      self.markerShuffleQueue = allMarkers.shuffled()
+      self.markerShuffleQueue = capturedMarkersMultiFinal.shuffled()
       self.api.isLoading = false
       print("✅ Multi-tag shuffle queue: \(self.markerShuffleQueue.count) total markers (equal weight)")
     }
@@ -1623,7 +1632,8 @@ class AppModel: ObservableObject {
     // Check if we have any tags for server-side shuffle
     guard !shuffleTagNames.isEmpty else {
       print("❌ No tags available for server-side shuffle - falling back to client-side shuffle")
-      DispatchQueue.main.async {
+      Task { @MainActor [weak self] in
+        guard let self else { return }
         // Fall back to client-side shuffle using existing queue
         if let nextMarker = self.nextMarkerInShuffle() {
           print("🎲 Fallback: Using client-side shuffle queue")
@@ -1775,10 +1785,11 @@ class AppModel: ObservableObject {
       currentPage += 1
     }
 
+    let capturedAllMarkers = allMarkers
     await MainActor.run {
       self.api.isLoading = false
 
-      if allMarkers.isEmpty {
+      if capturedAllMarkers.isEmpty {
         print("⚠️ No markers found for search: '\(query)'")
         self.stopMarkerShuffle()
         return
@@ -1786,19 +1797,19 @@ class AppModel: ObservableObject {
 
       // Debug: Final verification that all markers match the query
       print("🔍 Final verification of shuffle queue for query: '\(query)'")
-      let matchingMarkers = allMarkers.filter { marker in
+      let matchingMarkers = capturedAllMarkers.filter { marker in
         marker.title.lowercased().contains(query.lowercased())
           || marker.primary_tag.name.lowercased().contains(query.lowercased())
           || marker.tags.contains { $0.name.lowercased().contains(query.lowercased()) }
       }
-      print("🔍 Total markers: \(allMarkers.count), Matching query: \(matchingMarkers.count)")
+      print("🔍 Total markers: \(capturedAllMarkers.count), Matching query: \(matchingMarkers.count)")
 
-      if matchingMarkers.count != allMarkers.count {
+      if matchingMarkers.count != capturedAllMarkers.count {
         print("⚠️ WARNING: Not all markers match the search query!")
         // Use only the matching markers
         self.markerShuffleQueue = matchingMarkers.shuffled()
       } else {
-        self.markerShuffleQueue = allMarkers.shuffled()
+        self.markerShuffleQueue = capturedAllMarkers.shuffled()
       }
 
       self.currentShuffleIndex = 0
@@ -1816,9 +1827,7 @@ class AppModel: ObservableObject {
         if !self.navigationPath.isEmpty {
           print(
             "🔄 Already in navigation context - using direct marker update instead of navigation")
-          DispatchQueue.main.async {
-            self.currentMarker = firstMarker
-          }
+          self.currentMarker = firstMarker
 
           // Set marker context flags
           UserDefaults.standard.set(
@@ -2210,69 +2219,62 @@ class AppModel: ObservableObject {
     }
 
     // Fetch markers for this tag from server (limited for performance)
-    do {
-      var allTagMarkers: [SceneMarker] = []
-      var currentPage = 1
-      let maxPages = 5  // Reduced from 20 to prevent freezing
-      let maxMarkers = 1000  // Cap at 1000 markers for performance
+    var allTagMarkers: [SceneMarker] = []
+    var currentPage = 1
+    let maxPages = 5  // Reduced from 20 to prevent freezing
+    let maxMarkers = 1000  // Cap at 1000 markers for performance
 
-      while currentPage <= maxPages && allTagMarkers.count < maxMarkers {
-        print("🔄 Loading page \(currentPage) for tag: \(tagName)")
+    while currentPage <= maxPages && allTagMarkers.count < maxMarkers {
+      print("🔄 Loading page \(currentPage) for tag: \(tagName)")
 
-        // Use larger batch size to reduce marker cap
-        await api.fetchMarkersByTag(
-          tagId: tagId, page: currentPage, appendResults: false, perPage: 2000)
-        let newMarkers = api.markers
+      // Use larger batch size to reduce marker cap
+      await api.fetchMarkersByTag(
+        tagId: tagId, page: currentPage, appendResults: false, perPage: 2000)
+      let newMarkers = api.markers
 
-        if newMarkers.isEmpty {
-          print("📄 No more markers found on page \(currentPage), stopping")
-          break
-        }
-
-        // Add unique markers to avoid duplicates
-        let uniqueMarkers = newMarkers.filter { newMarker in
-          !allTagMarkers.contains { $0.id == newMarker.id }
-        }
-        allTagMarkers.append(contentsOf: uniqueMarkers)
-
-        print(
-          "📊 Page \(currentPage): Found \(newMarkers.count) markers, \(uniqueMarkers.count) unique (Total: \(allTagMarkers.count))"
-        )
-
-        // If we got less than the full page size, we're done
-        if newMarkers.count < 2000 {
-          break
-        }
-
-        currentPage += 1
-
-        // Add small delay to prevent overwhelming the server
-        try? await Task.sleep(nanoseconds: 100_000_000)  // 0.1 second
+      if newMarkers.isEmpty {
+        print("📄 No more markers found on page \(currentPage), stopping")
+        break
       }
 
-      await MainActor.run {
-        // Create shuffled queue
-        self.markerShuffleQueue = allTagMarkers.shuffled()
-
-        // Find the current marker in the queue and set that as starting point
-        if let currentIndex = self.markerShuffleQueue.firstIndex(where: { $0.id == marker.id }) {
-          self.currentShuffleIndex = currentIndex
-          print("🎯 Found current marker at shuffled index \(currentIndex)")
-        } else {
-          self.currentShuffleIndex = 0
-          print("⚠️ Current marker not found in queue, starting at index 0")
-        }
-
-        print(
-          "✅ Auto-shuffle queue created with \(self.markerShuffleQueue.count) total markers for tag: \(tagName)"
-        )
+      // Add unique markers to avoid duplicates
+      let uniqueMarkers = newMarkers.filter { newMarker in
+        !allTagMarkers.contains { $0.id == newMarker.id }
       }
-    } catch {
-      print("❌ Error auto-starting marker shuffle: \(error)")
-      await MainActor.run {
-        // Reset shuffle state if failed
-        self.stopMarkerShuffle()
+      allTagMarkers.append(contentsOf: uniqueMarkers)
+
+      print(
+        "📊 Page \(currentPage): Found \(newMarkers.count) markers, \(uniqueMarkers.count) unique (Total: \(allTagMarkers.count))"
+      )
+
+      // If we got less than the full page size, we're done
+      if newMarkers.count < 2000 {
+        break
       }
+
+      currentPage += 1
+
+      // Add small delay to prevent overwhelming the server
+      try? await Task.sleep(nanoseconds: 100_000_000)  // 0.1 second
+    }
+
+    let capturedTagMarkers = allTagMarkers
+    await MainActor.run {
+      // Create shuffled queue
+      self.markerShuffleQueue = capturedTagMarkers.shuffled()
+
+      // Find the current marker in the queue and set that as starting point
+      if let currentIndex = self.markerShuffleQueue.firstIndex(where: { $0.id == marker.id }) {
+        self.currentShuffleIndex = currentIndex
+        print("🎯 Found current marker at shuffled index \(currentIndex)")
+      } else {
+        self.currentShuffleIndex = 0
+        print("⚠️ Current marker not found in queue, starting at index 0")
+      }
+
+      print(
+        "✅ Auto-shuffle queue created with \(self.markerShuffleQueue.count) total markers for tag: \(tagName)"
+      )
     }
   }
 
@@ -2364,15 +2366,16 @@ class AppModel: ObservableObject {
       }
     }
 
-    print("✅ Loaded total of \(allScenes.count) scenes for tag '\(tagName)'")
+    let capturedAllScenes = allScenes
+    print("✅ Loaded total of \(capturedAllScenes.count) scenes for tag '\(tagName)'")
 
     // Create shuffled queue
     await MainActor.run {
       // Show success message briefly
-      if !allScenes.isEmpty {
-        print("✅ Successfully loaded \(allScenes.count) scenes for shuffle")
+      if !capturedAllScenes.isEmpty {
+        print("✅ Successfully loaded \(capturedAllScenes.count) scenes for shuffle")
       }
-      tagSceneShuffleQueue = allScenes.shuffled()
+      tagSceneShuffleQueue = capturedAllScenes.shuffled()
       currentTagShuffleIndex = 0
       api.isLoading = false
 
@@ -2389,9 +2392,9 @@ class AppModel: ObservableObject {
         self.searchQuery = ""
 
         // Small delay to ensure UI is ready and search UI is dismissed
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
           print("🎬 Navigating to scene now...")
-          self.navigateToScene(firstScene)
+          self?.navigateToScene(firstScene)
         }
       } else {
         print("⚠️ No scenes to shuffle")
@@ -2430,7 +2433,7 @@ class AppModel: ObservableObject {
       return
     }
 
-    print("🎲 Shuffling to next scene: \(nextScene.title)")
+    print("🎲 Shuffling to next scene: \(nextScene.title ?? "Untitled")")
 
     Task { @MainActor in
       SessionHistoryManager.shared.addEntry(scene: nextScene)
@@ -2470,7 +2473,7 @@ class AppModel: ObservableObject {
       return
     }
 
-    print("🎲 Shuffling to previous scene: \(previousScene.title)")
+    print("🎲 Shuffling to previous scene: \(previousScene.title ?? "Untitled")")
 
     print("🎲 Preparing for tag shuffle to previous - updating current video player")
 

@@ -353,7 +353,7 @@ struct PerformerDetailView: View {
       VStack(spacing: 0) {
         // Add debug Text to show actual markers count
         Text(
-          "Debug: \(appModel.api.markers.count) markers, \(markerCount) total, Loading: \(isLoadingMarkers)"
+          "Debug: \(appModel.api.markers.count) markers, \(markerCount) total, Loading: \(String(describing: isLoadingMarkers))"
         )
         .font(.caption)
         .foregroundColor(.gray)
@@ -617,7 +617,7 @@ struct PerformerDetailView: View {
 
       // Verify these are the correct performer's markers
       if let firstMarker = appModel.api.markers.first {
-        print("✅ LOADMARKERS - First marker belongs to scene: \(firstMarker.scene.title)")
+        print("✅ LOADMARKERS - First marker belongs to scene: \(firstMarker.scene.title ?? "Untitled")")
         if let performers = firstMarker.scene.performers,
           let markerPerformer = performers.first(where: { $0.id == performer.id }) {
           print("✅ LOADMARKERS - Confirmed: Markers belong to performer \(markerPerformer.name)")

@@ -518,8 +518,7 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
     case .began:
       print("👆 Pan gesture began")
     case .changed:
-      let translation = gesture.translation(in: gesture.view)
-    // Uncomment for detailed tracking: print("👆 Pan changed: x=\(translation.x), y=\(translation.y)")
+      break  // Uncomment for detailed tracking: print("👆 Pan changed: x=\(gesture.translation(in: gesture.view).x), y=\(gesture.translation(in: gesture.view).y)")
     case .ended:
       let velocity = gesture.velocity(in: gesture.view)
       let translation = gesture.translation(in: gesture.view)
@@ -657,12 +656,6 @@ class CustomVideoPlayer: AVPlayerViewController, UIGestureRecognizerDelegate {
     // Add background for better visibility
     button.backgroundColor = UIColor.black.withAlphaComponent(0.5)
     button.layer.cornerRadius = size / 2
-
-    // Configure tap animation
-    button.showsTouchWhenHighlighted = true
-
-    // Make the button larger for image
-    button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
 
     // Configure button font size
     let imageConfig = UIImage.SymbolConfiguration(pointSize: isIpad ? 24 : 18, weight: .semibold)

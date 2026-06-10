@@ -264,7 +264,7 @@ class StashAPI: ObservableObject {
 
     // Trigger a connection check asynchronously
     Task {
-      try? await checkAndUpdateConnectionStatus()
+      await checkAndUpdateConnectionStatus()
     }
   }
 
@@ -1611,14 +1611,15 @@ class StashAPI: ObservableObject {
         throw StashAPIError.graphQLError(errorMessages)
       }
 
-      DispatchQueue.main.async {
-        self.connectionStatus = .connected
+      Task { @MainActor [weak self] in
+        self?.connectionStatus = .connected
       }
 
       return response.data.stats
     } catch {
-      DispatchQueue.main.async {
-        self.connectionStatus = .failed(error)
+      let capturedError = error
+      Task { @MainActor [weak self] in
+        self?.connectionStatus = .failed(capturedError)
       }
 
       NSLog("Error fetching stats: \(error)")
@@ -2398,20 +2399,6 @@ class StashAPI: ObservableObject {
   ) {
     isLoading = true
 
-    let sceneCountValue: String
-    switch filter {
-    case .all:
-      sceneCountValue = "0"
-    case .lessThanTwo:
-      sceneCountValue = "2"
-    case .twoOrMore:
-      sceneCountValue = "2"
-    case .tenOrMore:
-      sceneCountValue = "10"
-    }
-
-    let sceneCountModifier = filter == .lessThanTwo ? "LESS_THAN" : "GREATER_THAN"
-
     let escapedQuery = search.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(
       of: "\"", with: "\\\"")
 
@@ -2962,7 +2949,7 @@ class StashAPI: ObservableObject {
   /// Get the total count of markers for a specific tag
   func getMarkerCountForTag(tagName: String) async throws -> Int {
     // Temporary fallback - use existing searchMarkers to get count
-    let markers = try await searchMarkers(query: "#\(tagName)", page: 1, perPage: 1)
+    _ = try await searchMarkers(query: "#\(tagName)", page: 1, perPage: 1)
     // For now, return a conservative estimate
     return 100  // This will be improved when we fix the compilation issue
   }
@@ -3512,12 +3499,13 @@ class StashAPI: ObservableObject {
         )
       }
 
+      let capturedSuffixMarkers = allSuffixMarkers
       await MainActor.run {
-        self.markers = allSuffixMarkers
-        self.totalMarkerCount = allSuffixMarkers.count
+        self.markers = capturedSuffixMarkers
+        self.totalMarkerCount = capturedSuffixMarkers.count
         self.isLoading = false
         print(
-          "✅ Suffix search complete: Found \(allSuffixMarkers.count) total markers for pattern '_\(suffix)'"
+          "✅ Suffix search complete: Found \(capturedSuffixMarkers.count) total markers for pattern '_\(suffix)'"
         )
       }
     } catch {

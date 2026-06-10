@@ -91,7 +91,7 @@ struct SplashScreen: View {
 
             // Also prefetch some performers
             if !appModel.api.scenes.isEmpty {
-              await appModel.api.fetchPerformers(
+              appModel.api.fetchPerformers(
                 filter: .twoOrMore, page: 1, appendResults: false, search: ""
               ) { result in
                 if case .success(let performers) = result {
