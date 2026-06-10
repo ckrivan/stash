@@ -89,7 +89,9 @@ struct PerformersView: View {
               Button(action: {
                 appModel.navigateToPerformer(performer)
               }) {
-                PerformerRow(performer: performer)
+                PerformerRow(performer: performer, onTap: {
+                  appModel.navigateToPerformer(performer)
+                })
                   .applyHoverEffect(scale: 1.03, shadowRadius: 6)
               }
               .buttonStyle(PlainButtonStyle())

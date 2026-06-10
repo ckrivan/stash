@@ -266,7 +266,6 @@ struct NativeVideoPlayerView: View {
   @FocusState private var isVideoPlayerFocused: Bool
   // Toolbar auto-hide: mirrors the visionOS ornament rhythm — hide 4 s after
   // playback starts, reappear whenever paused/buffering.
-  @State private var toolbarHidden: Bool = false
 
   init(scene: StashScene, startTime: Double? = nil, endTime: Double? = nil) {
     self.scene = scene
@@ -306,7 +305,6 @@ struct NativeVideoPlayerView: View {
     .toolbarBackground(.black.opacity(0.6), for: .navigationBar)
     .toolbarColorScheme(.dark, for: .navigationBar)
     .toolbar { playerToolbar }
-    .toolbar(toolbarHidden ? .hidden : .visible, for: .navigationBar)
     .statusBarHidden(true)
     .focused($isVideoPlayerFocused)
     .onKeyPress(phases: .down) { keyPress in
@@ -314,27 +312,9 @@ struct NativeVideoPlayerView: View {
     }
     .onAppear { handleAppear() }
     .onDisappear { handleDisappear() }
-    // Poll playback state: hide toolbar 4 s after play begins, show on pause/buffer.
-    .task {
-      var playingSince: Date?
-      while !Task.isCancelled {
-        let playing = VideoPlayerRegistry.shared.currentPlayer?.timeControlStatus == .playing
-        if playing {
-          if playingSince == nil { playingSince = Date() }
-          if !toolbarHidden, let since = playingSince,
-             Date().timeIntervalSince(since) > 4 {
-            withAnimation(.easeInOut(duration: 0.25)) { toolbarHidden = true }
-          }
-        } else {
-          playingSince = nil
-          if toolbarHidden {
-            withAnimation(.easeInOut(duration: 0.25)) { toolbarHidden = false }
-          }
-        }
-        try? await Task.sleep(for: .milliseconds(500))
-      }
-    }
   }
+
+  // MARK: - Toolbar  }
 
   // MARK: - Toolbar (app actions re-homed from the custom chrome)
 
@@ -421,14 +401,6 @@ struct NativeVideoPlayerView: View {
       }
       .accessibilityLabel("Next scene")
 
-      // Close
-      Button {
-        isManualExit = true
-        appModel.forceCloseVideo()
-      } label: {
-        Label("Close", systemImage: "xmark.circle.fill")
-      }
-      .accessibilityLabel("Close video player")
     }
   }
 
@@ -525,6 +497,18 @@ struct NativeVideoPlayerView: View {
       }
     } else {
       print("🎲 [Native] Skipping player cleanup - in shuffle mode (automatic navigation)")
+      // BUT: if no replacement scene takes over shortly, this was a real back-exit
+      // (the toolbar X used to handle this) — dispose so audio can't leak.
+      let oldPlayer = VideoPlayerRegistry.shared.currentPlayer
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        if VideoPlayerRegistry.shared.currentPlayer === oldPlayer {
+          print("🔇 [Native] No replacement player after shuffle-exit — disposing")
+          oldPlayer?.pause()
+          oldPlayer?.replaceCurrentItem(with: nil)
+          VideoPlayerRegistry.shared.currentPlayer = nil
+          appModel.killAllAudio()
+        }
+      }
     }
   }
 

@@ -3,6 +3,9 @@ import AVKit
 
 struct PerformerRow: View {
   let performer: StashScene.Performer
+  /// Tap on the picture → navigate (long-press still previews). Without this the
+  /// long-press recognizer eats plain taps and only the card corners navigate.
+  var onTap: (() -> Void)? = nil
 
   @State private var previewPlayer = AVPlayer()
   @State private var isPreviewing = false
@@ -35,6 +38,7 @@ struct PerformerRow: View {
       // the center-crop zooming past the forehead.
       .frame(width: 120, height: 120, alignment: .top)
       .clipShape(Circle())
+      .onTapGesture { onTap?() }
       .simultaneousGesture(
         LongPressGesture(minimumDuration: 0.2)
           .onChanged { _ in startPreview() }

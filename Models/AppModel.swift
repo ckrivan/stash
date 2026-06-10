@@ -46,6 +46,10 @@ class AppModel: ObservableObject {
   // MARK: - API
   @Published private(set) var api: StashAPI
   private var cancellables = Set<AnyCancellable>()
+  // Forwards nested StashAPI changes through AppModel — views read
+  // `appModel.api.scenes` etc., and nested ObservableObjects do NOT propagate
+  // on their own (first-launch grid stayed empty until view recreation).
+  private var apiChangeForwarder: AnyCancellable?
 
   // Map to track API instances
   private static var sharedAPIs: [String: StashAPI] = [:]
@@ -83,6 +87,7 @@ class AppModel: ObservableObject {
     }
 
     setupBindings()
+    observeAPI()
     checkForSavedConnection()
   }
 
@@ -100,6 +105,7 @@ class AppModel: ObservableObject {
 
     // Setup bindings but skip connection check
     setupBindings()
+    observeAPI()
   }
 
   private func setupBindings() {
@@ -120,9 +126,16 @@ class AppModel: ObservableObject {
             AppModel.sharedAPIs[cacheKey] = newAPI
             self.api = newAPI
           }
+          self.observeAPI()  // re-subscribe: api instance was replaced
         }
       }
       .store(in: &cancellables)
+  }
+
+  private func observeAPI() {
+    apiChangeForwarder = api.objectWillChange
+      .receive(on: RunLoop.main)
+      .sink { [weak self] _ in self?.objectWillChange.send() }
   }
 
   private func checkForSavedConnection() {
