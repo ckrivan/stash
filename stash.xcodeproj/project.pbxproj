@@ -75,6 +75,7 @@
 		920D41F42DE5575500085284 /* SessionHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41F32DE5575500085284 /* SessionHistory.swift */; };
 		924385C82EC7735D00302A77 /* CachedImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924385C72EC7735D00302A77 /* CachedImageLoader.swift */; };
 		92933D1D2E3EC0E000CCE3F5 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92933D1C2E3EC0E000CCE3F5 /* HistoryView.swift */; };
+		920D42002DF000AA00085284 /* DebugLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D42012DF000AA00085284 /* DebugLog.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -188,6 +189,7 @@
 		920D41B12DE5566000085284 /* Views.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views.swift; sourceTree = "<group>"; };
 		920D41F32DE5575500085284 /* SessionHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionHistory.swift; sourceTree = "<group>"; };
 		924385C72EC7735D00302A77 /* CachedImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedImageLoader.swift; sourceTree = "<group>"; };
+		920D42012DF000AA00085284 /* DebugLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLog.swift; sourceTree = "<group>"; };
 		928C09CA2CE6641A00C7B4B1 /* stash.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = stash.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		92933D1C2E3EC0E000CCE3F5 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -312,6 +314,7 @@
 				924385C72EC7735D00302A77 /* CachedImageLoader.swift */,
 				920D41772DE5566000085284 /* AnimationModifiers.swift */,
 				920D41782DE5566000085284 /* VideoPlayerUtility.swift */,
+				920D42012DF000AA00085284 /* DebugLog.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -593,6 +596,7 @@
 				920D41C32DE5575500085284 /* StashImports.swift in Sources */,
 				920D41C42DE5575500085284 /* AnimationModifiers.swift in Sources */,
 				920D41C52DE5575500085284 /* VideoPlayerUtility.swift in Sources */,
+				920D42002DF000AA00085284 /* DebugLog.swift in Sources */,
 				920D41C62DE5575500085284 /* MarkerViewModel.swift in Sources */,
 				920D41C72DE5575500085284 /* VideoPlayerViewModel.swift in Sources */,
 				920D41C82DE5575500085284 /* ViewModels.swift in Sources */,

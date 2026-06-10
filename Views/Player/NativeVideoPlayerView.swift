@@ -264,6 +264,9 @@ struct NativeVideoPlayerView: View {
   @State private var oCount: Int = 0
   @State private var isIncrementingOCounter: Bool = false
   @FocusState private var isVideoPlayerFocused: Bool
+  // Toolbar auto-hide: mirrors the visionOS ornament rhythm — hide 4 s after
+  // playback starts, reappear whenever paused/buffering.
+  @State private var toolbarHidden: Bool = false
 
   init(scene: StashScene, startTime: Double? = nil, endTime: Double? = nil) {
     self.scene = scene
@@ -303,6 +306,7 @@ struct NativeVideoPlayerView: View {
     .toolbarBackground(.black.opacity(0.6), for: .navigationBar)
     .toolbarColorScheme(.dark, for: .navigationBar)
     .toolbar { playerToolbar }
+    .toolbar(toolbarHidden ? .hidden : .visible, for: .navigationBar)
     .statusBarHidden(true)
     .focused($isVideoPlayerFocused)
     .onKeyPress(phases: .down) { keyPress in
@@ -310,6 +314,26 @@ struct NativeVideoPlayerView: View {
     }
     .onAppear { handleAppear() }
     .onDisappear { handleDisappear() }
+    // Poll playback state: hide toolbar 4 s after play begins, show on pause/buffer.
+    .task {
+      var playingSince: Date?
+      while !Task.isCancelled {
+        let playing = VideoPlayerRegistry.shared.currentPlayer?.timeControlStatus == .playing
+        if playing {
+          if playingSince == nil { playingSince = Date() }
+          if !toolbarHidden, let since = playingSince,
+             Date().timeIntervalSince(since) > 4 {
+            withAnimation(.easeInOut(duration: 0.25)) { toolbarHidden = true }
+          }
+        } else {
+          playingSince = nil
+          if toolbarHidden {
+            withAnimation(.easeInOut(duration: 0.25)) { toolbarHidden = false }
+          }
+        }
+        try? await Task.sleep(for: .milliseconds(500))
+      }
+    }
   }
 
   // MARK: - Toolbar (app actions re-homed from the custom chrome)

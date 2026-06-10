@@ -716,6 +716,7 @@ struct MediaLibraryView: View {
             .foregroundColor(.secondary)
 
           Button("Refresh") {
+            DebugLog.append("MediaLibrary manual reload tapped")
             Task {
               await resetAndReload()
             }
@@ -883,12 +884,17 @@ struct MediaLibraryView: View {
       }
     }
     .task {
-      // Load scenes on initial appearance
-      print("🔄 MediaLibraryView .task - scenes count: \(appModel.api.scenes.count), filter: \(currentFilter)")
-      if appModel.api.scenes.isEmpty && currentFilter != "search" {
-        print("🔄 MediaLibraryView .task triggered - loading initial scenes")
+      // First fetch can fail transiently right after connect — retry
+      // instead of leaving an empty grid until the user tab-roundtrips.
+      guard appModel.api.scenes.isEmpty && currentFilter != "search" else { return }
+      var attempts = 0
+      while appModel.api.scenes.isEmpty && attempts < 3 {
         await initialLoad()
-        print("🔄 Loaded scenes in MediaLibraryView: \(appModel.api.scenes.count)")
+        attempts += 1
+        DebugLog.append("MediaLibrary initial load attempt \(attempts): \(appModel.api.scenes.count) scenes")
+        if appModel.api.scenes.isEmpty {
+          try? await Task.sleep(for: .seconds(1))
+        }
       }
     }
     .onChange(of: appModel.activeTab) { oldTab, newTab in

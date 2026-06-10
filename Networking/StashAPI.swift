@@ -1143,7 +1143,7 @@ class StashAPI: ObservableObject {
 
   // MARK: - VR Exclusion Method
   func fetchScenesExcludingVR(
-    page: Int = 1, sort: String = "created_at", direction: String = "DESC",
+    page: Int = 1, sort: String = "file_mod_time", direction: String = "DESC",
     appendResults: Bool = false
   ) async {
     print(

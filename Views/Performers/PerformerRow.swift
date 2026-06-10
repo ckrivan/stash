@@ -31,7 +31,9 @@ struct PerformerRow: View {
             .transition(.opacity)
         }
       }
-      .frame(width: 120, height: 120)
+      // Top-aligned: portrait images keep the face in frame instead of
+      // the center-crop zooming past the forehead.
+      .frame(width: 120, height: 120, alignment: .top)
       .clipShape(Circle())
       .simultaneousGesture(
         LongPressGesture(minimumDuration: 0.2)
