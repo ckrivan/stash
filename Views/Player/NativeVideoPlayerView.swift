@@ -260,6 +260,8 @@ struct NativeVideoPlayerView: View {
   @State private var isPerformerShuffleInProgress: Bool = false
   @State private var videoLoadingTimer: Timer?
   @State private var isManualExit: Bool = false
+  @State private var toolbarHidden: Bool = false
+  @State private var lastInteraction = Date()
   @State private var hasRegisteredNotificationObservers: Bool = false
   @State private var oCount: Int = 0
   @State private var isIncrementingOCounter: Bool = false
@@ -305,6 +307,25 @@ struct NativeVideoPlayerView: View {
     .toolbarBackground(.black.opacity(0.6), for: .navigationBar)
     .toolbarColorScheme(.dark, for: .navigationBar)
     .toolbar { playerToolbar }
+    .toolbar(toolbarHidden ? .hidden : .visible, for: .navigationBar)
+    // Window-level recognizer (cancelsTouchesInView=false) observes taps that
+    // AVPlayerViewController consumes — tap shows toolbar + system controls
+    // together; both fade again during playback.
+    .background(WindowTapObserver {
+        lastInteraction = Date()
+        withAnimation(.easeInOut(duration: 0.2)) { toolbarHidden = false }
+    })
+    .task {
+      while !Task.isCancelled {
+        let playing = VideoPlayerRegistry.shared.currentPlayer?.timeControlStatus == .playing
+        if playing, !toolbarHidden, Date().timeIntervalSince(lastInteraction) > 4 {
+          withAnimation(.easeInOut(duration: 0.25)) { toolbarHidden = true }
+        } else if !playing, toolbarHidden {
+          withAnimation(.easeInOut(duration: 0.25)) { toolbarHidden = false }
+        }
+        try? await Task.sleep(for: .milliseconds(500))
+      }
+    }
     .statusBarHidden(true)
     .focused($isVideoPlayerFocused)
     .onKeyPress(phases: .down) { keyPress in
@@ -1346,5 +1367,50 @@ struct NativeVideoPlayerView: View {
     if performer.gender == "FEMALE" { return true }
     if performer.gender == "MALE" { return false }
     return true  // Default to female for unknown gender
+  }
+}
+
+
+// MARK: - Window tap observer
+
+/// Observes every tap in the window WITHOUT consuming it (AVPlayerViewController
+/// swallows direct touches, so SwiftUI gestures never fire over video).
+private struct WindowTapObserver: UIViewRepresentable {
+  let onTap: () -> Void
+
+  func makeUIView(context: Context) -> TapView {
+    let view = TapView()
+    view.onTap = onTap
+    return view
+  }
+
+  func updateUIView(_ view: TapView, context: Context) {
+    view.onTap = onTap
+  }
+
+  final class TapView: UIView, UIGestureRecognizerDelegate {
+    var onTap: (() -> Void)?
+    private var recognizer: UITapGestureRecognizer?
+
+    override func didMoveToWindow() {
+      super.didMoveToWindow()
+      guard let window, recognizer == nil else { return }
+      let r = UITapGestureRecognizer(target: self, action: #selector(tapped))
+      r.cancelsTouchesInView = false
+      r.delegate = self
+      window.addGestureRecognizer(r)
+      recognizer = r
+    }
+
+    @objc private func tapped() { onTap?() }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
+      true
+    }
+
+    deinit {
+      if let r = recognizer { r.view?.removeGestureRecognizer(r) }
+    }
   }
 }
