@@ -40,7 +40,7 @@ struct CustomPerformerSceneRow: View {
         }) {
           Text(scene.title ?? "Untitled")
             .font(.headline)
-            .foregroundColor(.purple)
+            .foregroundColor(.pink)
             .underline()
             .lineLimit(2)
         }

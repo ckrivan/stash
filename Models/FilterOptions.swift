@@ -46,27 +46,37 @@ class FilterOptions: ObservableObject {
       sceneFilter["performer_favorite"] = true
     }
 
-    // Duration filter
-    if let minDuration = minimumDuration {
+    // Duration filter — BETWEEN when both bounds are set. (Writing min then
+    // max to the same key silently discarded the minimum.)
+    switch (minimumDuration, maximumDuration) {
+    case let (min?, max?):
       sceneFilter["duration"] = [
-        "value": minDuration,
+        "value": min,
+        "value2": max,
+        "modifier": "BETWEEN"
+      ]
+    case let (min?, nil):
+      sceneFilter["duration"] = [
+        "value": min,
         "modifier": "GREATER_THAN"
       ]
-    }
-
-    if let maxDuration = maximumDuration {
+    case let (nil, max?):
       sceneFilter["duration"] = [
-        "value": maxDuration,
+        "value": max,
         "modifier": "LESS_THAN"
       ]
+    case (nil, nil):
+      break
     }
 
-    // Tags filter — HierarchicalMultiCriterionInput
+    // Tags filter — HierarchicalMultiCriterionInput (shape verified against
+    // the live server: value + modifier + depth)
     if !selectedTagIds.isEmpty {
       sceneFilter["tags"] = [
         "value": selectedTagIds,
         "excludes": [] as [String],
-        "modifier": "INCLUDES_ALL"
+        "modifier": "INCLUDES_ALL",
+        "depth": 0
       ] as [String: Any]
     }
 

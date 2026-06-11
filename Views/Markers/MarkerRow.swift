@@ -89,7 +89,7 @@ struct MarkerRow: View {
                 ZStack {
                   // Background circle - BRIGHT PURPLE
                   Circle()
-                    .fill(Color.purple)
+                    .fill(Color.pink)
                     .frame(width: 60, height: 60)
                     .shadow(color: .black.opacity(0.5), radius: 3, x: 0, y: 2)
 
@@ -183,7 +183,7 @@ struct MarkerRow: View {
               .lineLimit(2)
               .fixedSize(horizontal: false, vertical: true)
               .padding(.vertical, 4)
-              .foregroundColor(.purple)
+              .foregroundColor(.pink)
               .underline()
               .layoutPriority(100)
           }
@@ -225,10 +225,10 @@ struct MarkerRow: View {
                 NavigationLink(destination: PerformerDetailView(performer: performer)) {
                   Text(performer.name)
                     .font(.subheadline)
-                    .foregroundColor(.purple)
+                    .foregroundColor(.pink)
                     .padding(.vertical, 8)
                     .padding(.horizontal, 8)
-                    .background(Color.purple.opacity(0.1))
+                    .background(Color.pink.opacity(0.1))
                     .cornerRadius(6)
                     .contentShape(Rectangle())
                 }  // Use PlainButtonStyle to avoid visual effects
@@ -317,7 +317,7 @@ struct MarkerRow: View {
             .font(.caption)
             .padding(.horizontal, 8)
             .padding(.vertical, 5)
-            .background(Color.purple.opacity(0.2))  // PURPLE LIKE SCENEROW
+            .background(Color.pink.opacity(0.2))  // PURPLE LIKE SCENEROW
             .cornerRadius(12)
           }
 
@@ -381,12 +381,7 @@ struct MarkerRow: View {
       .padding(.vertical, 8)
     }
     .background(Color(UIColor.secondarySystemBackground))
-    .cornerRadius(12)
-    .shadow(radius: 2)
-    .overlay(
-      RoundedRectangle(cornerRadius: 12)
-        .stroke(Color.purple.opacity(0.3), lineWidth: 1)  // ADDED PURPLE BORDER
-    )
+    .cornerRadius(16)
     .onDisappear {
       // Ensure immediate cleanup when row disappears
       print("📱 MarkerRow \(marker.id) - onDisappear called, cleaning up player")

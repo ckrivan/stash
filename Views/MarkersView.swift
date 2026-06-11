@@ -599,18 +599,9 @@ struct MarkersView: View {
                   }
                 }
               }
-              .foregroundColor(.white)
               .padding(.horizontal, 20)
               .padding(.vertical, 12)
-              .background(
-                LinearGradient(
-                  colors: [Color.blue, Color.purple],
-                  startPoint: .leading,
-                  endPoint: .trailing
-                )
-              )
-              .cornerRadius(12)
-              .shadow(color: .blue.opacity(0.3), radius: 4, x: 0, y: 2)
+              .glassEffect(.regular.tint(.pink.opacity(0.7)).interactive())
             }
             .scaleEffect(appModel.isMarkerShuffleMode ? 0.95 : 1.0)
             .animation(.spring(response: 0.3), value: appModel.isMarkerShuffleMode)

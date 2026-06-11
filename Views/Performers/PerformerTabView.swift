@@ -299,12 +299,7 @@ struct PerformerTabView: View {
               preservePerformerContext: true
             )
             .background(Color(UIColor.secondarySystemBackground))
-            .cornerRadius(12)
-            .shadow(radius: 2)
-            .overlay(
-              RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.purple.opacity(0.3), lineWidth: 1)
-            )
+            .cornerRadius(16)
             .onTapGesture {
               // Present via the shared navigation destination -> NativeVideoPlayerView
               let progress = UserDefaults.standard.getVideoProgress(for: scene.id)
@@ -451,7 +446,7 @@ struct PerformerTabView: View {
                         ZStack {
                           // Background circle - BRIGHT PURPLE
                           Circle()
-                            .fill(Color.purple)
+                            .fill(Color.pink)
                             .frame(width: 60, height: 60)
                             .shadow(color: .black.opacity(0.5), radius: 3, x: 0, y: 2)
 
@@ -514,7 +509,7 @@ struct PerformerTabView: View {
                   Text(marker.title)
                     .font(.headline)
                     .lineLimit(1)
-                    .foregroundColor(.purple)
+                    .foregroundColor(.pink)
                     .underline()
 
                   // Tags
@@ -524,7 +519,7 @@ struct PerformerTabView: View {
                         .font(.caption)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.purple.opacity(0.2))
+                        .background(Color.pink.opacity(0.2))
                         .cornerRadius(12)
 
                       ForEach(marker.tags) { tag in
@@ -546,12 +541,7 @@ struct PerformerTabView: View {
                 .padding(12)
               }
               .background(Color(UIColor.secondarySystemBackground))
-              .cornerRadius(12)
-              .shadow(radius: 2)
-              .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                  .stroke(Color.purple, lineWidth: 1)
-              )
+              .cornerRadius(16)
               .scaleEffect(markerPreviewStates[marker.id, default: false] ? 1.0 : 0.98)
               .animation(
                 .spring(response: 0.3, dampingFraction: 0.7),

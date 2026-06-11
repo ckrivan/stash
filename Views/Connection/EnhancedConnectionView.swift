@@ -215,7 +215,7 @@ struct EnhancedConnectionView: View {
         RoundedRectangle(cornerRadius: 10)
           .fill(
             LinearGradient(
-              gradient: Gradient(colors: [Color.blue, Color.purple]),
+              gradient: Gradient(colors: [Color.blue, Color.pink]),
               startPoint: .leading,
               endPoint: .trailing
             )

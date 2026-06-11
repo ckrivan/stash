@@ -2,6 +2,23 @@ import AVKit
 import Foundation
 import SwiftUI
 
+/// Search domains for the library's universal search (native .searchScopes).
+enum SearchScope: String, CaseIterable {
+  case scenes = "Scenes"
+  case performers = "Performers"
+  case tags = "Tags"
+  case markers = "Markers"
+
+  var icon: String {
+    switch self {
+    case .scenes: return "film"
+    case .performers: return "person.2"
+    case .tags: return "tag"
+    case .markers: return "bookmark"
+    }
+  }
+}
+
 struct MediaLibraryToolbar: View {
   let onShowFilters: () -> Void
   let onRefresh: () -> Void
@@ -34,7 +51,7 @@ struct MediaLibraryView: View {
   @State private var currentFilter: String = "default"
   @State private var searchText = ""
   @State private var isSearching = false
-  @State private var searchScope = UniversalSearchView.SearchScope.scenes
+  @State private var searchScope = SearchScope.scenes
   @State private var searchedMarkers: [SceneMarker] = []
   @State private var totalMarkerCount: Int = 0
   @State private var searchedTag: (id: String, name: String)?
@@ -82,85 +99,10 @@ struct MediaLibraryView: View {
     }
   }
 
-  // MARK: - Filter Action Closures
-  private var onDefaultSelected: () -> Void {
-    {
-      print("📱 iPhone: Default filter selected")
-      Task {
-        await filterAction(filter: "default", sort: "file_mod_time", direction: "DESC")
-      }
-    }
-  }
-
-  private var onNewestSelected: () -> Void {
-    {
-      print("📱 iPhone: Newest filter selected")
-      Task {
-        await filterAction(filter: "newest", sort: "date", direction: "DESC")
-      }
-    }
-  }
-
-  private var onOCounterSelected: () -> Void {
-    {
-      print("📱 iPhone: Most Played filter selected")
-      Task {
-        await filterAction(filter: "o_counter", sort: "o_counter", direction: "DESC")
-      }
-    }
-  }
-
-  private var onRandomSelected: () -> Void {
-    {
-      print("📱 iPhone: Random filter selected")
-      Task {
-        await filterAction(filter: "random", sort: "random", direction: "DESC")
-      }
-    }
-  }
-
-  private var onAdvancedFilters: () -> Void {
-    {
-      showingFilters = true
-    }
-  }
-
-  private var onReload: () -> Void {
-    {
-      Task {
-        await resetAndReload()
-      }
-    }
-  }
-
-  private var onShuffleMostPlayed: () -> Void {
-    {
-      print("🎯 iPhone: Shuffle Most Played tapped")
-      shuffleMostPlayedScenes()
-    }
-  }
-
-  @ViewBuilder
-  private var searchBarView: some View {
-    UniversalSearchView(
-      searchText: $searchText,
-      isSearching: $isSearching,
-      searchScope: $searchScope,
-      onSearch: { query, scope in
-        Task {
-          await performSearch(query: query, scope: scope)
-        }
-      },
-      // Pass filter actions for iOS inline button
-      currentFilter: $currentFilter,
-      onDefaultSelected: onDefaultSelected,
-      onNewestSelected: onNewestSelected,
-      onOCounterSelected: onOCounterSelected,
-      onRandomSelected: onRandomSelected,
-      onAdvancedFilters: onAdvancedFilters,
-      onReload: onReload,
-      onShuffleMostPlayed: onShuffleMostPlayed
-    )
+  private var searchPrompt: String {
+    searchScope == .markers
+      ? "Search markers (e.g., blowjob +anal)"
+      : "Search \(searchScope.rawValue.lowercased())"
   }
 
   var body: some View {
@@ -182,15 +124,18 @@ struct MediaLibraryView: View {
       ) { _ in
         showingFilters = true
       }
+      // Sim harness: AUTO_FILTER_SHEET=1 opens the advanced filter sheet.
+      .task {
+        if ProcessInfo.processInfo.environment["AUTO_FILTER_SHEET"] == "1" {
+          try? await Task.sleep(for: .seconds(4))
+          showingFilters = true
+        }
+      }
   }
 
   @ViewBuilder
   private var mainView: some View {
     VStack(spacing: 0) {
-      // Universal search bar
-      searchBarView
-        .padding(.vertical, 10)
-
       // Locked tags UI - only show for marker searches
       if searchScope == .markers && (!lockedTags.isEmpty || isValidatingTag) {
         lockedTagsView
@@ -202,6 +147,36 @@ struct MediaLibraryView: View {
       }
 
       mainContentView
+    }
+    // Native search (replaces the hand-rolled UniversalSearchView header):
+    // iPad renders it top-trailing in the toolbar, scopes become the native
+    // scope bar. Same behavior as before: markers search on submit only,
+    // everything else debounced 300 ms.
+    .searchable(text: $searchText, prompt: searchPrompt)
+    .searchScopes($searchScope) {
+      ForEach(SearchScope.allCases, id: \.self) { scope in
+        Label(scope.rawValue, systemImage: scope.icon).tag(scope)
+      }
+    }
+    .onSubmit(of: .search) {
+      Task { await performSearch(query: searchText, scope: searchScope) }
+    }
+    .onChange(of: searchText) { _, newValue in
+      isSearching = !newValue.isEmpty
+      // Markers search only on explicit submit (keystroke search would
+      // auto-lock tags); other scopes live-search with a debounce.
+      guard searchScope != .markers else { return }
+      Task {
+        try? await Task.sleep(for: .milliseconds(300))
+        if !Task.isCancelled {
+          await performSearch(query: newValue, scope: searchScope)
+        }
+      }
+    }
+    .onChange(of: searchScope) { _, newScope in
+      if !searchText.isEmpty {
+        Task { await performSearch(query: searchText, scope: newScope) }
+      }
     }
   }
 
@@ -221,14 +196,21 @@ struct MediaLibraryView: View {
     ) {
       Task {
         currentFilter = "custom"
-        await appModel.api.fetchScenes(page: 1, filterOptions: filterOptions, useGridQuery: true)
+        // Pass the chosen sort through — it lived in FilterOptions but was
+        // never forwarded, so "Sort By" in advanced filters did nothing.
+        await appModel.api.fetchScenes(
+          page: 1,
+          sort: filterOptions.sortField,
+          direction: filterOptions.sortDirection,
+          filterOptions: filterOptions,
+          useGridQuery: true)
       }
     }
   }
 
   @ViewBuilder
   private var markerTagSelectorSheetContent: some View {
-    NavigationView {
+    NavigationStack {
       VStack(spacing: 20) {
         Text("🎯 PARENT SHEET IS WORKING!")
           .font(.title)
@@ -267,7 +249,7 @@ struct MediaLibraryView: View {
 
   @ViewBuilder
   private var tagSuggestionsSheetContent: some View {
-    NavigationView {
+    NavigationStack {
       tagSuggestionsList
         .navigationTitle("Choose Tag")
         .navigationBarTitleDisplayMode(.inline)
@@ -346,7 +328,7 @@ struct MediaLibraryView: View {
         HStack {
           Image(systemName: "bookmark.fill")
             .font(.caption)
-            .foregroundColor(.purple)
+            .foregroundColor(.pink)
           Text("Tag")
             .font(.caption)
             .foregroundColor(.secondary)
@@ -362,7 +344,7 @@ struct MediaLibraryView: View {
       )
       .overlay(
         RoundedRectangle(cornerRadius: 12)
-          .stroke(Color.purple, lineWidth: 2)
+          .stroke(Color.pink, lineWidth: 2)
       )
       .contentShape(Rectangle())
     }
@@ -417,19 +399,7 @@ struct MediaLibraryView: View {
               }
               .padding(.horizontal, 12)
               .padding(.vertical, 8)
-              .background(
-                LinearGradient(
-                  colors: [Color.green, Color.blue],
-                  startPoint: .leading,
-                  endPoint: .trailing
-                )
-              )
-              .foregroundColor(.white)
-              .cornerRadius(20)
-              .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                  .stroke(Color.white.opacity(0.3), lineWidth: 1)
-              )
+              .glassEffect(.regular.tint(.green.opacity(0.6)).interactive())
             }
 
             // Combine all button
@@ -437,18 +407,10 @@ struct MediaLibraryView: View {
               Button(action: {
                 combineAllLockedTags()
               }) {
-                HStack(spacing: 6) {
-                  Image(systemName: "magnifyingglass")
-                    .font(.system(size: 14))
-                  Text("Search All")
-                    .font(.system(size: 15, weight: .medium))
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(Color.purple)
-                .foregroundColor(.white)
-                .cornerRadius(20)
+                Label("Search All", systemImage: "magnifyingglass")
+                  .font(.system(size: 15, weight: .medium))
               }
+              .buttonStyle(.glassProminent)
             }
           }
           .padding(.horizontal)
@@ -537,15 +499,7 @@ struct MediaLibraryView: View {
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(
-                  LinearGradient(
-                    colors: [Color.purple, Color.pink],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                  )
-                )
-                .foregroundColor(.white)
-                .cornerRadius(20)
+                .glassEffect(.regular.tint(.pink.opacity(0.6)).interactive())
               }
               .buttonStyle(.plain)
             }
@@ -636,18 +590,9 @@ struct MediaLibraryView: View {
 
                     Spacer()
                   }
-                  .foregroundColor(.white)
                   .padding()
-                  .background(
-                    LinearGradient(
-                      colors: [Color.blue, Color.purple],
-                      startPoint: .leading,
-                      endPoint: .trailing
-                    )
-                  )
-                  .cornerRadius(12)
-                  .shadow(color: .blue.opacity(0.3), radius: 4, x: 0, y: 2)
                 }
+                .buttonStyle(.glassProminent)
                 .disabled(isLoadingMore)
                 .padding(.horizontal)
               } else {
@@ -799,87 +744,120 @@ struct MediaLibraryView: View {
     }
     .navigationTitle("Media Library")
     .toolbar {
-      // Only show toolbar buttons on iPad - iOS uses inline filter button only
-      if UIDevice.current.userInterfaceIdiom == .pad {
-        ToolbarItem(placement: .navigationBarTrailing) {
-          HStack {
-            Button {
-              showWatchHistory.toggle()
-            } label: {
-              Image(systemName: showWatchHistory ? "clock.fill" : "clock.arrow.circlepath")
+      // Liquid Glass toolbar: shuffle is the standalone primary action, every
+      // secondary action lives in ONE native More menu (sort, filters, watch
+      // history, settings). Crowded item rows get auto-collapsed by the system
+      // into an awkward overflow — one menu avoids that entirely.
+      ToolbarItem(placement: .topBarTrailing) {
+        Button {
+          Task {
+            await resetAndReload()
+          }
+        } label: {
+          Image(systemName: "shuffle")
+        }
+        .simultaneousGesture(
+          LongPressGesture(minimumDuration: 0.5)
+            .onEnded { _ in
+              playRandomScene()
             }
-            .disabled(historyManager.entries.isEmpty)
+        )
+        .contextMenu {
+          Button {
+            Task {
+              await resetAndReload()
+            }
+          } label: {
+            Label("Shuffle List", systemImage: "shuffle")
+          }
 
+          Button {
+            playRandomScene()
+          } label: {
+            Label("Shuffle Play", systemImage: "play.fill")
+          }
+
+          if currentFilter == "o_counter" {
+            Divider()
+            Button {
+              shuffleMostPlayedScenes()
+            } label: {
+              Label("Shuffle Most Played", systemImage: "number.circle.fill")
+            }
+          }
+        }
+      }
+
+      ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
+      ToolbarItem(placement: .topBarTrailing) {
+        Menu {
+          Section("Sort") {
             Button {
               Task {
-                await resetAndReload()
+                await filterAction(filter: "default", sort: "file_mod_time", direction: "DESC")
               }
             } label: {
-              Image(systemName: "shuffle")
+              Label("Default", systemImage: currentFilter == "default" ? "checkmark" : "")
             }
-            .simultaneousGesture(
-              LongPressGesture(minimumDuration: 0.5)
-                .onEnded { _ in
-                  playRandomScene()
-                }
-            )
-            .contextMenu {
-              Button {
-                Task {
-                  await resetAndReload()
-                }
-              } label: {
-                Label("Shuffle List", systemImage: "shuffle")
+            Button {
+              Task {
+                await filterAction(filter: "newest", sort: "date", direction: "DESC")
               }
-
-              Button {
-                playRandomScene()
-              } label: {
-                Label("Shuffle Play", systemImage: "play.fill")
-              }
-
-              if currentFilter == "o_counter" {
-                Divider()
-                Button {
-                  shuffleMostPlayedScenes()
-                } label: {
-                  Label("Shuffle Most Played", systemImage: "number.circle.fill")
-                }
-              }
+            } label: {
+              Label("Newest", systemImage: currentFilter == "newest" ? "checkmark" : "")
             }
-
-            FilterMenuView(
-              currentFilter: $currentFilter,
-              onDefaultSelected: {
-                Task {
-                  await filterAction(filter: "default", sort: "file_mod_time", direction: "DESC")
-                }
-              },
-              onNewestSelected: {
-                Task {
-                  await filterAction(filter: "newest", sort: "date", direction: "DESC")
-                }
-              },
-              onOCounterSelected: {
-                Task {
-                  await filterAction(filter: "o_counter", sort: "o_counter", direction: "DESC")
-                }
-              },
-              onRandomSelected: {
-                Task {
-                  await filterAction(filter: "random", sort: "random", direction: "DESC")
-                }
-              },
-              onAdvancedFilters: {
-                showingFilters = true
-              },
-              onReload: {
-                Task {
-                  await resetAndReload()
-                }
+            Button {
+              Task {
+                await filterAction(filter: "o_counter", sort: "o_counter", direction: "DESC")
               }
-            )
+            } label: {
+              Label("Most Played", systemImage: currentFilter == "o_counter" ? "checkmark" : "")
+            }
+            Button {
+              Task {
+                await filterAction(filter: "random", sort: "random", direction: "DESC")
+              }
+            } label: {
+              Label("Random", systemImage: currentFilter == "random" ? "checkmark" : "")
+            }
           }
+
+          Button {
+            showingFilters = true
+          } label: {
+            Label("Advanced Filters", systemImage: "slider.horizontal.3")
+          }
+
+          Button {
+            Task {
+              await resetAndReload()
+            }
+          } label: {
+            Label("Reload", systemImage: "arrow.clockwise")
+          }
+
+          Divider()
+
+          Button {
+            showWatchHistory.toggle()
+          } label: {
+            Label(
+              showWatchHistory ? "Hide Watch History" : "Show Watch History",
+              systemImage: "clock.arrow.circlepath")
+          }
+          .disabled(historyManager.entries.isEmpty)
+
+          Divider()
+
+          Button {
+            NotificationCenter.default.post(
+              name: Notification.Name("ShowSettings"), object: nil)
+          } label: {
+            Label("Settings", systemImage: "gear")
+          }
+        } label: {
+          Image(systemName: "ellipsis.circle")
         }
       }
     }
@@ -1127,7 +1105,7 @@ struct MediaLibraryView: View {
     }
   }
 
-  private func performSearch(query: String, scope: UniversalSearchView.SearchScope) async {
+  private func performSearch(query: String, scope: SearchScope) async {
     if query.isEmpty {
       // Reset to default view
       await MainActor.run {

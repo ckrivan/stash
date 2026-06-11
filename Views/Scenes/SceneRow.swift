@@ -96,7 +96,7 @@ struct SceneRow: View {
                   let iconSize: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 30 : 24
 
                   Circle()
-                    .fill(Color.purple)
+                    .fill(Color.pink)
                     .frame(width: buttonSize, height: buttonSize)
                     .shadow(color: .black.opacity(0.5), radius: 3, x: 0, y: 2)
 
@@ -207,7 +207,7 @@ struct SceneRow: View {
                 .lineLimit(2)  // Allow up to 2 lines for longer titles
                 .fixedSize(horizontal: false, vertical: true)  // Ensure text doesn't get cut off
                 .padding(.vertical, UIDevice.current.userInterfaceIdiom == .pad ? 4 : 2)  // Add padding above and below title
-                .foregroundColor(.purple)  // CHANGED TO PURPLE
+                .foregroundColor(.pink)  // CHANGED TO PURPLE
                 .underline()  // ADDED UNDERLINE
                 .layoutPriority(100)  // Give title highest layout priority
             }
@@ -353,7 +353,7 @@ struct SceneRow: View {
                   .font(.caption)
                   .padding(.horizontal, 8)
                   .padding(.vertical, 5)
-                  .background(Color.purple.opacity(0.2))  // CHANGED FROM BLUE TO PURPLE
+                  .background(Color.pink.opacity(0.2))  // CHANGED FROM BLUE TO PURPLE
                   .cornerRadius(12)
                 }
               }
@@ -388,12 +388,7 @@ struct SceneRow: View {
       .padding(UIDevice.current.userInterfaceIdiom == .pad ? 8 : 6)
     }
     .background(Color(UIColor.secondarySystemBackground))
-    .cornerRadius(12)
-    .shadow(radius: 2)
-    .overlay(
-      RoundedRectangle(cornerRadius: 12)
-        .stroke(Color.purple.opacity(0.3), lineWidth: 1)  // ADDED PURPLE BORDER
-    )
+    .cornerRadius(16)
     .contextMenu {
       Button(action: {
         // Recently Added filter
@@ -663,7 +658,7 @@ struct TagView: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         .background(
-          isHovering ? Color.purple.opacity(0.3) : Color.secondary.opacity(0.15)
+          isHovering ? Color.pink.opacity(0.3) : Color.secondary.opacity(0.15)
         )
         .cornerRadius(12)
         .scaleEffect(isHovering ? 1.05 : 1.0)

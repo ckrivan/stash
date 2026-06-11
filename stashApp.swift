@@ -22,6 +22,10 @@ struct stashApp: App {
     WindowGroup {
       SplashScreen()
         .preferredColorScheme(.dark)
+        // Brand: pink on black. One global tint — every native control
+        // (toolbars, search, pickers, prominent buttons) renders on-brand
+        // instead of per-view hardcoded colors.
+        .tint(.pink)
         .environmentObject(appDelegate.appModel)
         .onAppear {
           // Short delay to ensure the AppDelegate has completed its initialization

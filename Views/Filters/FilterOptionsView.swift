@@ -6,76 +6,121 @@ struct FilterOptionsView: View {
   @Binding var filterOptions: FilterOptions
   let onApply: () -> Void
 
-  @State private var tempOptions = FilterOptions()
+  // FilterOptions is an ObservableObject class — @StateObject (not @State) so
+  // @Published edits actually re-render the rows (selection counts, pickers).
+  @StateObject private var tempOptions = FilterOptions()
   @State private var selectedRating: Double = 0
-  @State private var showingTagSelection = false
-  @State private var showingPerformerSelection = false
-  @State private var selectedResolutionIndex = 0
 
   private let resolutions = ["Any", "240p", "480p", "720p", "1080p", "4K"]
-  private let durationOptions = [
-    "Any": nil,
-    "< 5 min": 300,
-    "< 15 min": 900,
-    "< 30 min": 1800,
-    "< 60 min": 3600,
-    "> 5 min": 300,
-    "> 15 min": 900,
-    "> 30 min": 1800,
-    "> 60 min": 3600
+
+  // Explicit optional tags: a dictionary lookup here produced Int?? tags that
+  // never matched the Int? selection, so the duration pickers were dead.
+  private let durationSteps: [(label: String, seconds: Int?)] = [
+    ("Any", nil),
+    ("5 min", 300),
+    ("15 min", 900),
+    ("30 min", 1800),
+    ("60 min", 3600),
   ]
 
   var body: some View {
     NavigationStack {
-      Group {
-        if UIDevice.current.userInterfaceIdiom == .pad {
-          // Enhanced layout for iPad
-          VStack(spacing: 0) {
-            HStack(alignment: .top, spacing: 0) {
-              // Left column
-              List {
-                sortSection
-                ratingSection
-                resolutionSection
-                favoritesSection
-                durationSection
-              }
-              .frame(minWidth: 0, maxWidth: .infinity)
-
-              // Right column
-              List {
-                tagsSection
-                performersSection
-              }
-              .frame(minWidth: 0, maxWidth: .infinity)
-            }
+      // One grouped Form on every size class (HIG) — the old iPad-only
+      // two-List columns fought the system sheet layout.
+      Form {
+        Section("Sort By") {
+          Picker("Field", selection: $tempOptions.sortField) {
+            Text("Date").tag("date")
+            Text("Title").tag("title")
+            Text("Rating").tag("rating")
+            Text("Duration").tag("duration")
+            Text("Random").tag("random")
           }
-        } else {
-          // Standard layout for iPhone
-          List {
-            sortSection
-            ratingSection
-            resolutionSection
-            favoritesSection
-            durationSection
-            tagsSection
-            performersSection
+
+          Picker("Direction", selection: $tempOptions.sortDirection) {
+            Text("Descending").tag("DESC")
+            Text("Ascending").tag("ASC")
           }
         }
-      }
-      .navigationTitle("Filter Options")
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .topBarLeading) {
-          Button("Reset") {
+
+        Section("Rating") {
+          LabeledContent(
+            "Minimum Rating",
+            value: selectedRating > 0 ? "\(Int(selectedRating))" : "Any")
+          Slider(value: $selectedRating, in: 0...100, step: 10)
+            .onChange(of: selectedRating) { _, newValue in
+              tempOptions.minimumRating = newValue > 0 ? Int(newValue) : nil
+            }
+        }
+
+        Section("Video") {
+          Picker("Resolution", selection: $tempOptions.selectedResolution) {
+            ForEach(resolutions, id: \.self) { resolution in
+              Text(resolution).tag(resolution == "Any" ? String?.none : resolution)
+            }
+          }
+
+          Picker("Minimum Duration", selection: $tempOptions.minimumDuration) {
+            ForEach(durationSteps, id: \.label) { step in
+              Text(step.seconds == nil ? "Any" : "Over \(step.label)").tag(step.seconds)
+            }
+          }
+
+          Picker("Maximum Duration", selection: $tempOptions.maximumDuration) {
+            ForEach(durationSteps, id: \.label) { step in
+              Text(step.seconds == nil ? "Any" : "Under \(step.label)").tag(step.seconds)
+            }
+          }
+        }
+
+        Section {
+          Toggle("Favorite Performers Only", isOn: $tempOptions.isFavoritesOnly)
+        }
+
+        Section("Limit To") {
+          // Pushed within the sheet's stack (HIG) instead of stacking sheets.
+          NavigationLink {
+            TagSelectionListView(selectedTagIds: $tempOptions.selectedTagIds)
+              .environmentObject(appModel)
+          } label: {
+            LabeledContent("Tags") {
+              Text(
+                tempOptions.selectedTagIds.isEmpty
+                  ? "Any" : "\(tempOptions.selectedTagIds.count) selected")
+            }
+          }
+
+          NavigationLink {
+            PerformerSelectionListView(selectedPerformerIds: $tempOptions.selectedPerformerIds)
+              .environmentObject(appModel)
+          } label: {
+            LabeledContent("Performers") {
+              Text(
+                tempOptions.selectedPerformerIds.isEmpty
+                  ? "Any" : "\(tempOptions.selectedPerformerIds.count) selected")
+            }
+          }
+        }
+
+        Section {
+          Button("Reset All Filters", role: .destructive) {
             tempOptions.reset()
             selectedRating = 0
           }
+          .frame(maxWidth: .infinity, alignment: .center)
+        }
+      }
+      .navigationTitle("Filters")
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .cancellationAction) {
+          Button("Cancel") {
+            dismiss()
+          }
         }
 
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItem(placement: .confirmationAction) {
           Button("Apply") {
-            // Copy temp options to the binding
             filterOptions.minimumRating = tempOptions.minimumRating
             filterOptions.selectedResolution = tempOptions.selectedResolution
             filterOptions.isFavoritesOnly = tempOptions.isFavoritesOnly
@@ -92,7 +137,6 @@ struct FilterOptionsView: View {
         }
       }
       .onAppear {
-        // Initialize temp options from binding
         tempOptions.minimumRating = filterOptions.minimumRating
         tempOptions.selectedResolution = filterOptions.selectedResolution
         tempOptions.isFavoritesOnly = filterOptions.isFavoritesOnly
@@ -103,152 +147,7 @@ struct FilterOptionsView: View {
         tempOptions.sortField = filterOptions.sortField
         tempOptions.sortDirection = filterOptions.sortDirection
 
-        // Set UI state
         selectedRating = Double(tempOptions.minimumRating ?? 0)
-
-        // Set resolution index
-        if let resolution = tempOptions.selectedResolution,
-          let index = resolutions.firstIndex(of: resolution) {
-          selectedResolutionIndex = index
-        } else {
-          selectedResolutionIndex = 0
-        }
-      }
-    }
-    .sheet(isPresented: $showingTagSelection) {
-      NavigationStack {
-        TagSelectionListView(selectedTagIds: $tempOptions.selectedTagIds)
-          .environmentObject(appModel)
-      }
-    }
-    .sheet(isPresented: $showingPerformerSelection) {
-      NavigationStack {
-        PerformerSelectionListView(selectedPerformerIds: $tempOptions.selectedPerformerIds)
-          .environmentObject(appModel)
-      }
-    }
-  }
-
-  // MARK: - Sections
-
-  private var sortSection: some View {
-    Section(header: Text("Sort By")) {
-      Picker("Field", selection: $tempOptions.sortField) {
-        Text("Date").tag("date")
-        Text("Title").tag("title")
-        Text("Rating").tag("rating")
-        Text("Duration").tag("duration")
-        Text("Random").tag("random")
-      }
-      .pickerStyle(.menu)
-
-      Picker("Direction", selection: $tempOptions.sortDirection) {
-        Text("Descending").tag("DESC")
-        Text("Ascending").tag("ASC")
-      }
-      .pickerStyle(.menu)
-    }
-  }
-
-  private var ratingSection: some View {
-    Section(header: Text("Rating")) {
-      VStack(alignment: .leading) {
-        Text("Minimum Rating: \(Int(selectedRating))")
-          .font(.subheadline)
-
-        Slider(value: $selectedRating, in: 0...100, step: 10) { changed in
-          if changed {
-            tempOptions.minimumRating = selectedRating > 0 ? Int(selectedRating) : nil
-          }
-        }
-        .onChange(of: selectedRating) { _, newValue in
-          tempOptions.minimumRating = newValue > 0 ? Int(newValue) : nil
-        }
-      }
-      .padding(.vertical, 8)
-    }
-  }
-
-  private var resolutionSection: some View {
-    Section(header: Text("Resolution")) {
-      Picker("Select Resolution", selection: $selectedResolutionIndex) {
-        ForEach(0..<resolutions.count, id: \.self) { index in
-          Text(resolutions[index]).tag(index)
-        }
-      }
-      .pickerStyle(.menu)
-      .onChange(of: selectedResolutionIndex) { _, newValue in
-        tempOptions.selectedResolution = newValue > 0 ? resolutions[newValue] : nil
-      }
-    }
-  }
-
-  private var favoritesSection: some View {
-    Section {
-      Toggle("Favorites Only", isOn: $tempOptions.isFavoritesOnly)
-    }
-  }
-
-  private var durationSection: some View {
-    Section(header: Text("Duration")) {
-      Picker("Minimum Duration", selection: $tempOptions.minimumDuration) {
-        ForEach(["Any", "> 5 min", "> 15 min", "> 30 min", "> 60 min"], id: \.self) { label in
-          Text(label).tag(durationOptions[label])
-        }
-      }
-      .pickerStyle(.menu)
-
-      Picker("Maximum Duration", selection: $tempOptions.maximumDuration) {
-        ForEach(["Any", "< 5 min", "< 15 min", "< 30 min", "< 60 min"], id: \.self) { label in
-          Text(label).tag(durationOptions[label])
-        }
-      }
-      .pickerStyle(.menu)
-    }
-  }
-
-  private var tagsSection: some View {
-    Section(header: Text("Tags")) {
-      VStack(alignment: .leading) {
-        if tempOptions.selectedTagIds.isEmpty {
-          Text("No tags selected")
-            .foregroundColor(.secondary)
-            .padding(.vertical, 8)
-        } else {
-          Text("\(tempOptions.selectedTagIds.count) tags selected")
-            .padding(.vertical, 8)
-        }
-
-        Button(action: {
-          showingTagSelection = true
-        }) {
-          Label("Select Tags", systemImage: "tag")
-            .frame(maxWidth: .infinity, alignment: .center)
-        }
-        .buttonStyle(.bordered)
-      }
-    }
-  }
-
-  private var performersSection: some View {
-    Section(header: Text("Performers")) {
-      VStack(alignment: .leading) {
-        if tempOptions.selectedPerformerIds.isEmpty {
-          Text("No performers selected")
-            .foregroundColor(.secondary)
-            .padding(.vertical, 8)
-        } else {
-          Text("\(tempOptions.selectedPerformerIds.count) performers selected")
-            .padding(.vertical, 8)
-        }
-
-        Button(action: {
-          showingPerformerSelection = true
-        }) {
-          Label("Select Performers", systemImage: "person.2")
-            .frame(maxWidth: .infinity, alignment: .center)
-        }
-        .buttonStyle(.bordered)
       }
     }
   }
@@ -256,10 +155,8 @@ struct FilterOptionsView: View {
 
 // MARK: - Preview
 #Preview {
-  NavigationStack {
-    FilterOptionsView(
-      filterOptions: .constant(FilterOptions())
-    ) {}
-    .environmentObject(AppModel())
-  }
+  FilterOptionsView(
+    filterOptions: .constant(FilterOptions())
+  ) {}
+  .environmentObject(AppModel())
 }

@@ -872,7 +872,7 @@ struct VideoPlayerView: View {
                 ZStack {
                   // Background circle
                   Circle()
-                    .fill(Color.purple.opacity(0.8))
+                    .fill(Color.pink.opacity(0.8))
                     .frame(width: 60, height: 60)
                     .shadow(color: .black, radius: 4)
 
@@ -905,7 +905,7 @@ struct VideoPlayerView: View {
                 ZStack {
                   // Background circle
                   Circle()
-                    .fill(Color.purple.opacity(0.8))
+                    .fill(Color.pink.opacity(0.8))
                     .frame(width: 60, height: 60)
                     .shadow(color: .black, radius: 4)
 

@@ -36,7 +36,17 @@ class AppModel: ObservableObject {
   @Published var playerViewModel: AnyObject?
 
   // MARK: - Navigation
-  @Published var navigationPath = NavigationPath()
+  // Per-tab paths: each tab's NavigationStack needs its OWN path. Binding one
+  // shared path to all three stacks materializes every pushed destination in
+  // every stack — three competing video players, black playback.
+  @Published var navigationPaths: [Tab: NavigationPath] = [:]
+
+  /// The active tab's navigation path. Every existing call site reads and
+  /// writes through this; the per-tab storage is an implementation detail.
+  var navigationPath: NavigationPath {
+    get { navigationPaths[activeTab] ?? NavigationPath() }
+    set { navigationPaths[activeTab] = newValue }
+  }
 
   /// The EXACT list the user started playback from (normal list, watch history, performer
   /// results, or a library-random pool). The video player's X navigation walks THIS list,

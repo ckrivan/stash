@@ -261,6 +261,8 @@ struct NativeVideoPlayerView: View {
   @State private var videoLoadingTimer: Timer?
   @State private var isManualExit: Bool = false
   @State private var toolbarHidden: Bool = false
+  @State private var showingCreateMarker = false
+  @State private var newMarkerSeconds: Double = 0
   @State private var lastInteraction = Date()
   @State private var hasRegisteredNotificationObservers: Bool = false
   @State private var oCount: Int = 0
@@ -313,7 +315,11 @@ struct NativeVideoPlayerView: View {
     // together; both fade again during playback.
     .background(WindowTapObserver {
         lastInteraction = Date()
-        withAnimation(.easeInOut(duration: 0.2)) { toolbarHidden = false }
+        // Only write state when it actually changes — a redundant write here
+        // rebuilds the nav bar on every tap and can swallow button touches.
+        if toolbarHidden {
+          withAnimation(.easeInOut(duration: 0.2)) { toolbarHidden = false }
+        }
     })
     .task {
       while !Task.isCancelled {
@@ -324,6 +330,19 @@ struct NativeVideoPlayerView: View {
           withAnimation(.easeInOut(duration: 0.25)) { toolbarHidden = false }
         }
         try? await Task.sleep(for: .milliseconds(500))
+      }
+    }
+    .sheet(isPresented: $showingCreateMarker) {
+      CreateMarkerSheet(sceneID: currentScene.id, seconds: newMarkerSeconds)
+        .environmentObject(appModel)
+    }
+    // Sim harness: AUTO_MARKER_SHEET=1 opens the create-marker sheet 5 s in.
+    .task {
+      if ProcessInfo.processInfo.environment["AUTO_MARKER_SHEET"] == "1" {
+        try? await Task.sleep(for: .seconds(5))
+        newMarkerSeconds = VideoPlayerRegistry.shared.currentPlayer?.currentTime().seconds ?? 0
+        VideoPlayerRegistry.shared.currentPlayer?.pause()
+        showingCreateMarker = true
       }
     }
     .statusBarHidden(true)
@@ -350,6 +369,19 @@ struct NativeVideoPlayerView: View {
       }
       .disabled(isIncrementingOCounter)
       .accessibilityLabel("Increment O counter")
+
+      // Create a marker at the current playback position: scrub to the spot,
+      // tap, tag it — the sheet saves the marker and queues Stash's metadata
+      // generation (preview/screenshot) automatically.
+      Button {
+        let player = VideoPlayerRegistry.shared.currentPlayer
+        newMarkerSeconds = player?.currentTime().seconds ?? 0
+        player?.pause()
+        showingCreateMarker = true
+      } label: {
+        Label("Add Marker", systemImage: "bookmark.fill")
+      }
+      .accessibilityLabel("Create marker at current position")
 
       // Marker queue controls (only meaningful in marker shuffle mode)
       if appModel.isMarkerShuffleMode && !appModel.markerShuffleQueue.isEmpty {
@@ -1375,6 +1407,185 @@ struct NativeVideoPlayerView: View {
 
 /// Observes every tap in the window WITHOUT consuming it (AVPlayerViewController
 /// swallows direct touches, so SwiftUI gestures never fire over video).
+// MARK: - On-the-fly marker creation
+
+/// Create a Stash marker at the captured playback position: name it, pick the
+/// required primary tag (plus any extra tags), save — then Stash's metadata
+/// generation for the new marker is queued automatically.
+struct CreateMarkerSheet: View {
+  @EnvironmentObject private var appModel: AppModel
+  @Environment(\.dismiss) private var dismiss
+
+  let sceneID: String
+  let seconds: Double
+
+  /// Markers span at most 5 seconds, clamped to the end of the video.
+  private var endSeconds: Double {
+    let duration = VideoPlayerRegistry.shared.currentPlayer?.currentItem?.duration.seconds ?? 0
+    let cap = seconds + 5
+    return duration.isFinite && duration > seconds ? min(cap, duration) : cap
+  }
+
+  @State private var title = ""
+  @State private var primaryTag: StashScene.Tag?
+  @State private var extraTagIds: [String] = []
+  @State private var isSaving = false
+  @State private var errorMessage: String?
+
+  var body: some View {
+    NavigationStack {
+      Form {
+        Section {
+          LabeledContent(
+            "Position",
+            value: "\(format(seconds)) – \(format(endSeconds))")
+          TextField("Title (optional)", text: $title)
+        }
+
+        Section {
+          NavigationLink {
+            PrimaryTagPickerView(selected: $primaryTag)
+              .environmentObject(appModel)
+          } label: {
+            LabeledContent("Primary Tag") {
+              Text(primaryTag?.name ?? "Required")
+                .foregroundStyle(primaryTag == nil ? .secondary : .primary)
+            }
+          }
+
+          NavigationLink {
+            TagSelectionListView(selectedTagIds: $extraTagIds)
+              .environmentObject(appModel)
+          } label: {
+            LabeledContent("Additional Tags") {
+              Text(extraTagIds.isEmpty ? "None" : "\(extraTagIds.count) selected")
+            }
+          }
+        } header: {
+          Text("Tags")
+        } footer: {
+          Text("Stash generates the marker preview and screenshot automatically after saving.")
+        }
+
+        if let errorMessage {
+          Section {
+            Text(errorMessage)
+              .foregroundStyle(.red)
+          }
+        }
+      }
+      .navigationTitle("New Marker")
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .cancellationAction) {
+          Button("Cancel") { dismiss() }
+        }
+
+        ToolbarItem(placement: .confirmationAction) {
+          if isSaving {
+            ProgressView()
+          } else {
+            Button("Save") { save() }
+              .disabled(primaryTag == nil)
+          }
+        }
+      }
+    }
+  }
+
+  private func format(_ value: Double) -> String {
+    let total = Int(value)
+    let h = total / 3600
+    let m = (total % 3600) / 60
+    let s = total % 60
+    return h > 0
+      ? String(format: "%d:%02d:%02d", h, m, s)
+      : String(format: "%d:%02d", m, s)
+  }
+
+  private func save() {
+    guard let primaryTag else { return }
+    isSaving = true
+    errorMessage = nil
+
+    appModel.api.createSceneMarker(
+      sceneId: sceneID,
+      title: title,
+      seconds: Float(seconds),
+      endSeconds: Float(endSeconds),
+      primaryTagId: primaryTag.id,
+      tagIds: extraTagIds
+    ) { result in
+      Task { @MainActor in
+        switch result {
+        case .success(let marker):
+          // Queue preview/screenshot generation for the new marker. A failure
+          // here shouldn't lose the marker — report it but stay saved.
+          do {
+            try await appModel.api.generateMarkerMetadata(markerID: marker.id)
+          } catch {
+            print("⚠️ Marker saved but generate failed: \(error)")
+          }
+          UINotificationFeedbackGenerator().notificationOccurred(.success)
+          dismiss()
+        case .failure(let error):
+          isSaving = false
+          errorMessage = error.localizedDescription
+        }
+      }
+    }
+  }
+}
+
+/// Single-select searchable tag list for the marker's required primary tag.
+struct PrimaryTagPickerView: View {
+  @EnvironmentObject private var appModel: AppModel
+  @Environment(\.dismiss) private var dismiss
+  @Binding var selected: StashScene.Tag?
+
+  @State private var allTags: [StashScene.Tag] = []
+  @State private var searchText = ""
+  @State private var isLoading = true
+
+  private var filteredTags: [StashScene.Tag] {
+    searchText.isEmpty
+      ? allTags
+      : allTags.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+  }
+
+  var body: some View {
+    List {
+      if isLoading {
+        ProgressView()
+          .frame(maxWidth: .infinity)
+      } else {
+        ForEach(filteredTags) { tag in
+          Button {
+            selected = tag
+            dismiss()
+          } label: {
+            HStack {
+              Text(tag.name)
+                .foregroundStyle(.primary)
+              Spacer()
+              if selected?.id == tag.id {
+                Image(systemName: "checkmark")
+              }
+            }
+          }
+        }
+      }
+    }
+    .searchable(text: $searchText, prompt: "Search tags")
+    .navigationTitle("Primary Tag")
+    .navigationBarTitleDisplayMode(.inline)
+    .task {
+      allTags = (try? await appModel.api.fetchTags()) ?? []
+      isLoading = false
+    }
+  }
+}
+
 private struct WindowTapObserver: UIViewRepresentable {
   let onTap: () -> Void
 
@@ -1407,6 +1618,20 @@ private struct WindowTapObserver: UIViewRepresentable {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                            shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
       true
+    }
+
+    // Only observe taps on the video surface — touches on controls and
+    // navigation chrome must pass through untouched. Without this, tapping
+    // the back chevron also fired onTap, whose state write rebuilt the nav
+    // bar mid-touch and ate the tap (back only worked via long-press).
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldReceive touch: UITouch) -> Bool {
+      var view: UIView? = touch.view
+      while let v = view {
+        if v is UIControl || v is UINavigationBar { return false }
+        view = v.superview
+      }
+      return true
     }
 
     deinit {

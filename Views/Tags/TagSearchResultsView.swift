@@ -96,18 +96,9 @@ struct TagSearchResultsView: View {
           Image(systemName: "chevron.right")
             .font(.system(size: 16, weight: .semibold))
         }
-        .foregroundColor(.white)
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
-        .background(
-          LinearGradient(
-            colors: [Color.purple, Color.blue],
-            startPoint: .leading,
-            endPoint: .trailing
-          )
-        )
-        .cornerRadius(16)
-        .shadow(color: .purple.opacity(0.4), radius: 8, x: 0, y: 4)
+        .glassEffect(.regular.tint(.pink.opacity(0.7)).interactive())
       }
       .scaleEffect(isShufflePressed ? 0.95 : 1.0)
       .animation(.spring(response: 0.3), value: isShufflePressed)

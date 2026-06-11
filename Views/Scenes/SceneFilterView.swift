@@ -88,7 +88,7 @@ struct SceneFilterView: View {
                     .font(.subheadline)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(Color.purple.opacity(0.1))
+                    .background(Color.pink.opacity(0.1))
                     .cornerRadius(12)
                 }
                 .buttonStyle(PlainButtonStyle())

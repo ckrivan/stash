@@ -19,7 +19,7 @@ struct PerformerButton: View {
     }) {
       Text(performer.name)
         .font(.subheadline)
-        .foregroundColor(isPressed ? .purple : .blue)
+        .foregroundColor(isPressed ? .pink : .secondary)
         .padding(.vertical, 8)
         .padding(.horizontal, 6)
         .contentShape(Rectangle())

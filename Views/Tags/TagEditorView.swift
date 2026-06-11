@@ -23,7 +23,7 @@ struct TagEditorView: View {
   }
 
   var body: some View {
-    NavigationView {
+    NavigationStack {
       ZStack {
         Color.black.edgesIgnoringSafeArea(.all)
 

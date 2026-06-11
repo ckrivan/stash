@@ -717,30 +717,14 @@ class StashAPI: ObservableObject {
       // Instead of doing tag filtering here, we'll do it in memory after fetching the scenes
       // This is a workaround for the SQL error we're seeing with the EXCLUDES modifier
 
-      // Add additional filters if provided
+      // Add additional filters if provided. Copy EVERY key verbatim — an old
+      // tag-exclusion workaround here skipped "tags" unless the modifier was
+      // EXCLUDES, which silently dropped the filter UI's INCLUDES_ALL tag
+      // selections (advanced tag filtering never reached the server).
       if let filterOptions = filterOptions {
         let additionalFilters = filterOptions.generateSceneFilter()
         for (key, value) in additionalFilters {
-          // Don't overwrite the tags filter with INCLUDES modifier
-          if key != "tags" {
-            sceneFilter[key] = value
-          } else if let tagsFilter = value as? [String: Any],
-            let modifier = tagsFilter["modifier"] as? String,
-            modifier == "EXCLUDES" {
-            // If it's also an EXCLUDES filter, merge the values
-            if var existingTagsFilter = sceneFilter["tags"] as? [String: Any],
-              let existingValues = existingTagsFilter["value"] as? [String],
-              let newValues = tagsFilter["value"] as? [String] {
-              var combinedValues = existingValues
-              for newValue in newValues {
-                if !combinedValues.contains(newValue) {
-                  combinedValues.append(newValue)
-                }
-              }
-              existingTagsFilter["value"] = combinedValues
-              sceneFilter["tags"] = existingTagsFilter
-            }
-          }
+          sceneFilter[key] = value
         }
       }
 
@@ -3632,7 +3616,8 @@ class StashAPI: ObservableObject {
   }
 
   func createSceneMarker(
-    sceneId: String, title: String, seconds: Float, primaryTagId: String, tagIds: [String],
+    sceneId: String, title: String, seconds: Float, endSeconds: Float? = nil,
+    primaryTagId: String, tagIds: [String],
     completion: @escaping (Result<SceneMarker, Error>) -> Void
   ) {
     let query = """
@@ -3660,13 +3645,16 @@ class StashAPI: ObservableObject {
       }
       """
 
-    let input: [String: Any] = [
+    var input: [String: Any] = [
       "scene_id": sceneId,
       "title": title,
       "seconds": seconds,
       "primary_tag_id": primaryTagId,
       "tag_ids": tagIds
     ]
+    if let endSeconds {
+      input["end_seconds"] = endSeconds
+    }
 
     let variables: [String: Any] = ["input": input]
 
@@ -3682,6 +3670,46 @@ class StashAPI: ObservableObject {
         completion(.success(response.sceneMarkerCreate))
       case .failure(let error):
         completion(.failure(error))
+      }
+    }
+  }
+
+  /// Kick off Stash metadata generation for a freshly created marker —
+  /// preview video, image preview, and screenshot. Returns the Stash job ID.
+  /// (Input shape verified against the live server's GenerateMetadataInput.)
+  @discardableResult
+  func generateMarkerMetadata(markerID: String) async throws -> String {
+    let query = """
+      mutation GenerateMarkerMetadata($input: GenerateMetadataInput!) {
+          metadataGenerate(input: $input)
+      }
+      """
+
+    let variables: [String: Any] = [
+      "input": [
+        "markers": true,
+        "markerImagePreviews": true,
+        "markerScreenshots": true,
+        "markerIDs": [markerID],
+        "overwrite": false
+      ] as [String: Any]
+    ]
+
+    struct GenerateResponse: Decodable {
+      let metadataGenerate: String
+    }
+
+    return try await withCheckedThrowingContinuation { continuation in
+      executeGraphQLQuery(
+        query: query, variables: variables
+      ) { (result: Result<GenerateResponse, Error>) in
+        switch result {
+        case .success(let response):
+          print("✅ Marker metadata generation queued, job \(response.metadataGenerate)")
+          continuation.resume(returning: response.metadataGenerate)
+        case .failure(let error):
+          continuation.resume(throwing: error)
+        }
       }
     }
   }

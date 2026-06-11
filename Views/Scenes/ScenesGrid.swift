@@ -26,12 +26,7 @@ struct ScenesGrid: View {
         .slideIn(from: .bottom, delay: Double(index) * 0.05, duration: 0.4)
         .applyHoverEffect()
         .background(Color(UIColor.secondarySystemBackground))
-        .cornerRadius(12)
-        .shadow(radius: 2)
-        .overlay(
-          RoundedRectangle(cornerRadius: 12)
-            .stroke(Color.purple.opacity(0.3), lineWidth: 1)
-        )
+        .cornerRadius(16)
         .onTapGesture {
           // Tapping a scene directly = watch in order (NOT shuffle mode).
           UserDefaults.standard.set(false, forKey: "isRandomJumpMode")

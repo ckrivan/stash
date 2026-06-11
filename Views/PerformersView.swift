@@ -22,14 +22,26 @@ struct PerformersView: View {
   var body: some View {
     performersContent
       .navigationTitle("Performers")
+      .searchable(text: $searchText, prompt: "Search performers")
       .toolbar {
-        ToolbarItem(placement: .navigationBarTrailing) {
+        ToolbarItem(placement: .topBarTrailing) {
           Button(action: {
             Task {
               await loadPerformers()
             }
           }) {
             Image(systemName: "arrow.clockwise")
+          }
+        }
+
+        ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
+        ToolbarItem(placement: .topBarTrailing) {
+          Button {
+            NotificationCenter.default.post(
+              name: Notification.Name("ShowSettings"), object: nil)
+          } label: {
+            Image(systemName: "gear")
           }
         }
       }
@@ -44,14 +56,6 @@ struct PerformersView: View {
 
   private var performersContent: some View {
     VStack {
-      // Search bar
-      TextField("Search performers", text: $searchText)
-        .padding(10)
-        .background(Color(.systemGray6))
-        .cornerRadius(10)
-        .padding(.horizontal)
-        .padding(.top, 8)
-
       ScrollView(.vertical, showsIndicators: true) {
         if appModel.api.performers.isEmpty || isLoading {
           VStack {

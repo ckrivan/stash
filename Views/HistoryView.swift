@@ -38,29 +38,11 @@ struct HistoryView: View {
         .padding()
       } else {
         VStack(alignment: .leading, spacing: 20) {
-          // Header with count and clear button
-          HStack {
-            Text("Watch History")
-              .font(.largeTitle)
-              .fontWeight(.bold)
-
-            Spacer()
-
-            Text("\(historyManager.entries.count) videos this session")
-              .font(.caption)
-              .foregroundColor(.secondary)
-
-            Button(action: {
-              historyManager.clearHistory()
-            }) {
-              Label("Clear History", systemImage: "trash")
-                .font(.caption)
-            }
-            .buttonStyle(.bordered)
-            .tint(.red)
-          }
-          .padding(.horizontal)
-          .padding(.top)
+          Text("\(historyManager.entries.count) videos this session")
+            .font(.caption)
+            .foregroundColor(.secondary)
+            .padding(.horizontal)
+            .padding(.top, 4)
 
           // History grid
           LazyVGrid(columns: columns, spacing: 20) {
@@ -76,6 +58,28 @@ struct HistoryView: View {
       }
     }
     .background(Color(.systemBackground))
+    .navigationTitle("Watch History")
+    .toolbar {
+      ToolbarItem(placement: .topBarTrailing) {
+        Button(role: .destructive) {
+          historyManager.clearHistory()
+        } label: {
+          Label("Clear History", systemImage: "trash")
+        }
+        .disabled(historyManager.entries.isEmpty)
+      }
+
+      ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
+      ToolbarItem(placement: .topBarTrailing) {
+        Button {
+          NotificationCenter.default.post(
+            name: Notification.Name("ShowSettings"), object: nil)
+        } label: {
+          Image(systemName: "gear")
+        }
+      }
+    }
   }
 
   private func playEntry(_ entry: HistoryEntry) {

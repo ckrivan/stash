@@ -8,172 +8,90 @@ struct ContentView: View {
   @State private var showingConnectionRetry = false
   @State private var showingSettings = false
 
+  /// Each tab's NavigationStack binds to its own per-tab path.
+  private func pathBinding(_ tab: AppModel.Tab) -> Binding<NavigationPath> {
+    Binding(
+      get: { appModel.navigationPaths[tab] ?? NavigationPath() },
+      set: { appModel.navigationPaths[tab] = $0 }
+    )
+  }
+
   var body: some View {
     if appModel.isConnected {
-      ZStack {
-        NavigationStack(path: $appModel.navigationPath) {
-          TabView(selection: $appModel.activeTab) {
-            // Group the views without extra hierarchical layer
+      // Native structure: TabView at the root, each tab owns its own
+      // NavigationStack (the previous stack-around-tabs inversion stopped the
+      // iOS 26 SDK from rendering any nav bar, toolbar, or search field).
+      TabView(selection: $appModel.activeTab) {
+        Tab(
+          AppModel.Tab.scenes.rawValue,
+          systemImage: AppModel.Tab.scenes.icon,
+          value: AppModel.Tab.scenes
+        ) {
+          NavigationStack(path: pathBinding(.scenes)) {
             MediaLibraryView()
-              .tabItem {
-                Label(
-                  AppModel.Tab.scenes.rawValue,
-                  systemImage: AppModel.Tab.scenes.icon)
-              }
-              .tag(AppModel.Tab.scenes)
+              .modifier(AppNavigationDestinations())
+          }
+        }
 
+        Tab(
+          AppModel.Tab.performers.rawValue,
+          systemImage: AppModel.Tab.performers.icon,
+          value: AppModel.Tab.performers
+        ) {
+          NavigationStack(path: pathBinding(.performers)) {
             PerformersView()
-              .tabItem {
-                Label(
-                  AppModel.Tab.performers.rawValue,
-                  systemImage: AppModel.Tab.performers.icon)
-              }
-              .tag(AppModel.Tab.performers)
+              .modifier(AppNavigationDestinations())
+          }
+        }
 
+        Tab(
+          AppModel.Tab.history.rawValue,
+          systemImage: AppModel.Tab.history.icon,
+          value: AppModel.Tab.history
+        ) {
+          NavigationStack(path: pathBinding(.history)) {
             HistoryView()
-              .tabItem {
-                Label(
-                  AppModel.Tab.history.rawValue,
-                  systemImage: AppModel.Tab.history.icon)
-              }
-              .tag(AppModel.Tab.history)
-          }
-          // Removed title as requested
-          .sheet(isPresented: $appModel.showingFilterOptions) {
-            NavigationStack {
-              FilterMenuSheet()
-                .environmentObject(appModel)
-                .navigationTitle("Filter Options")
-                .navigationBarTitleDisplayMode(.inline)
-            }
-            .presentationDetents([.medium, .large])
-          }
-          .navigationDestination(for: StashScene.self) { scene in
-            NativeVideoPlayerView(
-              scene: scene,
-              startTime: UserDefaults.standard.object(forKey: "scene_\(scene.id)_startTime")
-                as? Double,
-              endTime: UserDefaults.standard.object(forKey: "scene_\(scene.id)_endTime") as? Double
-            )
-            .environmentObject(appModel)
-            .id("scene_\(scene.id)")
-            .onAppear {
-              print(
-                "🎬 ContentView: StashScene navigation destination appeared for scene \(scene.id)")
-              if !appModel.skipNextHistoryAdd {
-                SessionHistoryManager.shared.addEntry(scene: scene)
-              }
-            }
-          }
-          .navigationDestination(for: StashScene.Performer.self) { performer in
-            PerformerDetailView(performer: performer)
-              .environmentObject(appModel)
-          }
-          .navigationDestination(for: StashScene.Tag.self) { tag in
-            TaggedScenesView(tag: tag)
-              .environmentObject(appModel)
-          }
-          .navigationDestination(for: SceneMarker.self) { marker in
-            NativeVideoPlayerView(
-              scene: StashScene(
-                id: marker.scene.id,
-                title: nil,
-                details: nil,
-                paths: StashScene.ScenePaths(
-                  screenshot: marker.screenshot,
-                  preview: marker.preview,
-                  stream: marker.stream
-                ),
-                files: [],
-                performers: [],
-                tags: [],
-                rating100: nil,
-                o_counter: nil
-              ), startTime: Double(marker.seconds)
-            )
-            .environmentObject(appModel)
-            .id("marker_\(marker.scene.id)")
-            .onAppear {
-              print(
-                "🎬 ContentView: SceneMarker navigation destination appeared for marker \(marker.id) -> scene \(marker.scene.id)"
-              )
-
-              let markerScene = StashScene(
-                id: marker.scene.id,
-                title: marker.title,
-                details: nil,
-                paths: StashScene.ScenePaths(
-                  screenshot: marker.screenshot,
-                  preview: marker.preview,
-                  stream: marker.stream
-                ),
-                files: [],
-                performers: [],
-                tags: [],
-                rating100: nil,
-                o_counter: nil
-              )
-
-              SessionHistoryManager.shared.addEntry(
-                scene: markerScene,
-                startSeconds: Double(marker.seconds),
-                markerTitle: marker.title
-              )
-            }
+              .modifier(AppNavigationDestinations())
           }
         }
-
-        // Settings button overlay - show for iPad only when not in video player
-        if UIDevice.current.userInterfaceIdiom == .pad && appModel.navigationPath.isEmpty {
-          VStack {
-            HStack {
-              Spacer()
-
-              // Filter button (only show for Scenes tab)
-              if appModel.activeTab == .scenes {
-                Button(action: {
-                  appModel.showingFilterOptions = true
-                }) {
-                  Image(systemName: "line.3.horizontal.decrease.circle")
-                    .font(.title2)
-                    .foregroundColor(.white)
-                    .padding(12)
-                    .background(Circle().fill(Color.purple.opacity(0.8)))
-                    .shadow(radius: 3)
-                }
-                .padding(.horizontal, 4)
-              }
-
-              // Settings button
-              Button(action: {
-                showingSettings = true
-              }) {
-                Image(systemName: "gear")
-                  .font(.title2)
-                  .foregroundColor(.white)
-                  .padding(12)
-                  .background(Circle().fill(Color.blue.opacity(0.8)))
-                  .shadow(radius: 3)
-              }
-              .padding(.horizontal)
-            }
-            Spacer()
-          }
-          .padding(.top, 8)
-          .allowsHitTesting(true)
+      }
+      // Tab bar recedes on scroll so content takes the stage (iOS 26 idiom).
+      .tabBarMinimizeBehavior(.onScrollDown)
+      .sheet(isPresented: $appModel.showingFilterOptions) {
+        NavigationStack {
+          FilterMenuSheet()
+            .environmentObject(appModel)
+            .navigationTitle("Filter Options")
+            .navigationBarTitleDisplayMode(.inline)
         }
+        .presentationDetents([.medium, .large])
       }
       .onAppear {
         print("📱 ContentView appeared")
         ensureContentLoaded()
       }
+      // Sim harness (mirrors the visionOS AUTO_* env vars): AUTO_OPEN_SCENE=<id>
+      // navigates straight into the player — tap automation on the iPad sim is
+      // too flaky for UI verification.
+      .task {
+        if let sceneID = ProcessInfo.processInfo.environment["AUTO_OPEN_SCENE"],
+          !sceneID.isEmpty {
+          try? await Task.sleep(for: .seconds(3))
+          if let scene = try? await appModel.api.fetchScene(byID: sceneID) {
+            print("🤖 auto-pilot: opening scene \(sceneID)")
+            appModel.navigateToScene(scene)
+          }
+        }
+      }
       .onChange(of: appModel.activeTab) { oldTab, newTab in
         print("📱 Tab changed from \(oldTab) to: \(newTab)")
 
-        // Clear navigation path when switching tabs to pop back to root
-        if !appModel.navigationPath.isEmpty {
-          print("📱 Clearing navigation path (was at depth \(appModel.navigationPath.count))")
-          appModel.navigationPath.removeLast(appModel.navigationPath.count)
+        // Clear ALL tab paths on switch: popping every stack to root matches
+        // the old single-stack behavior, and a backgrounded tab must never
+        // keep a pushed video player alive off-screen.
+        if !appModel.navigationPaths.isEmpty {
+          print("📱 Clearing navigation paths")
+          appModel.navigationPaths = [:]
         }
 
         ensureContentLoaded()
@@ -234,6 +152,92 @@ struct ContentView: View {
         }
       }
     }
+  }
+}
+
+/// The app's navigation destinations, shared by every tab's NavigationStack.
+struct AppNavigationDestinations: ViewModifier {
+  @EnvironmentObject var appModel: AppModel
+
+  func body(content: Content) -> some View {
+    content
+      .navigationDestination(for: StashScene.self) { scene in
+        NativeVideoPlayerView(
+          scene: scene,
+          startTime: UserDefaults.standard.object(forKey: "scene_\(scene.id)_startTime")
+            as? Double,
+          endTime: UserDefaults.standard.object(forKey: "scene_\(scene.id)_endTime") as? Double
+        )
+        .environmentObject(appModel)
+        .id("scene_\(scene.id)")
+        // The floating tab bar has no place over a playing video.
+        .toolbar(.hidden, for: .tabBar)
+        .onAppear {
+          print(
+            "🎬 ContentView: StashScene navigation destination appeared for scene \(scene.id)")
+          if !appModel.skipNextHistoryAdd {
+            SessionHistoryManager.shared.addEntry(scene: scene)
+          }
+        }
+      }
+      .navigationDestination(for: StashScene.Performer.self) { performer in
+        PerformerDetailView(performer: performer)
+          .environmentObject(appModel)
+      }
+      .navigationDestination(for: StashScene.Tag.self) { tag in
+        TaggedScenesView(tag: tag)
+          .environmentObject(appModel)
+      }
+      .navigationDestination(for: SceneMarker.self) { marker in
+        NativeVideoPlayerView(
+          scene: StashScene(
+            id: marker.scene.id,
+            title: nil,
+            details: nil,
+            paths: StashScene.ScenePaths(
+              screenshot: marker.screenshot,
+              preview: marker.preview,
+              stream: marker.stream
+            ),
+            files: [],
+            performers: [],
+            tags: [],
+            rating100: nil,
+            o_counter: nil
+          ), startTime: Double(marker.seconds)
+        )
+        .environmentObject(appModel)
+        .id("marker_\(marker.scene.id)")
+        // The floating tab bar has no place over a playing video.
+        .toolbar(.hidden, for: .tabBar)
+        .onAppear {
+          print(
+            "🎬 ContentView: SceneMarker navigation destination appeared for marker \(marker.id) -> scene \(marker.scene.id)"
+          )
+
+          let markerScene = StashScene(
+            id: marker.scene.id,
+            title: marker.title,
+            details: nil,
+            paths: StashScene.ScenePaths(
+              screenshot: marker.screenshot,
+              preview: marker.preview,
+              stream: marker.stream
+            ),
+            files: [],
+            performers: [],
+            tags: [],
+            rating100: nil,
+            o_counter: nil
+          )
+
+          SessionHistoryManager.shared.addEntry(
+            scene: markerScene,
+            startSeconds: Double(marker.seconds),
+            markerTitle: marker.title
+          )
+        }
+      }
   }
 }
 

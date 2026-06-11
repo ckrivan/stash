@@ -68,7 +68,6 @@
 		920D41EC2DE5575500085284 /* SearchBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41AB2DE5566000085284 /* SearchBarView.swift */; };
 		920D41ED2DE5575500085284 /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41AC2DE5566000085284 /* SplashScreen.swift */; };
 		920D41EE2DE5575500085284 /* TaggedScenesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41AD2DE5566000085284 /* TaggedScenesView.swift */; };
-		920D41EF2DE5575500085284 /* UniversalSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41AE2DE5566000085284 /* UniversalSearchView.swift */; };
 		920D41F02DE5575500085284 /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41AF2DE5566000085284 /* VideoPlayerView.swift */; };
 		920D41F12DE5575500085284 /* Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920D41B12DE5566000085284 /* Views.swift */; };
 		920D41F22DE559FF00085284 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 920D41352DE5566000085284 /* Assets.xcassets */; };
@@ -184,7 +183,6 @@
 		920D41AB2DE5566000085284 /* SearchBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarView.swift; sourceTree = "<group>"; };
 		920D41AC2DE5566000085284 /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 		920D41AD2DE5566000085284 /* TaggedScenesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaggedScenesView.swift; sourceTree = "<group>"; };
-		920D41AE2DE5566000085284 /* UniversalSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalSearchView.swift; sourceTree = "<group>"; };
 		920D41AF2DE5566000085284 /* VideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		920D41B12DE5566000085284 /* Views.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views.swift; sourceTree = "<group>"; };
 		920D41F32DE5575500085284 /* SessionHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionHistory.swift; sourceTree = "<group>"; };
@@ -436,7 +434,6 @@
 				920D41AB2DE5566000085284 /* SearchBarView.swift */,
 				920D41AC2DE5566000085284 /* SplashScreen.swift */,
 				920D41AD2DE5566000085284 /* TaggedScenesView.swift */,
-				920D41AE2DE5566000085284 /* UniversalSearchView.swift */,
 				920D41AF2DE5566000085284 /* VideoPlayerView.swift */,
 			);
 			path = Views;
@@ -640,7 +637,6 @@
 				920D41EC2DE5575500085284 /* SearchBarView.swift in Sources */,
 				920D41ED2DE5575500085284 /* SplashScreen.swift in Sources */,
 				920D41EE2DE5575500085284 /* TaggedScenesView.swift in Sources */,
-				920D41EF2DE5575500085284 /* UniversalSearchView.swift in Sources */,
 				920D41F02DE5575500085284 /* VideoPlayerView.swift in Sources */,
 				920D41F12DE5575500085284 /* Views.swift in Sources */,
 			);
@@ -701,7 +697,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -758,7 +754,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
